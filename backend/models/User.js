@@ -1,0 +1,335 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const documentSchema = new mongoose.Schema({
+  document_type: {
+    type: String,
+    enum: ['gst_certificate', 'photo_selfie', 'pan_card', 'aadhaar_card'],
+    required: true
+  },
+  document_status: {
+    type: String,
+    enum: ['uploaded', 'pending', 'verified', 'rejected'],
+    default: 'uploaded'
+  },
+  file_url: {
+    type: String,
+    required: true
+  },
+  upload_date: {
+    type: Date,
+    default: Date.now
+  },
+  verification_date: Date,
+  rejection_reason: String
+});
+
+const userSchema = new mongoose.Schema({
+  // Registration Data
+  user_type: {
+    type: String,
+    enum: ['e-commerce-sellers', 'direct-to-consumer-brands', 'manufacturers-wholesalers', 'corporate-enterprise', 'courier-service-providers', 'individual-shippers'],
+    required: true
+  },
+  monthly_shipments: {
+    type: String,
+    enum: ['10-300', '300-1000', '1000-2500', '2500-5000', 'Above 5000 Orders'],
+    required: true
+  },
+  company_name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  your_name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  state: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  phone_number: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^[6-9]\d{9}$/.test(v);
+      },
+      message: 'Please enter a valid 10-digit phone number'
+    }
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(v);
+      },
+      message: 'Please enter a valid email address'
+    }
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6
+  },
+  reference_code: String,
+  terms_accepted: {
+    type: Boolean,
+    required: true,
+    validate: {
+      validator: function(v) {
+        return v === true;
+      },
+      message: 'Terms and conditions must be accepted'
+    }
+  },
+
+  // Profile Enhancement Data
+  client_id: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  gstin: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return !v || /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(v);
+      },
+      message: 'Please enter a valid GSTIN'
+    }
+  },
+  joined_date: {
+    type: Date,
+    default: Date.now
+  },
+
+  // Address Information
+  address: {
+    full_address: String,
+    landmark: String,
+    pincode: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return !v || /^[1-9][0-9]{5}$/.test(v);
+        },
+        message: 'Please enter a valid pincode'
+      }
+    },
+    city: String,
+    state: String
+  },
+
+  // Bank Details (encrypted)
+  bank_details: {
+    bank_name: String,
+    account_number: String, // Will be encrypted
+    ifsc_code: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return !v || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v);
+        },
+        message: 'Please enter a valid IFSC code'
+      }
+    },
+    branch_name: String,
+    account_holder_name: String
+  },
+
+  // KYC Information
+  kyc_status: {
+    status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending'
+    },
+    verified_date: Date,
+    verification_notes: String
+  },
+
+  // API Configuration
+  api_details: {
+    private_key: String, // Will be encrypted
+    public_key: String,
+    api_documentation_version: {
+      type: String,
+      default: '1.0'
+    },
+    key_generated_date: {
+      type: Date,
+      default: Date.now
+    },
+    last_key_reset: Date
+  },
+
+  // Document Management
+  documents: [documentSchema],
+
+  // Account Status
+  account_status: {
+    type: String,
+    enum: ['active', 'inactive', 'suspended', 'pending_verification'],
+    default: 'pending_verification'
+  },
+  wallet_balance: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  last_login: Date,
+  login_attempts: {
+    type: Number,
+    default: 0,
+    max: 5
+  },
+  locked_until: Date,
+
+  // Verification
+  email_verified: {
+    type: Boolean,
+    default: false
+  },
+  phone_verified: {
+    type: Boolean,
+    default: false
+  },
+  email_verification_token: String,
+  email_verification_expires: Date,
+  password_reset_token: String,
+  password_reset_expires: Date,
+
+  // Timestamps
+  created_at: {
+    type: Date,
+    default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+// Indexes
+userSchema.index({ email: 1 });
+userSchema.index({ phone_number: 1 });
+userSchema.index({ client_id: 1 });
+userSchema.index({ 'api_details.public_key': 1 });
+
+// Pre-save middleware to generate client_id
+userSchema.pre('save', async function(next) {
+  if (this.isNew && !this.client_id) {
+    let clientId;
+    let isUnique = false;
+    
+    while (!isUnique) {
+      const randomNum = Math.floor(Math.random() * 100000);
+      clientId = `SS${randomNum.toString().padStart(5, '0')}`;
+      const existingUser = await this.constructor.findOne({ client_id: clientId });
+      if (!existingUser) {
+        isUnique = true;
+      }
+    }
+    
+    this.client_id = clientId;
+  }
+
+  // Generate API keys if not present
+  if (this.isNew && !this.api_details.public_key) {
+    const crypto = require('crypto');
+    this.api_details.public_key = `pk_${crypto.randomBytes(16).toString('hex')}`;
+    this.api_details.private_key = `sk_${crypto.randomBytes(32).toString('hex')}`;
+  }
+
+  // Update timestamp
+  this.updated_at = Date.now();
+  next();
+});
+
+// Pre-save middleware for password hashing
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Instance method to check password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Instance method to generate password reset token
+userSchema.methods.createPasswordResetToken = function() {
+  const crypto = require('crypto');
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  
+  this.password_reset_token = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  
+  this.password_reset_expires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  
+  return resetToken;
+};
+
+// Instance method to generate email verification token
+userSchema.methods.createEmailVerificationToken = function() {
+  const crypto = require('crypto');
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  
+  this.email_verification_token = crypto
+    .createHash('sha256')
+    .update(verificationToken)
+    .digest('hex');
+  
+  this.email_verification_expires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  
+  return verificationToken;
+};
+
+// Static method to find by email or phone
+userSchema.statics.findByEmailOrPhone = function(identifier) {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  
+  let query = {};
+  if (emailRegex.test(identifier)) {
+    query = { email: identifier.toLowerCase() };
+  } else if (phoneRegex.test(identifier)) {
+    query = { phone_number: identifier };
+  } else {
+    return null;
+  }
+  
+  return this.findOne(query);
+};
+
+// Transform output
+userSchema.set('toJSON', {
+  transform: function(doc, ret, options) {
+    delete ret.password;
+    delete ret.password_reset_token;
+    delete ret.password_reset_expires;
+    delete ret.email_verification_token;
+    delete ret.email_verification_expires;
+    delete ret.__v;
+    return ret;
+  }
+});
+
+module.exports = mongoose.model('User', userSchema);

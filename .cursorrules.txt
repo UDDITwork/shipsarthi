@@ -1,0 +1,11 @@
+RULES:
+- NEVER run commands automatically (npm install, npm run dev, npm start, etc.)
+- Instead, provide:
+  1. File location/path
+  2. Exact command to run
+  3. Working directory
+
+Format:
+Location: /path/to/file
+Command: npm install
+Run from: /project/root

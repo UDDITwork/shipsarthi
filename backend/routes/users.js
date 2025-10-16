@@ -1,0 +1,1 @@
+const express = require('express'); const router = express.Router(); router.get('/', (req, res) => { res.json({ status: 'success', message: 'users endpoint - Coming soon' }); }); module.exports = router;

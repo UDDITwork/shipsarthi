@@ -1,0 +1,1227 @@
+# Complete Platform Development Guide for Logistics Aggregation Service
+
+## *Business Model Explanation:*
+
+You are creating a middleware platform that connects small e-commerce sellers with logistics giants like Delhivery. Here's how the information flow works:
+
+1. *You use Delhivery's API credentials* to create shipments on behalf of your clients
+2. *Delhivery provides you with AWB numbers and tracking data* through their API
+3. *You store this data in your database* and provide it to your clients through your dashboard
+4. *When customers track orders*, they get real-time data that you fetch from Delhivery's API
+5. *You don't handle physical deliveries* - Delhivery does the actual pickup and delivery
+
+## *Platform Structure & Page Descriptions:*
+
+## *REGISTER PAGE DESCRIPTION:*
+
+*Layout & Components:*
+- Clean centered form with "Register to Shipsarthi" heading and tagline
+- Left side: Main registration form in rounded container
+- Right side: Two dropdown preview panels showing available options
+
+*Form Fields Structure:*
+- User Type: Dropdown with options (E-commerce Sellers, Direct to Consumer Brands, Manufacturers & Wholesalers, Corporate/Enterprise, Courier Service Providers, Individual Shippers)
+- Monthly Shipments: Dropdown with volume ranges (10-300, 300-1000, 1000-2500, 2500-5000, Above 5000 Orders)
+- Company Name: Text input with company icon
+- Your Name: Text input with person icon
+- State: Text input with location icon
+- Phone Number: Text input with phone icon
+- Email: Text input with email icon
+- Password: Password input with lock icon and show/hide toggle
+- Reference Code: Optional text input
+- Terms checkbox with links to Terms & Conditions and Privacy Policy
+- Register button (full width, dark blue)
+- Login link at bottom for existing users
+
+## *LOGIN PAGE DESCRIPTION:*
+
+*Layout & Components:*
+- Centered login form with "Welcome back!" heading
+- "Login to Your Account" subheading
+- Simple two-field form in rounded container
+
+*Form Fields Structure:*
+- Email or Phone: Text input with user icon
+- Password: Password input with lock icon and show/hide toggle
+- Remember Me: Checkbox option
+- Forgot Password link (right-aligned)
+- Log in button (full width, dark blue)
+- "New to Shipsarthi? Create an account" link at bottom
+- Footer links: Terms & Condition, Refund & Cancellation Policy, Privacy Policy
+
+## *PROFILE PAGE DESCRIPTION:*
+
+*Layout & Components:*
+- Top header with company logo, search bar, wallet balance, recharge button, tickets, notifications, and user avatar
+- Orange sidebar navigation with active Dashboard tab
+- Main content area with profile information sections
+
+*Profile Information Sections:*
+
+*User Details Panel:*
+- Company name, User name, User type, Email, Phone, Join date, Client ID, GSTIN
+- Edit icon for modifications
+
+*Address Panel:*
+- Complete address, landmark, pincode, city, state
+- Edit icon for modifications
+
+*Bank Details Panel:*
+- Bank name, account number, IFSC code, branch name, account holder name
+- Edit icon for modifications
+
+*KYC Status Panel:*
+- Verification status with green "Verified" badge
+- Verification date timestamp
+
+*API Details Panel:*
+- API documentation links
+- Private and Public keys (masked for security)
+- Key regeneration options
+
+*Documents Panel:*
+- Table showing document types, upload status, and actions
+- Document types: GST Certificate, Photo or Selfie, PAN Card, Aadhaar Card
+- Status indicators: Uploaded, Pending
+- Action buttons: Update, View
+
+*Reset Password Panel:*
+- Current password field
+- New password field
+- Confirm password field
+- Update button
+
+## *DATA MODEL STRUCTURE:*
+
+### *Users Collection (Enhanced based on profile page):*
+
+javascript
+{
+  _id: ObjectId,
+  
+  // Registration Data
+  user_type: String, // "e-commerce", "direct-consumer", "manufacturer", "enterprise", "courier", "individual"
+  monthly_shipments: String, // "10-300", "300-1000", "1000-2500", "2500-5000", "5000+"
+  company_name: String,
+  your_name: String,
+  state: String,
+  phone_number: String,
+  email: String,
+  password: String, // hashed
+  reference_code: String,
+  terms_accepted: Boolean,
+  
+  // Profile Enhancement Data
+  client_id: String, // auto-generated unique ID like SS10000
+  gstin: String,
+  joined_date: Date,
+  
+  // Address Information
+  address: {
+    full_address: String,
+    landmark: String,
+    pincode: String,
+    city: String,
+    state: String
+  },
+  
+  // Bank Details
+  bank_details: {
+    bank_name: String,
+    account_number: String, // encrypted
+    ifsc_code: String,
+    branch_name: String,
+    account_holder_name: String
+  },
+  
+  // KYC Information
+  kyc_status: {
+    status: String, // "pending", "verified", "rejected"
+    verified_date: Date,
+    verification_notes: String
+  },
+  
+  // API Configuration
+  api_details: {
+    private_key: String, // encrypted
+    public_key: String,
+    api_documentation_version: String,
+    key_generated_date: Date,
+    last_key_reset: Date
+  },
+  
+  // Document Management
+  documents: [{
+    document_type: String, // "gst_certificate", "photo_selfie", "pan_card", "aadhaar_card"
+    document_status: String, // "uploaded", "pending", "verified", "rejected"
+    file_url: String,
+    upload_date: Date,
+    verification_date: Date,
+    rejection_reason: String
+  }],
+  
+  // Account Status
+  account_status: String, // "active", "inactive", "suspended", "pending_verification"
+  wallet_balance: Number,
+  last_login: Date,
+  login_attempts: Number,
+  
+  // Timestamps
+  created_at: Date,
+  updated_at: Date,
+  email_verified: Boolean,
+  phone_verified: Boolean
+}
+
+
+### *Additional Data Types Required:*
+
+*String Fields:* user_type, monthly_shipments, company_name, your_name, state, phone_number, email, password, reference_code, client_id, gstin, account_status
+
+*Boolean Fields:* terms_accepted, email_verified, phone_verified
+
+*Date Fields:* joined_date, created_at, updated_at, last_login, verified_date, upload_date, verification_date
+
+*Number Fields:* wallet_balance, login_attempts
+
+*Object Fields:* address, bank_details, kyc_status, api_details
+
+*Array Fields:* documents
+
+*Nested String Fields:* Within objects like address.full_address, bank_details.bank_name, etc.
+
+This data model captures all visible information from the profile page and provides the foundation for user management, authentication, verification, and API access control in the logistics aggregation platform.
+
+*2. ORDERS PAGE*
+
+*Purpose:* Complete order management and tracking interface
+
+*Top Navigation Tabs:*
+- New, Ready to Ship, Pickups & Manifests, In Transit, Out for Delivery, Delivered, NDR, RTO, All, Lost
+
+*Filter Section:*
+- Date range picker
+- Search by Reference ID, AWB, Order ID
+- Advanced filters (payment mode, destination state, order value range)
+- Export options (CSV, Excel, PDF)
+
+*Action Buttons:*
+- Sync Orders (pulls latest status from Delhivery)
+- Bulk Import (Excel upload)
+- Add Single Order
+- Forward/Reverse toggle
+
+*Orders Table Columns:*
+- Checkbox for bulk selection
+- Order Date
+- Order Details (Order ID, Reference ID, Customer name)
+- Product Details (Product name, quantity)
+- Package Details (Weight, dimensions)
+- Payment (COD amount, payment mode)
+- Shipping Details (Origin, destination, AWB)
+- Warehouse (pickup location)
+- Action buttons (View, Edit, Cancel, Track, Print Label)
+
+*Order Creation Form (Add Order):*
+
+*Customer Information Tab:*
+- Buyer name, phone, alternate phone, email
+- Full delivery address with pincode validation
+- Landmark (optional)
+- GST number (for B2B)
+
+*Product Details Tab:*
+- Product name, quantity, unit price, tax rate
+- HSN code for each product
+- Add multiple products functionality
+
+*Package Information Tab:*
+- Package type selection (Single B2C, Multi B2C, Multi B2B)
+- Weight entry with photo upload
+- Dimensions (L x W x H) with photo upload
+- Auto-calculate volumetric weight
+- Package selection from predefined templates
+
+*Payment & Shipping Tab:*
+- Payment mode (Prepaid/COD)
+- COD amount if applicable
+- Shipping charges calculation
+- Total order value display
+
+*Warehouse Selection:*
+- Dropdown of user's registered warehouses
+- Add new warehouse option
+
+*Pickup Scheduling:*
+- Preferred pickup date/time
+- Special instructions for pickup
+- Bulk pickup manifest generation
+
+*Implementation Features:*
+- Real-time pincode serviceability check
+- Auto-rate calculation based on weight/distance
+- Duplicate order detection
+- Bulk operations (cancel, print labels, schedule pickup)
+- Order status timeline view
+- SMS/Email notifications toggle
+
+---
+# Dashboard Page Development Guide
+
+## *PAGE LAYOUT STRUCTURE:*
+
+### *Header Section:*
+- *Company Logo:* Static image component positioned left
+- *Search Bar:* Text input field with dropdown for search type (Order ID selected by default), data type: String
+- *Wallet Balance Display:* Variable = wallet_balance, Data Type = Decimal/Float with currency formatting
+- *Recharge Button:* Clickable element triggering wallet recharge modal
+- *Tickets Button:* Navigation link to support page with notification badge
+- *Notification Bell:* Icon with red dot indicator for unread alerts
+- *User Avatar:* Circular image with dropdown menu for profile options
+- *Date Range Selector:* Date picker component showing current period, Data Type = Date range object
+
+### *Sidebar Navigation:*
+- *Active Tab Highlighting:* CSS class toggle based on current page state
+- *Menu Items:* Array of navigation objects with icons, labels, and routes
+- *Responsive Collapse:* Boolean state for mobile menu visibility
+
+## *MAIN DASHBOARD COMPONENTS:*
+*Purpose:* Central command center showing business overview and key metrics
+
+*Layout Elements:*
+- Top header with search bar, wallet balance display, recharge button, tickets button, user profile dropdown
+- Date range selector (default: last 30 days)
+- Key metric cards in grid layout
+
+*Main Dashboard Components:*
+
+*Today's Summary Cards:*
+- Today's Orders (count with comparison to yesterday)
+- Today's Revenue (amount with percentage change)
+- Average Shipping Cost (calculated from recent orders)
+
+*Shipment Status Overview Grid:*
+- Total Orders, New Orders, Pickup Pending, In Transit, Delivered, NDR Pending, RTO counts
+- Each card clickable to filter orders page
+
+*NDR Status Grid:*
+- Total NDR, New Restatement, Buyer Restatement, NDR Delivered, NDR Undelivered, RTO Transit, RTO Delivered
+- Color-coded status indicators
+
+*COD Status Overview:*
+- Total COD, Last COD Remitted, Next COD Available amounts
+- Quick actions for COD management
+
+*Charts Section:*
+- Shipment distribution pie chart (delivered, NDR, RTO percentages)
+- Wallet transaction history line chart (last 30 days)
+
+*Quick Actions Panel:*
+- Create New Order button
+- Bulk Import button
+- Rate Calculator link
+- Download Reports button
+
+*Implementation Details:*
+- Real-time data updates every 5 minutes
+- Interactive charts with drill-down capability
+- Mobile-responsive grid layout
+- Quick filters for date ranges
+
+### *1. Key Performance Cards (Top Row):*
+
+*Today's Orders Card:*
+- *Variable:* todays_orders_count, Data Type: Integer
+- *Previous Period Comparison:* yesterdays_orders_count, Data Type: Integer
+- *Percentage Change:* orders_change_percentage, Data Type: Float
+- *Icon:* Shopping cart SVG component
+- *Background Color:* Dark blue with white text
+
+*Today's Revenue Card:*
+- *Variable:* todays_revenue, Data Type: Decimal/Float
+- *Previous Period:* yesterdays_revenue, Data Type: Decimal/Float
+- *Currency Symbol:* Static rupee symbol
+- *Change Indicator:* revenue_trend, Data Type: String ("up"/"down"/"same")
+
+*Average Shipping Cost Card:*
+- *Variable:* average_shipping_cost, Data Type: Decimal/Float
+- *Total Orders:* total_orders_for_average, Data Type: Integer
+- *Calculation Logic:* Real-time computation from recent orders
+- *Icon:* Truck/shipping icon component
+
+### *2. Shipment Status Grid:*
+
+*Status Boxes Configuration:*
+- *Total Orders:* total_orders, Data Type: Integer
+- *New Orders:* new_orders_count, Data Type: Integer  
+- *Pickup Pending:* pickup_pending_count, Data Type: Integer
+- *In Transit:* in_transit_count, Data Type: Integer
+- *Delivered:* delivered_count, Data Type: Integer
+- *NDR Pending:* ndr_pending_count, Data Type: Integer
+- *RTO:* rto_count, Data Type: Integer
+
+*Functionality:*
+- *Click Handler:* Each box triggers filter function on orders page
+- *Real-time Updates:* WebSocket connection or polling mechanism
+- *Color Coding:* CSS classes based on status priority
+- *Hover Effects:* Interactive feedback on mouse events
+
+### *3. NDR Status Grid:*
+
+*NDR Metrics:*
+- *Total NDR:* total_ndr_count, Data Type: Integer
+- *New Reattempt:* new_reattempt_count, Data Type: Integer
+- *Buyer Reattempt:* buyer_reattempt_count, Data Type: Integer
+- *NDR Delivered:* ndr_delivered_count, Data Type: Integer
+- *NDR Undelivered:* ndr_undelivered_count, Data Type: Integer
+- *RTO Transit:* rto_transit_count, Data Type: Integer
+- *RTO Delivered:* rto_delivered_count, Data Type: Integer
+
+### *4. COD Status Section:*
+
+*COD Metrics:*
+- *Total COD:* total_cod_amount, Data Type: Decimal/Float
+- *Last COD Remitted:* last_cod_remitted, Data Type: Decimal/Float
+- *Next COD Available:* next_cod_available, Data Type: Decimal/Float
+
+## *BOTTOM SECTION COMPONENTS:*
+
+### *5. Wallet Transactions Panel:*
+- *Transaction History:* Array of transaction objects
+- *Transaction Data Structure:*
+  - transaction_id: String
+  - transaction_date: Date
+  - transaction_type: String ("credit"/"debit")
+  - amount: Decimal/Float
+  - description: String
+  - balance_after: Decimal/Float
+- *View All Link:* Navigation to detailed billing page
+- *Scrollable Container:* CSS overflow settings for transaction list
+
+### *6. Shipments Distribution Chart:*
+- *Chart Type:* Donut/Pie chart component
+- *Data Variables:*
+  - pickup_pending_percentage: Float
+  - in_transit_percentage: Float
+  - delivered_percentage: Float
+  - ndr_pending_percentage: Float
+  - rto_percentage: Float
+- *Legend Component:* Color-coded status labels
+- *Interactive Elements:* Hover tooltips showing exact values
+- *Chart Library:* Integration with charting framework (Chart.js/D3.js)
+
+## *IMPLEMENTATION FEATURES:*
+
+### *Real-time Data Updates:*
+- *API Polling:* Function to fetch dashboard data every 5 minutes
+- *WebSocket Connection:* For instant order status updates
+- *Loading States:* Skeleton screens during data fetch
+- *Error Handling:* Fallback UI for failed data requests
+
+### *Responsive Design:*
+- *Grid System:* CSS Grid/Flexbox for adaptive layout
+- *Mobile Breakpoints:* Collapsible sidebar for smaller screens
+- *Touch Interactions:* Optimized button sizes for mobile
+- *Progressive Enhancement:* Core functionality without JavaScript
+
+### *Performance Optimization:*
+- *Data Caching:* Store frequently accessed metrics
+- *Lazy Loading:* Load chart components on viewport entry
+- *Memoization:* Cache calculated percentages and trends
+- *Pagination:* Limit transaction history display
+
+### *User Experience:*
+- *Quick Actions:* Floating action buttons for common tasks
+- *Keyboard Navigation:* Tab index management for accessibility
+- *Visual Feedback:* Loading spinners and success animations
+- *Contextual Tooltips:* Help text for complex metrics
+
+### *Data Flow Architecture:*
+1. *API Service Layer:* Centralized data fetching functions
+2. *State Management:* Redux/Context for dashboard state
+3. *Component Props:* Pass data down to child components
+4. *Event Handlers:* Click functions for navigation and actions
+5. *Error Boundaries:* Graceful handling of component failures
+# Dashboard Additional Components Description
+
+## *HEADER PROFILE DROPDOWN:*
+
+### *Profile Menu Structure:*
+- *User Avatar:* Circular icon with initials, Data Type: String (user initials)
+- *Company Name:* Variable = company_name, Data Type: String
+- *Account Type:* Variable = account_type, Data Type: String ("Account Manager")
+
+### *Menu Items Configuration:*
+- *My Profile:* Navigation link to profile page with user icon
+- *Account Settings:* Link to settings page with gear icon  
+- *Support:* Link to support/help section with question mark icon
+- *Terms & Conditions:* External link to legal documents with document icon
+- *API Integration:* Link to API management page with code icon
+- *Logout Button:* Session termination function with logout icon
+
+### *Implementation Features:*
+- *Toggle State:* Boolean variable for dropdown visibility
+- *Click Outside:* Event listener to close dropdown when clicking elsewhere
+- *Hover Effects:* CSS transitions for menu item interactions
+- *Icon Integration:* SVG icons for each menu option
+
+## *RECHARGE WALLET MODAL:*
+
+### *Modal Structure:*
+- *Modal State:* Boolean variable = is_recharge_modal_open
+- *Overlay Background:* Semi-transparent backdrop with click-to-close
+- *Modal Container:* Centered popup with rounded corners
+- *Close Button:* X icon in top-right corner
+
+### *Recharge Form Components:*
+
+*Amount Selection:*
+- *Input Field:* Variable = recharge_amount, Data Type: Decimal/Float
+- *Placeholder Text:* "Minimum recharge of ₹ 500"
+- *Preset Buttons:* Array of predefined amounts [₹500, ₹1000, ₹2000, ₹5000, ₹10000]
+- *Currency Symbol:* Static rupee icon
+- *Validation:* Minimum amount check function
+
+*Promo Code Section:*
+- *Promo Input:* Variable = promo_code, Data Type: String
+- *Apply Button:* Function to validate and apply discount
+- *Discount Display:* Variable = discount_amount, Data Type: Decimal/Float
+- *Apply State:* Boolean = is_promo_applied
+
+*Action Buttons:*
+- *Cancel Button:* Function to close modal without action
+- *Continue to Payment:* Function to proceed to payment gateway
+- *Button States:* Loading/disabled states during processing
+
+### *Payment Integration:*
+- *Gateway Selection:* Variable = selected_payment_method, Data Type: String
+- *Transaction ID:* Variable = transaction_id, Data Type: String (auto-generated)
+- *Payment Status:* Variable = payment_status, Data Type: String ("pending"/"success"/"failed")
+
+## *ENHANCED METRICS DISPLAY:*
+
+### *Status Grid Variables:*
+*Shipment Status (Continued from previous):*
+- *Delivered Count:* delivered_orders, Data Type: Integer (2400 shown)
+- *NDR Pending Count:* ndr_pending_orders, Data Type: Integer (1400 shown)  
+- *RTO Count:* rto_orders, Data Type: Integer (60 shown)
+
+*NDR Status Grid:*
+- *NDR Undelivered:* ndr_undelivered_count, Data Type: Integer (2400 shown)
+- *RTO Transit:* rto_transit_count, Data Type: Integer (1400 shown)
+- *RTO Delivered:* rto_delivered_count, Data Type: Integer (60 shown)
+
+*COD Status:*
+- *Next COD Available:* next_cod_amount, Data Type: Decimal/Float (₹1,30,000 shown)
+
+### *Chart Enhancement:*
+*Donut Chart Data:*
+- *Chart Data Array:* Percentage values for each status segment
+- *Color Scheme:* Array of hex colors for different statuses
+- *Legend Data:* Object with status names and corresponding colors
+- *Animation Settings:* Duration and easing for chart rendering
+
+## *IMPLEMENTATION ARCHITECTURE:*
+
+### *State Management:*
+- *Dashboard State:* Centralized store for all dashboard data
+- *Modal State:* Separate state management for popup components
+- *User State:* Session and profile information management
+- *Loading States:* Boolean flags for data fetching indicators
+
+### *Event Handlers:*
+- *Recharge Modal:* Open/close functions with proper state management
+- *Profile Dropdown:* Toggle visibility with outside click detection
+- *Amount Selection:* Update recharge amount on preset button clicks
+- *Promo Code:* Validate and apply discount calculations
+- *Payment Processing:* Handle gateway integration and response
+
+### *Data Flow:*
+1. *Component Mount:* Fetch initial dashboard data
+2. *Real-time Updates:* WebSocket or polling for live metrics
+3. *User Actions:* Event-driven state updates
+4. *Modal Management:* Controlled component visibility
+5. *Payment Flow:* Secure transaction processing with status updates
+
+### *Responsive Design:*
+- *Modal Scaling:* Adaptive sizing for different screen sizes
+- *Touch Optimization:* Larger tap targets for mobile devices
+- *Keyboard Navigation:* Tab order and focus management
+- *Screen Reader Support:* ARIA labels and accessibility features
+
+*3. NDR PAGE*
+
+*Purpose:* Comprehensive NDR management and resolution interface
+
+*NDR Overview Cards:*
+- Total NDR Count
+- Pending Actions
+- Auto-Resolved Today
+- RTO Pending
+
+*Filter and Search Section:*
+- Date range for NDR generation
+- Search by AWB, customer phone, order ID
+- Filter by NDR reason category
+- Filter by resolution status
+- Filter by number of attempts
+
+*NDR Reason Analytics:*
+- Pie chart showing distribution of NDR reasons
+- Top 5 NDR reasons list
+- Trend analysis (weekly/monthly)
+
+*NDR Management Table:*
+- AWB Number (clickable for full details)
+- Customer Details (name, phone, city)
+- NDR Date and Time
+- Reason Category and Description
+- Delivery Attempts Count
+- Days in NDR
+- Last Action Taken
+- Customer Response Status
+- Resolution Actions dropdown
+
+*NDR Detail View (Modal/Side Panel):*
+- Complete customer information
+- Order details and value
+- NDR timeline with all attempts
+- Customer communication history
+- Failed delivery photos/proof
+- Action buttons (Call Customer, Send SMS, Reschedule, Mark RTO)
+
+*Bulk NDR Actions:*
+- Bulk SMS to customers
+- Bulk rescheduling
+- Bulk RTO marking
+- Export NDR report
+
+*NDR Resolution Tools:*
+- Template SMS messages for different NDR reasons
+- Customer response tracking
+- Auto-retry scheduling rules
+- Escalation workflows
+
+*Customer Communication Panel:*
+- Pre-written SMS templates
+- Call log with notes
+- Email templates
+- WhatsApp integration
+
+*Implementation Features:*
+- Auto-categorization of NDR reasons
+- Smart suggestions for resolution
+- Customer response tracking
+- Performance analytics per delivery partner
+- Alert system for high-NDR customers
+
+---
+
+*4. SUPPORT PAGE*
+
+*Purpose:* Comprehensive ticket management and customer service interface
+
+*Support Overview Cards:*
+- Open Tickets Count
+- Average Resolution Time
+- Tickets Resolved Today
+- Pending Admin Response
+
+*Ticket Categories Grid:*
+- Pickup & Delivery Issues
+- Shipment NDR & RTO
+- Edit Shipment Info
+- Shipment Dispute
+- Finance & Billing
+- Claims (Lost/Damaged)
+- KYC & Bank Verification
+- Technical Support
+- Others
+
+*Ticket Creation Interface:*
+- Category selection dropdown
+- Priority level (Low, Medium, High, Urgent)
+- AWB numbers entry (comma-separated, max 10)
+- Subject line
+- Detailed description textarea
+- File attachment (images, documents, max 5MB each)
+- Contact preference (Email, Phone, WhatsApp)
+
+*Tickets Table:*
+- Ticket ID (auto-generated)
+- Created Date
+- Category
+- Priority indicator
+- Subject (truncated)
+- Status badge (Open, In Progress, Resolved, Closed)
+- Last Update timestamp
+- Admin Assigned
+- Action buttons (View, Update, Close)
+
+*Ticket Detail View:*
+- Complete ticket information
+- Conversation thread with timestamps
+- File attachments viewer
+- Status update options
+- Priority change capability
+- Internal notes section (visible only to admins)
+- Resolution rating (post-closure)
+
+*Communication Tools:*
+- Real-time chat interface
+- File sharing capability
+- Screenshot annotation tools
+- Video call scheduling
+- Email notification settings
+
+*Support Analytics:*
+- Response time metrics
+- Resolution rate by category
+- Customer satisfaction scores
+- Common issues identification
+
+*Knowledge Base Integration:*
+- FAQ section
+- Video tutorials
+- Step-by-step guides
+- Common solutions lookup
+
+*Implementation Features:*
+- Auto-assignment based on category
+- SLA tracking and alerts
+- Customer satisfaction surveys
+- Integration with order/NDR data
+- Mobile app support for urgent issues
+## Support Page Features and Functionality
+
+This is a comprehensive support ticketing system within the Shipsarthi platform with two main views:
+
+### *Main Support Dashboard (Image 1)*
+
+#### Navigation Elements
+- *Header*: Order search, account balance (₹15000.00), user profile
+- *Sidebar Menu*: Dashboard, Orders, NDR, Tools, Billing, Report, Warehouse, Customers, Channel, Support, Settings
+- *Contact Info Banner*: Phone (+91 9634269872) and Email (support@shipsarthi.com)
+
+#### Ticket Management Interface
+*Tab Navigation*:
+- *Tickets*: Main ticket view (active)
+- *Training*: Training resources section
+
+*Status Filters* (with counts):
+- *Open*: integer - Active tickets requiring attention
+- *Resolved*: integer - Completed tickets  
+- *Closed*: integer - Finalized tickets
+- *All*: integer - Total ticket count
+
+*Ticket Table Columns*:
+- *Ticket ID*: string - Unique identifier
+- *Category*: string - Issue classification
+- *Order Details*: string - Related order information
+- *Created At*: datetime - Ticket creation timestamp
+- *Updated At*: datetime - Last modification time
+- *Action*: Buttons for ticket operations
+
+*Pagination Controls*:
+- Items per page: integer (10, 25, 50, 100)
+- Page navigation with Previous/Next buttons
+
+---
+
+### *Raise Ticket Modal (Image 2)*
+
+#### Form Fields and Data Types
+
+*Basic Information*:
+- *Select Category*: enum/dropdown - Predefined issue categories
+- *AWB Numbers*: string array - Comma-separated airway bill numbers (max 10)
+- *Comment*: string - Issue description (max 500 characters, multi-line)
+
+*File Attachment*:
+- *Attach File*: file upload
+- *File Constraints*: 
+  - Images: max 2MB
+  - Audio: max 5MB  
+  - Video: max 5MB
+  - Documents: max 5MB
+
+*Actions*:
+- *Cancel*: button - Close modal without saving
+- *Submit*: button - Create ticket
+
+---
+
+### *Ticket Categories (Right Panel)*
+
+*Predefined Categories with Descriptions*:
+
+1. *Pickup & Delivery*: string
+   - Pickup/delivery delays, RTO escalation, tracking mismatches
+
+2. *Shipment NDR & RTO*: string
+   - NDR reattempts, courier fake attempts, RTO requests
+
+3. *Edit Shipment Info*: string
+   - Address/pincode/phone updates, payment type changes
+
+4. *Shipment Dispute*: string
+   - Delivery issues, status mismatches, weight charge disputes
+
+5. *Finance*: string
+   - Remittance status, wallet management, recharge issues, plan upgrades
+
+6. *Billing & Taxation*: string
+   - Billing disputes, account ledger statements, GST/TDS forms
+
+7. *Claims*: string
+   - Lost/damaged shipments, refund requests, bank transfers, credit notes
+
+8. *KYC & Bank Verification*: string
+   - KYC and bank account verification issues
+
+9. *Technical Support*: string
+   - Channel connection errors, order management, API auth, serviceability
+
+10. *Others*: string
+    - General queries not covered by specific categories
+
+---
+
+### *Page Functions*
+
+*Primary Functions*:
+1. *Ticket Creation*: Submit support requests with attachments
+2. *Ticket Tracking*: Monitor ticket status and progress
+3. *Category Management*: Organize tickets by issue types
+4. *File Management*: Upload supporting documents/media
+5. *Communication Hub*: Central point for customer support
+6. *Status Filtering*: View tickets by resolution status
+7. *Bulk Operations*: Handle multiple AWB numbers per ticket
+8. *Training Access*: Educational resources for users
+
+*Data Management*:
+- Real-time ticket status updates
+- File upload validation and storage
+- Pagination for large ticket volumes
+- Search and filter capabilities
+- Audit trail for ticket modifications
+
+This support system provides comprehensive customer service functionality with structured categorization, file handling, and efficient ticket lifecycle management.
+
+---
+
+*5. TOOLS PAGE*
+
+*Purpose:* Utility tools and calculators for logistics operations
+
+*Rate Calculator:*
+- Origin and destination pincode entry
+- Package weight and dimensions input
+- Service type selection (Surface/Express)
+- Payment mode toggle (Prepaid/COD)
+- Real-time rate display with breakdown
+- Comparison across multiple partners
+- Bulk rate calculation (CSV upload)
+
+*Pincode Serviceability Checker:*
+- Single pincode lookup
+- Bulk pincode verification
+- Service availability matrix
+- Delivery time estimation
+- Coverage area mapping
+
+*AWB Tracking Tool:*
+- Multi-AWB tracking (paste list)
+- Tracking export functionality
+- Delivery proof download
+- Status history view
+
+*Label Generation:*
+- Bulk label printing
+- Custom label templates
+- Barcode generation
+- Shipping manifest creation
+
+*Address Validation:*
+- Address standardization
+- Pincode correction
+- Duplicate address detection
+- Address completion suggestions
+
+*Pickup Scheduler:*
+- Bulk pickup requests
+- Pickup route optimization
+- Driver assignment interface
+- Pickup confirmation tracking
+
+*Data Management Tools:*
+- Bulk data import/export
+- Order template downloads
+- Data cleansing utilities
+- Backup and restore options
+## Tools - Rate Calculator Page
+
+This is the *Rate Calculator* tool within the Shipsarthi logistics platform, designed to calculate shipping costs and delivery estimates.
+
+### *Page Structure*
+
+#### Header & Navigation
+- *Platform*: Shipsarthi logistics dashboard
+- *Header Elements*: Order ID search, account balance (₹150000.00), Recharge, Tickets, user profile (WM)
+- *Sidebar Menu*: Dashboard, Orders, NDR, Tools (active), Billing, Report, Warehouse
+
+#### Main Tool Tabs
+- *Rate Calculator* (active tab)
+- *Price List* 
+- *Manage Courier*
+
+---
+
+### *Rate Calculator Form*
+
+#### Shipping Mode Selection
+- *Domestic*: radio button - Domestic shipping within country
+- *International*: radio button - International shipping
+
+#### Shipment Configuration
+*Shipment Type*:
+- *Forward*: radio button - Regular delivery
+- *Return*: radio button - Return shipment
+
+*Package Type*:
+- *Dropdown*: "Single Package (B2C)" - enum selection
+
+#### Location Details
+*Pickup Pincode*:
+- *Input Field*: string - 6-digit pickup location pincode
+- *Placeholder*: "Enter 6 digit pickup pincode"
+
+*Delivery Pincode*:
+- *Input Field*: string - 6-digit delivery location pincode  
+- *Placeholder*: "Enter 6 digit delivery pincode"
+
+#### Package Specifications
+*Actual Weight*:
+- *Input Field*: decimal/float - Package weight
+- *Default Value*: "0.00"
+- *Unit*: Likely in KG
+
+*Dimensions*:
+- *Length*: decimal input field
+- *Width*: decimal input field  
+- *Height*: decimal input field
+- *Unit*: Likely in CM
+
+#### Shipment Value
+*Shipment Value*:
+- *Input Field*: decimal/currency - Declared value of goods
+- *Placeholder*: "Enter Shipment Value"
+
+*Payment Type*:
+- *Prepaid*: radio button - Payment made upfront
+- *Cash on Delivery*: radio button - COD option
+
+*Cash on Delivery Value*:
+- *Input Field*: decimal/currency - COD amount
+- *Placeholder*: "Enter Cash on Delivery Value"
+- *Conditional*: Only active when COD is selected
+
+---
+
+### *Location Selection Panel (Right Side)*
+
+#### Pickup Location
+- *Location Icon*: Pin marker
+- *Title*: "Pickup Location"
+- *City Field*: string input
+- *State Field*: string input
+
+#### Delivery Location  
+- *Location Icon*: Pin marker
+- *Title*: "Delivery Location"
+- *City Field*: string input
+- *State Field*: string input
+
+---
+
+### *Action Buttons*
+- *Clear*: button - Reset all form fields
+- *Calculate*: button - Process rate calculation
+
+### *Additional Sections*
+- *Terms & Conditions*: Link/section for service terms
+
+---
+
+### *Page Functionality*
+
+*Primary Functions*:
+1. *Rate Calculation*: Calculate shipping costs based on weight, dimensions, distance
+2. *Service Comparison*: Compare different courier options and pricing
+3. *Delivery Estimation*: Provide estimated delivery timeframes
+4. *COD Support*: Handle cash-on-delivery calculations
+5. *Multi-mode Shipping*: Support both domestic and international shipping
+6. *Weight/Dimension Pricing*: Calculate volumetric vs actual weight pricing
+
+*Data Processing*:
+- Real-time rate calculations
+- Pincode validation and serviceability checks
+- Dimensional weight calculations
+- Payment method-based pricing
+- Location-based service availability
+
+This tool serves as a comprehensive shipping calculator allowing users to get accurate pricing and delivery estimates before booking shipments.
+
+---
+
+*6. BILLING PAGE*
+
+*Purpose:* Financial management and transaction tracking
+
+*Billing Overview:*
+- Current wallet balance prominently displayed
+- Monthly spending summary
+- Pending dues amount
+- Next billing cycle date
+
+*Wallet Management:*
+- Recharge wallet interface with amount presets
+- Payment gateway integration
+- Transaction history table
+- Auto-recharge settings
+- Low balance alerts configuration
+
+*Invoice Management:*
+- Monthly invoice generation
+- Invoice download (PDF)
+- Payment history
+- GST details and compliance
+- Credit note management
+
+*COD Remittance Tracking:*
+- Remittance schedule calendar
+- Amount receivable dashboard
+- Bank account details management
+- Remittance history with status
+- Tax deduction certificates
+
+*Cost Analytics:*
+- Shipping cost breakdown
+- Comparison with previous months
+- Cost per delivery analysis
+- Zone-wise cost distribution
+
+*Payment Gateway Integration:*
+- Multiple payment options
+- Secure payment processing
+- Failed payment retry
+- Payment receipt generation
+
+---
+
+*7. WAREHOUSE PAGE*
+
+*Purpose:* Warehouse and pickup location management
+This appears to be a warehouse management form within the Shipsarthi logistics platform. Here's a breakdown of the page elements and suggested data types for each field:
+Page Structure
+
+Header: Navigation with order search, account balance (₹15000.00), and user menu
+Sidebar: Main navigation menu with Dashboard, Orders, NDR, Tools, Billing, Report, and Warehouse sections
+Main Content: "Add warehouse" form with save/dismiss options
+
+Form Fields and Data Types
+Basic Information
+
+Title: string (text input for warehouse designation/nickname)
+Name: string (full warehouse name)
+Phone: string with country code (+91) - formatted as phone number
+Alternative Phone: string with country code (+91) - optional phone number
+Email ID: string (email validation required)
+
+Location Details
+
+Address: string (multi-line text for full address)
+Landmark: string (optional - nearby reference point)
+Pincode: string or integer (6-digit postal code)
+City: string (city name)
+State: string (state/province name)
+
+Business Information
+
+GSTIN: string (15-character alphanumeric GST identification number)
+Support Email: string (email for support communications)
+Support Phone: string (phone number for support)
+
+Configuration
+
+Mark As: enum - Default/Custom (dropdown selection)
+Warehouse Status: boolean checkboxes
+
+Active: boolean (true/false)
+InActive: boolean (true/false)
+
+
+
+Validation Requirements
+
+Phone numbers should follow Indian format (+91 prefix)
+Email fields require proper email validation
+GSTIN should follow Indian GST number format
+Pincode should be 6 digits
+At least one status checkbox should be selected (Active/InActive)
+
+This form is designed for adding new warehouse locations to the shipping management system, with comprehensive contact and business registration details.
+
+*Warehouse Overview:*
+- Total registered warehouses
+- Active/inactive status
+- Default warehouse indicator
+- Pickup performance metrics
+
+*Add Warehouse Form:*
+- Warehouse title/nickname
+- Contact person details
+- Complete address with pincode
+- Phone and alternative phone
+- Email and support contacts
+- GST number
+- Pickup instructions
+- Operating hours
+- Warehouse photos
+
+*Warehouse Management Table:*
+- Warehouse name and location
+- Contact details
+- Status (Active/Inactive)
+- Default warehouse indicator
+- Total orders shipped
+- Edit/Delete actions
+- Set as default option
+
+*Pickup Management:*
+- Schedule pickup requests
+- Pickup history and status
+- Pickup boy assignment
+- Pickup route planning
+- Pickup confirmation tracking
+
+---
+
+*8. CUSTOMERS PAGE*
+
+*Purpose:* Customer database and relationship management
+
+*Customer Overview:*
+- Total unique customers
+- Repeat customers percentage
+- Top customers by order value
+- Customer geographic distribution
+
+*Customer Database:*
+- Customer search and filters
+- Customer details (name, phone, email, address)
+- Order history per customer
+- Customer value metrics
+- Communication preferences
+
+*Customer Analytics:*
+- Order frequency analysis
+- Customer lifecycle tracking
+- Delivery success rates
+- NDR patterns by customer
+- Customer satisfaction scores
+
+---
+
+*9. CHANNEL PAGE*
+
+*Purpose:* Multi-channel integration and API management
+
+*Channel Integration:*
+- Shopify connector
+- WooCommerce plugin
+- Custom API integration
+- Marketplace connections (Amazon, Flipkart)
+- ERP system integration
+
+*API Management:*
+- API key generation and management
+- Usage analytics and limits
+- API documentation access
+- Webhook configuration
+- Rate limiting settings
+
+*Channel Performance:*
+- Order volume by channel
+- Performance metrics
+- Integration health monitoring
+- Error logs and troubleshooting
+
+---
+
+*10. REPORTS PAGE*
+
+*Purpose:* Comprehensive analytics and business intelligence
+
+*Pre-built Reports:*
+- Daily/Weekly/Monthly shipping reports
+- Performance analytics
+- Cost analysis reports
+- Customer behavior reports
+- NDR and RTO analysis
+- Financial reports
+
+*Custom Report Builder:*
+- Drag-and-drop report creation
+- Custom date ranges
+- Multiple filter options
+- Chart and graph generation
+- Scheduled report delivery
+
+*Report Export:*
+- Multiple format support (PDF, Excel, CSV)
+- Email scheduling
+- Cloud storage integration
+- Report sharing capabilities
+
+---
+
+*11. SETTINGS PAGE*
+
+*Purpose:* Account and system configuration
+
+*Profile Management:*
+- Personal and business information
+- Contact details update
+- Password change
+- Two-factor authentication
+- Account verification status
+
+*Notification Settings:*
+- SMS notification preferences
+- Email alert configuration
+- WhatsApp integration
+- Push notification settings
+
+*API Configuration:*
+- API key management
+- Webhook URLs
+- Integration settings
+- Security preferences
+
+*Business Settings:*
+- Default shipping preferences
+- Billing and payment settings
+- Branding customization
+- Auto-recharge configuration
+
+## *Integration Working Mechanism:*
+
+*How Information Flows:*
+
+1. *Order Creation:* Client creates order through your dashboard → Your system calls Delhivery API → Delhivery returns AWB number → You store all data
+2. *Status Updates:* Delhivery sends webhooks OR you poll their API → Update your database → Notify client
+3. *Customer Tracking:* Customer enters AWB on your tracking page → You fetch latest status from Delhivery → Display real-time information
+4. *NDR Management:* Delhivery reports NDR → You receive webhook → Create NDR record → Notify client → Provide resolution tools
+
+This comprehensive structure allows you to provide full logistics services without handling physical deliveries, acting as a technology bridge between small sellers and large logistics providers.
