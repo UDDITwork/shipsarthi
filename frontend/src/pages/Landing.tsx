@@ -1,175 +1,292 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, TrendingUp, Shield, Zap, Users, Globe } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    mobile: '',
+    describe: '',
+    monthlyLoad: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle form submission here
+    console.log('Form submitted:', formData);
+  };
 
   const features = [
     {
-      icon: <Package className="feature-icon" />,
-      title: "Multi-Carrier Integration",
-      description: "Connect with all major shipping carriers in one platform. Seamless integration with your existing systems."
+      icon: '/MULTI COURIER 1.svg',
+      title: "Multiple Carrier Option",
+      description: "Optimize your shipping costs by selecting from multiple carriers like Delhivery, Amazon, Xpressbees, DTDC, Trackon, and others."
     },
     {
-      icon: <TrendingUp className="feature-icon" />,
-      title: "Real-Time Analytics",
-      description: "Track your shipping performance with detailed analytics and insights to optimize your operations."
+      icon: '/tracking 1.svg',
+      title: "Real Time Tracking",
+      description: "Get real-time tracking access for both shippers and customers, ensuring complete visibility and transparency throughout the delivery journey."
     },
     {
-      icon: <Shield className="feature-icon" />,
-      title: "Secure & Reliable",
-      description: "Enterprise-grade security with 99.9% uptime. Your data and shipments are always protected."
+      icon: '/api 2.svg',
+      title: "API Integrated",
+      description: "Easily connect your online store with Shipsarthi for centralized order management and seamless operations."
     },
     {
-      icon: <Zap className="feature-icon" />,
-      title: "Lightning Fast",
-      description: "Process orders in seconds. Automated workflows save time and reduce manual errors."
+      icon: '/RTO 1.svg',
+      title: "Smart NDR Management",
+      description: "Intelligent Non-Delivery Report (NDR) handling helps reduce RTOs and flags fake delivery remarks by carriers."
     },
     {
-      icon: <Users className="feature-icon" />,
-      title: "NDR Management",
-      description: "Smart Non-Delivery Report handling with AI-powered resolution suggestions."
+      icon: '/b2b 1.svg',
+      title: "Heavy Shipping",
+      description: "Ship heavy and LTL shipments at competitive rates with our specialized logistics support."
     },
     {
-      icon: <Globe className="feature-icon" />,
-      title: "Global Reach",
-      description: "Ship anywhere in the world with our extensive network of carrier partners."
+      icon: '/manager 2.svg',
+      title: "Customer Support",
+      description: "Our support team is always available to help with your queries, ensuring a seamless and stress-free shipping experience for your business."
     }
   ];
 
+  const benefits = [
+    {
+      icon: '/cost 1.svg',
+      title: "Affordable Rates",
+      description: "Affordable pricing without compromising service quality."
+    },
+    {
+      icon: '/pan india 1.svg',
+      title: "PAN India Coverage",
+      description: "Pan-India serviceability across 29,000+ pincodes."
+    },
+    {
+      icon: '/pickup 1.svg',
+      title: "On Time Pickup",
+      description: "On-time pickups guaranteed, strict action on delays."
+    },
+    {
+      icon: '/weight 1.svg',
+      title: "No False Weight",
+      description: "We take strict action against fake weight discrepancies."
+    },
+    {
+      icon: '/rto n 2.svg',
+      title: "Reduce RTO",
+      description: "Lower RTO rates through proactive call verification at the time of NDR."
+    },
+    {
+      icon: '/support 1.svg',
+      title: "Equal Support",
+      description: "Dedicated support for businesses of all sizes - from startups to enterprises."
+    }
+  ];
+
+  const partners = [
+    { name: 'DELHIVERY', logo: '/image 1.svg' },
+    { name: 'AMAZON', logo: '/image 3.svg' },
+    { name: 'XPRESSBEES', logo: '/image 4.svg' },
+    { name: 'TRACKON', logo: '/image 5.svg' },
+    { name: 'DTDC', logo: '/image 6.svg' }
+  ];
+
   return (
-    <div className="landing-container">
-      {/* Navigation */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <div className="nav-content">
-            <div className="logo-container">
-              <Package className="logo-icon" />
-              <span className="logo-text">SHIPSARTHI</span>
-            </div>
-            <div className="nav-buttons">
-              <button
-                onClick={() => navigate('/login')}
-                className="nav-button"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => navigate('/register')}
-                className="nav-button primary"
-              >
-                Sign Up
-              </button>
-            </div>
+    <div className="landing-page">
+      {/* Header */}
+      <header className="header">
+        <div className="header-container">
+          <div className="logo">
+            <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
+            <span className="logo-text">Shipsarthi</span>
+          </div>
+          
+          <nav className="nav-links">
+            <a href="#services" className="nav-link">Services</a>
+            <a href="#calculator" className="nav-link">Rate Calculator</a>
+            <a href="#features" className="nav-link">Features</a>
+            <a href="/about" className="nav-link">About</a>
+            <a href="/contact" className="nav-link">Contact Us</a>
+          </nav>
+          
+          <div className="header-buttons">
+            <button className="btn-track">Track</button>
+            <button 
+              className="btn-login"
+              onClick={() => navigate('/login')}
+            >
+              Login
+            </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <div className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">
-            Ship Smarter, Not Harder
-          </h1>
-          <p className="hero-description">
-            Your complete shipping solution for e-commerce businesses.
-            Manage orders, track shipments, and delight customers—all in one platform.
-          </p>
-          <div className="hero-buttons">
-            <button
-              onClick={() => navigate('/register')}
-              className="hero-button primary"
-            >
-              Get Started Free
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="hero-button secondary"
-            >
-              View Demo
-            </button>
+      <section className="hero-section">
+        <div className="hero-container">
+          <div className="hero-left">
+            <h1 className="hero-title">Enquire Now !</h1>
+            <form className="enquiry-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Enter Name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Mobile</label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  placeholder="Enter Mobile"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Describe you ?</label>
+                <select
+                  name="describe"
+                  value={formData.describe}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Please Select</option>
+                  <option value="ecommerce">E-commerce Business</option>
+                  <option value="retailer">Retailer</option>
+                  <option value="wholesaler">Wholesaler</option>
+                  <option value="manufacturer">Manufacturer</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label>Monthly Load ?</label>
+                <select
+                  name="monthlyLoad"
+                  value={formData.monthlyLoad}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Please Select</option>
+                  <option value="0-100">0-100 shipments</option>
+                  <option value="100-500">100-500 shipments</option>
+                  <option value="500-1000">500-1000 shipments</option>
+                  <option value="1000+">1000+ shipments</option>
+                </select>
+              </div>
+              
+              <button type="submit" className="submit-btn">Submit</button>
+            </form>
           </div>
-
-          {/* Stats */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-number">500K+</div>
-              <div className="stat-label">Shipments Processed</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">99.9%</div>
-              <div className="stat-label">Uptime Guarantee</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">24/7</div>
-              <div className="stat-label">Customer Support</div>
-            </div>
+          
+          <div className="hero-right">
+            <img src="/urban image 2.svg" alt="Urban Logistics" className="urban-image" />
+            <img src="/Vector 1.svg" alt="Vector" className="vector-1" />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Features Section */}
-      <div className="features-section">
+      <section id="features" className="features-section">
         <div className="features-container">
-          <div className="features-header">
-            <h2 className="features-title">
-              Everything You Need to Ship Successfully
-            </h2>
-            <p className="features-description">
-              Powerful features designed to streamline your shipping operations and grow your business.
-            </p>
-          </div>
-
+          <h2 className="section-title">
+            <span className="title-part-1">Our</span> <span className="title-part-2">Features</span>
+          </h2>
+          
           <div className="features-grid">
             {features.map((feature, index) => (
-              <div
-                key={index}
-                className="feature-card"
-              >
-                <div className="mb-4">{feature.icon}</div>
-                <h3 className="feature-title">
-                  {feature.title}
-                </h3>
-                <p className="feature-description">
-                  {feature.description}
-                </p>
+              <div key={index} className="feature-card">
+                <div className="feature-icon">
+                  <img src={feature.icon} alt={feature.title} />
+                </div>
+                <h3 className="feature-title">{feature.title}</h3>
+                <p className="feature-description">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* CTA Section */}
-      <div className="cta-section">
-        <div className="cta-container">
-          <h2 className="cta-title">
-            Ready to Transform Your Shipping?
+      {/* Why Choose Us Section */}
+      <section className="why-choose-section">
+        <div className="why-choose-container">
+          <h2 className="section-title">
+            <span className="title-part-1">Why Choose</span> <span className="title-part-2">Us?</span>
           </h2>
-          <p className="cta-description">
-            Join thousands of businesses that trust SHIPSARTHI for their shipping needs.
-          </p>
-          <button
-            onClick={() => navigate('/register')}
-            className="cta-button"
-          >
-            Start Your Free Trial
-          </button>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-logo">
-            <Package className="footer-icon" />
-            <span className="footer-text">SHIPSARTHI</span>
+          
+          <div className="why-choose-header">
+            <div className="partner-illustration">
+              <img src="/partner 1.svg" alt="Delivery Partners" />
+            </div>
+            <div className="tagline">
+              <p className="tagline-text">
+                <span className="tagline-line-1">Because Every Shipment</span>
+                <span className="tagline-line-2">Deserves a <strong>Sarthi.</strong></span>
+              </p>
+            </div>
           </div>
-          <p className="footer-copyright">
-            © 2025 SHIPSARTHI. All rights reserved.
-          </p>
+          
+          <div className="benefits-grid">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="benefit-card">
+                <div className="benefit-icon">
+                  <img src={benefit.icon} alt={benefit.title} />
+                </div>
+                <h3 className="benefit-title">{benefit.title}</h3>
+                <p className="benefit-description">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Trusted Partners Section */}
+      <section className="partners-section">
+        <div className="partners-container">
+          <h2 className="section-title">
+            <span className="title-part-1">Trusted Courier</span> <span className="title-part-2">Partners</span>
+          </h2>
+          
+          <div className="partners-grid">
+            {partners.map((partner, index) => (
+              <div key={index} className="partner-logo">
+                <img src={partner.logo} alt={partner.name} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };

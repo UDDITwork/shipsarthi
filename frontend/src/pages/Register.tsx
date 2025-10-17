@@ -12,7 +12,7 @@ const Register: React.FC = () => {
   const [selectedUserType, setSelectedUserType] = useState('');
   const [selectedShipments, setSelectedShipments] = useState('');
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<RegisterData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
 
   const userTypes = [
     'E-commerce Sellers',

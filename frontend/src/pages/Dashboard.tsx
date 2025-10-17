@@ -6,12 +6,10 @@ import {
   IndianRupee,
   Truck,
   AlertTriangle,
-  CheckCircle,
-  Clock,
   RefreshCw,
   ArrowUpDown
 } from 'lucide-react';
-import { Doughnut, Line } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   ArcElement,
