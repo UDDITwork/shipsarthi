@@ -78,6 +78,12 @@ router.post('/register', [
       ]
     });
 
+    logger.debug('User existence check completed', {
+      userExists: !!existingUser,
+      email: email.toLowerCase(),
+      phone_number
+    });
+
     if (existingUser) {
       logger.warn('Registration failed - user already exists', {
         email: email.toLowerCase(),
@@ -118,7 +124,9 @@ router.post('/register', [
       userId: user._id,
       email: user.email,
       company_name: user.company_name,
-      client_id: user.client_id
+      client_id: user.client_id,
+      user_type: user.user_type,
+      monthly_shipments: user.monthly_shipments
     });
 
     // Generate token
@@ -215,19 +223,24 @@ router.post('/login', [
     const user = await User.findByEmailOrPhone(email);
     
     if (!user) {
-      logger.warn('Login failed - user not found', { email });
+      logger.warn('Login failed - user not found', { 
+        email,
+        searchType: email.includes('@') ? 'email' : 'phone'
+      });
       return res.status(401).json({
         status: 'error',
         message: 'Invalid credentials'
       });
     }
 
-    logger.debug('User found', {
+    logger.debug('User found for login attempt', {
       userId: user._id,
       email: user.email,
-      loginAttempts: user.login_attempts,
-      lockedUntil: user.locked_until
+      accountStatus: user.account_status,
+      emailVerified: user.email_verified,
+      phoneVerified: user.phone_verified
     });
+
 
     // Check if account is locked
     if (user.locked_until && user.locked_until > Date.now()) {
@@ -246,6 +259,11 @@ router.post('/login', [
     // Verify password
     logger.debug('Verifying password', { userId: user._id });
     const isPasswordValid = await user.comparePassword(password);
+    
+    logger.debug('Password verification completed', {
+      userId: user._id,
+      isValid: isPasswordValid
+    });
     
     if (!isPasswordValid) {
       // Increment login attempts
@@ -288,11 +306,18 @@ router.post('/login', [
     user.last_login = Date.now();
     await user.save();
 
-    logger.info('Password verified successfully', { userId: user._id });
+    logger.info('Password verified successfully', { 
+      userId: user._id,
+      loginAttemptsReset: true,
+      lastLogin: new Date(user.last_login).toISOString()
+    });
 
     // Generate token
     const token = generateToken(user._id);
-    logger.debug('JWT token generated', { userId: user._id });
+    logger.debug('JWT token generated', { 
+      userId: user._id,
+      tokenExpiry: process.env.JWT_EXPIRE || '7d'
+    });
 
     const responseTime = Date.now() - startTime;
     logger.info('Login completed successfully', {
@@ -413,9 +438,20 @@ router.post('/logout', auth, async (req, res) => {
 router.post('/forgot-password', [
   body('email').isEmail().normalizeEmail()
 ], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Forgot password request started', {
+    email: req.body.email,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('Forgot password validation failed', {
+        errors: errors.array(),
+        email: req.body.email
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Please provide a valid email address'
@@ -423,21 +459,42 @@ router.post('/forgot-password', [
     }
 
     const { email } = req.body;
+    logger.debug('Searching for user with email', { email: email.toLowerCase() });
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
+      logger.warn('Forgot password failed - user not found', { email: email.toLowerCase() });
       return res.status(404).json({
         status: 'error',
         message: 'User not found with this email address'
       });
     }
 
+    logger.info('User found for password reset', {
+      userId: user._id,
+      email: user.email,
+      accountStatus: user.account_status
+    });
+
     // Generate reset token
     const resetToken = user.createPasswordResetToken();
     await user.save();
 
+    logger.info('Password reset token generated', {
+      userId: user._id,
+      email: user.email,
+      tokenExpiry: user.password_reset_expires
+    });
+
     // TODO: Send email with reset token
     // For now, just return success message
+    
+    const responseTime = Date.now() - startTime;
+    logger.info('Forgot password completed successfully', {
+      userId: user._id,
+      email: user.email,
+      responseTime: `${responseTime}ms`
+    });
     
     res.json({
       status: 'success',
@@ -445,7 +502,13 @@ router.post('/forgot-password', [
     });
 
   } catch (error) {
-    console.error('Forgot password error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Forgot password error occurred', {
+      error: error.message,
+      stack: error.stack,
+      email: req.body.email,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error'
@@ -460,9 +523,19 @@ router.post('/reset-password', [
   body('token').notEmpty().withMessage('Reset token is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
 ], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Reset password request started', {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    hasToken: !!req.body.token
+  });
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('Reset password validation failed', {
+        errors: errors.array()
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -479,17 +552,28 @@ router.post('/reset-password', [
       .update(token)
       .digest('hex');
 
+    logger.debug('Searching for user with reset token', { hashedToken: hashedToken.substring(0, 10) + '...' });
     const user = await User.findOne({
       password_reset_token: hashedToken,
       password_reset_expires: { $gt: Date.now() }
     });
 
     if (!user) {
+      logger.warn('Reset password failed - invalid or expired token', {
+        tokenProvided: !!token,
+        currentTime: new Date().toISOString()
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Invalid or expired reset token'
       });
     }
+
+    logger.info('User found for password reset', {
+      userId: user._id,
+      email: user.email,
+      tokenExpiry: user.password_reset_expires
+    });
 
     // Set new password
     user.password = password;
@@ -497,13 +581,25 @@ router.post('/reset-password', [
     user.password_reset_expires = undefined;
     await user.save();
 
+    const responseTime = Date.now() - startTime;
+    logger.info('Password reset completed successfully', {
+      userId: user._id,
+      email: user.email,
+      responseTime: `${responseTime}ms`
+    });
+
     res.json({
       status: 'success',
       message: 'Password reset successful'
     });
 
   } catch (error) {
-    console.error('Reset password error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Reset password error occurred', {
+      error: error.message,
+      stack: error.stack,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error'

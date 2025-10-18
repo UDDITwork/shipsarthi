@@ -94,29 +94,27 @@ class DelhiveryService {
             const response = await this.client.get(`/v1/packages/json/?waybill=${waybill}`);
 
             if (response.data.ShipmentData && response.data.ShipmentData.length > 0) {
-                const shipment = response.data.ShipmentData[0].Shipment;
+                const shipmentData = response.data.ShipmentData[0];
                 return {
                     success: true,
-                    waybill: waybill,
-                    status: shipment.Status.Status,
-                    current_location: shipment.Status.Instructions || '',
-                    expected_delivery: shipment.ExpectedDeliveryDate,
-                    scans: shipment.Scans.map(scan => ({
-                        date: scan.ScanDateTime,
-                        location: scan.ScannedLocation,
-                        status: scan.Scan,
-                        instructions: scan.Instructions || ''
-                    })),
-                    delivery_details: {
-                        delivered_date: shipment.Status.StatusDateTime,
-                        delivered_to: shipment.Status.ReceivedBy || '',
-                        is_delivered: shipment.Status.Status === 'Delivered'
+                    data: {
+                        AWB: shipmentData.AWB || waybill,
+                        Status: shipmentData.Status || 'Unknown',
+                        StatusDateTime: shipmentData.StatusDateTime || new Date().toISOString(),
+                        Origin: shipmentData.Origin || '',
+                        Destination: shipmentData.Destination || '',
+                        Scans: shipmentData.Scans ? shipmentData.Scans.map(scan => ({
+                            ScanType: scan.ScanType || scan.Scan || '',
+                            ScanDateTime: scan.ScanDateTime || '',
+                            ScanLocation: scan.ScanLocation || scan.ScannedLocation || '',
+                            Remarks: scan.Remarks || scan.Instructions || ''
+                        })) : []
                     }
                 };
             } else {
                 return {
                     success: false,
-                    error: 'No tracking information found'
+                    error: 'No tracking information found for this AWB number'
                 };
             }
         } catch (error) {

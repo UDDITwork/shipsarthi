@@ -6,6 +6,7 @@ const NDR = require('../models/NDR');
 const SupportTicket = require('../models/Support');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -13,11 +14,28 @@ const router = express.Router();
 // @route   GET /api/dashboard/overview
 // @access  Private
 router.get('/overview', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Dashboard overview request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
   try {
     const userId = req.user._id;
     const today = moment().startOf('day');
     const yesterday = moment().subtract(1, 'day').startOf('day');
     const last30Days = moment().subtract(30, 'days').startOf('day');
+
+    logger.debug('Dashboard overview - calculating metrics', {
+      userId,
+      dateRange: {
+        today: today.format(),
+        yesterday: yesterday.format(),
+        last30Days: last30Days.format()
+      }
+    });
 
     // Get today's metrics
     const todaysOrders = await Order.countDocuments({
@@ -89,28 +107,50 @@ router.get('/overview', auth, async (req, res) => {
     // Get current wallet balance
     const user = await User.findById(userId).select('wallet_balance');
 
-    res.json({
-      status: 'success',
-      data: {
-        todays_orders: {
-          count: todaysOrders,
-          previous_count: yesterdaysOrders,
-          change_percentage: yesterdaysOrders > 0 ?
-            ((todaysOrders - yesterdaysOrders) / yesterdaysOrders * 100).toFixed(2) : 0
-        },
-        todays_revenue: {
-          amount: todaysRevenue[0]?.total || 0,
-          previous_amount: yesterdaysRevenue[0]?.total || 0,
-          change_percentage: yesterdaysRevenue[0]?.total > 0 ?
-            (((todaysRevenue[0]?.total || 0) - yesterdaysRevenue[0]?.total) / yesterdaysRevenue[0]?.total * 100).toFixed(2) : 0
-        },
-        average_shipping_cost: avgShippingCost[0]?.average || 0,
-        wallet_balance: user?.wallet_balance || 0
+    const responseData = {
+      todays_orders: {
+        count: todaysOrders,
+        previous_count: yesterdaysOrders,
+        change_percentage: yesterdaysOrders > 0 ?
+          ((todaysOrders - yesterdaysOrders) / yesterdaysOrders * 100).toFixed(2) : 0
+      },
+      todays_revenue: {
+        amount: todaysRevenue[0]?.total || 0,
+        previous_amount: yesterdaysRevenue[0]?.total || 0,
+        change_percentage: yesterdaysRevenue[0]?.total > 0 ?
+          (((todaysRevenue[0]?.total || 0) - yesterdaysRevenue[0]?.total) / yesterdaysRevenue[0]?.total * 100).toFixed(2) : 0
+      },
+      average_shipping_cost: avgShippingCost[0]?.average || 0,
+      wallet_balance: user?.wallet_balance || 0
+    };
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Dashboard overview completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      metrics: {
+        todaysOrders,
+        yesterdaysOrders,
+        todaysRevenue: todaysRevenue[0]?.total || 0,
+        yesterdaysRevenue: yesterdaysRevenue[0]?.total || 0,
+        avgShippingCost: avgShippingCost[0]?.average || 0,
+        walletBalance: user?.wallet_balance || 0
       }
     });
 
+    res.json({
+      status: 'success',
+      data: responseData
+    });
+
   } catch (error) {
-    console.error('Dashboard overview error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Dashboard overview error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching dashboard overview'
@@ -122,6 +162,13 @@ router.get('/overview', auth, async (req, res) => {
 // @route   GET /api/dashboard/shipment-status
 // @access  Private
 router.get('/shipment-status', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Shipment status request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     const userId = req.user._id;
 
@@ -174,13 +221,26 @@ router.get('/shipment-status', auth, async (req, res) => {
       statusCounts.total_orders += stat.count;
     });
 
+    const responseTime = Date.now() - startTime;
+    logger.info('Shipment status completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      statusCounts
+    });
+
     res.json({
       status: 'success',
       data: statusCounts
     });
 
   } catch (error) {
-    console.error('Shipment status error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Shipment status error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching shipment status'
@@ -192,6 +252,13 @@ router.get('/shipment-status', auth, async (req, res) => {
 // @route   GET /api/dashboard/ndr-status
 // @access  Private
 router.get('/ndr-status', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('NDR status request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     const userId = req.user._id;
 
@@ -240,13 +307,26 @@ router.get('/ndr-status', auth, async (req, res) => {
       ndrCounts.total_ndr += stat.count;
     });
 
+    const responseTime = Date.now() - startTime;
+    logger.info('NDR status completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      ndrCounts
+    });
+
     res.json({
       status: 'success',
       data: ndrCounts
     });
 
   } catch (error) {
-    console.error('NDR status error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('NDR status error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching NDR status'
@@ -258,6 +338,13 @@ router.get('/ndr-status', auth, async (req, res) => {
 // @route   GET /api/dashboard/cod-status
 // @access  Private
 router.get('/cod-status', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('COD status request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     const userId = req.user._id;
 
@@ -303,17 +390,32 @@ router.get('/cod-status', auth, async (req, res) => {
       }
     ]);
 
+    const responseData = {
+      total_cod: totalCOD[0]?.total || 0,
+      last_cod_remitted: lastRemitted?.amount || 0,
+      next_cod_available: nextCODAvailable[0]?.total || 0
+    };
+
+    const responseTime = Date.now() - startTime;
+    logger.info('COD status completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      codData: responseData
+    });
+
     res.json({
       status: 'success',
-      data: {
-        total_cod: totalCOD[0]?.total || 0,
-        last_cod_remitted: lastRemitted?.amount || 0,
-        next_cod_available: nextCODAvailable[0]?.total || 0
-      }
+      data: responseData
     });
 
   } catch (error) {
-    console.error('COD status error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('COD status error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching COD status'
@@ -325,6 +427,14 @@ router.get('/cod-status', auth, async (req, res) => {
 // @route   GET /api/dashboard/wallet-transactions
 // @access  Private
 router.get('/wallet-transactions', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Wallet transactions request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip,
+    limit: req.query.limit
+  });
+
   try {
     const userId = req.user._id;
     const limit = parseInt(req.query.limit) || 10;
@@ -337,13 +447,27 @@ router.get('/wallet-transactions', auth, async (req, res) => {
     .limit(limit)
     .select('transaction_id transaction_type transaction_category amount description transaction_date balance_info.closing_balance');
 
+    const responseTime = Date.now() - startTime;
+    logger.info('Wallet transactions completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      transactionCount: transactions.length,
+      limit
+    });
+
     res.json({
       status: 'success',
       data: transactions
     });
 
   } catch (error) {
-    console.error('Wallet transactions error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Wallet transactions error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching wallet transactions'
@@ -355,6 +479,13 @@ router.get('/wallet-transactions', auth, async (req, res) => {
 // @route   GET /api/dashboard/shipment-distribution
 // @access  Private
 router.get('/shipment-distribution', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Shipment distribution request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     const userId = req.user._id;
 
@@ -384,16 +515,32 @@ router.get('/shipment-distribution', auth, async (req, res) => {
       percentage: total > 0 ? ((item.count / total) * 100).toFixed(2) : 0
     }));
 
+    const responseData = {
+      distribution: chartData,
+      total_orders: total
+    };
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Shipment distribution completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      totalOrders: total,
+      distributionCount: chartData.length
+    });
+
     res.json({
       status: 'success',
-      data: {
-        distribution: chartData,
-        total_orders: total
-      }
+      data: responseData
     });
 
   } catch (error) {
-    console.error('Shipment distribution error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Shipment distribution error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching shipment distribution'
@@ -405,6 +552,13 @@ router.get('/shipment-distribution', auth, async (req, res) => {
 // @route   GET /api/dashboard/support-overview
 // @access  Private
 router.get('/support-overview', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Support overview request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     const userId = req.user._id;
 
@@ -442,13 +596,26 @@ router.get('/support-overview', auth, async (req, res) => {
       supportOverview.total_tickets += stat.count;
     });
 
+    const responseTime = Date.now() - startTime;
+    logger.info('Support overview completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      supportOverview
+    });
+
     res.json({
       status: 'success',
       data: supportOverview
     });
 
   } catch (error) {
-    console.error('Support overview error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Support overview error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching support overview'
@@ -460,6 +627,14 @@ router.get('/support-overview', auth, async (req, res) => {
 // @route   GET /api/dashboard/recent-activity
 // @access  Private
 router.get('/recent-activity', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Recent activity request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip,
+    limit: req.query.limit
+  });
+
   try {
     const userId = req.user._id;
     const limit = parseInt(req.query.limit) || 5;
@@ -492,17 +667,36 @@ router.get('/recent-activity', auth, async (req, res) => {
     .select('transaction_id transaction_type amount description transaction_date')
     .lean();
 
-    res.json({
-      status: 'success',
-      data: {
-        recent_orders: recentOrders,
-        recent_ndrs: recentNDRs,
-        recent_transactions: recentTransactions
+    const responseData = {
+      recent_orders: recentOrders,
+      recent_ndrs: recentNDRs,
+      recent_transactions: recentTransactions
+    };
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Recent activity completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      activityCounts: {
+        orders: recentOrders.length,
+        ndrs: recentNDRs.length,
+        transactions: recentTransactions.length
       }
     });
 
+    res.json({
+      status: 'success',
+      data: responseData
+    });
+
   } catch (error) {
-    console.error('Recent activity error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Recent activity error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching recent activity'
@@ -514,10 +708,24 @@ router.get('/recent-activity', auth, async (req, res) => {
 // @route   GET /api/dashboard/performance
 // @access  Private
 router.get('/performance', auth, async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Performance metrics request started', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip,
+    period: req.query.period
+  });
+
   try {
     const userId = req.user._id;
     const { period = '30' } = req.query; // days
     const startDate = moment().subtract(parseInt(period), 'days').startOf('day');
+
+    logger.debug('Performance metrics - calculating stats', {
+      userId,
+      period: parseInt(period),
+      startDate: startDate.format()
+    });
 
     // Calculate delivery success rate
     const deliveryStats = await Order.aggregate([
@@ -568,20 +776,35 @@ router.get('/performance', auth, async (req, res) => {
       }
     ]);
 
+    const responseData = {
+      total_orders: totalOrders,
+      delivery_success_rate: parseFloat(deliverySuccessRate),
+      ndr_rate: parseFloat(ndrRate),
+      rto_rate: parseFloat(rtoRate),
+      average_order_value: avgOrderValue[0]?.average || 0,
+      period_days: parseInt(period)
+    };
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Performance metrics completed successfully', {
+      userId,
+      responseTime: `${responseTime}ms`,
+      performanceData: responseData
+    });
+
     res.json({
       status: 'success',
-      data: {
-        total_orders: totalOrders,
-        delivery_success_rate: parseFloat(deliverySuccessRate),
-        ndr_rate: parseFloat(ndrRate),
-        rto_rate: parseFloat(rtoRate),
-        average_order_value: avgOrderValue[0]?.average || 0,
-        period_days: parseInt(period)
-      }
+      data: responseData
     });
 
   } catch (error) {
-    console.error('Performance metrics error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Performance metrics error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching performance metrics'

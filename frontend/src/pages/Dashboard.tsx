@@ -1,14 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  TrendingUp,
-  TrendingDown,
-  Package,
-  IndianRupee,
-  Truck,
-  AlertTriangle,
-  RefreshCw,
-  ArrowUpDown
-} from 'lucide-react';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -35,6 +25,55 @@ ChartJS.register(
   Title
 );
 
+// CSS-based Icon Components
+const TrendingUpIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+  </svg>
+);
+
+const TrendingDownIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+  </svg>
+);
+
+const PackageIcon: React.FC<{ className?: string }> = ({ className = "h-6 w-6" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+  </svg>
+);
+
+const IndianRupeeIcon: React.FC<{ className?: string }> = ({ className = "h-6 w-6" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v20M9 7h6m-6 4h6m-3-8v8m-3 4h6" />
+  </svg>
+);
+
+const TruckIcon: React.FC<{ className?: string }> = ({ className = "h-6 w-6" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17a2 2 0 100 4 2 2 0 000-4zm0 0c1.306 0 2.417.835 2.83 2M9 17a3.001 3.001 0 00-2.83 2M15 17a2 2 0 100 4 2 2 0 000-4zm0 0c1.306 0 2.417.835 2.83 2M16 17a3.001 3.001 0 00-2.83 2M5 17H2a1 1 0 01-1-1V5a1 1 0 011-1h14a1 1 0 011 1v11a1 1 0 01-1 1h-3" />
+  </svg>
+);
+
+const AlertTriangleIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+  </svg>
+);
+
+const RefreshCwIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  </svg>
+);
+
+const ArrowUpDownIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+  </svg>
+);
+
 interface MetricCardProps {
   title: string;
   value: string | number;
@@ -53,8 +92,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
   bgColor
 }) => {
   const getChangeIcon = () => {
-    if (changeType === 'positive') return <TrendingUp className="h-4 w-4" />;
-    if (changeType === 'negative') return <TrendingDown className="h-4 w-4" />;
+    if (changeType === 'positive') return <TrendingUpIcon className="h-4 w-4" />;
+    if (changeType === 'negative') return <TrendingDownIcon className="h-4 w-4" />;
     return null;
   };
 
@@ -207,7 +246,7 @@ const Dashboard: React.FC = () => {
             disabled={refreshing}
             className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCwIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -219,7 +258,7 @@ const Dashboard: React.FC = () => {
             value={overview?.todays_orders.count || 0}
             change={overview?.todays_orders.change_percentage}
             changeType={parseFloat(overview?.todays_orders.change_percentage || '0') >= 0 ? 'positive' : 'negative'}
-            icon={<Package className="h-6 w-6 text-white" />}
+            icon={<PackageIcon className="h-6 w-6 text-white" />}
             bgColor="bg-blue-500"
           />
           <MetricCard
@@ -227,13 +266,13 @@ const Dashboard: React.FC = () => {
             value={`₹${(overview?.todays_revenue.amount || 0).toLocaleString()}`}
             change={overview?.todays_revenue.change_percentage}
             changeType={parseFloat(overview?.todays_revenue.change_percentage || '0') >= 0 ? 'positive' : 'negative'}
-            icon={<IndianRupee className="h-6 w-6 text-white" />}
+            icon={<IndianRupeeIcon className="h-6 w-6 text-white" />}
             bgColor="bg-green-500"
           />
           <MetricCard
             title="Avg. Shipping Cost"
             value={`₹${(overview?.average_shipping_cost || 0).toFixed(2)}`}
-            icon={<Truck className="h-6 w-6 text-white" />}
+            icon={<TruckIcon className="h-6 w-6 text-white" />}
             bgColor="bg-purple-500"
           />
         </div>
@@ -377,19 +416,19 @@ const Dashboard: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-              <Package className="h-5 w-5 text-gray-400" />
+              <PackageIcon className="h-5 w-5 text-gray-400" />
               <span className="text-sm font-medium text-gray-600">Create New Order</span>
             </button>
             <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-              <ArrowUpDown className="h-5 w-5 text-gray-400" />
+              <ArrowUpDownIcon className="h-5 w-5 text-gray-400" />
               <span className="text-sm font-medium text-gray-600">Bulk Import</span>
             </button>
             <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-              <Truck className="h-5 w-5 text-gray-400" />
+              <TruckIcon className="h-5 w-5 text-gray-400" />
               <span className="text-sm font-medium text-gray-600">Rate Calculator</span>
             </button>
             <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-              <AlertTriangle className="h-5 w-5 text-gray-400" />
+              <AlertTriangleIcon className="h-5 w-5 text-gray-400" />
               <span className="text-sm font-medium text-gray-600">Download Reports</span>
             </button>
           </div>

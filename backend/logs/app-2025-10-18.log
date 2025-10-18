@@ -25,3 +25,80 @@
   "healthCheck": "http://localhost:5000/api/health"
 }
 [2025-10-18T17:53:15.888Z] [INFO] [PID:12972] ✅ Connected to MongoDB
+[2025-10-18T19:04:00.527Z] [INFO] [PID:12972] Incoming Request | Data: {
+  "method": "GET",
+  "url": "/api/health",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+  "query": {},
+  "params": {}
+}
+[2025-10-18T19:04:00.548Z] [INFO] [PID:12972] Request Completed | Data: {
+  "method": "GET",
+  "url": "/api/health",
+  "statusCode": 200,
+  "duration": "21ms",
+  "ip": "::1"
+}
+[2025-10-18T19:04:18.481Z] [INFO] [PID:12972] Incoming Request | Data: {
+  "method": "POST",
+  "url": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+  "query": {},
+  "params": {}
+}
+[2025-10-18T19:04:18.568Z] [INFO] [PID:12972] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "CORS Test",
+    "your_name": "CORS Test",
+    "state": "Maharashtra",
+    "phone_number": "9876543212",
+    "email": "cors-test@example.com",
+    "password": "password123",
+    "terms_accepted": "true"
+  }
+}
+[2025-10-18T19:04:18.569Z] [DEBUG] [PID:12972] Registration data extracted | Data: {
+  "email": "cors-test@example.com",
+  "phone_number": "9876543212",
+  "company_name": "CORS Test",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-18T19:04:18.571Z] [DEBUG] [PID:12972] Checking for existing user | Data: {
+  "email": "cors-test@example.com",
+  "phone_number": "9876543212"
+}
+[2025-10-18T19:04:18.670Z] [INFO] [PID:12972] Creating new user | Data: {
+  "email": "cors-test@example.com",
+  "company_name": "CORS Test",
+  "user_type": "e-commerce-sellers"
+}
+[2025-10-18T19:04:19.344Z] [INFO] [PID:12972] User created successfully | Data: {
+  "userId": "68f3e4b23aba0d740de2f9b8",
+  "email": "cors-test@example.com",
+  "company_name": "CORS Test",
+  "client_id": "SS45617"
+}
+[2025-10-18T19:04:19.350Z] [DEBUG] [PID:12972] JWT token generated | Data: {
+  "userId": "68f3e4b23aba0d740de2f9b8"
+}
+[2025-10-18T19:04:19.351Z] [INFO] [PID:12972] Registration completed successfully | Data: {
+  "userId": "68f3e4b23aba0d740de2f9b8",
+  "email": "cors-test@example.com",
+  "company_name": "CORS Test",
+  "responseTime": "783ms"
+}
+[2025-10-18T19:04:19.354Z] [INFO] [PID:12972] Request Completed | Data: {
+  "method": "POST",
+  "url": "/api/auth/register",
+  "statusCode": 201,
+  "duration": "872ms",
+  "ip": "::1"
+}
+[2025-10-18T19:10:48.618Z] [INFO] [PID:12972] 🛑 SIGINT received, shutting down gracefully

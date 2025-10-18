@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { DELHIVERY_CONFIG } from '../config/apiConfig';
 import './Tracking.css';
 
 // Types for tracking response
@@ -43,34 +42,29 @@ const Tracking: React.FC = () => {
     setTrackingData(null);
 
     try {
-      // Using production environment URL from config
-      const response = await axios.get<TrackingResponse>(
-        DELHIVERY_CONFIG.API_URL,
-        {
-          params: {
-            waybill: awbNumber.trim(),
-            ref_ids: ''
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': DELHIVERY_CONFIG.API_TOKEN
-          }
-        }
+      // Call our backend API instead of Delhivery directly
+      const apiUrl = process.env.REACT_APP_ENVIRONMENT === 'production' 
+        ? process.env.REACT_APP_PRODUCTION_API_URL 
+        : process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(
+        `${apiUrl}/api/shipping/public/track/${awbNumber.trim()}`
       );
 
-      if (response.data?.data?.ShipmentData?.length > 0) {
-        setTrackingData(response.data.data.ShipmentData[0]);
+      if (response.data?.success && response.data?.data) {
+        setTrackingData(response.data.data);
       } else {
-        setError('No tracking information found for this AWB number.');
+        setError(response.data?.message || 'No tracking information found for this AWB number.');
       }
     } catch (err: any) {
       console.error('Tracking error:', err);
-      if (err.response?.status === 401) {
-        setError('Invalid API key. Please contact support.');
+      if (err.response?.status === 503) {
+        setError('Tracking service is temporarily unavailable. Please try again later.');
       } else if (err.response?.status === 404) {
         setError('AWB number not found. Please verify the number and try again.');
       } else if (err.response?.status === 429) {
         setError('Too many requests. Please try again later.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else {
         setError('Failed to fetch tracking information. Please try again.');
       }

@@ -99,6 +99,41 @@ router.post('/create-shipment',
     }
 );
 
+// Public tracking endpoint (no authentication required)
+router.get('/public/track/:waybill', async (req, res) => {
+    try {
+        if (!delhiveryService.validateApiKey()) {
+            return res.status(503).json({
+                success: false,
+                message: 'Delhivery API not configured'
+            });
+        }
+
+        const trackingResult = await delhiveryService.trackShipment(req.params.waybill);
+
+        if (trackingResult.success) {
+            res.json({
+                success: true,
+                data: trackingResult
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Failed to track shipment',
+                error: trackingResult.error
+            });
+        }
+    } catch (error) {
+        console.error('Public track shipment error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
+// Authenticated tracking endpoint (for logged-in users)
 router.get('/track/:waybill', auth, async (req, res) => {
     try {
         if (!delhiveryService.validateApiKey()) {
