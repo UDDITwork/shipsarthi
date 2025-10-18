@@ -3,6 +3,7 @@ const logger = require('../utils/logger');
 
 class EmailService {
   constructor() {
+    // Enhanced email configuration with timeout and retry settings
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
@@ -10,21 +11,83 @@ class EmailService {
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+      },
+      // Connection timeout settings
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 5000,    // 5 seconds
+      socketTimeout: 10000,     // 10 seconds
+      // Retry settings
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      rateDelta: 1000,
+      rateLimit: 5,
+      // TLS settings for Gmail
+      tls: {
+        rejectUnauthorized: false
       }
     });
 
-    // Verify connection configuration
-    this.transporter.verify((error, success) => {
-      if (error) {
-        logger.error('Email service configuration error', { error: error.message });
+    // Verify connection configuration with enhanced logging
+    this.verifyConnection();
+  }
+
+  async verifyConnection() {
+    try {
+      logger.info('🔧 EMAIL SERVICE - Testing connection...', {
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        user: process.env.EMAIL_USER,
+        timestamp: new Date().toISOString()
+      });
+
+      const success = await this.transporter.verify();
+      
+      if (success) {
+        logger.info('✅ EMAIL SERVICE - Connection successful', {
+          message: 'Server is ready to take our messages',
+          host: process.env.EMAIL_HOST,
+          timestamp: new Date().toISOString()
+        });
+        this.isConnected = true;
       } else {
-        logger.info('Email service ready', { message: 'Server is ready to take our messages' });
+        logger.error('❌ EMAIL SERVICE - Connection verification failed');
+        this.isConnected = false;
       }
-    });
+    } catch (error) {
+      logger.error('❌ EMAIL SERVICE - Connection error', {
+        error: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        timestamp: new Date().toISOString()
+      });
+      this.isConnected = false;
+      
+      // Set a flag to retry connection later
+      setTimeout(() => {
+        this.verifyConnection();
+      }, 30000); // Retry after 30 seconds
+    }
   }
 
   async sendEnquiryConfirmation(enquiryData) {
     try {
+      // Check if email service is connected
+      if (!this.isConnected) {
+        logger.warn('⚠️ EMAIL SERVICE - Skipping email send (service not connected)', {
+          reason: 'Email service connection failed',
+          enquiryData: enquiryData
+        });
+        return {
+          success: false,
+          message: 'Email service not available',
+          messageId: null
+        };
+      }
+
       const { name, email, mobile, describe, monthlyLoad } = enquiryData;
 
       const mailOptions = {
@@ -153,6 +216,19 @@ class EmailService {
 
   async sendEnquiryNotification(enquiryData) {
     try {
+      // Check if email service is connected
+      if (!this.isConnected) {
+        logger.warn('⚠️ EMAIL SERVICE - Skipping notification email (service not connected)', {
+          reason: 'Email service connection failed',
+          enquiryData: enquiryData
+        });
+        return {
+          success: false,
+          message: 'Email service not available',
+          messageId: null
+        };
+      }
+
       const { name, email, mobile, describe, monthlyLoad } = enquiryData;
 
       const mailOptions = {

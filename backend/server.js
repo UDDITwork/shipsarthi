@@ -149,6 +149,46 @@ app.post('/api/test-cors', (req, res) => {
   });
 });
 
+// Test Email Service Route
+app.get('/api/test-email', async (req, res) => {
+  try {
+    const emailService = require('./services/emailService');
+    
+    logger.info('🧪 EMAIL TEST ENDPOINT HIT', {
+      requestId: req.requestId,
+      timestamp: new Date().toISOString()
+    });
+    
+    const testResult = await emailService.sendEnquiryConfirmation({
+      name: 'Test User',
+      email: 'test@example.com',
+      mobile: '1234567890',
+      describe: 'Test Business',
+      monthlyLoad: 'Test Load'
+    });
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Email test completed',
+      emailResult: testResult,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('❌ EMAIL TEST ERROR', {
+      requestId: req.requestId,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+    
+    res.status(500).json({
+      status: 'error',
+      message: 'Email test failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
