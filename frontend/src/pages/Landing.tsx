@@ -30,7 +30,27 @@ const Landing: React.FC = () => {
     setSubmitStatus('idle');
     setSubmitMessage('');
 
+    console.log('🚀 FORM SUBMISSION STARTED', {
+      formData,
+      timestamp: new Date().toISOString()
+    });
+
     try {
+      // First test CORS connectivity
+      console.log('🧪 Testing CORS connectivity...');
+      try {
+        const corsTestResponse = await fetch('http://localhost:5000/api/test-cors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ test: 'cors-connectivity' })
+        });
+        console.log('✅ CORS Test Response:', corsTestResponse.status, await corsTestResponse.json());
+      } catch (corsError) {
+        console.error('❌ CORS Test Failed:', corsError);
+      }
+
       const enquiryData: EnquiryData = {
         name: formData.name,
         email: formData.email,
@@ -39,6 +59,7 @@ const Landing: React.FC = () => {
         monthlyLoad: formData.monthlyLoad
       };
 
+      console.log('📤 Submitting enquiry data:', enquiryData);
       const response = await enquiryService.submitEnquiry(enquiryData);
       
       setSubmitStatus('success');
@@ -62,10 +83,17 @@ const Landing: React.FC = () => {
     } catch (error: any) {
       console.error('Enquiry submission error:', error);
       setSubmitStatus('error');
-      setSubmitMessage(
-        error.response?.data?.message || 
-        'Failed to submit enquiry. Please try again later.'
-      );
+      
+      // Show specific validation errors if available
+      if (error.response?.data?.errors) {
+        const errorMessages = error.response.data.errors.map((err: any) => err.msg).join(', ');
+        setSubmitMessage(`Validation failed: ${errorMessages}`);
+      } else {
+        setSubmitMessage(
+          error.response?.data?.message || 
+          'Failed to submit enquiry. Please try again later.'
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -1,17 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { environmentConfig } from '../config/environment';
 
-// Determine API URL based on environment
-const getApiBaseUrl = () => {
-  const environment = process.env.REACT_APP_ENVIRONMENT || 'development';
-  
-  if (environment === 'production') {
-    return process.env.REACT_APP_PRODUCTION_API_URL || 'https://your-render-backend-url.onrender.com/api';
-  }
-  
-  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Use the environment configuration
+const API_BASE_URL = environmentConfig.apiUrl;
 
 class ApiService {
   private api: AxiosInstance;
@@ -19,7 +10,7 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000,
+      timeout: 10000, // Reduced timeout to 10 seconds
       headers: {
         'Content-Type': 'application/json',
       },
@@ -31,16 +22,62 @@ class ApiService {
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Enhanced request logging
+        console.log('🚀 FRONTEND API REQUEST:', {
+          url: config.url,
+          method: config.method,
+          baseURL: config.baseURL,
+          data: config.data,
+          headers: config.headers,
+          timestamp: new Date().toISOString()
+        });
+        
         return config;
       },
       (error) => {
+        console.error('❌ FRONTEND REQUEST ERROR:', error);
         return Promise.reject(error);
       }
     );
 
     this.api.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log('✅ FRONTEND API RESPONSE:', {
+          url: response.config.url,
+          status: response.status,
+          data: response.data,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
       (error) => {
+        // Enhanced error logging with connection details
+        const errorDetails = {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message,
+          code: error.code,
+          timeout: error.code === 'ECONNABORTED',
+          networkError: !error.response,
+          timestamp: new Date().toISOString()
+        };
+        
+        console.error('❌ FRONTEND API ERROR:', errorDetails);
+        
+        // Special handling for timeout and connection errors
+        if (error.code === 'ECONNABORTED') {
+          console.error('⏰ REQUEST TIMEOUT - Backend might be down or slow');
+          errorDetails.message = 'Request timeout - Backend server might be down or slow';
+        } else if (!error.response) {
+          console.error('🌐 NETWORK ERROR - Cannot connect to backend');
+          errorDetails.message = 'Network error - Cannot connect to backend server';
+        }
+        
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');

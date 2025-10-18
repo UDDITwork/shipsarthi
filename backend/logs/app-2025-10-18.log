@@ -112,3 +112,92 @@
   "message": "Server is ready to take our messages"
 }
 [2025-10-18T19:49:02.028Z] [INFO] [PID:7520] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T20:03:37.512Z] [INFO] [PID:6828] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T20:03:39.361Z] [INFO] [PID:6828] Email service ready | Data: {
+  "message": "Server is ready to take our messages"
+}
+[2025-10-18T20:03:39.603Z] [INFO] [PID:6828] ✅ Connected to MongoDB
+[2025-10-18T20:14:21.706Z] [INFO] [PID:6828] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T20:14:26.668Z] [INFO] [PID:18608] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T20:14:27.592Z] [INFO] [PID:18608] ✅ Connected to MongoDB
+[2025-10-18T20:14:28.465Z] [INFO] [PID:18608] Email service ready | Data: {
+  "message": "Server is ready to take our messages"
+}
+[2025-10-18T20:33:22.272Z] [INFO] [PID:18608] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T20:33:22.272Z"
+}
+[2025-10-18T20:33:22.273Z] [INFO] [PID:18608] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T20:33:22.283Z] [INFO] [PID:18608] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T20:33:22.283Z"
+}
+[2025-10-18T20:33:22.284Z] [INFO] [PID:18608] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T20:33:22.286Z] [INFO] [PID:18608] Incoming Request | Data: {
+  "method": "POST",
+  "url": "/api/test-cors",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "query": {},
+  "params": {}
+}
+[2025-10-18T20:33:22.322Z] [WARN] [PID:18608] 404 - Route not found | Data: {
+  "url": "/api/test-cors",
+  "method": "POST",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-18T20:33:22.332Z] [INFO] [PID:18608] Request Completed | Data: {
+  "method": "POST",
+  "url": "/api/test-cors",
+  "statusCode": 404,
+  "duration": "46ms",
+  "ip": "::1"
+}
+[2025-10-18T20:38:28.703Z] [INFO] [PID:18608] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-18T20:38:28.704Z] [INFO] [PID:18608] Incoming Request | Data: {
+  "method": "GET",
+  "url": "/api/health",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+  "query": {},
+  "params": {}
+}
+[2025-10-18T20:38:28.707Z] [INFO] [PID:18608] Request Completed | Data: {
+  "method": "GET",
+  "url": "/api/health",
+  "statusCode": 200,
+  "duration": "3ms",
+  "ip": "::1"
+}
+[2025-10-18T20:46:39.520Z] [INFO] [PID:18608] 🛑 SIGINT received, shutting down gracefully
