@@ -51,25 +51,39 @@ const Register: React.FC = () => {
   return (
     <div className="register-page">
       <div className="register-container">
-        {/* Header */}
-        <div className="register-header">
-          <div className="logo-container">
-            <div className="logo-circle">
+        <div className="register-content">
+          {/* Left Side - 3 Steps Process */}
+          <div className="steps-section">
+            <div className="steps-header">
+              <h1 className="brand-title">
+                <span className="brand-ship">Ship</span>
+                <span className="brand-sarthi">sarthi</span>
+              </h1>
+              <p className="brand-tagline">
+                <span className="tagline-your-trusted">Your Trusted </span>
+                <span className="tagline-sarthi">Sarthi </span>
+                <span className="tagline-in-every">in Every </span>
+                <span className="tagline-shipment">Shipment</span>
+              </p>
+            </div>
+            
+            <div className="steps-visualization">
               <img 
-                src="/Final logo Figma 1.svg" 
-                alt="Shipsarthi Logo" 
-                className="logo-image"
+                src="/3 steps for login 1.svg" 
+                alt="3 Steps Process" 
+                className="steps-image"
               />
             </div>
           </div>
-          <h1 className="register-title">Register to Shipsarthi</h1>
-          <p className="register-subtitle">Join India's leading logistics aggregation platform</p>
-        </div>
 
-        <div className="register-content">
-          {/* Registration Form */}
+          {/* Right Side - Registration Form */}
           <div className="register-form-section">
             <div className="register-form-container">
+              <div className="form-header">
+                <h1 className="register-title">Register to Shipsarthi</h1>
+                <p className="register-subtitle">Start your journey with Shipsarthi - shipping starts in just a few clicks.</p>
+              </div>
+              
               <form onSubmit={handleSubmit(onSubmit)} className="register-form">
                 {registrationSuccess && (
                   <div className="success-message">
@@ -333,47 +347,6 @@ const Register: React.FC = () => {
                   </p>
                 </div>
               </form>
-            </div>
-          </div>
-
-          {/* Preview Panels */}
-          <div className="preview-section">
-            {/* User Type Preview */}
-            <div className="preview-card">
-              <h3 className="preview-title">User Types</h3>
-              <div className="preview-list">
-                {userTypes.map((type, index) => (
-                  <div 
-                    key={index}
-                    className={`preview-item ${
-                      selectedUserType === type.toLowerCase().replace(/[^a-z0-9]/g, '-')
-                        ? 'preview-item-selected'
-                        : ''
-                    }`}
-                  >
-                    {type}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Shipment Volume Preview */}
-            <div className="preview-card">
-              <h3 className="preview-title">Shipment Volumes</h3>
-              <div className="preview-list">
-                {shipmentVolumes.map((volume, index) => (
-                  <div 
-                    key={index}
-                    className={`preview-item ${
-                      selectedShipments === volume
-                        ? 'preview-item-selected'
-                        : ''
-                    }`}
-                  >
-                    {volume}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>

@@ -1569,10 +1569,7 @@ body {
 .login-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
   position: relative;
 }
 
@@ -1589,10 +1586,122 @@ body {
 }
 
 .login-container {
-  max-width: 400px;
+  max-width: 1200px;
   width: 100%;
+  margin: 0 auto;
   position: relative;
   z-index: 1;
+}
+
+.login-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  min-height: 80vh;
+}
+
+/* Left Side - Steps Section (same as register) */
+.steps-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.steps-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.brand-ship {
+  color: #ff6b35;
+}
+
+.brand-sarthi {
+  color: #0d47a1;
+}
+
+.brand-tagline {
+  font-size: 1.2rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.tagline-your-trusted {
+  color: #0d47a1;
+  font-weight: 500;
+}
+
+.tagline-sarthi {
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+.tagline-in-every {
+  color: #0d47a1;
+  font-weight: 500;
+}
+
+.tagline-shipment {
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+.steps-visualization {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.steps-image {
+  width: 100%;
+  height: auto;
+  max-width: 500px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.steps-image:hover {
+  transform: scale(1.02);
+}
+
+/* Right Side - Login Form Section */
+.login-form-section {
+  width: 100%;
 }
 
 .login-header {
@@ -1619,24 +1728,27 @@ body {
 .login-title {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #1976d2;
+  color: #0d47a1;
   margin-bottom: 0.5rem;
   line-height: 1.2;
 }
 
 .login-subtitle {
-  color: #1976d2;
+  color: #666;
   font-size: 1.1rem;
   margin: 0;
-  text-decoration: underline;
 }
 
 .login-form-container {
   background: white;
-  border-radius: 15px;
-  padding: 2rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e3f2fd;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.form-header {
+  text-align: center;
   margin-bottom: 2rem;
 }
 
@@ -1717,9 +1829,9 @@ body {
 }
 
 .form-input:focus {
-  border-color: #1976d2;
+  border-color: #0d47a1;
   background: white;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
 }
 
 .form-input::placeholder {
@@ -1801,7 +1913,7 @@ body {
 .login-button {
   width: 100%;
   padding: 1rem;
-  background: #1976d2;
+  background: #0d47a1;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1814,7 +1926,7 @@ body {
 
 .login-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 8px 25px rgba(13, 71, 161, 0.3);
 }
 
 .login-button:active:not(:disabled) {
@@ -1902,13 +2014,73 @@ body {
 }
 
 /* Mobile Responsive Design for Login */
-@media (max-width: 768px) {
-  .login-page {
-    padding: 0.5rem;
+@media (max-width: 1200px) {
+  .login-content {
+    gap: 3rem;
   }
   
-  .login-container {
-    max-width: 100%;
+  .brand-title {
+    font-size: 3rem;
+  }
+  
+  .steps-visualization {
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-content {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .steps-section {
+    order: 2;
+    padding: 1rem;
+  }
+  
+  .login-form-section {
+    order: 1;
+  }
+  
+  .brand-title {
+    font-size: 2.8rem;
+  }
+  
+  .steps-visualization {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .login-content {
+    gap: 2rem;
+    min-height: auto;
+  }
+  
+  .steps-section {
+    padding: 1rem 0;
+  }
+  
+  .brand-title {
+    font-size: 2.5rem;
+  }
+  
+  .brand-tagline {
+    font-size: 1rem;
+  }
+  
+  .steps-visualization {
+    max-width: 350px;
+  }
+  
+  .login-form-container {
+    padding: 1.5rem;
+    border-radius: 15px;
   }
   
   .login-title {
@@ -1917,26 +2089,6 @@ body {
   
   .login-subtitle {
     font-size: 1rem;
-  }
-  
-  .login-form-container {
-    padding: 1.5rem;
-    border-radius: 15px;
-  }
-  
-  .logo-circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 15px;
-  }
-  
-  .logo-text {
-    font-size: 1.75rem;
-  }
-  
-  .logo-image {
-    width: 50px;
-    height: 50px;
   }
   
   .form-input {
@@ -1974,15 +2126,31 @@ body {
     gap: 1rem;
     flex-direction: column;
   }
-  
-  .login-steps-svg {
-    max-width: 150px;
-  }
 }
 
 @media (max-width: 480px) {
   .login-page {
-    padding: 0.25rem;
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .login-content {
+    gap: 1.5rem;
+  }
+  
+  .steps-section {
+    padding: 0.5rem 0;
+  }
+  
+  .brand-title {
+    font-size: 2rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.9rem;
+  }
+  
+  .steps-visualization {
+    max-width: 280px;
   }
   
   .login-form-container {
@@ -1996,21 +2164,6 @@ body {
   
   .login-subtitle {
     font-size: 0.95rem;
-  }
-  
-  .logo-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-  }
-  
-  .logo-text {
-    font-size: 1.5rem;
-  }
-  
-  .logo-image {
-    width: 40px;
-    height: 40px;
   }
   
   .form-input {
@@ -2060,16 +2213,67 @@ body {
   .footer-link {
     font-size: 0.8rem;
   }
+}
+
+@media (max-width: 360px) {
+  .login-page {
+    padding: 0.25rem;
+  }
   
-  .login-steps-svg {
-    max-width: 120px;
+  .brand-title {
+    font-size: 1.8rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.85rem;
+  }
+  
+  .steps-visualization {
+    max-width: 250px;
+  }
+  
+  .login-form-container {
+    padding: 1rem;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+  }
+  
+  .login-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .form-input {
+    padding: 0.7rem 0.7rem 0.7rem 2.25rem;
+    font-size: 0.85rem;
+  }
+  
+  .input-icon {
+    width: 14px;
+    height: 14px;
+    left: 0.7rem;
+  }
+  
+  .password-toggle {
+    right: 0.7rem;
+  }
+  
+  .toggle-icon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .login-button {
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
 }
 
 /* Register Page Styles */
 .register-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
   padding: 2rem 1rem;
   position: relative;
 }
@@ -2081,8 +2285,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e9ecef' fill-opacity='0.3'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e1f5fe' fill-opacity='0.4'%3E%3Cpath d='M30 30c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm0 0c0 5.5 4.5 10 10 10s10-4.5 10-10-4.5-10-10-10-10 4.5-10 10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.6;
   z-index: 0;
 }
 
@@ -2094,15 +2298,134 @@ body {
   z-index: 1;
 }
 
-.register-header {
+.register-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  min-height: 80vh;
+}
+
+/* Left Side - Steps Section */
+.steps-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.steps-header {
   text-align: center;
   margin-bottom: 3rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.brand-ship {
+  color: #ff6b35;
+}
+
+.brand-sarthi {
+  color: #0d47a1;
+}
+
+.brand-tagline {
+  font-size: 1.2rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.tagline-your-trusted {
+  color: #0d47a1;
+  font-weight: 500;
+}
+
+.tagline-sarthi {
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+.tagline-in-every {
+  color: #0d47a1;
+  font-weight: 500;
+}
+
+.tagline-shipment {
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+.steps-visualization {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.steps-image {
+  width: 100%;
+  height: auto;
+  max-width: 500px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.steps-image:hover {
+  transform: scale(1.02);
+}
+
+/* Right Side - Form Section */
+.register-form-section {
+  width: 100%;
+}
+
+.register-form-container {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .register-title {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #333;
+  color: #0d47a1;
   margin-bottom: 0.5rem;
   line-height: 1.2;
 }
@@ -2111,13 +2434,6 @@ body {
   color: #666;
   font-size: 1.1rem;
   margin: 0;
-}
-
-.register-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  align-items: start;
 }
 
 .register-form-section {
@@ -2296,15 +2612,41 @@ body {
 }
 
 /* Mobile Responsive Design for Register */
+@media (max-width: 1200px) {
+  .register-content {
+    gap: 3rem;
+  }
+  
+  .brand-title {
+    font-size: 3rem;
+  }
+  
+  .steps-visualization {
+    max-width: 450px;
+  }
+}
+
 @media (max-width: 1024px) {
   .register-content {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 3rem;
   }
   
-  .preview-section {
-    flex-direction: row;
-    gap: 1rem;
+  .steps-section {
+    order: 2;
+    padding: 1rem;
+  }
+  
+  .register-form-section {
+    order: 1;
+  }
+  
+  .brand-title {
+    font-size: 2.8rem;
+  }
+  
+  .steps-visualization {
+    max-width: 400px;
   }
 }
 
@@ -2313,8 +2655,30 @@ body {
     padding: 1rem 0.5rem;
   }
   
-  .register-header {
-    margin-bottom: 2rem;
+  .register-content {
+    gap: 2rem;
+    min-height: auto;
+  }
+  
+  .steps-section {
+    padding: 1rem 0;
+  }
+  
+  .brand-title {
+    font-size: 2.5rem;
+  }
+  
+  .brand-tagline {
+    font-size: 1rem;
+  }
+  
+  .steps-visualization {
+    max-width: 350px;
+  }
+  
+  .register-form-container {
+    padding: 1.5rem;
+    border-radius: 15px;
   }
   
   .register-title {
@@ -2325,27 +2689,9 @@ body {
     font-size: 1rem;
   }
   
-  .register-form-container {
-    padding: 1.5rem;
-    border-radius: 15px;
-  }
-  
   .form-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-  }
-  
-  .preview-section {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .preview-card {
-    padding: 1.25rem;
-  }
-  
-  .preview-title {
-    font-size: 1.1rem;
   }
   
   .form-select {
@@ -2362,6 +2708,26 @@ body {
 @media (max-width: 480px) {
   .register-page {
     padding: 0.5rem 0.25rem;
+  }
+  
+  .register-content {
+    gap: 1.5rem;
+  }
+  
+  .steps-section {
+    padding: 0.5rem 0;
+  }
+  
+  .brand-title {
+    font-size: 2rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.9rem;
+  }
+  
+  .steps-visualization {
+    max-width: 280px;
   }
   
   .register-form-container {
@@ -2401,17 +2767,44 @@ body {
   .login-link-text {
     font-size: 0.9rem;
   }
+}
+
+@media (max-width: 360px) {
+  .register-page {
+    padding: 0.25rem;
+  }
   
-  .preview-card {
+  .brand-title {
+    font-size: 1.8rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.85rem;
+  }
+  
+  .steps-visualization {
+    max-width: 250px;
+  }
+  
+  .register-form-container {
     padding: 1rem;
   }
   
-  .preview-title {
-    font-size: 1rem;
+  .register-title {
+    font-size: 1.5rem;
   }
   
-  .preview-item {
-    padding: 0.5rem;
+  .register-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .form-select {
+    padding: 0.7rem;
     font-size: 0.85rem;
+  }
+  
+  .register-button {
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
 }

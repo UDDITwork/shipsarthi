@@ -42,135 +42,153 @@ const Login: React.FC = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Header */}
-        <div className="login-header">
-          <h1 className="login-title">Welcome back!</h1>
-          <p className="login-subtitle">Login to Your Account</p>
-        </div>
-
-        {/* Login Form */}
-        <div className="login-form-container">
-          <form onSubmit={handleSubmit(onSubmit)} className="login-form">
-            {showWelcomeMessage && (
-              <div className="success-message">
-                <p>🎉 Welcome! Please login with your credentials.</p>
-              </div>
-            )}
-            
-            {error && (
-              <div className="error-message">
-                <p>{error}</p>
-              </div>
-            )}
-
-            {/* Email or Phone */}
-            <div className="form-group">
-              <label className="form-label">
-                Email or Phone
-              </label>
-              <div className="input-container">
-                <User className="input-icon" />
-                <input
-                  type="text"
-                  {...register('email', { 
-                    required: 'Email or phone is required',
-                    validate: (value) => {
-                      const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-                      const phonePattern = /^[6-9]\d{9}$/;
-                      if (!emailPattern.test(value) && !phonePattern.test(value)) {
-                        return 'Please enter a valid email or phone number';
-                      }
-                      return true;
-                    }
-                  })}
-                  className="form-input"
-                  placeholder="Enter your email or phone"
-                />
-              </div>
-              {errors.email && (
-                <p className="field-error">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div className="form-group">
-              <label className="form-label">
-                Password
-              </label>
-              <div className="input-container">
-                <Lock className="input-icon" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password', { required: 'Password is required' })}
-                  className="form-input"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="toggle-icon" />
-                  ) : (
-                    <Eye className="toggle-icon" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="field-error">{errors.password.message}</p>
-              )}
-            </div>
-
-            {/* Remember Me and Forgot Password */}
-            <div className="form-options">
-              <div className="remember-me">
-                <input
-                  type="checkbox"
-                  {...register('remember_me')}
-                  className="checkbox"
-                  id="remember"
-                />
-                <label htmlFor="remember" className="checkbox-label">
-                  Remember me
-                </label>
-              </div>
-              <Link
-                to="/forgot-password"
-                className="forgot-password-link"
-              >
-                Forgot Password ?
-              </Link>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`login-button ${loading ? 'loading' : ''}`}
-            >
-              {loading ? 'Signing In...' : 'Log in'}
-            </button>
-
-            {/* Register Link */}
-            <div className="register-link-container">
-              <p className="register-text">
-                New to Shipsarthi ?{' '}
-                <Link to="/register" className="register-link">
-                  Create an account
-                </Link>
+        <div className="login-content">
+          {/* Left Side - 3 Steps Process */}
+          <div className="steps-section">
+            <div className="steps-header">
+              <h1 className="brand-title">
+                <span className="brand-ship">Ship</span>
+                <span className="brand-sarthi">sarthi</span>
+              </h1>
+              <p className="brand-tagline">
+                <span className="tagline-your-trusted">Your Trusted </span>
+                <span className="tagline-sarthi">Sarthi </span>
+                <span className="tagline-in-every">in Every </span>
+                <span className="tagline-shipment">Shipment</span>
               </p>
             </div>
-          </form>
-        </div>
+            
+            <div className="steps-visualization">
+              <img 
+                src="/3 steps for login 1.svg" 
+                alt="3 Steps Process" 
+                className="steps-image"
+              />
+            </div>
+          </div>
 
-        {/* 3 Steps for Login SVG */}
-        <div className="login-steps-container">
-          <img 
-            src="/3 steps for login 1.svg" 
-            alt="3 Steps for Login" 
-            className="login-steps-svg"
-          />
+          {/* Right Side - Login Form */}
+          <div className="login-form-section">
+            <div className="login-form-container">
+              <div className="form-header">
+                <h1 className="login-title">Welcome back!</h1>
+                <p className="login-subtitle">Login to Your Account</p>
+              </div>
+              
+              <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+                {showWelcomeMessage && (
+                  <div className="success-message">
+                    <p>🎉 Welcome! Please login with your credentials.</p>
+                  </div>
+                )}
+                
+                {error && (
+                  <div className="error-message">
+                    <p>{error}</p>
+                  </div>
+                )}
+
+                {/* Email or Phone */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Email or Phone
+                  </label>
+                  <div className="input-container">
+                    <User className="input-icon" />
+                    <input
+                      type="text"
+                      {...register('email', { 
+                        required: 'Email or phone is required',
+                        validate: (value) => {
+                          const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+                          const phonePattern = /^[6-9]\d{9}$/;
+                          if (!emailPattern.test(value) && !phonePattern.test(value)) {
+                            return 'Please enter a valid email or phone number';
+                          }
+                          return true;
+                        }
+                      })}
+                      className="form-input"
+                      placeholder="Enter your email or phone"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="field-error">{errors.email.message}</p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Password
+                  </label>
+                  <div className="input-container">
+                    <Lock className="input-icon" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      {...register('password', { required: 'Password is required' })}
+                      className="form-input"
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="toggle-icon" />
+                      ) : (
+                        <Eye className="toggle-icon" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="field-error">{errors.password.message}</p>
+                  )}
+                </div>
+
+                {/* Remember Me and Forgot Password */}
+                <div className="form-options">
+                  <div className="remember-me">
+                    <input
+                      type="checkbox"
+                      {...register('remember_me')}
+                      className="checkbox"
+                      id="remember"
+                    />
+                    <label htmlFor="remember" className="checkbox-label">
+                      Remember me
+                    </label>
+                  </div>
+                  <Link
+                    to="/forgot-password"
+                    className="forgot-password-link"
+                  >
+                    Forgot Password ?
+                  </Link>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`login-button ${loading ? 'loading' : ''}`}
+                >
+                  {loading ? 'Signing In...' : 'Log in'}
+                </button>
+
+                {/* Register Link */}
+                <div className="register-link-container">
+                  <p className="register-text">
+                    New to Shipsarthi ?{' '}
+                    <Link to="/register" className="register-link">
+                      Create an account
+                    </Link>
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
         {/* Footer Links */}
