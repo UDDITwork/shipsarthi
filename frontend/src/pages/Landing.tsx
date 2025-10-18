@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
+import { enquiryService, EnquiryData } from '../services/enquiryService';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +12,9 @@ const Landing: React.FC = () => {
     describe: '',
     monthlyLoad: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -20,10 +24,51 @@ const Landing: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      const enquiryData: EnquiryData = {
+        name: formData.name,
+        email: formData.email,
+        mobile: formData.mobile,
+        describe: formData.describe,
+        monthlyLoad: formData.monthlyLoad
+      };
+
+      const response = await enquiryService.submitEnquiry(enquiryData);
+      
+      setSubmitStatus('success');
+      setSubmitMessage(response.message);
+      
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        mobile: '',
+        describe: '',
+        monthlyLoad: ''
+      });
+
+      // Show success message for 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle');
+        setSubmitMessage('');
+      }, 5000);
+
+    } catch (error: any) {
+      console.error('Enquiry submission error:', error);
+      setSubmitStatus('error');
+      setSubmitMessage(
+        error.response?.data?.message || 
+        'Failed to submit enquiry. Please try again later.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const features = [
@@ -141,6 +186,21 @@ const Landing: React.FC = () => {
           <div className="hero-left">
             <h1 className="hero-title">Enquire Now !</h1>
             <form className="enquiry-form" onSubmit={handleSubmit}>
+              {/* Success/Error Messages */}
+              {submitStatus === 'success' && (
+                <div className="form-message success-message">
+                  <div className="message-icon">✅</div>
+                  <div className="message-text">{submitMessage}</div>
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="form-message error-message">
+                  <div className="message-icon">❌</div>
+                  <div className="message-text">{submitMessage}</div>
+                </div>
+              )}
+
               <div className="form-group">
                 <label>Name</label>
                 <input
@@ -209,7 +269,20 @@ const Landing: React.FC = () => {
                 </select>
               </div>
               
-              <button type="submit" className="submit-btn">Submit</button>
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="loading-spinner">⏳</span>
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit'
+                )}
+              </button>
             </form>
           </div>
           

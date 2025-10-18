@@ -118,6 +118,7 @@ app.use('/api/tools', require('./routes/tools'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/shipping', require('./routes/shipping'));
 app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/enquiry', require('./routes/enquiry'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
