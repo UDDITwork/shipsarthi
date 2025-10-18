@@ -44,15 +44,6 @@ const Login: React.FC = () => {
       <div className="login-container">
         {/* Header */}
         <div className="login-header">
-          <div className="logo-container">
-            <div className="logo-circle">
-              <img 
-                src="/Final logo Figma 1.svg" 
-                alt="Shipsarthi Logo" 
-                className="logo-image"
-              />
-            </div>
-          </div>
           <h1 className="login-title">Welcome back!</h1>
           <p className="login-subtitle">Login to Your Account</p>
         </div>
@@ -93,7 +84,7 @@ const Login: React.FC = () => {
                     }
                   })}
                   className="form-input"
-                  placeholder="Enter email or phone number"
+                  placeholder="Enter your email or phone"
                 />
               </div>
               {errors.email && (
@@ -112,7 +103,7 @@ const Login: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   {...register('password', { required: 'Password is required' })}
                   className="form-input"
-                  placeholder="Enter password"
+                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
@@ -141,14 +132,14 @@ const Login: React.FC = () => {
                   id="remember"
                 />
                 <label htmlFor="remember" className="checkbox-label">
-                  Remember Me
+                  Remember me
                 </label>
               </div>
               <Link
                 to="/forgot-password"
                 className="forgot-password-link"
               >
-                Forgot Password?
+                Forgot Password ?
               </Link>
             </div>
 
@@ -164,13 +155,22 @@ const Login: React.FC = () => {
             {/* Register Link */}
             <div className="register-link-container">
               <p className="register-text">
-                New to Shipsarthi?{' '}
+                New to Shipsarthi ?{' '}
                 <Link to="/register" className="register-link">
                   Create an account
                 </Link>
               </p>
             </div>
           </form>
+        </div>
+
+        {/* 3 Steps for Login SVG */}
+        <div className="login-steps-container">
+          <img 
+            src="/3 steps for login 1.svg" 
+            alt="3 Steps for Login" 
+            className="login-steps-svg"
+          />
         </div>
 
         {/* Footer Links */}
