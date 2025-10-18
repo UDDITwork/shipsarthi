@@ -1628,6 +1628,13 @@ body {
   font-weight: bold;
 }
 
+.logo-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
 .login-title {
   font-size: 2.5rem;
   font-weight: bold;
@@ -1905,6 +1912,11 @@ body {
     font-size: 1.75rem;
   }
   
+  .logo-image {
+    width: 50px;
+    height: 50px;
+  }
+  
   .form-input {
     padding: 0.875rem 0.875rem 0.875rem 2.75rem;
     font-size: 0.95rem;
@@ -1968,6 +1980,11 @@ body {
   
   .logo-text {
     font-size: 1.5rem;
+  }
+  
+  .logo-image {
+    width: 40px;
+    height: 40px;
   }
   
   .form-input {

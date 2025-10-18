@@ -33,7 +33,11 @@ const Login: React.FC = () => {
         <div className="login-header">
           <div className="logo-container">
             <div className="logo-circle">
-              <span className="logo-text">S</span>
+              <img 
+                src="/Final logo Figma 1.svg" 
+                alt="Shipsarthi Logo" 
+                className="logo-image"
+              />
             </div>
           </div>
           <h1 className="login-title">Welcome back!</h1>
