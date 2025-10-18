@@ -27,35 +27,35 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 sm:space-y-8">
+    <div className="login-page">
+      <div className="login-container">
         {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white text-xl sm:text-2xl font-bold">S</span>
+        <div className="login-header">
+          <div className="logo-container">
+            <div className="logo-circle">
+              <span className="logo-text">S</span>
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
-          <p className="text-sm sm:text-base text-gray-600">Sign in to your Shipsarthi account</p>
+          <h1 className="login-title">Welcome back!</h1>
+          <p className="login-subtitle">Login to Your Account</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
+        <div className="login-form-container">
+          <form onSubmit={handleSubmit(onSubmit)} className="login-form">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="error-message">
+                <p>{error}</p>
               </div>
             )}
 
             {/* Email or Phone */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Email or Phone
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="input-container">
+                <User className="input-icon" />
                 <input
                   type="text"
                   {...register('email', { 
@@ -69,60 +69,61 @@ const Login: React.FC = () => {
                       return true;
                     }
                   })}
-                  className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base"
+                  className="form-input"
                   placeholder="Enter email or phone number"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="field-error">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="input-container">
+                <Lock className="input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...register('password', { required: 'Password is required' })}
-                  className="w-full px-4 py-3 pl-11 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base"
+                  className="form-input"
                   placeholder="Enter password"
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
+                  className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="toggle-icon" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="toggle-icon" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="field-error">{errors.password.message}</p>
               )}
             </div>
 
             {/* Remember Me and Forgot Password */}
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center">
+            <div className="form-options">
+              <div className="remember-me">
                 <input
                   type="checkbox"
                   {...register('remember_me')}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="checkbox"
+                  id="remember"
                 />
-                <label className="ml-2 text-sm text-gray-700">
+                <label htmlFor="remember" className="checkbox-label">
                   Remember Me
                 </label>
               </div>
               <Link
                 to="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-500 font-medium"
+                className="forgot-password-link"
               >
                 Forgot Password?
               </Link>
@@ -132,24 +133,17 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+              className={`login-button ${loading ? 'loading' : ''}`}
             >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Signing In...
-                </div>
-              ) : (
-                'Sign In'
-              )}
+              {loading ? 'Signing In...' : 'Log in'}
             </button>
 
             {/* Register Link */}
-            <div className="text-center pt-2">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 hover:text-blue-500 font-semibold">
-                  Sign up here
+            <div className="register-link-container">
+              <p className="register-text">
+                New to Shipsarthi?{' '}
+                <Link to="/register" className="register-link">
+                  Create an account
                 </Link>
               </p>
             </div>
@@ -157,15 +151,12 @@ const Login: React.FC = () => {
         </div>
 
         {/* Footer Links */}
-        <div className="text-center space-y-3">
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
-            <Link to="/terms" className="hover:text-gray-700 transition-colors">Terms & Condition</Link>
-            <Link to="/refund" className="hover:text-gray-700 transition-colors">Refund Policy</Link>
-            <Link to="/privacy" className="hover:text-gray-700 transition-colors">Privacy Policy</Link>
+        <div className="footer-links">
+          <div className="footer-links-container">
+            <Link to="/terms" className="footer-link">Terms & Condition</Link>
+            <Link to="/refund" className="footer-link">Refund & Cancellation Policy</Link>
+            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
           </div>
-          <p className="text-xs text-gray-400">
-            © 2025 Shipsarthi. All rights reserved.
-          </p>
         </div>
       </div>
     </div>
