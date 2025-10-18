@@ -1,23 +1,28 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-content">
           {/* Company Info */}
           <div className="footer-section">
-            <div className="footer-logo">
+            <div className="footer-logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
               <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="footer-logo-img" />
-              <span className="footer-logo-text">Shipsarthi</span>
             </div>
             <p className="footer-description">
               Your trusted logistics partner connecting e-commerce sellers with leading courier services across India.
             </p>
             <div className="contact-info">
               <p><strong>Email:</strong> hello@shipsarthi.com</p>
-              <p><strong>Phone:</strong> 9351205202</p>
+              <p><strong>Phone:</strong> 9636369672</p>
             </div>
           </div>
 
@@ -56,7 +61,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2024 Shipsarthi. All rights reserved.</p>
+          <p>&copy; 2025 Shipsarthi. All rights reserved.</p>
         </div>
       </div>
     </footer>

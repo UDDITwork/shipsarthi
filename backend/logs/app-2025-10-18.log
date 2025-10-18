@@ -1,0 +1,27 @@
+[2025-10-18T15:28:10.011Z] [INFO] [PID:22052] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T15:28:12.456Z] [INFO] [PID:22052] ✅ Connected to MongoDB
+[2025-10-18T15:28:17.380Z] [INFO] [PID:22052] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T15:28:50.298Z] [INFO] [PID:18780] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T15:28:51.286Z] [INFO] [PID:18780] ✅ Connected to MongoDB
+[2025-10-18T15:35:00.277Z] [INFO] [PID:18780] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T15:35:08.061Z] [INFO] [PID:14948] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T15:35:09.305Z] [INFO] [PID:14948] ✅ Connected to MongoDB
+[2025-10-18T17:53:07.700Z] [INFO] [PID:14948] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T17:53:14.132Z] [INFO] [PID:12972] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T17:53:15.888Z] [INFO] [PID:12972] ✅ Connected to MongoDB

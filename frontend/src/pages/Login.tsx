@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormData {
@@ -94,7 +94,6 @@ const Login: React.FC = () => {
                     Email or Phone
                   </label>
                   <div className="input-container">
-                    <User className="input-icon" />
                     <input
                       type="text"
                       {...register('email', { 
@@ -123,7 +122,6 @@ const Login: React.FC = () => {
                     Password
                   </label>
                   <div className="input-container">
-                    <Lock className="input-icon" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       {...register('password', { required: 'Password is required' })}
@@ -194,9 +192,9 @@ const Login: React.FC = () => {
         {/* Footer Links */}
         <div className="footer-links">
           <div className="footer-links-container">
-            <Link to="/terms" className="footer-link">Terms & Condition</Link>
-            <Link to="/refund" className="footer-link">Refund & Cancellation Policy</Link>
-            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+            <Link to="/terms-conditions" className="footer-link">Terms & Condition</Link>
+            <Link to="/order-cancellation" className="footer-link">Refund & Cancellation Policy</Link>
+            <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
           </div>
         </div>
       </div>

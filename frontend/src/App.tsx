@@ -22,6 +22,7 @@ import ShipmentCancellation from './pages/ShipmentCancellation';
 import OrderCancellation from './pages/OrderCancellation';
 import Contact from './pages/Contact';
 import About from './pages/About';
+import Tracking from './pages/Tracking';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -38,6 +39,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/tracking" element={<Tracking />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/shipment-cancellation" element={<ShipmentCancellation />} />

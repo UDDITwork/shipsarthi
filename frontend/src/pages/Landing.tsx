@@ -105,7 +105,7 @@ const Landing: React.FC = () => {
       {/* Header */}
       <header className="header">
         <div className="header-container">
-          <div className="logo">
+          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">Shipsarthi</span>
           </div>
@@ -119,7 +119,12 @@ const Landing: React.FC = () => {
           </nav>
           
           <div className="header-buttons">
-            <button className="btn-track">Track</button>
+            <button 
+              className="btn-track"
+              onClick={() => navigate('/tracking')}
+            >
+              Track
+            </button>
             <button 
               className="btn-login"
               onClick={() => navigate('/login')}

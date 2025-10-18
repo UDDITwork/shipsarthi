@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 
 const OrderCancellation: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="order-cancellation-page">
       {/* Header */}
       <header className="header">
         <div className="header-container">
-          <div className="logo">
+          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">Shipsarthi</span>
           </div>
@@ -196,8 +199,8 @@ const OrderCancellation: React.FC = () => {
           <p>For order cancellation assistance:</p>
           <div className="contact-details">
             <p><strong>Email:</strong> hello@shipsarthi.com</p>
-            <p><strong>Phone:</strong> 9351205202</p>
-            <p><strong>WhatsApp:</strong> 9351205202</p>
+            <p><strong>Phone:</strong> 9636369672</p>
+            <p><strong>WhatsApp:</strong> 9636369672</p>
             <p><strong>Support Portal:</strong> Available 24/7 for urgent issues</p>
           </div>
         </div>

@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 
 const PrivacyPolicy: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="privacy-policy-page">
       {/* Header */}
       <header className="header">
         <div className="header-container">
-          <div className="logo">
+          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">Shipsarthi</span>
           </div>
@@ -87,7 +90,7 @@ const PrivacyPolicy: React.FC = () => {
           <p>If you have any questions about this Privacy Policy, please contact us:</p>
           <div className="contact-details">
             <p><strong>Email:</strong> hello@shipsarthi.com</p>
-            <p><strong>Phone:</strong> 9351205202</p>
+            <p><strong>Phone:</strong> 9636369672</p>
           </div>
         </div>
       </div>

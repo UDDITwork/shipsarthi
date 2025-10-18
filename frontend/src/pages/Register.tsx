@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, User, Building, MapPin, Phone, Mail, Lock, Tag } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { RegisterData } from '../types';
 
@@ -150,7 +150,6 @@ const Register: React.FC = () => {
                       Company Name *
                     </label>
                     <div className="input-container">
-                      <Building className="input-icon" />
                       <input
                         type="text"
                         {...register('company_name', { required: 'Company name is required' })}
@@ -169,7 +168,6 @@ const Register: React.FC = () => {
                       Your Name *
                     </label>
                     <div className="input-container">
-                      <User className="input-icon" />
                       <input
                         type="text"
                         {...register('your_name', { required: 'Your name is required' })}
@@ -188,7 +186,6 @@ const Register: React.FC = () => {
                       State *
                     </label>
                     <div className="input-container">
-                      <MapPin className="input-icon" />
                       <input
                         type="text"
                         {...register('state', { required: 'State is required' })}
@@ -207,7 +204,6 @@ const Register: React.FC = () => {
                       Phone Number *
                     </label>
                     <div className="input-container">
-                      <Phone className="input-icon" />
                       <input
                         type="tel"
                         {...register('phone_number', { 
@@ -232,7 +228,6 @@ const Register: React.FC = () => {
                       Email *
                     </label>
                     <div className="input-container">
-                      <Mail className="input-icon" />
                       <input
                         type="email"
                         {...register('email', { 
@@ -257,7 +252,6 @@ const Register: React.FC = () => {
                       Password *
                     </label>
                     <div className="input-container">
-                      <Lock className="input-icon" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         {...register('password', { 
@@ -294,7 +288,6 @@ const Register: React.FC = () => {
                     Reference Code (Optional)
                   </label>
                   <div className="input-container">
-                    <Tag className="input-icon" />
                     <input
                       type="text"
                       {...register('reference_code')}
@@ -315,11 +308,11 @@ const Register: React.FC = () => {
                     />
                     <label htmlFor="terms" className="terms-label">
                       I agree to the{' '}
-                      <Link to="/terms" className="terms-link">
+                      <Link to="/terms-conditions" className="terms-link">
                         Terms & Conditions
                       </Link>{' '}
                       and{' '}
-                      <Link to="/privacy" className="terms-link">
+                      <Link to="/privacy-policy" className="terms-link">
                         Privacy Policy
                       </Link>
                     </label>

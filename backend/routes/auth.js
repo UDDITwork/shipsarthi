@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
+const logger = require('../utils/logger');
 const router = express.Router();
 
 // Generate JWT Token
@@ -26,9 +27,20 @@ router.post('/register', [
   body('state').trim().notEmpty(),
   body('terms_accepted').equals('true')
 ], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Registration attempt started', {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    body: req.body
+  });
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('Registration validation failed', {
+        errors: errors.array(),
+        body: req.body
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -49,7 +61,16 @@ router.post('/register', [
       terms_accepted
     } = req.body;
 
+    logger.debug('Registration data extracted', {
+      email: email.toLowerCase(),
+      phone_number,
+      company_name,
+      user_type,
+      monthly_shipments
+    });
+
     // Check if user already exists
+    logger.debug('Checking for existing user', { email: email.toLowerCase(), phone_number });
     const existingUser = await User.findOne({
       $or: [
         { email: email.toLowerCase() },
@@ -58,6 +79,12 @@ router.post('/register', [
     });
 
     if (existingUser) {
+      logger.warn('Registration failed - user already exists', {
+        email: email.toLowerCase(),
+        phone_number,
+        existingEmail: existingUser.email,
+        existingPhone: existingUser.phone_number
+      });
       return res.status(400).json({
         status: 'error',
         message: existingUser.email === email.toLowerCase() 
@@ -65,6 +92,12 @@ router.post('/register', [
           : 'User with this phone number already exists'
       });
     }
+
+    logger.info('Creating new user', {
+      email: email.toLowerCase(),
+      company_name,
+      user_type
+    });
 
     // Create user
     const user = new User({
@@ -81,9 +114,24 @@ router.post('/register', [
     });
 
     await user.save();
+    logger.info('User created successfully', {
+      userId: user._id,
+      email: user.email,
+      company_name: user.company_name,
+      client_id: user.client_id
+    });
 
     // Generate token
     const token = generateToken(user._id);
+    logger.debug('JWT token generated', { userId: user._id });
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Registration completed successfully', {
+      userId: user._id,
+      email: user.email,
+      company_name: user.company_name,
+      responseTime: `${responseTime}ms`
+    });
 
     res.status(201).json({
       status: 'success',
@@ -102,10 +150,21 @@ router.post('/register', [
     });
 
   } catch (error) {
-    console.error('Register error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Registration error occurred', {
+      error: error.message,
+      stack: error.stack,
+      body: req.body,
+      responseTime: `${responseTime}ms`
+    });
     
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
+      logger.warn('Duplicate key error during registration', {
+        field,
+        keyPattern: error.keyPattern,
+        keyValue: error.keyValue
+      });
       return res.status(400).json({
         status: 'error',
         message: `${field === 'email' ? 'Email' : 'Phone number'} already exists`
@@ -126,9 +185,20 @@ router.post('/login', [
   body('email').trim().notEmpty().withMessage('Email or phone is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Login attempt started', {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    email: req.body.email
+  });
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('Login validation failed', {
+        errors: errors.array(),
+        email: req.body.email
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -138,19 +208,35 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
+    logger.debug('Login credentials received', { email });
+
     // Find user by email or phone
+    logger.debug('Searching for user', { email });
     const user = await User.findByEmailOrPhone(email);
     
     if (!user) {
+      logger.warn('Login failed - user not found', { email });
       return res.status(401).json({
         status: 'error',
         message: 'Invalid credentials'
       });
     }
 
+    logger.debug('User found', {
+      userId: user._id,
+      email: user.email,
+      loginAttempts: user.login_attempts,
+      lockedUntil: user.locked_until
+    });
+
     // Check if account is locked
     if (user.locked_until && user.locked_until > Date.now()) {
       const lockTimeRemaining = Math.ceil((user.locked_until - Date.now()) / (1000 * 60));
+      logger.warn('Login failed - account locked', {
+        userId: user._id,
+        email: user.email,
+        lockTimeRemaining
+      });
       return res.status(423).json({
         status: 'error',
         message: `Account is locked. Try again in ${lockTimeRemaining} minutes.`
@@ -158,15 +244,29 @@ router.post('/login', [
     }
 
     // Verify password
+    logger.debug('Verifying password', { userId: user._id });
     const isPasswordValid = await user.comparePassword(password);
     
     if (!isPasswordValid) {
       // Increment login attempts
       user.login_attempts += 1;
       
+      logger.warn('Login failed - invalid password', {
+        userId: user._id,
+        email: user.email,
+        loginAttempts: user.login_attempts
+      });
+      
       if (user.login_attempts >= 5) {
         user.locked_until = Date.now() + 30 * 60 * 1000; // Lock for 30 minutes
         await user.save();
+        
+        logger.error('Account locked due to too many failed attempts', {
+          userId: user._id,
+          email: user.email,
+          loginAttempts: user.login_attempts,
+          lockedUntil: user.locked_until
+        });
         
         return res.status(423).json({
           status: 'error',
@@ -188,8 +288,19 @@ router.post('/login', [
     user.last_login = Date.now();
     await user.save();
 
+    logger.info('Password verified successfully', { userId: user._id });
+
     // Generate token
     const token = generateToken(user._id);
+    logger.debug('JWT token generated', { userId: user._id });
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Login completed successfully', {
+      userId: user._id,
+      email: user.email,
+      company_name: user.company_name,
+      responseTime: `${responseTime}ms`
+    });
 
     res.json({
       status: 'success',
@@ -210,7 +321,13 @@ router.post('/login', [
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    const responseTime = Date.now() - startTime;
+    logger.error('Login error occurred', {
+      error: error.message,
+      stack: error.stack,
+      email: req.body.email,
+      responseTime: `${responseTime}ms`
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error during login'
@@ -222,15 +339,30 @@ router.post('/login', [
 // @route   GET /api/auth/me
 // @access  Private
 router.get('/me', auth, async (req, res) => {
+  logger.info('Get current user request', {
+    userId: req.user._id,
+    ip: req.ip
+  });
+
   try {
     const user = await User.findById(req.user._id).select('-password');
+    
+    logger.debug('User data retrieved', {
+      userId: user._id,
+      email: user.email,
+      company_name: user.company_name
+    });
     
     res.json({
       status: 'success',
       user
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    logger.error('Get user error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error'
@@ -242,17 +374,32 @@ router.get('/me', auth, async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Private
 router.post('/logout', auth, async (req, res) => {
+  logger.info('User logout request', {
+    userId: req.user._id,
+    email: req.user.email,
+    ip: req.ip
+  });
+
   try {
     // For JWT, we can't invalidate the token on the server side
     // The client should remove the token from storage
     // In a production app, you might want to maintain a blacklist
+    
+    logger.info('User logged out successfully', {
+      userId: req.user._id,
+      email: req.user.email
+    });
     
     res.json({
       status: 'success',
       message: 'Logged out successfully'
     });
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error occurred', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id
+    });
     res.status(500).json({
       status: 'error',
       message: 'Server error'

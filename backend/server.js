@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { connectDB, checkDBHealth } = require('./config/db');
+const logger = require('./utils/logger');
 require('dotenv').config();
 
 const app = express();
@@ -33,6 +34,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Request Logging Middleware
+app.use(logger.logRequest.bind(logger));
+
 // Body Parser Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -44,9 +48,11 @@ app.use('/public', express.static('public'));
 // MongoDB Connection
 connectDB()
 .then(() => {
+  logger.info('✅ Connected to MongoDB');
   console.log('✅ Connected to MongoDB');
 })
 .catch((error) => {
+  logger.error('❌ MongoDB connection error', { error: error.message, stack: error.stack });
   console.error('❌ MongoDB connection error:', error);
   process.exit(1);
 });
@@ -78,9 +84,19 @@ app.use('/api/webhooks', require('./routes/webhooks'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
+  logger.error('Unhandled error occurred', {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  
   console.error('Error:', err.stack);
   
   if (err.name === 'ValidationError') {
+    logger.warn('Validation error', { errors: Object.values(err.errors).map(e => e.message) });
     return res.status(400).json({
       status: 'error',
       message: 'Validation Error',
@@ -89,6 +105,7 @@ app.use((err, req, res, next) => {
   }
   
   if (err.name === 'CastError') {
+    logger.warn('Cast error', { value: err.value, kind: err.kind });
     return res.status(400).json({
       status: 'error',
       message: 'Invalid ID format'
@@ -97,6 +114,7 @@ app.use((err, req, res, next) => {
   
   if (err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
+    logger.warn('Duplicate key error', { field, keyPattern: err.keyPattern });
     return res.status(400).json({
       status: 'error',
       message: `${field} already exists`
@@ -113,6 +131,12 @@ app.use((err, req, res, next) => {
 
 // 404 Handler - Fixed wildcard route pattern
 app.use((req, res) => {
+  logger.warn('404 - Route not found', {
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
   res.status(404).json({
     status: 'error',
     message: `Route ${req.originalUrl} not found`
@@ -121,6 +145,11 @@ app.use((req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
+  logger.info('🚀 Server started', {
+    port: PORT,
+    environment: process.env.NODE_ENV,
+    healthCheck: `http://localhost:${PORT}/api/health`
+  });
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
@@ -128,12 +157,14 @@ app.listen(PORT, () => {
 
 // Graceful Shutdown
 process.on('SIGTERM', () => {
+  logger.info('🛑 SIGTERM received, shutting down gracefully');
   console.log('🛑 SIGTERM received, shutting down gracefully');
   mongoose.connection.close();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
+  logger.info('🛑 SIGINT received, shutting down gracefully');
   console.log('🛑 SIGINT received, shutting down gracefully');
   mongoose.connection.close();
   process.exit(0);
