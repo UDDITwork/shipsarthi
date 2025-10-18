@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import './App.css';
 
 // Import pages
 import Landing from './pages/Landing';
@@ -15,6 +16,12 @@ import Tools from './pages/Tools';
 import Billing from './pages/Billing';
 import Warehouse from './pages/Warehouse';
 import Settings from './pages/Settings';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+import ShipmentCancellation from './pages/ShipmentCancellation';
+import OrderCancellation from './pages/OrderCancellation';
+import Contact from './pages/Contact';
+import About from './pages/About';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -29,6 +36,12 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/shipment-cancellation" element={<ShipmentCancellation />} />
+            <Route path="/order-cancellation" element={<OrderCancellation />} />
 
             {/* Protected Routes */}
             <Route 

@@ -27,31 +27,31 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">S</span>
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white text-xl sm:text-2xl font-bold">S</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
-          <p className="mt-2 text-gray-600">Login to Your Account</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
+          <p className="text-sm sm:text-base text-gray-600">Sign in to your Shipsarthi account</p>
         </div>
 
         {/* Login Form */}
-        <div className="card">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-800 text-sm">{error}</p>
               </div>
             )}
 
             {/* Email or Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email or Phone
               </label>
               <div className="relative">
@@ -69,7 +69,7 @@ const Login: React.FC = () => {
                       return true;
                     }
                   })}
-                  className="input-field pl-10"
+                  className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base"
                   placeholder="Enter email or phone number"
                 />
               </div>
@@ -80,7 +80,7 @@ const Login: React.FC = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -88,12 +88,12 @@ const Login: React.FC = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...register('password', { required: 'Password is required' })}
-                  className="input-field pl-10 pr-10"
+                  className="w-full px-4 py-3 pl-11 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base"
                   placeholder="Enter password"
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -109,12 +109,12 @@ const Login: React.FC = () => {
             </div>
 
             {/* Remember Me and Forgot Password */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center">
                 <input
                   type="checkbox"
                   {...register('remember_me')}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="ml-2 text-sm text-gray-700">
                   Remember Me
@@ -122,7 +122,7 @@ const Login: React.FC = () => {
               </div>
               <Link
                 to="/forgot-password"
-                className="text-sm text-primary-600 hover:text-primary-500"
+                className="text-sm text-blue-600 hover:text-blue-500 font-medium"
               >
                 Forgot Password?
               </Link>
@@ -132,17 +132,24 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
             >
-              {loading ? 'Signing In...' : 'Log in'}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Signing In...
+                </div>
+              ) : (
+                'Sign In'
+              )}
             </button>
 
             {/* Register Link */}
-            <div className="text-center">
+            <div className="text-center pt-2">
               <p className="text-sm text-gray-600">
-                New to Shipsarthi?{' '}
-                <Link to="/register" className="text-primary-600 hover:text-primary-500 font-medium">
-                  Create an account
+                Don't have an account?{' '}
+                <Link to="/register" className="text-blue-600 hover:text-blue-500 font-semibold">
+                  Sign up here
                 </Link>
               </p>
             </div>
@@ -150,12 +157,15 @@ const Login: React.FC = () => {
         </div>
 
         {/* Footer Links */}
-        <div className="text-center space-y-2">
-          <div className="flex justify-center space-x-6 text-sm text-gray-500">
-            <Link to="/terms" className="hover:text-gray-700">Terms & Condition</Link>
-            <Link to="/refund" className="hover:text-gray-700">Refund & Cancellation Policy</Link>
-            <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
+        <div className="text-center space-y-3">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
+            <Link to="/terms" className="hover:text-gray-700 transition-colors">Terms & Condition</Link>
+            <Link to="/refund" className="hover:text-gray-700 transition-colors">Refund Policy</Link>
+            <Link to="/privacy" className="hover:text-gray-700 transition-colors">Privacy Policy</Link>
           </div>
+          <p className="text-xs text-gray-400">
+            © 2025 Shipsarthi. All rights reserved.
+          </p>
         </div>
       </div>
     </div>
