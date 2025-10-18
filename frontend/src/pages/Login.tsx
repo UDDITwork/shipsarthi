@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,8 +12,21 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, loading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+
+  useEffect(() => {
+    // Check if user came from registration page
+    if (location.state?.fromRegistration) {
+      setShowWelcomeMessage(true);
+      // Hide welcome message after 5 seconds
+      setTimeout(() => {
+        setShowWelcomeMessage(false);
+      }, 5000);
+    }
+  }, [location]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
@@ -47,6 +60,12 @@ const Login: React.FC = () => {
         {/* Login Form */}
         <div className="login-form-container">
           <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+            {showWelcomeMessage && (
+              <div className="success-message">
+                <p>🎉 Welcome! Please login with your credentials.</p>
+              </div>
+            )}
+            
             {error && (
               <div className="error-message">
                 <p>{error}</p>

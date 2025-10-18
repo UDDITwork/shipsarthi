@@ -11,6 +11,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState('');
   const [selectedShipments, setSelectedShipments] = useState('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
 
@@ -33,41 +34,64 @@ const Register: React.FC = () => {
 
   const onSubmit = async (data: RegisterData) => {
     try {
-      await registerUser(data);
-      navigate('/dashboard');
+      const response = await registerUser(data);
+      
+      // Show success message
+      setRegistrationSuccess(true);
+      
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login', { state: { fromRegistration: true } });
+      }, 3000);
     } catch (err) {
       console.error('Registration failed:', err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Register to Shipsarthi</h1>
-          <p className="mt-2 text-gray-600">Join India's leading logistics aggregation platform</p>
+    <div className="register-page">
+      <div className="register-container">
+        {/* Header */}
+        <div className="register-header">
+          <div className="logo-container">
+            <div className="logo-circle">
+              <img 
+                src="/Final logo Figma 1.svg" 
+                alt="Shipsarthi Logo" 
+                className="logo-image"
+              />
+            </div>
+          </div>
+          <h1 className="register-title">Register to Shipsarthi</h1>
+          <p className="register-subtitle">Join India's leading logistics aggregation platform</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="register-content">
           {/* Registration Form */}
-          <div className="lg:col-span-2">
-            <div className="card">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="register-form-section">
+            <div className="register-form-container">
+              <form onSubmit={handleSubmit(onSubmit)} className="register-form">
+                {registrationSuccess && (
+                  <div className="success-message">
+                    <p>✅ Registration successful! Redirecting to login page...</p>
+                  </div>
+                )}
+                
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                    <p className="text-red-800 text-sm">{error}</p>
+                  <div className="error-message">
+                    <p>{error}</p>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="form-grid">
                   {/* User Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       User Type *
                     </label>
                     <select
                       {...register('user_type', { required: 'User type is required' })}
-                      className="input-field"
+                      className="form-select"
                       value={selectedUserType}
                       onChange={(e) => setSelectedUserType(e.target.value)}
                     >
@@ -79,18 +103,18 @@ const Register: React.FC = () => {
                       ))}
                     </select>
                     {errors.user_type && (
-                      <p className="mt-1 text-sm text-red-600">{errors.user_type.message}</p>
+                      <p className="field-error">{errors.user_type.message}</p>
                     )}
                   </div>
 
                   {/* Monthly Shipments */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Monthly Shipments *
                     </label>
                     <select
                       {...register('monthly_shipments', { required: 'Monthly shipments is required' })}
-                      className="input-field"
+                      className="form-select"
                       value={selectedShipments}
                       onChange={(e) => setSelectedShipments(e.target.value)}
                     >
@@ -102,74 +126,74 @@ const Register: React.FC = () => {
                       ))}
                     </select>
                     {errors.monthly_shipments && (
-                      <p className="mt-1 text-sm text-red-600">{errors.monthly_shipments.message}</p>
+                      <p className="field-error">{errors.monthly_shipments.message}</p>
                     )}
                   </div>
 
                   {/* Company Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Company Name *
                     </label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <Building className="input-icon" />
                       <input
                         type="text"
                         {...register('company_name', { required: 'Company name is required' })}
-                        className="input-field pl-10"
+                        className="form-input"
                         placeholder="Enter company name"
                       />
                     </div>
                     {errors.company_name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.company_name.message}</p>
+                      <p className="field-error">{errors.company_name.message}</p>
                     )}
                   </div>
 
                   {/* Your Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Your Name *
                     </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <User className="input-icon" />
                       <input
                         type="text"
                         {...register('your_name', { required: 'Your name is required' })}
-                        className="input-field pl-10"
+                        className="form-input"
                         placeholder="Enter your name"
                       />
                     </div>
                     {errors.your_name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.your_name.message}</p>
+                      <p className="field-error">{errors.your_name.message}</p>
                     )}
                   </div>
 
                   {/* State */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       State *
                     </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <MapPin className="input-icon" />
                       <input
                         type="text"
                         {...register('state', { required: 'State is required' })}
-                        className="input-field pl-10"
+                        className="form-input"
                         placeholder="Enter state"
                       />
                     </div>
                     {errors.state && (
-                      <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                      <p className="field-error">{errors.state.message}</p>
                     )}
                   </div>
 
                   {/* Phone Number */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Phone Number *
                     </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <Phone className="input-icon" />
                       <input
                         type="tel"
                         {...register('phone_number', { 
@@ -179,22 +203,22 @@ const Register: React.FC = () => {
                             message: 'Please enter a valid 10-digit phone number'
                           }
                         })}
-                        className="input-field pl-10"
+                        className="form-input"
                         placeholder="Enter phone number"
                       />
                     </div>
                     {errors.phone_number && (
-                      <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>
+                      <p className="field-error">{errors.phone_number.message}</p>
                     )}
                   </div>
 
                   {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Email *
                     </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <Mail className="input-icon" />
                       <input
                         type="email"
                         {...register('email', { 
@@ -204,22 +228,22 @@ const Register: React.FC = () => {
                             message: 'Please enter a valid email address'
                           }
                         })}
-                        className="input-field pl-10"
+                        className="form-input"
                         placeholder="Enter email address"
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                      <p className="field-error">{errors.email.message}</p>
                     )}
                   </div>
 
                   {/* Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="form-group">
+                    <label className="form-label">
                       Password *
                     </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <div className="input-container">
+                      <Lock className="input-icon" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         {...register('password', { 
@@ -229,78 +253,81 @@ const Register: React.FC = () => {
                             message: 'Password must be at least 6 characters'
                           }
                         })}
-                        className="input-field pl-10 pr-10"
+                        className="form-input"
                         placeholder="Enter password"
                       />
                       <button
                         type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                        className="password-toggle"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-gray-400" />
+                          <EyeOff className="toggle-icon" />
                         ) : (
-                          <Eye className="h-5 w-5 text-gray-400" />
+                          <Eye className="toggle-icon" />
                         )}
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                      <p className="field-error">{errors.password.message}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Reference Code */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="form-group">
+                  <label className="form-label">
                     Reference Code (Optional)
                   </label>
-                  <div className="relative">
-                    <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <div className="input-container">
+                    <Tag className="input-icon" />
                     <input
                       type="text"
                       {...register('reference_code')}
-                      className="input-field pl-10"
+                      className="form-input"
                       placeholder="Enter reference code"
                     />
                   </div>
                 </div>
 
                 {/* Terms and Conditions */}
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    {...register('terms_accepted', { required: 'You must accept terms and conditions' })}
-                    className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
-                  <label className="ml-2 text-sm text-gray-700">
-                    I agree to the{' '}
-                    <Link to="/terms" className="text-primary-600 hover:text-primary-500">
-                      Terms & Conditions
-                    </Link>{' '}
-                    and{' '}
-                    <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
-                      Privacy Policy
-                    </Link>
-                  </label>
+                <div className="terms-container">
+                  <div className="terms-checkbox">
+                    <input
+                      type="checkbox"
+                      {...register('terms_accepted', { required: 'You must accept terms and conditions' })}
+                      className="checkbox"
+                      id="terms"
+                    />
+                    <label htmlFor="terms" className="terms-label">
+                      I agree to the{' '}
+                      <Link to="/terms" className="terms-link">
+                        Terms & Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link to="/privacy" className="terms-link">
+                        Privacy Policy
+                      </Link>
+                    </label>
+                  </div>
+                  {errors.terms_accepted && (
+                    <p className="field-error">{errors.terms_accepted.message}</p>
+                  )}
                 </div>
-                {errors.terms_accepted && (
-                  <p className="text-sm text-red-600">{errors.terms_accepted.message}</p>
-                )}
 
                 {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`register-button ${loading ? 'loading' : ''}`}
                 >
                   {loading ? 'Creating Account...' : 'Register'}
                 </button>
 
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
+                <div className="login-link-container">
+                  <p className="login-link-text">
                     Already have an account?{' '}
-                    <Link to="/login" className="text-primary-600 hover:text-primary-500 font-medium">
+                    <Link to="/login" className="login-link">
                       Sign in here
                     </Link>
                   </p>
@@ -310,18 +337,18 @@ const Register: React.FC = () => {
           </div>
 
           {/* Preview Panels */}
-          <div className="space-y-6">
+          <div className="preview-section">
             {/* User Type Preview */}
-            <div className="card">
-              <h3 className="font-semibold text-gray-900 mb-3">User Types</h3>
-              <div className="space-y-2">
+            <div className="preview-card">
+              <h3 className="preview-title">User Types</h3>
+              <div className="preview-list">
                 {userTypes.map((type, index) => (
                   <div 
                     key={index}
-                    className={`p-2 rounded text-sm ${
+                    className={`preview-item ${
                       selectedUserType === type.toLowerCase().replace(/[^a-z0-9]/g, '-')
-                        ? 'bg-primary-50 text-primary-700'
-                        : 'text-gray-600'
+                        ? 'preview-item-selected'
+                        : ''
                     }`}
                   >
                     {type}
@@ -331,16 +358,16 @@ const Register: React.FC = () => {
             </div>
 
             {/* Shipment Volume Preview */}
-            <div className="card">
-              <h3 className="font-semibold text-gray-900 mb-3">Shipment Volumes</h3>
-              <div className="space-y-2">
+            <div className="preview-card">
+              <h3 className="preview-title">Shipment Volumes</h3>
+              <div className="preview-list">
                 {shipmentVolumes.map((volume, index) => (
                   <div 
                     key={index}
-                    className={`p-2 rounded text-sm ${
+                    className={`preview-item ${
                       selectedShipments === volume
-                        ? 'bg-primary-50 text-primary-700'
-                        : 'text-gray-600'
+                        ? 'preview-item-selected'
+                        : ''
                     }`}
                   >
                     {volume}

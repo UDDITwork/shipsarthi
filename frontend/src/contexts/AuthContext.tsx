@@ -65,11 +65,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const response = await authService.register(userData);
       
-      setUser(response.user);
-      setToken(response.token);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Don't automatically log in the user after registration
+      // Just return the response for the component to handle
+      return response;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
       throw err;
