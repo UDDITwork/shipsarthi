@@ -61,15 +61,7 @@ app.use(cors({
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
-// Handle preflight requests
-app.options('*', (req, res) => {
-  console.log('Preflight request from:', req.get('Origin'));
-  res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
+// Preflight requests are handled by the CORS middleware above
 
 // Request Logging Middleware
 app.use(logger.logRequest.bind(logger));

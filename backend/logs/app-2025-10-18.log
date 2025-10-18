@@ -102,3 +102,13 @@
   "ip": "::1"
 }
 [2025-10-18T19:10:48.618Z] [INFO] [PID:12972] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T19:48:48.106Z] [INFO] [PID:7520] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T19:48:50.033Z] [INFO] [PID:7520] ✅ Connected to MongoDB
+[2025-10-18T19:48:50.108Z] [INFO] [PID:7520] Email service ready | Data: {
+  "message": "Server is ready to take our messages"
+}
+[2025-10-18T19:49:02.028Z] [INFO] [PID:7520] 🛑 SIGINT received, shutting down gracefully
