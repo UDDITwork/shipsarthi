@@ -201,3 +201,341 @@
   "ip": "::1"
 }
 [2025-10-18T20:46:39.520Z] [INFO] [PID:18608] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T21:09:38.328Z] [INFO] [PID:20568] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-18T21:09:38.328Z"
+}
+[2025-10-18T21:09:38.340Z] [INFO] [PID:20568] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T21:09:39.424Z] [INFO] [PID:20568] ✅ Connected to MongoDB
+[2025-10-18T21:09:40.489Z] [INFO] [PID:20568] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-18T21:09:40.488Z"
+}
+[2025-10-18T21:09:59.875Z] [INFO] [PID:20568] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:09:59.875Z"
+}
+[2025-10-18T21:09:59.877Z] [INFO] [PID:20568] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:09:59.899Z] [INFO] [PID:20568] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:09:59.899Z"
+}
+[2025-10-18T21:09:59.901Z] [INFO] [PID:20568] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:09:59.907Z] [INFO] [PID:20568] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1760821799906_l862ff790",
+  "timestamp": "2025-10-18T21:09:59.906Z",
+  "method": "POST",
+  "url": "/api/test-cors",
+  "originalUrl": "/api/test-cors",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "28",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-18T21:09:59.972Z] [INFO] [PID:20568] 🧪 CORS TEST ENDPOINT HIT | Data: {
+  "requestId": "req_1760821799906_l862ff790",
+  "body": {
+    "test": "cors-connectivity"
+  },
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "28",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "timestamp": "2025-10-18T21:09:59.972Z"
+}
+[2025-10-18T21:13:51.295Z] [INFO] [PID:20568] 🛑 SIGINT received, shutting down gracefully
+[2025-10-18T21:13:58.909Z] [INFO] [PID:23292] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-18T21:13:58.909Z"
+}
+[2025-10-18T21:13:58.925Z] [INFO] [PID:23292] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-18T21:14:00.140Z] [INFO] [PID:23292] ✅ Connected to MongoDB
+[2025-10-18T21:14:00.726Z] [INFO] [PID:23292] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-18T21:14:00.726Z"
+}
+[2025-10-18T21:14:45.235Z] [INFO] [PID:23292] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:14:45.235Z"
+}
+[2025-10-18T21:14:45.237Z] [INFO] [PID:23292] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:14:45.258Z] [INFO] [PID:23292] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:14:45.258Z"
+}
+[2025-10-18T21:14:45.261Z] [INFO] [PID:23292] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:14:45.265Z] [INFO] [PID:23292] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1760822085264_wjpuqfcxj",
+  "timestamp": "2025-10-18T21:14:45.264Z",
+  "method": "POST",
+  "url": "/api/test-cors",
+  "originalUrl": "/api/test-cors",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "28",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-18T21:14:45.333Z] [INFO] [PID:23292] 🧪 CORS TEST ENDPOINT HIT | Data: {
+  "requestId": "req_1760822085264_wjpuqfcxj",
+  "body": {
+    "test": "cors-connectivity"
+  },
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "28",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "timestamp": "2025-10-18T21:14:45.333Z"
+}
+[2025-10-18T21:14:45.372Z] [INFO] [PID:23292] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:14:45.372Z"
+}
+[2025-10-18T21:14:45.373Z] [INFO] [PID:23292] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:14:45.384Z] [INFO] [PID:23292] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-18T21:14:45.384Z"
+}
+[2025-10-18T21:14:45.387Z] [INFO] [PID:23292] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-18T21:14:45.389Z] [INFO] [PID:23292] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1760822085389_jyphbirqm",
+  "timestamp": "2025-10-18T21:14:45.389Z",
+  "method": "POST",
+  "url": "/api/enquiry/submit",
+  "originalUrl": "/api/enquiry/submit",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "124",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MDgxMjEzNiwiZXhwIjoxNzYxNDE2OTM2fQ.4V4uDr_eG13Wh_BstTlFaQo7x4nnszAIe2c5dVGehPc",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-18T21:14:45.431Z] [INFO] [PID:23292] 🚀 ENQUIRY FORM SUBMISSION STARTED | Data: {
+  "requestId": "req_1760822085430_co91yc2io",
+  "timestamp": "2025-10-18T21:14:45.430Z",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "contentType": "application/json",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "body": {
+    "name": "UDDIT UDDIT",
+    "email": "udditalerts247@gmail.com",
+    "mobile": "7456886877",
+    "describe": "ecommerce",
+    "monthlyLoad": "0-100"
+  },
+  "bodyKeys": [
+    "name",
+    "email",
+    "mobile",
+    "describe",
+    "monthlyLoad"
+  ],
+  "bodyValues": [
+    "UDDIT UDDIT",
+    "udditalerts247@gmail.com",
+    "7456886877",
+    "ecommerce",
+    "0-100"
+  ]
+}
+[2025-10-18T21:14:45.435Z] [INFO] [PID:23292] ✅ VALIDATION PASSED - PROCESSING ENQUIRY | Data: {
+  "requestId": "req_1760822085430_co91yc2io",
+  "timestamp": "2025-10-18T21:14:45.435Z",
+  "submittedData": {
+    "name": "UDDIT UDDIT",
+    "email": "udditalerts247@gmail.com",
+    "mobile": "7456886877",
+    "describe": "ecommerce",
+    "monthlyLoad": "0-100"
+  },
+  "dataValidation": {
+    "nameValid": true,
+    "emailValid": true,
+    "mobileValid": true,
+    "describeValid": true,
+    "monthlyLoadValid": true
+  }
+}
+[2025-10-18T21:14:49.143Z] [INFO] [PID:23292] Enquiry confirmation email sent | Data: {
+  "to": "udditalerts247@gmail.com",
+  "name": "UDDIT UDDIT",
+  "messageId": "<d7ede6a6-5c1a-60a9-485b-86e3a1fc9dd2@gmail.com>"
+}
+[2025-10-18T21:14:50.713Z] [INFO] [PID:23292] Enquiry notification email sent to company | Data: {
+  "from": "UDDIT UDDIT",
+  "email": "udditalerts247@gmail.com",
+  "messageId": "<56d9f5aa-a569-25af-ddfc-6f3bee27eee3@gmail.com>"
+}
+[2025-10-18T21:14:50.714Z] [INFO] [PID:23292] Enquiry form processed successfully | Data: {
+  "name": "UDDIT UDDIT",
+  "email": "udditalerts247@gmail.com",
+  "confirmationMessageId": "<d7ede6a6-5c1a-60a9-485b-86e3a1fc9dd2@gmail.com>",
+  "notificationMessageId": "<56d9f5aa-a569-25af-ddfc-6f3bee27eee3@gmail.com>",
+  "responseTime": "5284ms"
+}
+[2025-10-18T21:15:07.961Z] [INFO] [PID:23292] 🛑 SIGINT received, shutting down gracefully
