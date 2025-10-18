@@ -1,6 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Determine API URL based on environment
+const getApiBaseUrl = () => {
+  const environment = process.env.REACT_APP_ENVIRONMENT || 'development';
+  
+  if (environment === 'production') {
+    return process.env.REACT_APP_PRODUCTION_API_URL || 'https://your-render-backend-url.onrender.com/api';
+  }
+  
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
   private api: AxiosInstance;
