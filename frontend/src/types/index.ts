@@ -164,7 +164,7 @@ export interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: RegisterData) => Promise<void>;
+  register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
   loading: boolean;
   error: string | null;

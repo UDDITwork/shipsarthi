@@ -34,7 +34,7 @@ const Register: React.FC = () => {
 
   const onSubmit = async (data: RegisterData) => {
     try {
-      const response = await registerUser(data);
+      await registerUser(data);
       
       // Show success message
       setRegistrationSuccess(true);
