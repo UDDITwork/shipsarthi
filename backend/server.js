@@ -30,7 +30,9 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://shipsarthi.vercel.app',
-  'https://shipsarthi-git-main-udditworks-projects.vercel.app'
+  'https://shipsarthi-git-main-udditworks-projects.vercel.app',
+  'https://www.shipsarthi.com',
+  'https://shipsarthi.com'
 ];
 
 // Enhanced CORS configuration for production
