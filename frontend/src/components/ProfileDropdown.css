@@ -1,0 +1,193 @@
+/* Profile Dropdown Styles */
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 350px;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid #007BFF;
+  z-index: 1000;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+/* Profile Header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+.user-avatar-large {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #F68723;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.company-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #333333;
+}
+
+.contact-person {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  color: #666666;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #666666;
+  font-weight: 500;
+}
+
+/* Profile Menu */
+.profile-menu {
+  padding: 15px 0;
+}
+
+.menu-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+  background-color: #F5F5F5;
+  border-left: 4px solid #F68723;
+}
+
+.menu-item.active {
+  background-color: #E5ECF2;
+  border-left: 4px solid #F68723;
+}
+
+.menu-item-content {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  font-size: 20px;
+  margin-right: 15px;
+  width: 24px;
+  text-align: center;
+  color: #F68723;
+}
+
+.menu-text {
+  flex: 1;
+}
+
+.menu-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 2px;
+}
+
+.menu-subtitle {
+  font-size: 12px;
+  color: #666666;
+  font-weight: 400;
+}
+
+
+/* Profile Footer */
+.profile-footer {
+  padding: 15px 20px;
+  background-color: #FFFFFF;
+}
+
+.logout-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background-color: #FFFFFF;
+  color: #007BFF;
+  border: 1px solid #007BFF;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #F0F8FF;
+}
+
+.logout-icon {
+  font-size: 16px;
+  color: #007BFF;
+}
+
+.logout-text {
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-dropdown {
+    width: 320px;
+    right: -50px;
+  }
+  
+  .profile-header {
+    padding: 15px;
+  }
+  
+  .user-avatar-large {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .avatar-text {
+    font-size: 20px;
+  }
+  
+  .company-name {
+    font-size: 16px;
+  }
+  
+  .contact-person {
+    font-size: 13px;
+  }
+  
+}
+
+@media (max-width: 480px) {
+  .profile-dropdown {
+    width: 280px;
+    right: -80px;
+  }
+}

@@ -23,6 +23,7 @@ import OrderCancellation from './pages/OrderCancellation';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Tracking from './pages/Tracking';
+import Channel from './pages/Channel';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -107,6 +108,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Warehouse />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/channel" 
+              element={
+                <ProtectedRoute>
+                  <Channel />
                 </ProtectedRoute>
               } 
             />

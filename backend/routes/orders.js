@@ -190,10 +190,49 @@ router.post('/', auth, [
     const order = new Order(orderData);
     await order.save();
 
+    // Automatically create pickup request after order creation
+    let pickupRequestResult = null;
+    try {
+      // Get warehouse details for pickup request
+      const warehouseForPickup = {
+        name: warehouse.name,
+        warehouse_name: warehouse.title,
+        address: warehouse.address,
+        contact_info: warehouse.contact_info
+      };
+
+      // Create pickup request via Delhivery API
+      pickupRequestResult = await delhiveryService.createPickupRequest(order, warehouseForPickup);
+
+      if (pickupRequestResult.success) {
+        // Update order with pickup request details
+        order.delhivery_data.pickup_request_id = pickupRequestResult.pickup_id;
+        order.delhivery_data.pickup_request_status = 'scheduled';
+        order.delhivery_data.pickup_request_date = new Date(pickupRequestResult.pickup_date);
+        order.delhivery_data.pickup_request_time = pickupRequestResult.pickup_time;
+        order.delhivery_data.pickup_scheduled = true;
+        
+        await order.save();
+        
+        console.log('✅ Pickup request created successfully for order:', order.order_id);
+      } else {
+        console.error('❌ Failed to create pickup request for order:', order.order_id, pickupRequestResult.error);
+        // Don't fail the order creation if pickup request fails
+        // Just log the error and continue
+      }
+    } catch (pickupError) {
+      console.error('❌ Error creating pickup request:', pickupError.message);
+      // Don't fail the order creation if pickup request fails
+      // Just log the error and continue
+    }
+
     res.status(201).json({
       status: 'success',
       message: 'Order created successfully',
-      data: order
+      data: {
+        order,
+        pickup_request: pickupRequestResult
+      }
     });
 
   } catch (error) {

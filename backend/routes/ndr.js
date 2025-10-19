@@ -1,28 +1,29 @@
+// Location: backend/routes/ndr.js
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const moment = require('moment');
 const { auth } = require('../middleware/auth');
-const NDR = require('../models/NDR');
 const Order = require('../models/Order');
+const delhiveryService = require('../services/delhiveryService');
 
 const router = express.Router();
 
-// @desc    Get all NDRs with filters and pagination
+// @desc    Get all NDR orders with filters and pagination
 // @route   GET /api/ndr
 // @access  Private
 router.get('/', auth, [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('status').optional().isIn([
-    'new_ndr', 'customer_contacted', 'reattempt_scheduled', 'customer_response_pending',
-    'address_updated', 'payment_updated', 'delivered', 'rto_initiated', 'rto_in_transit',
-    'rto_delivered', 'closed'
+    'action_required', 'action_taken', 'delivered', 'rto', 'all'
   ]),
-  query('reason').optional(),
-  query('days_in_ndr_min').optional().isInt({ min: 0 }),
-  query('days_in_ndr_max').optional().isInt({ min: 0 }),
+  query('ndr_reason').optional(),
+  query('nsl_code').optional(),
+  query('attempts_min').optional().isInt({ min: 0 }),
+  query('attempts_max').optional().isInt({ min: 0, max: 3 }),
   query('date_from').optional().isISO8601(),
-  query('date_to').optional().isISO8601()
+  query('date_to').optional().isISO8601(),
+  query('search').optional().trim()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -36,126 +37,148 @@ router.get('/', auth, [
 
     const userId = req.user._id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
     // Build filter query
-    const filterQuery = { user_id: userId };
+    const filterQuery = {
+      user_id: userId,
+      'ndr_info.is_ndr': true
+    };
 
+    // Status filter
     if (req.query.status && req.query.status !== 'all') {
-      filterQuery['ndr_status.current_status'] = req.query.status;
+      switch (req.query.status) {
+        case 'action_required':
+          filterQuery['ndr_info.resolution_action'] = { $in: [null, 'reattempt'] };
+          filterQuery.status = 'ndr';
+          break;
+        case 'action_taken':
+          filterQuery['ndr_info.resolution_action'] = { $ne: null };
+          filterQuery.status = 'ndr';
+          break;
+        case 'delivered':
+          filterQuery.status = 'delivered';
+          break;
+        case 'rto':
+          filterQuery.status = 'rto';
+          break;
+      }
     }
 
-    if (req.query.reason) {
-      filterQuery.ndr_reason = new RegExp(req.query.reason, 'i');
+    // NDR reason filter
+    if (req.query.ndr_reason) {
+      filterQuery['ndr_info.ndr_reason'] = new RegExp(req.query.ndr_reason, 'i');
     }
 
+    // NSL code filter
+    if (req.query.nsl_code) {
+      filterQuery['ndr_info.nsl_code'] = req.query.nsl_code;
+    }
+
+    // Attempts filter
+    if (req.query.attempts_min || req.query.attempts_max) {
+      filterQuery['ndr_info.ndr_attempts'] = {};
+      if (req.query.attempts_min) {
+        filterQuery['ndr_info.ndr_attempts'].$gte = parseInt(req.query.attempts_min);
+      }
+      if (req.query.attempts_max) {
+        filterQuery['ndr_info.ndr_attempts'].$lte = parseInt(req.query.attempts_max);
+      }
+    }
+
+    // Date filter
+    if (req.query.date_from || req.query.date_to) {
+      filterQuery['ndr_info.last_ndr_date'] = {};
+      if (req.query.date_from) {
+        filterQuery['ndr_info.last_ndr_date'].$gte = new Date(req.query.date_from);
+      }
+      if (req.query.date_to) {
+        filterQuery['ndr_info.last_ndr_date'].$lte = new Date(req.query.date_to);
+      }
+    }
+
+    // Search filter (AWB, Order ID, Customer Name)
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, 'i');
       filterQuery.$or = [
-        { awb_number: searchRegex },
-        { 'customer_info.name': searchRegex },
+        { 'delhivery_data.waybill': searchRegex },
+        { order_id: searchRegex },
+        { 'customer_info.buyer_name': searchRegex },
         { 'customer_info.phone': searchRegex }
       ];
     }
 
-    if (req.query.days_in_ndr_min || req.query.days_in_ndr_max) {
-      filterQuery['metrics.days_in_ndr'] = {};
-      if (req.query.days_in_ndr_min) {
-        filterQuery['metrics.days_in_ndr'].$gte = parseInt(req.query.days_in_ndr_min);
-      }
-      if (req.query.days_in_ndr_max) {
-        filterQuery['metrics.days_in_ndr'].$lte = parseInt(req.query.days_in_ndr_max);
-      }
-    }
-
-    if (req.query.date_from || req.query.date_to) {
-      filterQuery.ndr_date = {};
-      if (req.query.date_from) {
-        filterQuery.ndr_date.$gte = new Date(req.query.date_from);
-      }
-      if (req.query.date_to) {
-        filterQuery.ndr_date.$lte = new Date(req.query.date_to);
-      }
-    }
-
-    // Get NDRs with pagination
-    const ndrs = await NDR.find(filterQuery)
-      .populate('order_id', 'order_id payment_info.order_value')
-      .sort({ ndr_date: -1 })
+    // Get NDR orders with pagination
+    const orders = await Order.find(filterQuery)
+      .sort({ 'ndr_info.last_ndr_date': -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    const totalNDRs = await NDR.countDocuments(filterQuery);
+    const totalOrders = await Order.countDocuments(filterQuery);
 
     res.json({
       status: 'success',
       data: {
-        ndrs,
+        orders,
         pagination: {
           current_page: page,
-          total_pages: Math.ceil(totalNDRs / limit),
-          total_ndrs: totalNDRs,
+          total_pages: Math.ceil(totalOrders / limit),
+          total_orders: totalOrders,
           per_page: limit
         }
       }
     });
 
   } catch (error) {
-    console.error('Get NDRs error:', error);
+    console.error('Get NDR orders error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error fetching NDRs'
+      message: 'Server error fetching NDR orders'
     });
   }
 });
 
-// @desc    Get single NDR by ID
+// @desc    Get NDR order by ID
 // @route   GET /api/ndr/:id
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
-    const ndr = await NDR.findOne({
+    const order = await Order.findOne({
       _id: req.params.id,
-      user_id: req.user._id
-    }).populate('order_id', 'order_id customer_info payment_info delivery_address');
+      user_id: req.user._id,
+      'ndr_info.is_ndr': true
+    });
 
-    if (!ndr) {
+    if (!order) {
       return res.status(404).json({
         status: 'error',
-        message: 'NDR not found'
+        message: 'NDR order not found'
       });
     }
 
     res.json({
       status: 'success',
-      data: ndr
+      data: order
     });
 
   } catch (error) {
-    console.error('Get NDR error:', error);
+    console.error('Get NDR order error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error fetching NDR'
+      message: 'Server error fetching NDR order'
     });
   }
 });
 
-// @desc    Update NDR status
-// @route   PATCH /api/ndr/:id/status
+// @desc    Take NDR Action (Re-Attempt or Pickup Reschedule)
+// @route   POST /api/ndr/action
 // @access  Private
-router.patch('/:id/status', auth, [
-  body('status').isIn([
-    'new_ndr', 'customer_contacted', 'reattempt_scheduled', 'customer_response_pending',
-    'address_updated', 'payment_updated', 'delivered', 'rto_initiated', 'rto_in_transit',
-    'rto_delivered', 'closed'
-  ]).withMessage('Valid status is required'),
-  body('resolution_action').optional().isIn([
-    'reattempt_delivery', 'update_address', 'customer_pickup', 'initiate_rto',
-    'refund_initiated', 'delivered', 'cancelled'
-  ]),
-  body('notes').optional().trim()
+router.post('/action', auth, [
+  body('waybill').notEmpty().withMessage('Waybill is required'),
+  body('action').isIn(['RE-ATTEMPT', 'PICKUP_RESCHEDULE']).withMessage('Valid action is required'),
+  body('reason').optional().trim()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -167,53 +190,159 @@ router.patch('/:id/status', auth, [
       });
     }
 
-    const ndr = await NDR.findOne({
-      _id: req.params.id,
-      user_id: req.user._id
+    const { waybill, action, reason } = req.body;
+
+    // Find order
+    const order = await Order.findOne({
+      user_id: req.user._id,
+      'delhivery_data.waybill': waybill,
+      'ndr_info.is_ndr': true
     });
 
-    if (!ndr) {
+    if (!order) {
       return res.status(404).json({
         status: 'error',
-        message: 'NDR not found'
+        message: 'NDR order not found'
       });
     }
 
-    const { status, resolution_action, notes = '' } = req.body;
+    // Validate action based on NSL code
+    const nslCode = order.ndr_info.nsl_code;
+    const allowedReAttemptCodes = ['EOD-74', 'EOD-15', 'EOD-104', 'EOD-43', 'EOD-86', 'EOD-11', 'EOD-69', 'EOD-6'];
+    const allowedRescheduleCodes = ['EOD-777', 'EOD-21'];
 
-    await ndr.updateStatus(status, resolution_action, notes);
+    if (action === 'RE-ATTEMPT' && !allowedReAttemptCodes.includes(nslCode)) {
+      return res.status(400).json({
+        status: 'error',
+        message: `Re-attempt not allowed for NSL code: ${nslCode}`
+      });
+    }
+
+    if (action === 'PICKUP_RESCHEDULE' && !allowedRescheduleCodes.includes(nslCode)) {
+      return res.status(400).json({
+        status: 'error',
+        message: `Pickup reschedule not allowed for NSL code: ${nslCode}`
+      });
+    }
+
+    // Check attempt count
+    if (order.ndr_info.ndr_attempts > 2) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Maximum 3 attempts allowed. Please initiate RTO.'
+      });
+    }
+
+    // Call Delhivery API
+    const result = await delhiveryService.takeNDRAction({
+      waybill,
+      action,
+      reason
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        status: 'error',
+        message: result.error || 'Failed to take NDR action'
+      });
+    }
+
+    // Update order in database
+    order.ndr_info.action_history.push({
+      action: action,
+      timestamp: new Date(),
+      upl_id: result.request_id,
+      status: 'PENDING',
+      remarks: reason || `${action} initiated`
+    });
+
+    order.ndr_info.resolution_action = action === 'RE-ATTEMPT' ? 'reattempt' : 'rto';
+    
+    if (action === 'RE-ATTEMPT') {
+      // Calculate next attempt date (next day)
+      const nextAttempt = new Date();
+      nextAttempt.setDate(nextAttempt.getDate() + 1);
+      order.ndr_info.next_attempt_date = nextAttempt;
+    }
+
+    await order.save();
 
     res.json({
       status: 'success',
-      message: 'NDR status updated successfully',
+      message: `${action} initiated successfully`,
       data: {
-        ndr_id: ndr._id,
-        current_status: ndr.ndr_status.current_status,
-        resolution_action: ndr.ndr_status.resolution_action
+        waybill: waybill,
+        action: action,
+        upl_id: result.request_id,
+        next_attempt_date: order.ndr_info.next_attempt_date
       }
     });
 
   } catch (error) {
-    console.error('Update NDR status error:', error);
+    console.error('Take NDR action error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error updating NDR status'
+      message: 'Server error taking NDR action'
     });
   }
 });
 
-// @desc    Add delivery attempt
-// @route   POST /api/ndr/:id/attempts
+// @desc    Get NDR Status by UPL ID
+// @route   GET /api/ndr/status/:uplId
 // @access  Private
-router.post('/:id/attempts', auth, [
-  body('attempt_date').isISO8601().withMessage('Valid attempt date is required'),
-  body('delivery_partner').optional().trim(),
-  body('delivery_boy_name').optional().trim(),
-  body('delivery_boy_phone').optional().matches(/^[6-9]\d{9}$/),
-  body('attempt_status').isIn(['failed', 'customer_not_available', 'rescheduled']).withMessage('Valid attempt status is required'),
-  body('failure_reason').optional().trim(),
-  body('customer_feedback').optional().trim(),
-  body('next_attempt_date').optional().isISO8601()
+router.get('/status/:uplId', auth, async (req, res) => {
+  try {
+    const { uplId } = req.params;
+
+    // Call Delhivery API to get status
+    const result = await delhiveryService.getNDRStatus(uplId);
+
+    if (!result.success) {
+      return res.status(500).json({
+        status: 'error',
+        message: result.error || 'Failed to get NDR status'
+      });
+    }
+
+    // Update orders in database
+    if (result.waybills && result.waybills.length > 0) {
+      for (const waybill of result.waybills) {
+        await Order.updateOne(
+          {
+            'delhivery_data.waybill': waybill,
+            'ndr_info.action_history.upl_id': uplId
+          },
+          {
+            $set: {
+              'ndr_info.action_history.$.status': result.status
+            }
+          }
+        );
+      }
+    }
+
+    res.json({
+      status: 'success',
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Get NDR status error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error fetching NDR status'
+    });
+  }
+});
+
+// @desc    Bulk NDR Action
+// @route   POST /api/ndr/bulk-action
+// @access  Private
+router.post('/bulk-action', auth, [
+  body('order_ids').isArray({ min: 1 }).withMessage('Order IDs array is required'),
+  body('order_ids.*').isMongoId().withMessage('Valid Order IDs are required'),
+  body('action').isIn(['RE-ATTEMPT', 'PICKUP_RESCHEDULE']).withMessage('Valid action is required'),
+  body('reason').optional().trim()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -225,149 +354,191 @@ router.post('/:id/attempts', auth, [
       });
     }
 
-    const ndr = await NDR.findOne({
-      _id: req.params.id,
-      user_id: req.user._id
+    const { order_ids, action, reason } = req.body;
+    const userId = req.user._id;
+
+    // Get orders
+    const orders = await Order.find({
+      _id: { $in: order_ids },
+      user_id: userId,
+      'ndr_info.is_ndr': true
     });
 
-    if (!ndr) {
-      return res.status(404).json({
+    if (orders.length !== order_ids.length) {
+      return res.status(400).json({
         status: 'error',
-        message: 'NDR not found'
+        message: 'Some orders not found or are not NDR orders'
       });
     }
 
-    await ndr.addDeliveryAttempt(req.body);
+    // Collect waybills
+    const waybills = orders.map(order => order.delhivery_data.waybill);
+
+    // Call Delhivery Bulk API
+    const result = await delhiveryService.bulkNDRAction({
+      waybills,
+      action
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        status: 'error',
+        message: result.error || 'Failed to execute bulk NDR action'
+      });
+    }
+
+    // Update all orders
+    const updatePromises = orders.map(async (order) => {
+      order.ndr_info.action_history.push({
+        action: action,
+        timestamp: new Date(),
+        upl_id: result.request_id,
+        status: 'PENDING',
+        remarks: reason || `Bulk ${action} initiated`
+      });
+
+      order.ndr_info.resolution_action = action === 'RE-ATTEMPT' ? 'reattempt' : 'rto';
+
+      if (action === 'RE-ATTEMPT') {
+        const nextAttempt = new Date();
+        nextAttempt.setDate(nextAttempt.getDate() + 1);
+        order.ndr_info.next_attempt_date = nextAttempt;
+      }
+
+      await order.save();
+    });
+
+    await Promise.all(updatePromises);
 
     res.json({
       status: 'success',
-      message: 'Delivery attempt added successfully',
+      message: `Bulk ${action} initiated for ${orders.length} orders`,
       data: {
-        total_attempts: ndr.metrics.total_attempts,
-        last_attempt: ndr.delivery_attempts[ndr.delivery_attempts.length - 1]
+        upl_id: result.request_id,
+        processed_count: result.processed_count,
+        waybills: waybills
       }
     });
 
   } catch (error) {
-    console.error('Add delivery attempt error:', error);
+    console.error('Bulk NDR action error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error adding delivery attempt'
+      message: 'Server error performing bulk NDR action'
     });
   }
 });
 
-// @desc    Add customer communication
-// @route   POST /api/ndr/:id/communication
+// @desc    Get NDR Statistics/Counts
+// @route   GET /api/ndr/statistics
 // @access  Private
-router.post('/:id/communication', auth, [
-  body('type').isIn(['sms_sent', 'calls_made', 'emails_sent', 'whatsapp_messages']).withMessage('Valid communication type is required'),
-  body('message_text').optional().trim(),
-  body('call_duration').optional().isInt({ min: 0 }),
-  body('call_status').optional().isIn(['connected', 'not_reachable', 'busy', 'switched_off']),
-  body('call_notes').optional().trim(),
-  body('agent_name').optional().trim(),
-  body('email_subject').optional().trim(),
-  body('email_content').optional().trim()
-], async (req, res) => {
+router.get('/statistics/counts', auth, async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Validation failed',
-        errors: errors.array()
-      });
-    }
+    const userId = req.user._id;
 
-    const ndr = await NDR.findOne({
-      _id: req.params.id,
-      user_id: req.user._id
-    });
+    const counts = {
+      action_required: await Order.countDocuments({
+        user_id: userId,
+        'ndr_info.is_ndr': true,
+        'ndr_info.resolution_action': { $in: [null, 'reattempt'] },
+        status: 'ndr'
+      }),
+      action_taken: await Order.countDocuments({
+        user_id: userId,
+        'ndr_info.is_ndr': true,
+        'ndr_info.resolution_action': { $ne: null },
+        status: 'ndr'
+      }),
+      delivered: await Order.countDocuments({
+        user_id: userId,
+        'ndr_info.is_ndr': true,
+        status: 'delivered'
+      }),
+      rto: await Order.countDocuments({
+        user_id: userId,
+        'ndr_info.is_ndr': true,
+        status: 'rto'
+      })
+    };
 
-    if (!ndr) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'NDR not found'
-      });
-    }
-
-    const { type, ...communicationData } = req.body;
-    await ndr.addCustomerCommunication(type, communicationData);
+    counts.all = counts.action_required + counts.action_taken + counts.delivered + counts.rto;
 
     res.json({
       status: 'success',
-      message: 'Communication logged successfully'
+      data: counts
     });
 
   } catch (error) {
-    console.error('Add communication error:', error);
+    console.error('NDR statistics error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error adding communication'
+      message: 'Server error fetching NDR statistics'
     });
   }
 });
 
-// @desc    Initiate RTO
-// @route   POST /api/ndr/:id/rto
+// @desc    Get NDR Overview Statistics
+// @route   GET /api/ndr/statistics/overview
 // @access  Private
-router.post('/:id/rto', auth, [
-  body('reason').optional().trim().isLength({ max: 500 })
-], async (req, res) => {
+router.get('/statistics/overview', auth, async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Validation failed',
-        errors: errors.array()
-      });
-    }
+    const userId = req.user._id;
+    const { period = '30' } = req.query;
+    const startDate = moment().subtract(parseInt(period), 'days').startOf('day').toDate();
 
-    const ndr = await NDR.findOne({
-      _id: req.params.id,
-      user_id: req.user._id
+    const pipeline = [
+      {
+        $match: {
+          user_id: userId,
+          'ndr_info.is_ndr': true,
+          'ndr_info.last_ndr_date': { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: '$ndr_info.ndr_reason',
+          count: { $sum: 1 },
+          avg_attempts: { $avg: '$ndr_info.ndr_attempts' }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      }
+    ];
+
+    const reasonStats = await Order.aggregate(pipeline);
+
+    const totalNDRs = await Order.countDocuments({
+      user_id: userId,
+      'ndr_info.is_ndr': true,
+      'ndr_info.last_ndr_date': { $gte: startDate }
     });
-
-    if (!ndr) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'NDR not found'
-      });
-    }
-
-    const { reason = 'Multiple delivery attempts failed' } = req.body;
-    await ndr.initiateRTO(reason);
 
     res.json({
       status: 'success',
-      message: 'RTO initiated successfully',
       data: {
-        rto_status: ndr.rto_info.rto_status,
-        rto_initiated_date: ndr.rto_info.rto_initiated_date
+        period_days: parseInt(period),
+        total_ndrs: totalNDRs,
+        reason_breakdown: reasonStats
       }
     });
 
   } catch (error) {
-    console.error('Initiate RTO error:', error);
+    console.error('NDR overview error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error initiating RTO'
+      message: 'Server error fetching NDR overview'
     });
   }
 });
 
-// @desc    Update customer response
-// @route   PATCH /api/ndr/:id/customer-response
+// @desc    Update customer information for NDR
+// @route   PATCH /api/ndr/:id/customer-info
 // @access  Private
-router.patch('/:id/customer-response', auth, [
-  body('response_type').isIn(['call', 'sms', 'email', 'whatsapp', 'portal']).withMessage('Valid response type is required'),
-  body('customer_preference').isIn(['reattempt', 'reschedule', 'change_address', 'customer_pickup', 'cancel_order']).withMessage('Valid customer preference is required'),
-  body('preferred_delivery_date').optional().isISO8601(),
-  body('preferred_delivery_time').optional().trim(),
+router.patch('/:id/customer-info', auth, [
   body('updated_address').optional().trim(),
   body('updated_phone').optional().matches(/^[6-9]\d{9}$/),
+  body('preferred_delivery_date').optional().isISO8601(),
   body('customer_notes').optional().trim()
 ], async (req, res) => {
   try {
@@ -380,217 +551,49 @@ router.patch('/:id/customer-response', auth, [
       });
     }
 
-    const ndr = await NDR.findOne({
+    const order = await Order.findOne({
       _id: req.params.id,
-      user_id: req.user._id
+      user_id: req.user._id,
+      'ndr_info.is_ndr': true
     });
 
-    if (!ndr) {
+    if (!order) {
       return res.status(404).json({
         status: 'error',
-        message: 'NDR not found'
+        message: 'NDR order not found'
       });
     }
 
-    // Update customer response
-    ndr.customer_response = {
-      response_received: true,
-      response_date: new Date(),
-      ...req.body
-    };
-
-    // Update NDR status based on customer preference
-    let newStatus = 'customer_response_pending';
-    switch (req.body.customer_preference) {
-      case 'reattempt':
-      case 'reschedule':
-        newStatus = 'reattempt_scheduled';
-        break;
-      case 'change_address':
-        newStatus = 'address_updated';
-        break;
-      case 'customer_pickup':
-        newStatus = 'customer_pickup';
-        break;
-      case 'cancel_order':
-        newStatus = 'rto_initiated';
-        break;
+    // Update customer information
+    if (req.body.updated_address) {
+      order.delivery_address.full_address = req.body.updated_address;
+    }
+    if (req.body.updated_phone) {
+      order.customer_info.phone = req.body.updated_phone;
+    }
+    if (req.body.preferred_delivery_date) {
+      order.ndr_info.next_attempt_date = new Date(req.body.preferred_delivery_date);
+    }
+    if (req.body.customer_notes) {
+      order.special_instructions = req.body.customer_notes;
     }
 
-    ndr.ndr_status.current_status = newStatus;
-    await ndr.save();
+    await order.save();
 
     res.json({
       status: 'success',
-      message: 'Customer response updated successfully',
+      message: 'Customer information updated successfully',
       data: {
-        current_status: ndr.ndr_status.current_status,
-        customer_preference: ndr.customer_response.customer_preference
+        order_id: order.order_id,
+        updated_fields: Object.keys(req.body)
       }
     });
 
   } catch (error) {
-    console.error('Update customer response error:', error);
+    console.error('Update customer info error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error updating customer response'
-    });
-  }
-});
-
-// @desc    Get NDR statistics
-// @route   GET /api/ndr/statistics/overview
-// @access  Private
-router.get('/statistics/overview', auth, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { period = '30' } = req.query;
-    const startDate = moment().subtract(parseInt(period), 'days').startOf('day');
-
-    const stats = await NDR.getNDRStats(userId, startDate.toDate(), new Date());
-    const reasonStats = await NDR.getNDRsByReason(userId);
-
-    const summary = {
-      total_ndrs: 0,
-      avg_days_in_ndr: 0,
-      status_breakdown: {},
-      reason_breakdown: reasonStats
-    };
-
-    stats.forEach(stat => {
-      summary.total_ndrs += stat.count;
-      summary.status_breakdown[stat._id] = {
-        count: stat.count,
-        avg_days: stat.avg_days_in_ndr || 0
-      };
-    });
-
-    if (stats.length > 0) {
-      summary.avg_days_in_ndr = stats.reduce((acc, stat) => acc + (stat.avg_days_in_ndr || 0), 0) / stats.length;
-    }
-
-    res.json({
-      status: 'success',
-      data: {
-        period_days: parseInt(period),
-        summary,
-        detailed_stats: stats
-      }
-    });
-
-  } catch (error) {
-    console.error('NDR statistics error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Server error fetching NDR statistics'
-    });
-  }
-});
-
-// @desc    Get escalation candidates
-// @route   GET /api/ndr/escalation-candidates
-// @access  Private
-router.get('/escalation-candidates', auth, async (req, res) => {
-  try {
-    const candidates = await NDR.getEscalationCandidates();
-
-    // Filter by user
-    const userCandidates = candidates.filter(ndr => ndr.user_id.toString() === req.user._id.toString());
-
-    res.json({
-      status: 'success',
-      data: {
-        candidates: userCandidates,
-        total_count: userCandidates.length
-      }
-    });
-
-  } catch (error) {
-    console.error('Get escalation candidates error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Server error fetching escalation candidates'
-    });
-  }
-});
-
-// @desc    Bulk NDR actions
-// @route   PATCH /api/ndr/bulk-action
-// @access  Private
-router.patch('/bulk-action', auth, [
-  body('ndr_ids').isArray({ min: 1 }).withMessage('NDR IDs array is required'),
-  body('ndr_ids.*').isMongoId().withMessage('Valid NDR IDs are required'),
-  body('action').isIn(['initiate_rto', 'mark_delivered', 'schedule_reattempt']).withMessage('Valid action is required'),
-  body('notes').optional().trim()
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Validation failed',
-        errors: errors.array()
-      });
-    }
-
-    const { ndr_ids, action, notes = '' } = req.body;
-    const userId = req.user._id;
-
-    const ndrs = await NDR.find({
-      _id: { $in: ndr_ids },
-      user_id: userId
-    });
-
-    if (ndrs.length !== ndr_ids.length) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Some NDRs not found or access denied'
-      });
-    }
-
-    const results = [];
-
-    for (const ndr of ndrs) {
-      try {
-        switch (action) {
-          case 'initiate_rto':
-            await ndr.initiateRTO(notes);
-            break;
-          case 'mark_delivered':
-            await ndr.updateStatus('delivered', 'delivered', notes);
-            break;
-          case 'schedule_reattempt':
-            await ndr.updateStatus('reattempt_scheduled', 'reattempt_delivery', notes);
-            break;
-        }
-
-        results.push({
-          ndr_id: ndr._id,
-          awb_number: ndr.awb_number,
-          status: 'success',
-          new_status: ndr.ndr_status.current_status
-        });
-      } catch (error) {
-        results.push({
-          ndr_id: ndr._id,
-          awb_number: ndr.awb_number,
-          status: 'error',
-          message: error.message
-        });
-      }
-    }
-
-    res.json({
-      status: 'success',
-      message: 'Bulk action completed',
-      data: results
-    });
-
-  } catch (error) {
-    console.error('Bulk NDR action error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Server error performing bulk action'
+      message: 'Server error updating customer information'
     });
   }
 });
