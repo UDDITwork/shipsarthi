@@ -368,17 +368,17 @@ class DelhiveryService {
     async schedulePickup(pickupData) {
         try {
             const response = await this.client.post('/fm/request/new/', {
-                pickup_location: pickupData.pickup_location,
                 pickup_time: pickupData.pickup_time,
                 pickup_date: pickupData.pickup_date,
-                expected_package_count: pickupData.package_count || 1,
-                pickup_type: 'Forward'
+                pickup_location: pickupData.pickup_location,
+                expected_package_count: pickupData.expected_package_count || 1
             });
 
             return {
                 success: response.status === 200,
                 pickup_id: response.data?.pickup_id,
-                message: response.data?.message || 'Pickup scheduled successfully'
+                message: response.data?.message || 'Pickup scheduled successfully',
+                data: response.data
             };
         } catch (error) {
             logger.error('❌ Pickup scheduling failed', {
@@ -542,21 +542,57 @@ class DelhiveryService {
     /**
      * Take NDR Action (Re-Attempt or Pickup Reschedule)
      * @param {Object} ndrData - NDR action data
+     * @param {string} ndrData.waybill - Waybill number
+     * @param {string} ndrData.action - Action type (RE-ATTEMPT or PICKUP_RESCHEDULE)
+     * @param {string} ndrData.reason - Optional reason
+     * @param {string} ndrData.nslCode - Current NSL code of the shipment
+     * @param {number} ndrData.attemptCount - Current attempt count
      * @returns {Promise} NDR action response with UPL ID
      */
     async takeNDRAction(ndrData) {
         try {
-            const { waybill, action, reason } = ndrData;
+            const { waybill, action, reason, nslCode, attemptCount } = ndrData;
 
             logger.info('🎯 Taking NDR action', {
                 waybill,
                 action,
-                reason
+                reason,
+                nslCode,
+                attemptCount
             });
 
             // Validate action
             if (!['RE-ATTEMPT', 'PICKUP_RESCHEDULE'].includes(action)) {
                 throw new Error('Invalid NDR action. Must be RE-ATTEMPT or PICKUP_RESCHEDULE');
+            }
+
+            // Validate attempt count
+            if (attemptCount && (attemptCount < 1 || attemptCount > 2)) {
+                throw new Error('Attempt count should be either 1 or 2 for NDR actions');
+            }
+
+            // Validate NSL codes based on action type
+            if (action === 'RE-ATTEMPT') {
+                const allowedReAttemptCodes = ['EOD-74', 'EOD-15', 'EOD-104', 'EOD-43', 'EOD-86', 'EOD-11', 'EOD-69', 'EOD-6'];
+                if (nslCode && !allowedReAttemptCodes.includes(nslCode)) {
+                    throw new Error(`RE-ATTEMPT not allowed for NSL code: ${nslCode}. Allowed codes: ${allowedReAttemptCodes.join(', ')}`);
+                }
+            } else if (action === 'PICKUP_RESCHEDULE') {
+                const allowedRescheduleCodes = ['EOD-777', 'EOD-21'];
+                if (nslCode && !allowedRescheduleCodes.includes(nslCode)) {
+                    throw new Error(`PICKUP_RESCHEDULE not allowed for NSL code: ${nslCode}. Allowed codes: ${allowedRescheduleCodes.join(', ')}`);
+                }
+            }
+
+            // Check if it's after 9 PM (recommended time for NDR actions)
+            const currentHour = new Date().getHours();
+            if (currentHour < 21) {
+                logger.warn('⚠️ NDR action applied before 9 PM', {
+                    waybill,
+                    action,
+                    currentHour,
+                    recommendation: 'Consider applying NDR actions after 9 PM for better results'
+                });
             }
 
             const response = await this.client.post('/api/p/update', {
@@ -569,26 +605,36 @@ class DelhiveryService {
             logger.info('✅ NDR action successful', {
                 waybill,
                 action,
-                uplId: response.data?.request_id
+                uplId: response.data?.request_id,
+                nslCode,
+                attemptCount
             });
 
             return {
                 success: true,
                 request_id: response.data?.request_id, // UPL ID
                 message: `${action} initiated successfully`,
-                data: response.data
+                data: response.data,
+                waybill: waybill,
+                action: action,
+                nslCode: nslCode,
+                attemptCount: attemptCount
             };
 
         } catch (error) {
             logger.error('❌ NDR action failed', {
                 waybill: ndrData.waybill,
                 action: ndrData.action,
+                nslCode: ndrData.nslCode,
+                attemptCount: ndrData.attemptCount,
                 error: error.response?.data || error.message
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to take NDR action'
+                error: error.response?.data?.message || error.message || 'Failed to take NDR action',
+                waybill: ndrData.waybill,
+                action: ndrData.action
             };
         }
     }
@@ -629,16 +675,58 @@ class DelhiveryService {
     /**
      * Bulk NDR Action
      * @param {Object} bulkData - Bulk NDR action data
+     * @param {string[]} bulkData.waybills - Array of waybill numbers
+     * @param {string} bulkData.action - Action type (RE-ATTEMPT or PICKUP_RESCHEDULE)
+     * @param {Array} bulkData.orders - Array of order objects for validation
      * @returns {Promise} Bulk NDR action response
      */
     async bulkNDRAction(bulkData) {
         try {
-            const { waybills, action } = bulkData;
+            const { waybills, action, orders } = bulkData;
 
             logger.info('📦 Bulk NDR action', {
                 waybillCount: waybills.length,
                 action
             });
+
+            // Validate action
+            if (!['RE-ATTEMPT', 'PICKUP_RESCHEDULE'].includes(action)) {
+                throw new Error('Invalid NDR action. Must be RE-ATTEMPT or PICKUP_RESCHEDULE');
+            }
+
+            // Validate each order if provided
+            if (orders && orders.length > 0) {
+                const allowedReAttemptCodes = ['EOD-74', 'EOD-15', 'EOD-104', 'EOD-43', 'EOD-86', 'EOD-11', 'EOD-69', 'EOD-6'];
+                const allowedRescheduleCodes = ['EOD-777', 'EOD-21'];
+
+                for (const order of orders) {
+                    const nslCode = order.ndr_info?.nsl_code;
+                    const attemptCount = order.ndr_info?.ndr_attempts;
+
+                    // Validate attempt count
+                    if (attemptCount && (attemptCount < 1 || attemptCount > 2)) {
+                        throw new Error(`Attempt count should be either 1 or 2 for waybill: ${order.delhivery_data?.waybill}`);
+                    }
+
+                    // Validate NSL codes based on action type
+                    if (action === 'RE-ATTEMPT' && nslCode && !allowedReAttemptCodes.includes(nslCode)) {
+                        throw new Error(`RE-ATTEMPT not allowed for waybill: ${order.delhivery_data?.waybill} with NSL code: ${nslCode}`);
+                    } else if (action === 'PICKUP_RESCHEDULE' && nslCode && !allowedRescheduleCodes.includes(nslCode)) {
+                        throw new Error(`PICKUP_RESCHEDULE not allowed for waybill: ${order.delhivery_data?.waybill} with NSL code: ${nslCode}`);
+                    }
+                }
+            }
+
+            // Check if it's after 9 PM (recommended time for NDR actions)
+            const currentHour = new Date().getHours();
+            if (currentHour < 21) {
+                logger.warn('⚠️ Bulk NDR action applied before 9 PM', {
+                    waybillCount: waybills.length,
+                    action,
+                    currentHour,
+                    recommendation: 'Consider applying NDR actions after 9 PM for better results'
+                });
+            }
 
             const data = waybills.map(waybill => ({
                 waybill: waybill,
@@ -649,7 +737,8 @@ class DelhiveryService {
 
             logger.info('✅ Bulk NDR action successful', {
                 waybillCount: waybills.length,
-                uplId: response.data?.request_id
+                uplId: response.data?.request_id,
+                action
             });
 
             return {
@@ -657,17 +746,61 @@ class DelhiveryService {
                 request_id: response.data?.request_id,
                 processed_count: waybills.length,
                 message: `Bulk ${action} initiated for ${waybills.length} shipments`,
-                data: response.data
+                data: response.data,
+                waybills: waybills,
+                action: action
             };
 
         } catch (error) {
             logger.error('❌ Bulk NDR action failed', {
+                waybillCount: bulkData.waybills?.length,
+                action: bulkData.action,
                 error: error.response?.data || error.message
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to execute bulk NDR action'
+                error: error.response?.data?.message || error.message || 'Failed to execute bulk NDR action',
+                waybills: bulkData.waybills,
+                action: bulkData.action
+            };
+        }
+    }
+
+    /**
+     * Create/Register Warehouse with Delhivery
+     * @param {Object} warehouseData - Warehouse details
+     * @returns {Promise} Warehouse creation response
+     */
+    async createWarehouse(warehouseData) {
+        try {
+            logger.info('🏭 Creating warehouse in Delhivery', {
+                name: warehouseData.name,
+                pincode: warehouseData.pin
+            });
+
+            const response = await this.client.post('/api/backend/clientwarehouse/create/', warehouseData);
+
+            logger.info('✅ Warehouse created successfully', {
+                name: warehouseData.name,
+                response: response.data
+            });
+
+            return {
+                success: true,
+                data: response.data,
+                message: 'Warehouse registered successfully'
+            };
+
+        } catch (error) {
+            logger.error('❌ Warehouse creation failed', {
+                name: warehouseData.name,
+                error: error.response?.data || error.message
+            });
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Failed to create warehouse'
             };
         }
     }
@@ -681,203 +814,75 @@ class DelhiveryService {
     }
 
     /**
-     * Create Pickup Request
-     * @param {Object} orderData - Order data for pickup request
-     * @param {Object} warehouseData - Warehouse information
-     * @returns {Promise} Pickup request creation response
+     * Track Shipment
+     * @param {string} waybill - Waybill number to track
+     * @param {string} refIds - Reference IDs (optional)
+     * @returns {Promise} Tracking response
      */
-    async createPickupRequest(orderData, warehouseData) {
+    async trackShipment(waybill, refIds = '') {
         try {
-            // Get current date and time for pickup
-            const now = new Date();
-            const pickupDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-            const pickupTime = '11:00:00'; // Default pickup time
-
-            const pickupRequestData = {
-                pickup_time: pickupTime,
-                pickup_date: pickupDate,
-                pickup_location: warehouseData.name || warehouseData.warehouse_name,
-                expected_package_count: 1
-            };
-
-            logger.info('🚚 Creating pickup request', {
-                orderId: orderData.order_id,
-                pickupLocation: pickupRequestData.pickup_location,
-                pickupDate: pickupRequestData.pickup_date,
-                pickupTime: pickupRequestData.pickup_time
-            });
-
-            const response = await this.client.post('/fm/request/new/', pickupRequestData);
-
-            if (response.status === 200) {
-                logger.info('✅ Pickup request created successfully', {
-                    orderId: orderData.order_id,
-                    pickupId: response.data?.pickup_id,
-                    response: response.data
-                });
-
-                return {
-                    success: true,
-                    pickup_id: response.data?.pickup_id || response.data?.pickupId,
-                    pickup_date: pickupRequestData.pickup_date,
-                    pickup_time: pickupRequestData.pickup_time,
-                    pickup_location: pickupRequestData.pickup_location,
-                    message: response.data?.message || 'Pickup request created successfully',
-                    data: response.data
-                };
-            } else {
-                throw new Error(response.data?.message || 'Failed to create pickup request');
-            }
-        } catch (error) {
-            logger.error('❌ Pickup request creation failed', {
-                orderId: orderData.order_id,
-                error: error.response?.data || error.message
-            });
-
-            return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to create pickup request'
-            };
-        }
-    }
-
-    /**
-     * Get Pickup Status
-     * @param {string} pickupId - Pickup request ID
-     * @returns {Promise} Pickup status
-     */
-    async getPickupStatus(pickupId) {
-        try {
-            logger.info('📦 Fetching pickup status', { pickupId });
-
-            const response = await this.client.get(`/fm/request/get/${pickupId}`);
-
-            return {
-                success: true,
-                data: response.data,
-                status: response.data?.status,
-                pickup_date: response.data?.pickup_date,
-                pickup_time: response.data?.pickup_time
-            };
-
-        } catch (error) {
-            logger.error('❌ Pickup status fetch failed', {
-                pickupId,
-                error: error.response?.data || error.message
-            });
-
-            return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to get pickup status'
-            };
-        }
-    }
-
-    /**
-     * Cancel Pickup Request
-     * @param {string} pickupId - Pickup request ID
-     * @returns {Promise} Cancellation response
-     */
-    async cancelPickupRequest(pickupId) {
-        try {
-            logger.info('🚫 Cancelling pickup request', { pickupId });
-
-            const response = await this.client.post(`/fm/request/cancel/${pickupId}`);
-
-            return {
-                success: response.status === 200,
-                message: response.data?.message || 'Pickup request cancelled successfully'
-            };
-
-        } catch (error) {
-            logger.error('❌ Pickup cancellation failed', {
-                pickupId,
-                error: error.response?.data || error.message
-            });
-
-            return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to cancel pickup request'
-            };
-        }
-    }
-
-    /**
-     * Get Shipment Label
-     * @param {string} waybill - Waybill number
-     * @returns {Promise} Label data
-     */
-    async getShipmentLabel(waybill) {
-        try {
-            logger.info('🏷️ Fetching shipment label', { waybill });
-
-            const response = await this.client.get(`/api/p/packing_slip`, {
-                params: { waybill: waybill }
-            });
-
-            return {
-                success: true,
-                label_url: response.data?.label_url,
-                label_data: response.data,
-                data: response.data
-            };
-
-        } catch (error) {
-            logger.error('❌ Label fetch failed', {
-                waybill,
-                error: error.response?.data || error.message
-            });
-
-            return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to get shipment label'
-            };
-        }
-    }
-
-    /**
-     * Get Delivery Performance
-     * @param {string} dateFrom - Start date (YYYY-MM-DD)
-     * @param {string} dateTo - End date (YYYY-MM-DD)
-     * @returns {Promise} Performance data
-     */
-    async getDeliveryPerformance(dateFrom, dateTo) {
-        try {
-            logger.info('📊 Fetching delivery performance', { dateFrom, dateTo });
-
-            const response = await this.client.get('/api/p/performance', {
+            const response = await this.client.get('/api/v1/packages/json/', {
                 params: {
-                    from_date: dateFrom,
-                    to_date: dateTo
+                    waybill: waybill,
+                    ref_ids: refIds
                 }
             });
 
             return {
                 success: true,
                 data: response.data,
-                performance_metrics: response.data
+                waybill: waybill
             };
-
         } catch (error) {
-            logger.error('❌ Performance fetch failed', {
-                dateFrom,
-                dateTo,
+            logger.error('❌ Shipment tracking failed', {
+                waybill: waybill,
                 error: error.response?.data || error.message
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to get delivery performance'
+                error: error.response?.data?.message || error.message || 'Failed to track shipment',
+                waybill: waybill
             };
         }
     }
 
     /**
-     * Validate API Key
-     * @returns {boolean} Validation status
+     * Calculate Shipping Cost
+     * @param {Object} costData - Shipping cost calculation parameters
+     * @returns {Promise} Shipping cost response
      */
-    validateApiKey() {
-        return !!this.apiKey && this.apiKey !== 'your-delhivery-api-key';
+    async calculateShippingCost(costData) {
+        try {
+            const params = {
+                md: costData.billing_mode || 'S', // E for Express, S for Surface
+                ss: costData.shipment_status || 'Delivered',
+                d_pin: costData.destination_pincode,
+                o_pin: costData.origin_pincode,
+                cgm: costData.chargeable_weight, // in grams
+                pt: costData.payment_type || 'Pre-paid'
+            };
+
+            const response = await this.client.get('/api/kinko/v1/invoice/charges/.json', {
+                params: params
+            });
+
+            return {
+                success: true,
+                data: response.data,
+                calculated_cost: response.data.total_amount || 0
+            };
+        } catch (error) {
+            logger.error('❌ Shipping cost calculation failed', {
+                error: error.response?.data || error.message,
+                params: costData
+            });
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Failed to calculate shipping cost'
+            };
+        }
     }
 
     /**

@@ -1,0 +1,487 @@
+/* Assign Courier Container */
+.assign-courier-container {
+  width: 100%;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.assign-courier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.assign-courier-header h1 {
+  margin: 0;
+  color: #002B59;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: #002B59;
+  border: 2px solid #002B59;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #002B59;
+  color: white;
+}
+
+/* Order Information Card */
+.order-info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E0E0E0;
+}
+
+.order-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.order-info-header h3 {
+  margin: 0;
+  color: #002B59;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.order-id {
+  color: #666666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.address-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pickup-info,
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  color: #666666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.address {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 600;
+}
+
+.arrow {
+  font-size: 24px;
+  color: #002B59;
+  font-weight: bold;
+}
+
+.order-meta {
+  display: flex;
+  gap: 40px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.value {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 600;
+}
+
+/* RTO Warehouse Section */
+.rto-warehouse-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E0E0E0;
+}
+
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dropdown-container label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.warehouse-dropdown {
+  padding: 12px 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.warehouse-dropdown:focus {
+  outline: none;
+  border-color: #002B59;
+}
+
+.dropdown-note {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+}
+
+/* Courier Options Section */
+.courier-options-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E0E0E0;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  border: 2px solid #E0E0E0;
+  background: white;
+  color: #666666;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+  background: #002B59;
+  color: white;
+  border-color: #002B59;
+}
+
+/* Courier Table */
+.courier-table {
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  background: #002B59;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-cell {
+  padding: 16px 12px;
+  text-align: left;
+}
+
+.table-body {
+  background: white;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  border-bottom: 1px solid #E0E0E0;
+  align-items: center;
+  padding: 20px 12px;
+  transition: background-color 0.3s ease;
+}
+
+.table-row:hover {
+  background-color: #F8F9FA;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* Courier Info */
+.courier-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.courier-logo {
+  width: 60px;
+  height: 60px;
+  background: #002B59;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-placeholder {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.courier-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.service-description {
+  font-size: 14px;
+  color: #666666;
+}
+
+.pickup-cutoff {
+  font-size: 12px;
+  color: #666666;
+}
+
+.cutoff-time {
+  color: #FF6B35;
+  font-weight: 600;
+}
+
+.more-options {
+  font-size: 12px;
+  color: #002B59;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.more-options:hover {
+  text-decoration: underline;
+}
+
+/* Table Cells */
+.estimated-delivery,
+.chargeable-weight {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.charges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.info-icon {
+  font-size: 14px;
+  color: #666666;
+  cursor: help;
+}
+
+/* Action Cell */
+.action-cell {
+  display: flex;
+  justify-content: center;
+}
+
+.ship-now-btn {
+  padding: 12px 24px;
+  background: #002B59;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.ship-now-btn:hover:not(:disabled) {
+  background: #001A3D;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
+}
+
+.ship-now-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ship-now-btn.selected {
+  background: #4CAF50;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #F0F0F0;
+  border-top: 4px solid #002B59;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #666666;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Error State */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.error-state h3 {
+  margin: 0 0 20px 0;
+  color: #333333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .assign-courier-container {
+    padding: 15px;
+  }
+
+  .assign-courier-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .address-section {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+  }
+
+  .order-meta {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .filter-tabs {
+    justify-content: center;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .header-cell,
+  .table-row > div {
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .courier-info {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .assign-courier-header h1 {
+    font-size: 24px;
+  }
+
+  .order-info-card,
+  .rto-warehouse-section,
+  .courier-options-section {
+    padding: 16px;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .ship-now-btn {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+}

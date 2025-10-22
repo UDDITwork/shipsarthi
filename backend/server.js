@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { connectDB, checkDBHealth } = require('./config/db');
 const logger = require('./utils/logger');
+const trackingService = require('./services/trackingService');
 require('dotenv').config();
 
 const app = express();
@@ -100,6 +101,37 @@ app.use((req, res, next) => {
   next();
 });
 
+// Enhanced Order Creation Logging Middleware
+app.use('/api/orders', (req, res, next) => {
+  if (req.method === 'POST') {
+    logger.info('🚀 ORDER CREATION REQUEST STARTED', {
+      requestId: req.requestId,
+      timestamp: new Date().toISOString(),
+      body: req.body,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip
+    });
+  }
+  next();
+});
+
+// Add response logging middleware for orders
+app.use('/api/orders', (req, res, next) => {
+  const originalSend = res.send;
+  res.send = function(data) {
+    if (req.method === 'POST') {
+      logger.info('📦 ORDER CREATION RESPONSE', {
+        requestId: req.requestId,
+        statusCode: res.statusCode,
+        response: JSON.parse(data),
+        timestamp: new Date().toISOString()
+      });
+    }
+    originalSend.call(this, data);
+  };
+  next();
+});
+
 // Body Parser Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -192,16 +224,20 @@ app.get('/api/test-email', async (req, res) => {
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/customers', require('./routes/customers'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/warehouses', require('./routes/warehouses'));
+app.use('/api/packages', require('./routes/packages'));
 app.use('/api/ndr', require('./routes/ndr'));
 app.use('/api/support', require('./routes/support'));
+app.use('/api/tickets', require('./routes/tickets'));
 app.use('/api/billing', require('./routes/billing'));
 app.use('/api/tools', require('./routes/tools'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/shipping', require('./routes/shipping'));
 app.use('/api/webhooks', require('./routes/webhooks'));
 app.use('/api/enquiry', require('./routes/enquiry'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

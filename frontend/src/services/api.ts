@@ -23,6 +23,11 @@ class ApiService {
           config.headers.Authorization = `Bearer ${token}`;
         }
         
+        // Don't set Content-Type for FormData - let browser handle it
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type'];
+        }
+        
         // Enhanced request logging
         console.log('🚀 FRONTEND API REQUEST:', {
           url: config.url,
@@ -30,6 +35,7 @@ class ApiService {
           baseURL: config.baseURL,
           data: config.data,
           headers: config.headers,
+          isFormData: config.data instanceof FormData,
           timestamp: new Date().toISOString()
         });
         

@@ -237,7 +237,9 @@ router.post('/action', auth, [
     const result = await delhiveryService.takeNDRAction({
       waybill,
       action,
-      reason
+      reason,
+      nslCode: order.ndr_info.nsl_code,
+      attemptCount: order.ndr_info.ndr_attempts
     });
 
     if (!result.success) {
@@ -377,7 +379,8 @@ router.post('/bulk-action', auth, [
     // Call Delhivery Bulk API
     const result = await delhiveryService.bulkNDRAction({
       waybills,
-      action
+      action,
+      orders: orders // Pass orders for validation
     });
 
     if (!result.success) {

@@ -22,11 +22,25 @@ const customerSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
+  },
+  gstin: {
+    type: String,
+    trim: true,
+    match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Please enter a valid GST number']
   }
 }, { _id: false });
 
 // Address Schema
 const addressSchema = new mongoose.Schema({
+  address_line_1: {
+    type: String,
+    required: [true, 'Address line 1 is required'],
+    trim: true
+  },
+  address_line_2: {
+    type: String,
+    trim: true
+  },
   full_address: {
     type: String,
     required: [true, 'Address is required'],
@@ -87,6 +101,24 @@ const productSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  category: {
+    type: String,
+    trim: true
+  },
+  sku: {
+    type: String,
+    trim: true
+  },
+  discount: {
+    type: Number,
+    min: [0, 'Discount cannot be negative'],
+    default: 0
+  },
+  tax: {
+    type: Number,
+    min: [0, 'Tax cannot be negative'],
+    default: 0
+  },
   tax_rate: {
     type: Number,
     min: 0,
@@ -99,7 +131,7 @@ const packageSchema = new mongoose.Schema({
   weight: {
     type: Number,
     required: [true, 'Weight is required'],
-    min: [1, 'Weight must be at least 1 gram']
+    min: [0.1, 'Weight must be at least 0.1 kg']
   },
   dimensions: {
     length: {
@@ -123,8 +155,37 @@ const packageSchema = new mongoose.Schema({
   },
   package_type: {
     type: String,
-    enum: ['Single B2C', 'Multi B2C', 'Multi B2B'],
-    default: 'Single B2C'
+    enum: ['Single Package (B2C)', 'Multiple Package (B2C)', 'Multiple Package (B2B)'],
+    default: 'Single Package (B2C)'
+  },
+  number_of_boxes: {
+    type: Number,
+    min: [1, 'Number of boxes must be at least 1'],
+    default: 1
+  },
+  weight_per_box: {
+    type: Number,
+    min: [0.1, 'Weight per box must be at least 0.1 kg']
+  },
+  rov_type: {
+    type: String,
+    trim: true
+  },
+  rov_owner: {
+    type: String,
+    trim: true
+  },
+  weight_photo_url: {
+    type: String,
+    trim: true
+  },
+  dimensions_photo_url: {
+    type: String,
+    trim: true
+  },
+  save_dimensions: {
+    type: Boolean,
+    default: false
   }
 }, { _id: false });
 
@@ -161,6 +222,15 @@ const paymentSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Total amount is required'],
     min: [0, 'Total amount cannot be negative']
+  },
+  shipping_charges: {
+    type: Number,
+    min: [0, 'Shipping charges cannot be negative'],
+    default: 0
+  },
+  grand_total: {
+    type: Number,
+    min: [0, 'Grand total cannot be negative']
   }
 }, { _id: false });
 
@@ -176,6 +246,10 @@ const sellerSchema = new mongoose.Schema({
     match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Please enter a valid GST number']
   },
   address: {
+    type: String,
+    trim: true
+  },
+  reseller_name: {
     type: String,
     trim: true
   }
@@ -372,6 +446,13 @@ const orderSchema = new mongoose.Schema({
   invoice_number: {
     type: String,
     trim: true
+  },
+
+  order_date: {
+    type: Date,
+    required: [true, 'Order date is required'],
+    default: Date.now,
+    index: true
   },
 
   // Customer Information

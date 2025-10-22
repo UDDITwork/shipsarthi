@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import RechargeModal from '../components/RechargeModal';
-import userService, { DashboardData } from '../services/userService';
+import { userService, DashboardData } from '../services/userService';
 import './Dashboard.css';
 
 interface DashboardMetrics {

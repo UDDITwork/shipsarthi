@@ -328,7 +328,8 @@ router.post('/schedule-pickup',
     [
         body('pickup_date').isISO8601().withMessage('Valid pickup date is required'),
         body('pickup_time').notEmpty().withMessage('Pickup time is required'),
-        body('package_count').isInt({ min: 1 }).withMessage('Valid package count is required')
+        body('pickup_location').notEmpty().withMessage('Pickup location is required'),
+        body('expected_package_count').isInt({ min: 1 }).withMessage('Valid package count is required')
     ],
     async (req, res) => {
         try {
@@ -349,8 +350,10 @@ router.post('/schedule-pickup',
             }
 
             const pickupData = {
-                ...req.body,
-                pickup_location: req.user.warehouse_address || req.user.business_address
+                pickup_time: req.body.pickup_time,
+                pickup_date: req.body.pickup_date,
+                pickup_location: req.body.pickup_location,
+                expected_package_count: req.body.expected_package_count
             };
 
             const pickupResult = await delhiveryService.schedulePickup(pickupData);
@@ -465,6 +468,74 @@ router.post('/initiate-rto/:waybill',
             }
         } catch (error) {
             console.error('Initiate RTO error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message
+            });
+        }
+    }
+);
+
+// Calculate shipping cost endpoint
+router.post('/calculate-cost',
+    auth,
+    [
+        body('billing_mode').optional().isIn(['E', 'S']).withMessage('Billing mode must be E (Express) or S (Surface)'),
+        body('destination_pincode').isLength({ min: 6, max: 6 }).withMessage('Valid destination pincode is required'),
+        body('origin_pincode').isLength({ min: 6, max: 6 }).withMessage('Valid origin pincode is required'),
+        body('chargeable_weight').isInt({ min: 1 }).withMessage('Valid chargeable weight is required'),
+        body('payment_type').optional().isIn(['Pre-paid', 'COD']).withMessage('Payment type must be Pre-paid or COD')
+    ],
+    async (req, res) => {
+        try {
+            // Check if Delhivery API is configured
+            if (!delhiveryService.validateApiKey()) {
+                return res.status(503).json({
+                    success: false,
+                    message: 'Delhivery API not configured'
+                });
+            }
+
+            // Validate request
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation failed',
+                    errors: errors.array()
+                });
+            }
+
+            const costData = {
+                billing_mode: req.body.billing_mode || 'S',
+                shipment_status: req.body.shipment_status || 'Delivered',
+                destination_pincode: req.body.destination_pincode,
+                origin_pincode: req.body.origin_pincode,
+                chargeable_weight: req.body.chargeable_weight,
+                payment_type: req.body.payment_type || 'Pre-paid'
+            };
+
+            const costResult = await delhiveryService.calculateShippingCost(costData);
+
+            if (costResult.success) {
+                res.json({
+                    success: true,
+                    message: 'Shipping cost calculated successfully',
+                    data: {
+                        calculated_cost: costResult.calculated_cost,
+                        cost_details: costResult.data
+                    }
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: 'Failed to calculate shipping cost',
+                    error: costResult.error
+                });
+            }
+        } catch (error) {
+            console.error('Calculate shipping cost error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Internal server error',

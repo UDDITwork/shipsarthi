@@ -10,12 +10,13 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
+import Packages from './pages/Packages';
 import NDR from './pages/NDR';
 import Support from './pages/Support';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
-import Warehouse from './pages/Warehouse';
-import Settings from './pages/Settings';
+import AddWarehouse from './pages/AddWarehouse';
+// import Settings from './pages/Settings'; // Replaced with AccountSettings
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import ShipmentCancellation from './pages/ShipmentCancellation';
@@ -24,6 +25,15 @@ import Contact from './pages/Contact';
 import About from './pages/About';
 import Tracking from './pages/Tracking';
 import Channel from './pages/Channel';
+import AccountSettings from './pages/AccountSettings';
+import AssignCourier from './pages/AssignCourier';
+import Customers from './pages/Customers';
+
+// Admin Components
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminClients from './pages/AdminClients';
+import AdminLayout from './components/AdminLayout';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -45,6 +55,9 @@ function App() {
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/shipment-cancellation" element={<ShipmentCancellation />} />
             <Route path="/order-cancellation" element={<OrderCancellation />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
 
             {/* Protected Routes */}
             <Route 
@@ -68,6 +81,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Orders />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/orders/assign-courier/:orderId" 
+              element={
+                <ProtectedRoute>
+                  <AssignCourier />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/customers" 
+              element={
+                <ProtectedRoute>
+                  <Customers />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/packages" 
+              element={
+                <ProtectedRoute>
+                  <Packages />
                 </ProtectedRoute>
               } 
             />
@@ -107,7 +144,15 @@ function App() {
               path="/warehouse" 
               element={
                 <ProtectedRoute>
-                  <Warehouse />
+                  <AddWarehouse />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/warehouses/add" 
+              element={
+                <ProtectedRoute>
+                  <AddWarehouse />
                 </ProtectedRoute>
               } 
             />
@@ -123,8 +168,34 @@ function App() {
               path="/settings" 
               element={
                 <ProtectedRoute>
-                  <Settings />
+                  <AccountSettings />
                 </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/account" 
+              element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Protected Routes */}
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/clients" 
+              element={
+                <AdminLayout>
+                  <AdminClients />
+                </AdminLayout>
               } 
             />
             

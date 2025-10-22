@@ -1,0 +1,329 @@
+/* Warehouses Container */
+.warehouses-container {
+  width: 100%;
+  padding: 0;
+}
+
+/* Header */
+.warehouses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.header-left h1 {
+  margin: 0 0 5px 0;
+  color: #002B59;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.header-left p {
+  margin: 0;
+  color: #666666;
+  font-size: 14px;
+}
+
+.add-warehouse-btn {
+  background: linear-gradient(135deg, #002B59, #004080);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-warehouse-btn:hover {
+  background: linear-gradient(135deg, #001A3D, #002B59);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
+}
+
+/* Content */
+.warehouses-content {
+  min-height: 400px;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #F0F0F0;
+  border-top: 4px solid #002B59;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #666666;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  margin: 0 0 10px 0;
+  color: #333333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0 0 30px 0;
+  color: #666666;
+  font-size: 16px;
+}
+
+.create-first-btn {
+  background: linear-gradient(135deg, #002B59, #004080);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-first-btn:hover {
+  background: linear-gradient(135deg, #001A3D, #002B59);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
+}
+
+/* Warehouses Grid */
+.warehouses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
+}
+
+/* Warehouse Card */
+.warehouse-card {
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.warehouse-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.warehouse-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.warehouse-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.warehouse-title h3 {
+  margin: 0;
+  color: #002B59;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.default-badge {
+  background: #4CAF50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: #E8F5E8;
+  color: #2E7D32;
+}
+
+.status-badge.inactive {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+/* Warehouse Details */
+.warehouse-details {
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: #666666;
+  min-width: 80px;
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+.detail-row .value {
+  color: #333333;
+  font-size: 14px;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Warehouse Actions */
+.warehouse-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.edit-btn {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+.edit-btn:hover {
+  background: #BBDEFB;
+  transform: translateY(-1px);
+}
+
+.default-btn {
+  background: #FFF3E0;
+  color: #F57C00;
+}
+
+.default-btn:hover {
+  background: #FFE0B2;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background: #FFEBEE;
+  color: #D32F2F;
+}
+
+.delete-btn:hover {
+  background: #FFCDD2;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .warehouses-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .warehouses-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .warehouse-card {
+    padding: 20px;
+  }
+
+  .warehouse-actions {
+    justify-content: stretch;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .warehouse-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .warehouse-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-row .label {
+    min-width: auto;
+    margin-right: 0;
+  }
+}

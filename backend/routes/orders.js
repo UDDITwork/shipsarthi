@@ -4,6 +4,7 @@ const moment = require('moment');
 const { auth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const Warehouse = require('../models/Warehouse');
+const Customer = require('../models/Customer');
 const delhiveryService = require('../services/delhiveryService');
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.get('/', auth, [
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('status').optional().isIn([
     'new', 'ready_to_ship', 'pickup_pending', 'manifested',
-    'in_transit', 'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled', 'lost'
+    'in_transit', 'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled', 'lost', 'all'
   ]),
   query('payment_mode').optional().isIn(['prepaid', 'cod']),
   query('date_from').optional().isISO8601(),
@@ -41,7 +42,7 @@ router.get('/', auth, [
     const filterQuery = { user_id: userId };
 
     if (req.query.status && req.query.status !== 'all') {
-      filterQuery['order_status.current_status'] = req.query.status;
+      filterQuery['status'] = req.query.status;
     }
 
     if (req.query.payment_mode) {
@@ -60,19 +61,18 @@ router.get('/', auth, [
     }
 
     if (req.query.date_from || req.query.date_to) {
-      filterQuery.created_at = {};
+      filterQuery.createdAt = {};
       if (req.query.date_from) {
-        filterQuery.created_at.$gte = new Date(req.query.date_from);
+        filterQuery.createdAt.$gte = new Date(req.query.date_from);
       }
       if (req.query.date_to) {
-        filterQuery.created_at.$lte = new Date(req.query.date_to);
+        filterQuery.createdAt.$lte = new Date(req.query.date_to);
       }
     }
 
     // Get orders with pagination
     const orders = await Order.find(filterQuery)
-      .populate('pickup_info.warehouse_id', 'title name address')
-      .sort({ created_at: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
@@ -132,32 +132,165 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+// @desc    Get single order by order_id
+// @route   GET /api/orders/order/:orderId
+// @access  Private
+router.get('/order/:orderId', auth, async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      order_id: req.params.orderId,
+      user_id: req.user._id
+    }).populate('pickup_info.warehouse_id', 'title name address contact_info');
+
+    if (!order) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    res.json({
+      status: 'success',
+      data: order
+    });
+
+  } catch (error) {
+    console.error('Get order by order_id error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error fetching order'
+    });
+  }
+});
+
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 router.post('/', auth, [
+  // Order Details
+  body('order_date').optional().isISO8601().withMessage('Valid order date is required'),
+  body('reference_id').optional().trim(),
+  body('invoice_number').optional().trim(),
+  
+  // Customer Information
   body('customer_info.buyer_name').trim().notEmpty().withMessage('Buyer name is required'),
   body('customer_info.phone').matches(/^[6-9]\d{9}$/).withMessage('Valid phone number is required'),
+  body('customer_info.alternate_phone').optional().matches(/^[6-9]\d{9}$/).withMessage('Valid alternate phone number'),
   body('customer_info.email').optional().isEmail().withMessage('Valid email is required'),
-  body('delivery_address.full_address').trim().notEmpty().withMessage('Delivery address is required'),
+  body('customer_info.gstin').optional().custom((value) => {
+    if (value && value.trim() !== '') {
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstinRegex.test(value)) {
+        throw new Error('GSTIN must be in format: 22AAAAA0000A1Z5');
+      }
+    }
+    return true;
+  }),
+  
+  // Delivery Address
+  body('delivery_address.address_line_1').trim().notEmpty().withMessage('Address line 1 is required'),
+  body('delivery_address.address_line_2').optional().trim(),
   body('delivery_address.pincode').matches(/^[1-9][0-9]{5}$/).withMessage('Valid pincode is required'),
   body('delivery_address.city').trim().notEmpty().withMessage('City is required'),
   body('delivery_address.state').trim().notEmpty().withMessage('State is required'),
-  body('pickup_info.warehouse_id').isMongoId().withMessage('Valid warehouse ID is required'),
+  
+  // Warehouse/Pickup Address
+  body('pickup_address.warehouse_id').optional().custom((value) => {
+    if (value && value.trim() !== '') {
+      const mongoIdRegex = /^[0-9a-fA-F]{24}$/;
+      if (!mongoIdRegex.test(value)) {
+        throw new Error('Valid warehouse ID is required');
+      }
+    }
+    return true;
+  }),
+  body('pickup_address.name').optional().trim().notEmpty().withMessage('Warehouse name is required'),
+  body('pickup_address.full_address').optional().trim().notEmpty().withMessage('Warehouse address is required'),
+  body('pickup_address.city').optional().trim().notEmpty().withMessage('Warehouse city is required'),
+  body('pickup_address.state').optional().trim().notEmpty().withMessage('Warehouse state is required'),
+  body('pickup_address.pincode').optional().matches(/^[1-9][0-9]{5}$/).withMessage('Valid warehouse pincode is required'),
+  body('pickup_address.phone').optional().matches(/^[6-9]\d{9}$/).withMessage('Valid warehouse phone is required'),
+  
+  // Products
   body('products').isArray({ min: 1 }).withMessage('At least one product is required'),
   body('products.*.product_name').trim().notEmpty().withMessage('Product name is required'),
   body('products.*.quantity').isInt({ min: 1 }).withMessage('Valid quantity is required'),
   body('products.*.unit_price').isFloat({ min: 0 }).withMessage('Valid unit price is required'),
+  body('products.*.hsn_code').optional().trim(),
+  body('products.*.category').optional().trim(),
+  body('products.*.sku').optional().trim(),
+  body('products.*.discount').optional().isFloat({ min: 0 }).withMessage('Valid discount is required'),
+  body('products.*.tax').optional().isFloat({ min: 0 }).withMessage('Valid tax is required'),
+  
+  // Package Information
+  body('package_info.package_type').isIn(['Single Package (B2C)', 'Multiple Package (B2C)', 'Multiple Package (B2B)']).withMessage('Valid package type is required'),
   body('package_info.weight').isFloat({ min: 0.1 }).withMessage('Valid weight is required'),
   body('package_info.dimensions.length').isFloat({ min: 1 }).withMessage('Valid length is required'),
   body('package_info.dimensions.width').isFloat({ min: 1 }).withMessage('Valid width is required'),
   body('package_info.dimensions.height').isFloat({ min: 1 }).withMessage('Valid height is required'),
-  body('payment_info.payment_mode').isIn(['prepaid', 'cod']).withMessage('Valid payment mode is required'),
-  body('payment_info.order_value').isFloat({ min: 0 }).withMessage('Valid order value is required')
+  body('package_info.number_of_boxes').optional().isInt({ min: 1 }).withMessage('Valid number of boxes is required'),
+  body('package_info.weight_per_box').optional().custom((value, { req }) => {
+    // If weight_per_box is not provided, calculate it from total weight and number of boxes
+    if (!value || value === 0) {
+      const totalWeight = parseFloat(req.body.package_info?.weight) || 0;
+      const numberOfBoxes = parseInt(req.body.package_info?.number_of_boxes) || 1;
+      const calculatedWeightPerBox = totalWeight / numberOfBoxes;
+      
+      if (calculatedWeightPerBox < 0.1) {
+        throw new Error('Weight per box must be at least 0.1 kg');
+      }
+    } else {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue) || numValue < 0.1) {
+        throw new Error('Weight per box must be at least 0.1 kg');
+      }
+    }
+    return true;
+  }),
+  body('package_info.rov_type').optional().trim(),
+  body('package_info.rov_owner').optional().trim(),
+  
+  // Payment Information
+  body('payment_info.payment_mode').isIn(['Prepaid', 'COD']).withMessage('Valid payment mode is required'),
+  body('payment_info.order_value').isFloat({ min: 0 }).withMessage('Valid order value is required'),
+  body('payment_info.total_amount').isFloat({ min: 0 }).withMessage('Valid total amount is required'),
+  body('payment_info.shipping_charges').optional().isFloat({ min: 0 }).withMessage('Valid shipping charges is required'),
+  body('payment_info.grand_total').optional().isFloat({ min: 0 }).withMessage('Valid grand total is required'),
+  body('payment_info.cod_amount').optional().isFloat({ min: 0 }).withMessage('Valid COD amount is required'),
+  
+  // Seller Information
+  body('seller_info.name').optional().trim(),
+  body('seller_info.gst_number').optional().custom((value) => {
+    if (value && value.trim() !== '') {
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstinRegex.test(value)) {
+        throw new Error('Seller GST number must be in format: 22AAAAA0000A1Z5');
+      }
+    }
+    return true;
+  }),
+  body('seller_info.reseller_name').optional().trim(),
+  body('order_id').optional().trim()
 ], async (req, res) => {
+  const { generateOrderId } = require('../utils/orderIdGenerator');
+  // Use the Order ID from frontend if provided, otherwise generate one
+  const orderId = req.body.order_id || generateOrderId();
+  
   try {
+    console.log('🚀 ORDER CREATION STARTED', {
+      orderId,
+      userId: req.user._id,
+      timestamp: new Date().toISOString(),
+      formData: req.body
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ VALIDATION FAILED', {
+        orderId,
+        errors: errors.array(),
+        timestamp: new Date().toISOString()
+      });
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -165,77 +298,392 @@ router.post('/', auth, [
       });
     }
 
-    const userId = req.user._id;
-
-    // Verify warehouse belongs to user
-    const warehouse = await Warehouse.findOne({
-      _id: req.body.pickup_info.warehouse_id,
-      user_id: userId,
-      'status.warehouse_status': 'active'
+    console.log('✅ VALIDATION PASSED', {
+      orderId,
+      timestamp: new Date().toISOString()
     });
 
-    if (!warehouse) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid warehouse or warehouse not active'
+    const userId = req.user._id;
+
+    // Handle warehouse selection
+    let warehouse = null;
+    let pickupAddress = {};
+
+    if (req.body.pickup_address.warehouse_id) {
+      // Use existing warehouse
+      warehouse = await Warehouse.findOne({
+        _id: req.body.pickup_address.warehouse_id,
+        user_id: userId,
+        is_active: true
       });
+
+      if (!warehouse) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Warehouse not found or not active'
+        });
+      }
+
+      // Validate warehouse data completeness
+      if (!warehouse.address?.full_address || !warehouse.contact_person?.phone) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Warehouse data is incomplete. Please contact support.'
+        });
+      }
+
+      // Validate required fields
+      const requiredFields = ['name', 'address.full_address', 'address.city', 'address.state', 'address.pincode', 'contact_person.phone'];
+      const missingFields = requiredFields.filter(field => {
+        const value = field.split('.').reduce((obj, key) => obj?.[key], warehouse);
+        return !value || value.trim() === '';
+      });
+
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          status: 'error',
+          message: `Warehouse is missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+
+      pickupAddress = {
+        name: warehouse.name,
+        full_address: warehouse.address.full_address,
+        city: warehouse.address.city,
+        state: warehouse.address.state,
+        pincode: warehouse.address.pincode,
+        phone: warehouse.contact_person.phone,
+        country: warehouse.address.country || 'India'
+      };
+    } else {
+      // Use manually entered warehouse details
+      // Validate manual address fields
+      const requiredManualFields = ['name', 'full_address', 'city', 'state', 'pincode', 'phone'];
+      const missingManualFields = requiredManualFields.filter(field => {
+        const value = req.body.pickup_address[field];
+        return !value || value.trim() === '';
+      });
+
+      if (missingManualFields.length > 0) {
+        return res.status(400).json({
+          status: 'error',
+          message: `Missing required pickup address fields: ${missingManualFields.join(', ')}`
+        });
+      }
+
+      // Validate phone number format
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(req.body.pickup_address.phone)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid phone number format for pickup address'
+        });
+      }
+
+      // Validate pincode format
+      const pincodeRegex = /^[1-9][0-9]{5}$/;
+      if (!pincodeRegex.test(req.body.pickup_address.pincode)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid pincode format for pickup address'
+        });
+      }
+
+      pickupAddress = {
+        name: req.body.pickup_address.name,
+        full_address: req.body.pickup_address.full_address,
+        city: req.body.pickup_address.city,
+        state: req.body.pickup_address.state,
+        pincode: req.body.pickup_address.pincode,
+        phone: req.body.pickup_address.phone,
+        country: req.body.pickup_address.country || 'India'
+      };
     }
 
-    // Create order
+    // Build full address from address lines
+    const fullDeliveryAddress = `${req.body.delivery_address.address_line_1}${req.body.delivery_address.address_line_2 ? ', ' + req.body.delivery_address.address_line_2 : ''}`;
+
+    // Create order data
     const orderData = {
-      ...req.body,
-      user_id: userId
+      user_id: userId,
+      order_id: orderId,
+      order_date: req.body.order_date ? new Date(req.body.order_date) : new Date(),
+      reference_id: req.body.reference_id,
+      invoice_number: req.body.invoice_number,
+      
+      customer_info: {
+        buyer_name: req.body.customer_info.buyer_name,
+        phone: req.body.customer_info.phone,
+        alternate_phone: req.body.customer_info.alternate_phone,
+        email: req.body.customer_info.email,
+        gstin: req.body.customer_info.gstin
+      },
+      
+      delivery_address: {
+        address_line_1: req.body.delivery_address.address_line_1,
+        address_line_2: req.body.delivery_address.address_line_2,
+        full_address: fullDeliveryAddress,
+        city: req.body.delivery_address.city,
+        state: req.body.delivery_address.state,
+        pincode: req.body.delivery_address.pincode,
+        country: req.body.delivery_address.country || 'India',
+        address_type: req.body.delivery_address.address_type || 'home'
+      },
+      
+      pickup_address: pickupAddress,
+      
+      products: req.body.products.map(product => ({
+        product_name: product.product_name,
+        product_description: product.product_description,
+        quantity: product.quantity,
+        unit_price: product.unit_price,
+        hsn_code: product.hsn_code,
+        category: product.category,
+        sku: product.sku,
+        discount: product.discount || 0,
+        tax: product.tax || 0,
+        tax_rate: product.tax_rate
+      })),
+      
+      package_info: {
+        package_type: req.body.package_info.package_type,
+        weight: req.body.package_info.weight,
+        dimensions: req.body.package_info.dimensions,
+        number_of_boxes: req.body.package_info.number_of_boxes || 1,
+        weight_per_box: req.body.package_info.weight_per_box,
+        rov_type: req.body.package_info.rov_type,
+        rov_owner: req.body.package_info.rov_owner,
+        weight_photo_url: req.body.package_info.weight_photo_url,
+        dimensions_photo_url: req.body.package_info.dimensions_photo_url,
+        save_dimensions: req.body.package_info.save_dimensions || false
+      },
+      
+      payment_info: {
+        payment_mode: req.body.payment_info.payment_mode,
+        order_value: req.body.payment_info.order_value,
+        total_amount: req.body.payment_info.total_amount,
+        shipping_charges: req.body.payment_info.shipping_charges || 0,
+        grand_total: req.body.payment_info.grand_total || req.body.payment_info.total_amount,
+        cod_amount: req.body.payment_info.payment_mode === 'COD' ? req.body.payment_info.cod_amount : 0
+      },
+      
+      seller_info: {
+        name: req.body.seller_info?.name,
+        gst_number: req.body.seller_info?.gst_number,
+        reseller_name: req.body.seller_info?.reseller_name,
+        address: warehouse ? warehouse.address.full_address : pickupAddress.full_address
+      },
+      
+      shipping_mode: req.body.shipping_mode || 'Surface',
+      status: 'new'
     };
 
     const order = new Order(orderData);
     await order.save();
+    
+    console.log('💾 ORDER SAVED TO DATABASE', {
+      orderId: order.order_id,
+      timestamp: new Date().toISOString()
+    });
 
-    // Automatically create pickup request after order creation
-    let pickupRequestResult = null;
+    // Create or update customer record
     try {
-      // Get warehouse details for pickup request
-      const warehouseForPickup = {
-        name: warehouse.name,
-        warehouse_name: warehouse.title,
-        address: warehouse.address,
-        contact_info: warehouse.contact_info
+      const customerData = {
+        name: order.customer_info.buyer_name,
+        phone: order.customer_info.phone,
+        alternate_phone: order.customer_info.alternate_phone,
+        email: order.customer_info.email,
+        gstin: order.customer_info.gstin,
+        address: {
+          address_line_1: order.delivery_address.address_line_1,
+          address_line_2: order.delivery_address.address_line_2,
+          full_address: order.delivery_address.full_address,
+          landmark: order.delivery_address.landmark,
+          city: order.delivery_address.city,
+          state: order.delivery_address.state,
+          pincode: order.delivery_address.pincode,
+          country: order.delivery_address.country,
+          address_type: order.delivery_address.address_type
+        },
+        channel: 'order_creation'
       };
 
-      // Create pickup request via Delhivery API
-      pickupRequestResult = await delhiveryService.createPickupRequest(order, warehouseForPickup);
+      const customer = await Customer.findOrCreate(userId, customerData);
+      
+      // Update customer order statistics
+      await customer.updateOrderStats(order.payment_info.total_amount);
+      
+      console.log('👤 CUSTOMER CREATED/UPDATED', {
+        orderId: order.order_id,
+        customerId: customer._id,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        timestamp: new Date().toISOString()
+      });
+    } catch (customerError) {
+      console.error('❌ CUSTOMER CREATION FAILED', {
+        orderId: order.order_id,
+        error: customerError.message,
+        timestamp: new Date().toISOString()
+      });
+      // Don't fail the order creation if customer creation fails
+    }
 
-      if (pickupRequestResult.success) {
-        // Update order with pickup request details
-        order.delhivery_data.pickup_request_id = pickupRequestResult.pickup_id;
-        order.delhivery_data.pickup_request_status = 'scheduled';
-        order.delhivery_data.pickup_request_date = new Date(pickupRequestResult.pickup_date);
-        order.delhivery_data.pickup_request_time = pickupRequestResult.pickup_time;
-        order.delhivery_data.pickup_scheduled = true;
+    // Create shipment with Delhivery API
+    let delhiveryResult = null;
+    try {
+      // Prepare shipment data for Delhivery API
+      const shipmentData = {
+        shipments: [{
+          name: order.customer_info.buyer_name,
+          add: order.delivery_address.full_address,
+          pin: order.delivery_address.pincode,
+          city: order.delivery_address.city,
+          state: order.delivery_address.state,
+          country: order.delivery_address.country,
+          phone: order.customer_info.phone,
+          order: order.order_id,
+          payment_mode: order.payment_info.payment_mode,
+          return_pin: pickupAddress.pincode,
+          return_city: pickupAddress.city,
+          return_phone: pickupAddress.phone,
+          return_add: pickupAddress.full_address,
+          return_state: pickupAddress.state,
+          return_country: pickupAddress.country,
+          products_desc: order.products.map(p => p.product_name).join(', '),
+          hsn_code: order.products[0]?.hsn_code || '',
+          cod_amount: order.payment_info.payment_mode === 'COD' ? order.payment_info.cod_amount.toString() : '',
+          order_date: order.order_date,
+          total_amount: order.payment_info.total_amount.toString(),
+          seller_add: pickupAddress.full_address,
+          seller_name: order.seller_info.name || 'SHIPSARTHI',
+          seller_inv: order.invoice_number || `INV${order.order_id}`,
+          quantity: order.products.reduce((sum, p) => sum + p.quantity, 0).toString(),
+          waybill: '',
+          shipment_width: order.package_info.dimensions.width.toString(),
+          shipment_height: order.package_info.dimensions.height.toString(),
+          weight: (order.package_info.weight * 1000).toString(), // Convert kg to grams
+          seller_gst_tin: order.seller_info.gst_number || '',
+          shipping_mode: order.shipping_mode,
+          address_type: order.delivery_address.address_type
+        }],
+        pickup_location: {
+          name: pickupAddress.name || 'SHIPSARTHI C2C'
+        }
+      };
+
+      console.log('🌐 CALLING DELHIVERY API', {
+        orderId: order.order_id,
+        shipmentData: shipmentData,
+        timestamp: new Date().toISOString()
+      });
+
+      // Call Delhivery API to create shipment
+      delhiveryResult = await delhiveryService.createShipment(shipmentData);
+
+      if (delhiveryResult.success && delhiveryResult.packages && delhiveryResult.packages.length > 0) {
+        const packageData = delhiveryResult.packages[0];
+        
+        console.log('✅ DELHIVERY API SUCCESS', {
+          orderId: order.order_id,
+          awb: packageData.waybill,
+          delhiveryResponse: delhiveryResult,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Update order with Delhivery response
+        order.delhivery_data = {
+          waybill: packageData.waybill || '',
+          package_id: packageData.refnum || order.order_id,
+          upload_wbn: delhiveryResult.upload_wbn,
+          status: packageData.status,
+          serviceable: packageData.serviceable,
+          sort_code: packageData.sort_code,
+          remarks: packageData.remarks || [],
+          cod_amount: packageData.cod_amount || 0,
+          payment: packageData.payment
+        };
+
+        // Update order status based on Delhivery response
+        if (packageData.status === 'Success') {
+          order.status = 'ready_to_ship';
+        } else {
+          order.status = 'new';
+        }
         
         await order.save();
         
-        console.log('✅ Pickup request created successfully for order:', order.order_id);
+        console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', packageData.waybill);
       } else {
-        console.error('❌ Failed to create pickup request for order:', order.order_id, pickupRequestResult.error);
-        // Don't fail the order creation if pickup request fails
+        console.log('❌ DELHIVERY API FAILED', {
+          orderId: order.order_id,
+          delhiveryResponse: delhiveryResult,
+          timestamp: new Date().toISOString()
+        });
+        // Don't fail the order creation if shipment creation fails
         // Just log the error and continue
       }
-    } catch (pickupError) {
-      console.error('❌ Error creating pickup request:', pickupError.message);
-      // Don't fail the order creation if pickup request fails
+    } catch (delhiveryError) {
+      console.error('❌ Error creating shipment with Delhivery:', delhiveryError.message);
+      // Don't fail the order creation if Delhivery API fails
       // Just log the error and continue
     }
+
+    // Save package template if requested
+    if (req.body.package_info.save_dimensions) {
+      try {
+        const Package = require('../models/Package');
+        const packageTemplate = new Package({
+          user_id: userId,
+          name: `${order.products[0]?.product_name || 'Package'} - ${order.package_info.package_type}`,
+          description: `Auto-saved from order ${order.order_id}`,
+          category: order.products[0]?.category || 'General',
+          package_type: order.package_info.package_type,
+          dimensions: order.package_info.dimensions,
+          weight: order.package_info.weight,
+          number_of_boxes: order.package_info.number_of_boxes,
+          weight_per_box: order.package_info.weight_per_box,
+          rov_type: order.package_info.rov_type,
+          rov_owner: order.package_info.rov_owner,
+          product_name: order.products[0]?.product_name || 'Product',
+          hsn_code: order.products[0]?.hsn_code,
+          unit_price: order.products[0]?.unit_price,
+          weight_photo_url: order.package_info.weight_photo_url,
+          dimensions_photo_url: order.package_info.dimensions_photo_url,
+          tags: [order.products[0]?.category || 'General', order.package_info.package_type]
+        });
+
+        await packageTemplate.save();
+        console.log('✅ Package template saved for future use');
+      } catch (packageError) {
+        console.error('❌ Error saving package template:', packageError.message);
+      }
+    }
+
+    console.log('🎉 ORDER CREATION COMPLETED', {
+      orderId: order.order_id,
+      awb: order.delhivery_data?.waybill || 'N/A',
+      status: order.status,
+      timestamp: new Date().toISOString()
+    });
 
     res.status(201).json({
       status: 'success',
       message: 'Order created successfully',
       data: {
         order,
-        pickup_request: pickupRequestResult
+        delhivery_result: delhiveryResult,
+        awb_number: order.delhivery_data?.waybill || null
       }
     });
 
   } catch (error) {
+    console.log('💥 ORDER CREATION ERROR', {
+      orderId,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
     console.error('Create order error:', error);
     res.status(500).json({
       status: 'error',
@@ -279,7 +727,7 @@ router.put('/:id', auth, [
     }
 
     // Check if order can be updated
-    if (['delivered', 'rto', 'cancelled'].includes(order.order_status.current_status)) {
+    if (['delivered', 'rto', 'cancelled'].includes(order.status)) {
       return res.status(400).json({
         status: 'error',
         message: 'Cannot update order in current status'
@@ -328,7 +776,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     // Check if order can be cancelled
-    if (['delivered', 'rto', 'cancelled'].includes(order.order_status.current_status)) {
+    if (['delivered', 'rto', 'cancelled'].includes(order.status)) {
       return res.status(400).json({
         status: 'error',
         message: 'Cannot cancel order in current status'
@@ -393,8 +841,8 @@ router.patch('/:id/status', auth, [
       message: 'Order status updated successfully',
       data: {
         order_id: order.order_id,
-        current_status: order.order_status.current_status,
-        last_updated: order.order_status.last_updated
+        current_status: order.status,
+        last_updated: order.updatedAt
       }
     });
 
@@ -558,8 +1006,8 @@ router.get('/track/:identifier', async (req, res) => {
       data: {
         order_id: order.order_id,
         awb_number: order.shipping_info.awb_number,
-        current_status: order.order_status.current_status,
-        status_history: order.order_status.status_history,
+        current_status: order.status,
+        status_history: order.status_history,
         customer_name: order.customer_info.buyer_name,
         delivery_city: order.delivery_address.city,
         payment_mode: order.payment_info.payment_mode

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileDropdown from './ProfileDropdown';
-import userService, { UserProfile } from '../services/userService';
+import { userService, UserProfile } from '../services/userService';
 import './Layout.css';
 
 interface LayoutProps {
@@ -38,6 +38,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleProfileClick = () => {
+    console.log('👤 PROFILE CLICKED:', {
+      isProfileOpen,
+      userProfile: !!userProfile,
+      loading
+    });
     setIsProfileOpen(!isProfileOpen);
   };
 
@@ -50,12 +55,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
+        console.log('👤 LOADING USER PROFILE...');
         const response = await userService.getUserProfile();
+        console.log('👤 USER PROFILE LOADED:', response.data);
         setUserProfile(response.data);
       } catch (error: any) {
-        console.error('Error fetching user profile:', error);
+        console.error('❌ ERROR LOADING USER PROFILE:', error);
         // If user is not authenticated, redirect to login
         if (error.response?.status === 401) {
+          console.log('🔐 UNAUTHORIZED - Redirecting to login');
           navigate('/login');
         }
       } finally {
@@ -69,6 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems = [
     { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
     { path: '/orders', icon: '🛒', label: 'Orders' },
+    { path: '/packages', icon: '📦', label: 'Packages' },
     { path: '/ndr', icon: '📦', label: 'NDR' },
     { path: '/tools', icon: '🔧', label: 'Tools' },
     { path: '/billing', icon: '💳', label: 'Billing' },

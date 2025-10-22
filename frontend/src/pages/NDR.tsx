@@ -1,32 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { ndrService, NDROrder, NDRFilters, NDRStats, NDRActionData, BulkNDRActionData } from '../services/ndrService';
 import './NDR.css';
 
 type NDRStatus = 'action_required' | 'action_taken' | 'delivered' | 'rto' | 'all';
-
-interface NDROrder {
-  _id: string;
-  orderId: string;
-  awb: string;
-  orderDate: Date;
-  customerName: string;
-  customerPhone: string;
-  productName: string;
-  paymentMode: string;
-  ndrReason: string;
-  ndrDate: Date;
-  attempts: number;
-  nextAttemptDate?: Date;
-  nslCode: string;
-  status: NDRStatus;
-  action?: string;
-}
-
-interface NDRAction {
-  waybill: string;
-  action: 'RE-ATTEMPT' | 'PICKUP_RESCHEDULE';
-  reason?: string;
-}
 
 const NDR: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NDRStatus>('action_required');
@@ -39,31 +16,59 @@ const NDR: React.FC = () => {
   });
 
   // Tab counts
-  const [tabCounts, setTabCounts] = useState({
-    action_required: 719,
-    action_taken: 120,
-    delivered: 890,
-    rto: 110,
-    all: 710
+  const [tabCounts, setTabCounts] = useState<NDRStats>({
+    action_required: 0,
+    action_taken: 0,
+    delivered: 0,
+    rto: 0,
+    all: 0
   });
+
+  // Filters state
+  const [filters, setFilters] = useState<NDRFilters>({
+    page: 1,
+    limit: 20,
+    status: 'action_required'
+  });
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    total_pages: 1,
+    total_orders: 0,
+    per_page: 20
+  });
+
+  // Time recommendation
+  const [timeRecommendation, setTimeRecommendation] = useState('');
 
   useEffect(() => {
     fetchNDROrders();
-  }, [activeTab]);
+    fetchNDRStats();
+    setTimeRecommendation(ndrService.getTimeRecommendation());
+  }, [activeTab, filters]);
 
   const fetchNDROrders = async () => {
     setLoading(true);
     try {
-      // API call to fetch NDR orders
-      // const response = await ndrService.getNDROrders({ status: activeTab });
-      // setNdrOrders(response.data);
-      
-      // Dummy data for now
-      setNdrOrders([]);
+      const updatedFilters = { ...filters, status: activeTab };
+      const response = await ndrService.getNDROrders(updatedFilters);
+      setNdrOrders(response.orders);
+      setPagination(response.pagination);
     } catch (error) {
       console.error('Error fetching NDR orders:', error);
+      alert('Failed to fetch NDR orders. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchNDRStats = async () => {
+    try {
+      const stats = await ndrService.getNDRStats();
+      setTabCounts(stats);
+    } catch (error) {
+      console.error('Error fetching NDR stats:', error);
     }
   };
 
@@ -83,45 +88,74 @@ const NDR: React.FC = () => {
     }
   };
 
-  const handleReAttempt = async (awb: string) => {
+  const handleReAttempt = async (order: NDROrder) => {
+    if (!ndrService.validateNSLCode(order.ndr_info.nsl_code, 'RE-ATTEMPT')) {
+      const allowedCodes = ndrService.getAllowedNSLCodes('RE-ATTEMPT');
+      alert(`Re-attempt not allowed for NSL code: ${order.ndr_info.nsl_code}\nAllowed codes: ${allowedCodes.join(', ')}`);
+      return;
+    }
+
+    if (order.ndr_info.ndr_attempts > 2) {
+      alert('Maximum 3 attempts allowed. Please initiate RTO.');
+      return;
+    }
+
+    if (!ndrService.isRecommendedTime()) {
+      const confirmed = window.confirm(`${timeRecommendation}\n\nDo you want to proceed anyway?`);
+      if (!confirmed) return;
+    }
+
     try {
       setLoading(true);
-      // API call to re-attempt delivery
-      // const result = await ndrService.takeNDRAction({
-      //   waybill: awb,
-      //   action: 'RE-ATTEMPT'
-      // });
+      const actionData: NDRActionData = {
+        waybill: order.delhivery_data.waybill,
+        action: 'RE-ATTEMPT'
+      };
       
-      alert(`Re-attempt scheduled for AWB: ${awb}`);
+      const result = await ndrService.takeNDRAction(actionData);
+      alert(`Re-attempt scheduled for AWB: ${order.delhivery_data.waybill}\nUPL ID: ${result.upl_id}`);
       fetchNDROrders();
-    } catch (error) {
+      fetchNDRStats();
+    } catch (error: any) {
       console.error('Error scheduling re-attempt:', error);
-      alert('Failed to schedule re-attempt');
+      alert(`Failed to schedule re-attempt: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePickupReschedule = async (awb: string) => {
+  const handlePickupReschedule = async (order: NDROrder) => {
+    if (!ndrService.validateNSLCode(order.ndr_info.nsl_code, 'PICKUP_RESCHEDULE')) {
+      const allowedCodes = ndrService.getAllowedNSLCodes('PICKUP_RESCHEDULE');
+      alert(`Pickup reschedule not allowed for NSL code: ${order.ndr_info.nsl_code}\nAllowed codes: ${allowedCodes.join(', ')}`);
+      return;
+    }
+
+    if (order.ndr_info.ndr_attempts > 2) {
+      alert('Maximum 3 attempts allowed. Please initiate RTO.');
+      return;
+    }
+
     const confirmed = window.confirm(
-      'Are you sure you want to reschedule pickup? This will initiate RTO.'
+      'Are you sure you want to reschedule pickup? This will initiate RTO and mark the shipment as cancelled.'
     );
     
     if (!confirmed) return;
 
     try {
       setLoading(true);
-      // API call to reschedule pickup (RTO)
-      // const result = await ndrService.takeNDRAction({
-      //   waybill: awb,
-      //   action: 'PICKUP_RESCHEDULE'
-      // });
+      const actionData: NDRActionData = {
+        waybill: order.delhivery_data.waybill,
+        action: 'PICKUP_RESCHEDULE'
+      };
       
-      alert(`Pickup rescheduled for AWB: ${awb}`);
+      const result = await ndrService.takeNDRAction(actionData);
+      alert(`Pickup rescheduled for AWB: ${order.delhivery_data.waybill}\nUPL ID: ${result.upl_id}`);
       fetchNDROrders();
-    } catch (error) {
+      fetchNDRStats();
+    } catch (error: any) {
       console.error('Error rescheduling pickup:', error);
-      alert('Failed to reschedule pickup');
+      alert(`Failed to reschedule pickup: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -133,6 +167,24 @@ const NDR: React.FC = () => {
       return;
     }
 
+    // Validate selected orders
+    const selectedOrderObjects = ndrOrders.filter(order => selectedOrders.includes(order._id));
+    const invalidOrders = selectedOrderObjects.filter(order => 
+      !ndrService.validateNSLCode(order.ndr_info.nsl_code, 'RE-ATTEMPT') || 
+      order.ndr_info.ndr_attempts > 2
+    );
+
+    if (invalidOrders.length > 0) {
+      const invalidAWBs = invalidOrders.map(order => order.delhivery_data.waybill).join(', ');
+      alert(`Some selected orders cannot be re-attempted:\n${invalidAWBs}\n\nPlease check NSL codes and attempt counts.`);
+      return;
+    }
+
+    if (!ndrService.isRecommendedTime()) {
+      const confirmed = window.confirm(`${timeRecommendation}\n\nDo you want to proceed with bulk re-attempt anyway?`);
+      if (!confirmed) return;
+    }
+
     const confirmed = window.confirm(
       `Schedule re-attempt for ${selectedOrders.length} orders?`
     );
@@ -141,35 +193,38 @@ const NDR: React.FC = () => {
 
     try {
       setLoading(true);
-      // Bulk API call
-      // const awbs = ndrOrders
-      //   .filter(order => selectedOrders.includes(order._id))
-      //   .map(order => order.awb);
+      const bulkData: BulkNDRActionData = {
+        order_ids: selectedOrders,
+        action: 'RE-ATTEMPT'
+      };
       
-      // await ndrService.bulkNDRAction({
-      //   waybills: awbs,
-      //   action: 'RE-ATTEMPT'
-      // });
-      
-      alert(`Re-attempt scheduled for ${selectedOrders.length} orders`);
+      const result = await ndrService.bulkNDRAction(bulkData);
+      alert(`Bulk re-attempt scheduled for ${result.processed_count} orders\nUPL ID: ${result.upl_id}`);
       setSelectedOrders([]);
       fetchNDROrders();
-    } catch (error) {
+      fetchNDRStats();
+    } catch (error: any) {
       console.error('Error in bulk re-attempt:', error);
-      alert('Failed to schedule bulk re-attempt');
+      alert(`Failed to schedule bulk re-attempt: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const canReAttempt = (order: NDROrder): boolean => {
-    const allowedNSLCodes = ['EOD-74', 'EOD-15', 'EOD-104', 'EOD-43', 'EOD-86', 'EOD-11', 'EOD-69', 'EOD-6'];
-    return allowedNSLCodes.includes(order.nslCode) && order.attempts <= 2;
+    return ndrService.validateNSLCode(order.ndr_info.nsl_code, 'RE-ATTEMPT') && order.ndr_info.ndr_attempts <= 2;
   };
 
   const canReschedulePickup = (order: NDROrder): boolean => {
-    const allowedNSLCodes = ['EOD-777', 'EOD-21'];
-    return allowedNSLCodes.includes(order.nslCode) && order.attempts <= 2;
+    return ndrService.validateNSLCode(order.ndr_info.nsl_code, 'PICKUP_RESCHEDULE') && order.ndr_info.ndr_attempts <= 2;
+  };
+
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({ ...prev, page }));
+  };
+
+  const handleFilterChange = (newFilters: Partial<NDRFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
   };
 
   return (
@@ -208,6 +263,14 @@ const NDR: React.FC = () => {
             All ({tabCounts.all})
           </button>
         </div>
+
+        {/* Time Recommendation */}
+        {timeRecommendation && (
+          <div className={`time-recommendation ${ndrService.isRecommendedTime() ? 'recommended' : 'warning'}`}>
+            <span className="time-icon">{ndrService.isRecommendedTime() ? '✅' : '⚠️'}</span>
+            <span className="time-text">{timeRecommendation}</span>
+          </div>
+        )}
 
         {/* Filters Section */}
         <div className="ndr-filters">
@@ -287,51 +350,53 @@ const NDR: React.FC = () => {
                         onChange={() => handleSelectOrder(order._id)}
                       />
                     </td>
-                    <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+                    <td>{new Date(order.created_at).toLocaleDateString()}</td>
                     <td>
                       <div className="order-details-cell">
-                        <div className="order-id">{order.orderId}</div>
-                        <div className="customer-name">{order.customerName}</div>
-                        <div className="customer-phone">{order.customerPhone}</div>
+                        <div className="order-id">{order.order_id}</div>
+                        <div className="customer-name">{order.customer_info.buyer_name}</div>
+                        <div className="customer-phone">{order.customer_info.phone}</div>
                       </div>
                     </td>
                     <td>
                       <div className="product-details-cell">
-                        {order.productName}
+                        Product Details
                       </div>
                     </td>
                     <td>
-                      <span className={`payment-mode ${order.paymentMode.toLowerCase()}`}>
-                        {order.paymentMode}
+                      <span className={`payment-mode cod`}>
+                        COD
                       </span>
                     </td>
                     <td>
                       <div className="tracking-cell">
-                        <div className="awb">AWB: {order.awb}</div>
-                        <div className="nsl-code">NSL: {order.nslCode}</div>
+                        <div className="awb">AWB: {order.delhivery_data.waybill}</div>
+                        <div className="nsl-code">NSL: {order.ndr_info.nsl_code}</div>
                       </div>
                     </td>
                     <td>
                       <div className="shipping-details-cell">
-                        {/* Shipping address */}
+                        <div className="address">{order.delivery_address.full_address}</div>
+                        <div className="city-state">{order.delivery_address.city}, {order.delivery_address.state}</div>
+                        <div className="pincode">{order.delivery_address.pincode}</div>
                       </div>
                     </td>
                     <td>
                       <div className="ndr-details-cell">
-                        <div className="ndr-reason">{order.ndrReason}</div>
+                        <div className="ndr-reason">{order.ndr_info.ndr_reason}</div>
                         <div className="ndr-date">
-                          {new Date(order.ndrDate).toLocaleDateString()}
+                          {new Date(order.ndr_info.last_ndr_date).toLocaleDateString()}
                         </div>
-                        {order.nextAttemptDate && (
+                        {order.ndr_info.next_attempt_date && (
                           <div className="next-attempt">
-                            Next: {new Date(order.nextAttemptDate).toLocaleDateString()}
+                            Next: {new Date(order.ndr_info.next_attempt_date).toLocaleDateString()}
                           </div>
                         )}
                       </div>
                     </td>
                     <td>
                       <div className="attempts-cell">
-                        <span className="attempt-count">{order.attempts}/3</span>
+                        <span className="attempt-count">{order.ndr_info.ndr_attempts}/3</span>
                       </div>
                     </td>
                     <td>
@@ -341,7 +406,7 @@ const NDR: React.FC = () => {
                             {canReAttempt(order) && (
                               <button
                                 className="action-btn reattempt-btn"
-                                onClick={() => handleReAttempt(order.awb)}
+                                onClick={() => handleReAttempt(order)}
                                 title="Re-Attempt Delivery"
                               >
                                 🔄 Re-Attempt
@@ -350,7 +415,7 @@ const NDR: React.FC = () => {
                             {canReschedulePickup(order) && (
                               <button
                                 className="action-btn rto-btn"
-                                onClick={() => handlePickupReschedule(order.awb)}
+                                onClick={() => handlePickupReschedule(order)}
                                 title="Reschedule Pickup (RTO)"
                               >
                                 📦 RTO
@@ -370,6 +435,32 @@ const NDR: React.FC = () => {
           </table>
         </div>
 
+        {/* Pagination */}
+        {pagination.total_pages > 1 && (
+          <div className="pagination">
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(pagination.current_page - 1)}
+              disabled={pagination.current_page === 1}
+            >
+              ← Previous
+            </button>
+            
+            <div className="pagination-info">
+              Page {pagination.current_page} of {pagination.total_pages} 
+              ({pagination.total_orders} total orders)
+            </div>
+            
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(pagination.current_page + 1)}
+              disabled={pagination.current_page === pagination.total_pages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
+
         {/* NDR Guidelines */}
         <div className="ndr-guidelines">
           <h3>⚠️ NDR Action Guidelines:</h3>
@@ -385,6 +476,9 @@ const NDR: React.FC = () => {
             </li>
             <li>
               <strong>Attempt Limit:</strong> Maximum 3 attempts allowed per shipment
+            </li>
+            <li>
+              <strong>UPL ID:</strong> Each NDR action returns a UPL ID for tracking the status
             </li>
           </ul>
         </div>

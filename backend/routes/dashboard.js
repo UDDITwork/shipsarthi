@@ -57,7 +57,7 @@ router.get('/overview', auth, async (req, res) => {
         $match: {
           user_id: userId,
           created_at: { $gte: today.toDate() },
-          'order_status.current_status': { $ne: 'cancelled' }
+          'status': { $ne: 'cancelled' }
         }
       },
       {
@@ -76,7 +76,7 @@ router.get('/overview', auth, async (req, res) => {
             $gte: yesterday.toDate(),
             $lt: today.toDate()
           },
-          'order_status.current_status': { $ne: 'cancelled' }
+          'status': { $ne: 'cancelled' }
         }
       },
       {
@@ -176,7 +176,7 @@ router.get('/shipment-status', auth, async (req, res) => {
       { $match: { user_id: userId } },
       {
         $group: {
-          _id: '$order_status.current_status',
+          _id: '$status',
           count: { $sum: 1 }
         }
       }
@@ -354,7 +354,7 @@ router.get('/cod-status', auth, async (req, res) => {
         $match: {
           user_id: userId,
           'payment_info.payment_mode': 'cod',
-          'order_status.current_status': 'delivered'
+          'status': 'delivered'
         }
       },
       {
@@ -378,7 +378,7 @@ router.get('/cod-status', auth, async (req, res) => {
         $match: {
           user_id: userId,
           'payment_info.payment_mode': 'cod',
-          'order_status.current_status': 'delivered',
+          'status': 'delivered',
           // Add condition to check if not yet remitted
         }
       },
@@ -493,7 +493,7 @@ router.get('/shipment-distribution', auth, async (req, res) => {
       { $match: { user_id: userId } },
       {
         $group: {
-          _id: '$order_status.current_status',
+          _id: '$status',
           count: { $sum: 1 }
         }
       },
@@ -645,7 +645,7 @@ router.get('/recent-activity', auth, async (req, res) => {
     })
     .sort({ created_at: -1 })
     .limit(limit)
-    .select('order_id customer_info.buyer_name order_status.current_status created_at payment_info.order_value')
+    .select('order_id customer_info.buyer_name status created_at payment_info.order_value')
     .lean();
 
     // Get recent NDRs
@@ -737,7 +737,7 @@ router.get('/performance', auth, async (req, res) => {
       },
       {
         $group: {
-          _id: '$order_status.current_status',
+          _id: '$status',
           count: { $sum: 1 }
         }
       }
@@ -765,7 +765,7 @@ router.get('/performance', auth, async (req, res) => {
         $match: {
           user_id: userId,
           created_at: { $gte: startDate.toDate() },
-          'order_status.current_status': { $ne: 'cancelled' }
+          'status': { $ne: 'cancelled' }
         }
       },
       {

@@ -10,32 +10,33 @@
   border: 1px solid #007BFF;
   z-index: 1000;
   margin-top: 10px;
-  overflow: hidden;
+  overflow: visible;
+  max-height: 500px;
 }
 
 /* Profile Header */
 .profile-header {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 15px 20px;
   background-color: #FFFFFF;
   color: #FFFFFF;
 }
 
 .user-avatar-large {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-color: #F68723;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  margin-right: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-text {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #FFFFFF;
 }
@@ -45,34 +46,34 @@
 }
 
 .company-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   color: #333333;
 }
 
 .contact-person {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   color: #666666;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .user-role {
-  font-size: 12px;
+  font-size: 11px;
   color: #666666;
   font-weight: 500;
 }
 
 /* Profile Menu */
 .profile-menu {
-  padding: 15px 0;
+  padding: 10px 0;
 }
 
 .menu-item {
-  padding: 12px 20px;
+  padding: 8px 20px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   border-left: 4px solid transparent;
@@ -121,8 +122,11 @@
 
 /* Profile Footer */
 .profile-footer {
-  padding: 15px 20px;
+  padding: 10px 20px;
   background-color: #FFFFFF;
+  border-top: 1px solid #E5E5E5;
+  position: relative;
+  z-index: 1;
 }
 
 .logout-button {
@@ -130,16 +134,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
+  gap: 8px;
+  padding: 8px 16px;
   background-color: #FFFFFF;
   color: #007BFF;
   border: 1px solid #007BFF;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  min-height: 36px;
 }
 
 .logout-button:hover {
