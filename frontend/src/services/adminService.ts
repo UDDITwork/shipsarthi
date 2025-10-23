@@ -66,6 +66,33 @@ export interface AdminDashboardResponse {
   data: AdminDashboard;
 }
 
+export interface ClientDocument {
+  type: string;
+  name: string;
+  url: string;
+  uploadedAt: Date;
+  status: string;
+}
+
+export interface ClientDocumentsResponse {
+  success: boolean;
+  data: {
+    client: {
+      id: string;
+      client_id: string;
+      company_name: string;
+      your_name: string;
+      email: string;
+      kyc_status: {
+        status: 'pending' | 'verified' | 'rejected';
+        verified_date?: Date;
+        verification_notes?: string;
+      };
+    };
+    documents: ClientDocument[];
+  };
+}
+
 class AdminService {
   private getAdminHeaders() {
     return {
@@ -178,6 +205,13 @@ class AdminService {
     if (params.status) queryParams.append('status', params.status);
 
     const response = await apiService.get(`/admin/clients/${clientId}/customers?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientDocuments(clientId: string): Promise<ClientDocumentsResponse> {
+    const response = await apiService.get<ClientDocumentsResponse>(`/admin/clients/${clientId}/documents`, {
       headers: this.getAdminHeaders()
     });
     return response;

@@ -1,0 +1,146 @@
+[2025-10-23T10:46:08.657Z] [INFO] [PID:732] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T10:46:19.514Z] [INFO] [PID:1272] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T10:46:21.335Z] [INFO] [PID:1272] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T10:46:21.335Z"
+}
+[2025-10-23T10:46:21.373Z] [INFO] [PID:1272] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T10:46:25.039Z] [INFO] [PID:1272] ✅ Connected to MongoDB
+[2025-10-23T10:46:32.374Z] [INFO] [PID:1272] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T10:49:31.795Z] [INFO] [PID:25492] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T10:49:33.280Z] [INFO] [PID:25492] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T10:49:33.280Z"
+}
+[2025-10-23T10:49:33.316Z] [INFO] [PID:25492] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T10:49:36.911Z] [INFO] [PID:25492] ✅ Connected to MongoDB
+[2025-10-23T10:49:42.273Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T10:49:42.278Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761216582277_lw12odh2f",
+  "timestamp": "2025-10-23T10:49:42.277Z",
+  "method": "GET",
+  "url": "/admin/clients",
+  "originalUrl": "/admin/clients",
+  "ip": "::1",
+  "contentType": "application/json",
+  "headers": {
+    "x-admin-email": "udditalerts247@gmail.com",
+    "x-admin-password": "jpmcA123",
+    "content-type": "application/json",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T10:49:42.288Z] [WARN] [PID:25492] 404 - Route not found | Data: {
+  "url": "/admin/clients",
+  "method": "GET",
+  "ip": "::1"
+}
+[2025-10-23T10:49:46.085Z] [INFO] [PID:25492] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T10:49:46.085Z"
+}
+[2025-10-23T10:50:03.216Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T10:50:03.219Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761216603218_a9h6rafjn",
+  "timestamp": "2025-10-23T10:50:03.218Z",
+  "method": "GET",
+  "url": "/api/admin/clients",
+  "originalUrl": "/api/admin/clients",
+  "ip": "::1",
+  "contentType": "application/json",
+  "headers": {
+    "x-admin-email": "udditalerts247@gmail.com",
+    "x-admin-password": "jpmcA123",
+    "content-type": "application/json",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T10:50:03.515Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T10:50:03.517Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761216603517_3o7k0fu0z",
+  "timestamp": "2025-10-23T10:50:03.517Z",
+  "method": "GET",
+  "url": "/api/admin/clients/test-id/documents",
+  "originalUrl": "/api/admin/clients/test-id/documents",
+  "ip": "::1",
+  "contentType": "application/json",
+  "headers": {
+    "x-admin-email": "udditalerts247@gmail.com",
+    "x-admin-password": "jpmcA123",
+    "content-type": "application/json",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T10:50:03.524Z] [ERROR] [PID:25492] Error fetching client documents: | Data: {
+  "stringValue": "\"test-id\"",
+  "valueType": "string",
+  "kind": "ObjectId",
+  "value": "test-id",
+  "path": "_id",
+  "reason": {},
+  "name": "CastError",
+  "message": "Cast to ObjectId failed for value \"test-id\" (type string) at path \"_id\" for model \"User\""
+}
+[2025-10-23T10:50:03.540Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T10:50:03.543Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761216603543_fgc79kaau",
+  "timestamp": "2025-10-23T10:50:03.543Z",
+  "method": "GET",
+  "url": "/api/admin/clients/68f9f6890ee91ad9cb8e536b/documents",
+  "originalUrl": "/api/admin/clients/68f9f6890ee91ad9cb8e536b/documents",
+  "ip": "::1",
+  "contentType": "application/json",
+  "headers": {
+    "x-admin-email": "udditalerts247@gmail.com",
+    "x-admin-password": "jpmcA123",
+    "content-type": "application/json",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T10:50:47.649Z] [INFO] [PID:25712] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T10:50:48.805Z] [INFO] [PID:25712] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T10:50:48.805Z"
+}
+[2025-10-23T10:50:48.838Z] [INFO] [PID:25712] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "development",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T10:50:57.608Z] [INFO] [PID:25712] ✅ Connected to MongoDB
+[2025-10-23T10:51:15.175Z] [INFO] [PID:25712] 🛑 SIGINT received, shutting down gracefully

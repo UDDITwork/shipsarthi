@@ -467,4 +467,60 @@ router.get('/clients/:id/customers', async (req, res) => {
   }
 });
 
+// Get client documents for KYC verification
+router.get('/clients/:id/documents', async (req, res) => {
+  try {
+    const client = await User.findById(req.params.id)
+      .select('kyc_documents kyc_status company_name your_name email client_id');
+
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    // Extract document information
+    const documents = [];
+    
+    if (client.kyc_documents) {
+      Object.keys(client.kyc_documents).forEach(docType => {
+        const doc = client.kyc_documents[docType];
+        if (doc && doc.url) {
+          documents.push({
+            type: docType,
+            name: doc.name || `${docType}_document`,
+            url: doc.url,
+            uploadedAt: doc.uploaded_at || doc.uploadedAt,
+            status: doc.status || 'uploaded'
+          });
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        client: {
+          id: client._id,
+          client_id: client.client_id,
+          company_name: client.company_name,
+          your_name: client.your_name,
+          email: client.email,
+          kyc_status: client.kyc_status
+        },
+        documents
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error fetching client documents:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching client documents',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

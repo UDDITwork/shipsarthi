@@ -825,22 +825,49 @@ const AccountSettings: React.FC = () => {
         </div>
 
         {/* KYC Status Card */}
-        <div className="settings-card">
+        <div className={`settings-card kyc-status-card ${user?.kyc_status?.status || 'pending'}`}>
           <div className="card-header">
-            <h3>✅ KYC Status</h3>
+            <h3>
+              {user?.kyc_status?.status === 'verified' ? '✅ KYC Verified' : 
+               user?.kyc_status?.status === 'rejected' ? '❌ KYC Rejected' : 
+               '⏳ KYC Pending Verification'}
+            </h3>
+            {user?.kyc_status?.status === 'verified' && (
+              <div className="kyc-verified-badge">
+                <span className="verified-icon">✓</span>
+                <span>Verified</span>
+              </div>
+            )}
           </div>
           <div className="card-body">
             <div className="kyc-status">
               <div className="kyc-info">
                 <label>KYC Status:</label>
                 <span className={`status-badge ${user?.kyc_status?.status || 'pending'}`}>
-                  {user?.kyc_status?.status === 'verified' ? 'Verified ✅' : user?.kyc_status?.status === 'pending' ? 'Pending' : 'Rejected'}
+                  {user?.kyc_status?.status === 'verified' ? 'Verified ✅' : 
+                   user?.kyc_status?.status === 'rejected' ? 'Rejected ❌' : 
+                   'Pending ⏳'}
                 </span>
               </div>
               {user?.kyc_status?.verified_date && (
                 <div className="kyc-info">
                   <label>Verified At:</label>
                   <span>{new Date(user.kyc_status.verified_date).toLocaleString()}</span>
+                </div>
+              )}
+              {user?.kyc_status?.status === 'pending' && (
+                <div className="kyc-pending-notice">
+                  <p>📋 Your KYC documents are under review. Our admin team will verify your documents and update your status soon.</p>
+                </div>
+              )}
+              {user?.kyc_status?.status === 'rejected' && (
+                <div className="kyc-rejected-notice">
+                  <p>⚠️ Your KYC verification was rejected. Please check your documents and re-upload if necessary.</p>
+                </div>
+              )}
+              {user?.kyc_status?.status === 'verified' && (
+                <div className="kyc-verified-notice">
+                  <p>🎉 Congratulations! Your KYC has been successfully verified. You now have full access to all platform features.</p>
                 </div>
               )}
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminService, AdminClient, AdminClientsResponse } from '../services/adminService';
+import DocumentViewerModal from '../components/DocumentViewerModal';
 import './AdminClients.css';
 
 const AdminClients: React.FC = () => {
@@ -35,6 +36,10 @@ const AdminClients: React.FC = () => {
 
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+
+  // Document viewer modal state
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<AdminClient | null>(null);
 
   useEffect(() => {
     // Only fetch data if admin is authenticated
@@ -105,6 +110,21 @@ const AdminClients: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to update KYC status');
     }
+  };
+
+  const handleViewDocuments = (client: AdminClient) => {
+    setSelectedClient(client);
+    setDocumentModalOpen(true);
+  };
+
+  const handleCloseDocumentModal = () => {
+    setDocumentModalOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleDocumentModalKYCUpdate = () => {
+    // Refresh the clients list when KYC is updated from the modal
+    fetchClients();
   };
 
   const getStatusColor = (status: string) => {
@@ -269,16 +289,25 @@ const AdminClients: React.FC = () => {
                     </select>
                   </td>
                   <td>
-                    <select
-                      value={client.kyc_status.status}
-                      onChange={(e) => handleKYCUpdate(client._id, e.target.value)}
-                      className="kyc-select"
-                      style={{ backgroundColor: getKYCStatusColor(client.kyc_status.status) }}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="verified">Verified</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
+                    <div className="kyc-column">
+                      <select
+                        value={client.kyc_status.status}
+                        onChange={(e) => handleKYCUpdate(client._id, e.target.value)}
+                        className="kyc-select"
+                        style={{ backgroundColor: getKYCStatusColor(client.kyc_status.status) }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                      <button
+                        className="view-documents-btn"
+                        onClick={() => handleViewDocuments(client)}
+                        title="View KYC Documents"
+                      >
+                        📄 View Docs
+                      </button>
+                    </div>
                   </td>
                   <td>
                     <div className="stats-info">
@@ -329,6 +358,17 @@ const AdminClients: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      {selectedClient && (
+        <DocumentViewerModal
+          isOpen={documentModalOpen}
+          onClose={handleCloseDocumentModal}
+          clientId={selectedClient._id}
+          clientName={selectedClient.company_name}
+          onKYCUpdate={handleDocumentModalKYCUpdate}
+        />
+      )}
     </div>
   );
 };

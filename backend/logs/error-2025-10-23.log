@@ -1,0 +1,10 @@
+[2025-10-23T10:50:03.524Z] [ERROR] [PID:25492] Error fetching client documents: | Data: {
+  "stringValue": "\"test-id\"",
+  "valueType": "string",
+  "kind": "ObjectId",
+  "value": "test-id",
+  "path": "_id",
+  "reason": {},
+  "name": "CastError",
+  "message": "Cast to ObjectId failed for value \"test-id\" (type string) at path \"_id\" for model \"User\""
+}

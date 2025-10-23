@@ -245,6 +245,37 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
+.kyc-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.view-documents-btn {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view-documents-btn:hover {
+  background-color: #4f46e5;
+}
+
+.view-documents-btn:active {
+  transform: translateY(1px);
+}
+
 .stats-info {
   font-size: 0.75rem;
   color: #374151;
