@@ -30,7 +30,6 @@ class ApiService {
         
         // Enhanced request logging
         console.log('🚀 FRONTEND API REQUEST:', {
-          url: config.url,
           method: config.method,
           baseURL: config.baseURL,
           data: config.data,

@@ -20,9 +20,12 @@ const AdminDashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Fetching admin dashboard data...');
       const data = await adminService.getDashboard();
+      console.log('📊 Admin dashboard data received:', data);
       setDashboardData(data);
     } catch (err: any) {
+      console.error('❌ Error fetching admin dashboard:', err);
       setError(err.message || 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
@@ -80,7 +83,7 @@ const AdminDashboard: React.FC = () => {
         <p>Manage all clients and monitor system performance</p>
       </div>
 
-      {dashboardData && (
+      {dashboardData && dashboardData.overview && (
         <>
           {/* Overview Cards */}
           <div className="overview-cards">
@@ -145,26 +148,28 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {dashboardData.recentClients.map((client) => (
+                  {dashboardData.recentClients && dashboardData.recentClients.map((client) => {
+                    console.log('👤 Client data:', client);
+                    return (
                     <tr key={client._id}>
                       <td>
-                        <span className="client-id">{client.client_id}</span>
+                        <span className="client-id">{client.client_id || 'N/A'}</span>
                       </td>
                       <td>
                         <div className="company-info">
-                          <strong>{client.company_name}</strong>
-                          <small>{client.your_name}</small>
+                          <strong>{client.company_name || 'N/A'}</strong>
+                          <small>{client.your_name || 'N/A'}</small>
                         </div>
                       </td>
                       <td>
                         <div className="contact-info">
-                          <div>{client.email}</div>
-                          <small>{client.phone_number}</small>
+                          <div>{client.email || 'N/A'}</div>
+                          <small>{client.phone_number || 'N/A'}</small>
                         </div>
                       </td>
                       <td>
                         <span className="user-type">
-                          {client.user_type.replace(/-/g, ' ')}
+                          {client.user_type ? client.user_type.replace(/-/g, ' ') : 'N/A'}
                         </span>
                       </td>
                       <td>
@@ -172,22 +177,23 @@ const AdminDashboard: React.FC = () => {
                           className="status-badge"
                           style={{ backgroundColor: getStatusColor(client.account_status) }}
                         >
-                          {client.account_status.replace('_', ' ')}
+                          {client.account_status ? client.account_status.replace('_', ' ') : 'N/A'}
                         </span>
                       </td>
                       <td>
                         <span 
                           className="kyc-badge"
-                          style={{ backgroundColor: getKYCStatusColor(client.kyc_status.status) }}
+                          style={{ backgroundColor: getKYCStatusColor(client.kyc_status?.status || 'pending') }}
                         >
-                          {client.kyc_status.status}
+                          {client.kyc_status?.status || 'pending'}
                         </span>
                       </td>
                       <td>
-                        {new Date(client.created_at).toLocaleDateString()}
+                        {client.created_at ? new Date(client.created_at).toLocaleDateString() : 'N/A'}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -197,10 +203,10 @@ const AdminDashboard: React.FC = () => {
           <div className="client-types">
             <h2>Clients by Type</h2>
             <div className="types-grid">
-              {dashboardData.clientsByType.map((type) => (
+              {dashboardData.clientsByType && dashboardData.clientsByType.map((type) => (
                 <div key={type._id} className="type-card">
-                  <h4>{type._id.replace(/-/g, ' ')}</h4>
-                  <p className="type-count">{type.count}</p>
+                  <h4>{type._id ? type._id.replace(/-/g, ' ') : 'Unknown'}</h4>
+                  <p className="type-count">{type.count || 0}</p>
                 </div>
               ))}
             </div>

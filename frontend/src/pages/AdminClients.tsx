@@ -6,6 +6,16 @@ const AdminClients: React.FC = () => {
   const [clients, setClients] = useState<AdminClient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Debug clients state changes
+  useEffect(() => {
+    console.log('👥 Clients state updated:', { 
+      clientsCount: clients.length, 
+      clients: clients,
+      loading,
+      error 
+    });
+  }, [clients, loading, error]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -29,9 +39,12 @@ const AdminClients: React.FC = () => {
   useEffect(() => {
     // Only fetch data if admin is authenticated
     const isAuthenticated = localStorage.getItem('admin_authenticated');
+    console.log('🔐 Admin authentication check:', isAuthenticated);
     if (isAuthenticated) {
+      console.log('✅ Admin authenticated, fetching clients...');
       fetchClients();
     } else {
+      console.log('❌ Admin not authenticated, skipping fetch');
       setLoading(false);
     }
   }, [page, filters]);
@@ -39,15 +52,21 @@ const AdminClients: React.FC = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Fetching clients with params:', { page, limit, ...filters });
       const response: AdminClientsResponse = await adminService.getClients({
         page,
         limit,
         ...filters
       });
       
+      console.log('📊 Clients API Response:', response);
+      console.log('👥 Clients data:', response.data.clients);
+      console.log('📄 Pagination data:', response.data.pagination);
+      
       setClients(response.data.clients);
       setPagination(response.data.pagination);
     } catch (err: any) {
+      console.error('❌ Error fetching clients:', err);
       setError(err.message || 'Failed to fetch clients');
     } finally {
       setLoading(false);
