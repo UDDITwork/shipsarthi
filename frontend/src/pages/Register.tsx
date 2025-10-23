@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { RegisterData } from '../types';
+import OTPVerificationModal from '../components/OTPVerificationModal';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -12,16 +13,19 @@ const Register: React.FC = () => {
   const [selectedUserType, setSelectedUserType] = useState('');
   const [selectedShipments, setSelectedShipments] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState<any>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
 
   const userTypes = [
-    'E-commerce Sellers',
-    'Direct to Consumer Brands',
-    'Manufacturers & Wholesalers',
-    'Corporate/Enterprise',
-    'Courier Service Providers',
-    'Individual Shippers'
+    { label: 'E-commerce Sellers', value: 'e-commerce-sellers' },
+    { label: 'Direct to Consumer Brands', value: 'direct-to-consumer-brands' },
+    { label: 'Manufacturers & Wholesalers', value: 'manufacturers-wholesalers' },
+    { label: 'Corporate/Enterprise', value: 'corporate-enterprise' },
+    { label: 'Courier Service Providers', value: 'courier-service-providers' },
+    { label: 'Individual Shippers', value: 'individual-shippers' }
   ];
 
   const shipmentVolumes = [
@@ -34,18 +38,46 @@ const Register: React.FC = () => {
 
   const onSubmit = async (data: RegisterData) => {
     try {
-      await registerUser(data);
+      const response = await registerUser(data);
       
-      // Show success message
-      setRegistrationSuccess(true);
+      // Debug: Log the response to see what we're getting
+      console.log('🔧 Registration Response in Register.tsx:', response);
+      console.log('🔧 requires_otp_verification:', response.requires_otp_verification);
       
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login', { state: { fromRegistration: true } });
-      }, 3000);
+      // Check if OTP verification is required
+      if (response.requires_otp_verification) {
+        console.log('🔧 Setting OTP modal to show');
+        setRegisteredUser({
+          phone_number: data.phone_number,
+          ...response.user
+        });
+        setShowOTPModal(true);
+      } else {
+        console.log('🔧 No OTP required, redirecting to login');
+        // Show success message and redirect
+        setRegistrationSuccess(true);
+        setTimeout(() => {
+          navigate('/login', { state: { fromRegistration: true } });
+        }, 3000);
+      }
     } catch (err) {
       console.error('Registration failed:', err);
     }
+  };
+
+  const handleOTPVerificationSuccess = (user: any) => {
+    setShowOTPModal(false);
+    setRegistrationSuccess(true);
+    setOtpError(null);
+    
+    // Redirect to login after 3 seconds
+    setTimeout(() => {
+      navigate('/login', { state: { fromRegistration: true } });
+    }, 3000);
+  };
+
+  const handleOTPVerificationError = (error: string) => {
+    setOtpError(error);
   };
 
   return (
@@ -87,7 +119,13 @@ const Register: React.FC = () => {
               <form onSubmit={handleSubmit(onSubmit)} className="register-form">
                 {registrationSuccess && (
                   <div className="success-message">
-                    <p>✅ Registration successful! Redirecting to login page...</p>
+                    <p>✅ Registration successful! Phone number verified. Redirecting to login page...</p>
+                  </div>
+                )}
+
+                {otpError && (
+                  <div className="error-message">
+                    <p>{otpError}</p>
                   </div>
                 )}
                 
@@ -111,8 +149,8 @@ const Register: React.FC = () => {
                     >
                       <option value="">Select User Type</option>
                       {userTypes.map((type) => (
-                        <option key={type} value={type.toLowerCase().replace(/[^a-z0-9]/g, '-')}>
-                          {type}
+                        <option key={type.value} value={type.value}>
+                          {type.label}
                         </option>
                       ))}
                     </select>
@@ -344,6 +382,26 @@ const Register: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      {showOTPModal && (
+        <OTPVerificationModal
+          isOpen={showOTPModal}
+          onClose={() => setShowOTPModal(false)}
+          phoneNumber={registeredUser?.phone_number || ''}
+          onVerificationSuccess={handleOTPVerificationSuccess}
+          onVerificationError={handleOTPVerificationError}
+        />
+      )}
+      
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ position: 'fixed', top: '10px', right: '10px', background: 'black', color: 'white', padding: '10px', zIndex: 9999 }}>
+          <div>showOTPModal: {showOTPModal.toString()}</div>
+          <div>registeredUser: {registeredUser ? 'exists' : 'null'}</div>
+          <div>phone: {registeredUser?.phone_number || 'none'}</div>
+        </div>
+      )}
     </div>
   );
 };

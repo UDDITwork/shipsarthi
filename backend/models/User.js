@@ -207,6 +207,20 @@ const userSchema = new mongoose.Schema({
   password_reset_token: String,
   password_reset_expires: Date,
 
+  // OTP Verification
+  otp_verified: {
+    type: Boolean,
+    default: false
+  },
+  otp_token: String,
+  otp_expires: Date,
+  otp_attempts: {
+    type: Number,
+    default: 0,
+    max: 3
+  },
+  otp_locked_until: Date,
+
   // Timestamps
   created_at: {
     type: Date,
@@ -300,6 +314,62 @@ userSchema.methods.createEmailVerificationToken = function() {
   this.email_verification_expires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
   
   return verificationToken;
+};
+
+// Instance method to generate OTP token
+userSchema.methods.createOTPToken = function() {
+  const crypto = require('crypto');
+  const otpToken = crypto.randomBytes(32).toString('hex');
+  
+  this.otp_token = crypto
+    .createHash('sha256')
+    .update(otpToken)
+    .digest('hex');
+  
+  this.otp_expires = Date.now() + 5 * 60 * 1000; // 5 minutes
+  this.otp_attempts = 0;
+  this.otp_locked_until = undefined;
+  
+  return otpToken;
+};
+
+// Instance method to verify OTP token
+userSchema.methods.verifyOTPToken = function(token) {
+  const crypto = require('crypto');
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+  
+  return this.otp_token === hashedToken && this.otp_expires > Date.now();
+};
+
+// Instance method to check if OTP is locked
+userSchema.methods.isOTPLocked = function() {
+  return this.otp_locked_until && this.otp_locked_until > Date.now();
+};
+
+// Instance method to increment OTP attempts
+userSchema.methods.incrementOTPAttempts = function() {
+  this.otp_attempts += 1;
+  
+  if (this.otp_attempts >= 3) {
+    this.otp_locked_until = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
+  }
+  
+  return this.save();
+};
+
+// Instance method to reset OTP attempts
+userSchema.methods.resetOTPAttempts = function() {
+  this.otp_attempts = 0;
+  this.otp_locked_until = undefined;
+  this.otp_verified = true;
+  this.phone_verified = true;
+  this.otp_token = undefined;
+  this.otp_expires = undefined;
+  
+  return this.save();
 };
 
 // Static method to find by email or phone

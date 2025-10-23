@@ -105,7 +105,7 @@ router.post('/register', [
       user_type
     });
 
-    // Create user
+    // Create user (without OTP verification initially)
     const user = new User({
       user_type,
       monthly_shipments,
@@ -116,25 +116,23 @@ router.post('/register', [
       email: email.toLowerCase(),
       password,
       reference_code,
-      terms_accepted: Boolean(terms_accepted)
+      terms_accepted: Boolean(terms_accepted),
+      account_status: 'pending_verification' // Set to pending until OTP is verified
     });
 
     await user.save();
-    logger.info('User created successfully', {
+    logger.info('User created successfully (pending OTP verification)', {
       userId: user._id,
       email: user.email,
       company_name: user.company_name,
       client_id: user.client_id,
       user_type: user.user_type,
-      monthly_shipments: user.monthly_shipments
+      monthly_shipments: user.monthly_shipments,
+      phone_verified: user.phone_verified
     });
 
-    // Generate token
-    const token = generateToken(user._id);
-    logger.debug('JWT token generated', { userId: user._id });
-
     const responseTime = Date.now() - startTime;
-    logger.info('Registration completed successfully', {
+    logger.info('Registration completed successfully (OTP verification required)', {
       userId: user._id,
       email: user.email,
       company_name: user.company_name,
@@ -143,8 +141,7 @@ router.post('/register', [
 
     res.status(201).json({
       status: 'success',
-      message: 'User registered successfully',
-      token,
+      message: 'User registered successfully. Please verify your phone number with OTP to complete registration.',
       user: {
         _id: user._id,
         email: user.email,
@@ -153,8 +150,11 @@ router.post('/register', [
         client_id: user.client_id,
         account_status: user.account_status,
         wallet_balance: user.wallet_balance,
-        kyc_status: user.kyc_status
-      }
+        kyc_status: user.kyc_status,
+        phone_verified: user.phone_verified,
+        otp_verified: user.otp_verified
+      },
+      requires_otp_verification: true
     });
 
   } catch (error) {
@@ -238,8 +238,24 @@ router.post('/login', [
       email: user.email,
       accountStatus: user.account_status,
       emailVerified: user.email_verified,
-      phoneVerified: user.phone_verified
+      phoneVerified: user.phone_verified,
+      otpVerified: user.otp_verified
     });
+
+    // Check if OTP verification is required
+    if (!user.otp_verified && user.account_status === 'pending_verification') {
+      logger.warn('Login failed - OTP verification required', {
+        userId: user._id,
+        email: user.email,
+        phone_number: user.phone_number
+      });
+      return res.status(403).json({
+        status: 'error',
+        message: 'Phone number verification required. Please verify your phone number with OTP.',
+        requires_otp_verification: true,
+        phone_number: user.phone_number
+      });
+    }
 
 
     // Check if account is locked
@@ -341,7 +357,8 @@ router.post('/login', [
         wallet_balance: user.wallet_balance,
         kyc_status: user.kyc_status,
         email_verified: user.email_verified,
-        phone_verified: user.phone_verified
+        phone_verified: user.phone_verified,
+        otp_verified: user.otp_verified
       }
     });
 

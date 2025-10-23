@@ -144,3 +144,2598 @@
 }
 [2025-10-23T10:50:57.608Z] [INFO] [PID:25712] ✅ Connected to MongoDB
 [2025-10-23T10:51:15.175Z] [INFO] [PID:25712] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T12:30:00.047Z] [INFO] [PID:25492] 🔄 Starting scheduled shipment tracking...
+[2025-10-23T12:30:00.469Z] [INFO] [PID:25492] 🔍 Found 0 orders to track
+[2025-10-23T12:30:00.470Z] [INFO] [PID:25492] ✅ Completed scheduled shipment tracking
+[2025-10-23T15:30:00.214Z] [INFO] [PID:25492] 🔄 Starting scheduled shipment tracking...
+[2025-10-23T15:30:00.570Z] [INFO] [PID:25492] 🔍 Found 0 orders to track
+[2025-10-23T15:30:00.573Z] [INFO] [PID:25492] ✅ Completed scheduled shipment tracking
+[2025-10-23T15:59:42.613Z] [INFO] [PID:25852] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T15:59:43.601Z] [INFO] [PID:25852] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T15:59:43.601Z"
+}
+[2025-10-23T15:59:43.615Z] [INFO] [PID:25852] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T15:59:44.237Z] [INFO] [PID:25852] ✅ Connected to MongoDB
+[2025-10-23T15:59:46.744Z] [INFO] [PID:25852] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T15:59:46.744Z"
+}
+[2025-10-23T16:02:46.304Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:02:46.304Z"
+}
+[2025-10-23T16:02:46.310Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:02:46.333Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:02:46.333Z"
+}
+[2025-10-23T16:02:46.336Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:02:46.339Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761235366338_2k9xcwx9s",
+  "timestamp": "2025-10-23T16:02:46.338Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "275",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:02:46.557Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "courier-service-providers",
+    "monthly_shipments": "300-1000",
+    "company_name": "uddit@ai&mL",
+    "your_name": "UDDIT .",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditkantsinha5@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:02:46.564Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditkantsinha5@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "uddit@ai&mL",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:02:46.567Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditkantsinha5@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:02:46.622Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditkantsinha5@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:02:46.627Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditkantsinha5@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "user_type": "courier-service-providers"
+}
+[2025-10-23T16:02:47.551Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa51a69474fbfd72d49e3b",
+  "email": "udditkantsinha5@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "client_id": "SS78294",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:02:47.558Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa51a69474fbfd72d49e3b"
+}
+[2025-10-23T16:02:47.559Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa51a69474fbfd72d49e3b",
+  "email": "udditkantsinha5@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "responseTime": "1002ms"
+}
+[2025-10-23T16:10:57.784Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:10:57.784Z"
+}
+[2025-10-23T16:10:57.791Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:10:57.805Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:10:57.805Z"
+}
+[2025-10-23T16:10:57.809Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:10:57.813Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761235857813_esni4tn7z",
+  "timestamp": "2025-10-23T16:10:57.813Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "275",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:10:57.829Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "PANEURAS  AUTOAMTIONS",
+    "your_name": "MAHESH",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "rekhasaxena@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:10:57.832Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS  AUTOAMTIONS",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:10:57.833Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:10:57.865Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:10:57.866Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "PANEURAS  AUTOAMTIONS",
+  "user_type": "individual-shippers"
+}
+[2025-10-23T16:10:58.845Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa53919474fbfd72d49e3f",
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "PANEURAS  AUTOAMTIONS",
+  "client_id": "SS03318",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:10:58.849Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa53919474fbfd72d49e3f"
+}
+[2025-10-23T16:10:58.851Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa53919474fbfd72d49e3f",
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "PANEURAS  AUTOAMTIONS",
+  "responseTime": "1022ms"
+}
+[2025-10-23T16:17:55.122Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:17:55.122Z"
+}
+[2025-10-23T16:17:55.126Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:17:55.135Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:17:55.135Z"
+}
+[2025-10-23T16:17:55.138Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:17:55.141Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236275140_1sgewi9ez",
+  "timestamp": "2025-10-23T16:17:55.141Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "272",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:17:55.150Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "courier-service-providers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "uddit@ai&mL",
+    "your_name": "UDDIT .",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "rekhasaxena@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:17:55.153Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "uddit@ai&mL",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:17:55.156Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:17:55.191Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "rekhasaxena@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:17:55.194Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "user_type": "courier-service-providers"
+}
+[2025-10-23T16:17:56.041Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa55339474fbfd72d49e43",
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "client_id": "SS66417",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:17:56.043Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa55339474fbfd72d49e43"
+}
+[2025-10-23T16:17:56.044Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa55339474fbfd72d49e43",
+  "email": "rekhasaxena@gmail.com",
+  "company_name": "uddit@ai&mL",
+  "responseTime": "894ms"
+}
+[2025-10-23T16:19:18.489Z] [INFO] [PID:25852] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:19:24.694Z] [INFO] [PID:6176] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:19:26.047Z] [INFO] [PID:6176] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:19:26.047Z"
+}
+[2025-10-23T16:19:26.072Z] [INFO] [PID:6176] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:19:26.666Z] [INFO] [PID:6176] ✅ Connected to MongoDB
+[2025-10-23T16:19:29.265Z] [INFO] [PID:6176] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:19:29.265Z"
+}
+[2025-10-23T16:22:54.843Z] [INFO] [PID:6176] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:24:07.515Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:07.515Z"
+}
+[2025-10-23T16:24:07.517Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:07.524Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:07.523Z"
+}
+[2025-10-23T16:24:07.525Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:07.526Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236647526_iaz89y4ht",
+  "timestamp": "2025-10-23T16:24:07.526Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "289",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:24:07.531Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:24:07.532Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:24:07.533Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:07.573Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:07.574Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:24:07.581Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "49ms"
+}
+[2025-10-23T16:24:15.997Z] [INFO] [PID:7768] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:24:17.034Z] [INFO] [PID:7768] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:24:17.034Z"
+}
+[2025-10-23T16:24:17.052Z] [INFO] [PID:7768] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:24:17.610Z] [INFO] [PID:7768] ✅ Connected to MongoDB
+[2025-10-23T16:24:19.058Z] [INFO] [PID:7768] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:24:19.058Z"
+}
+[2025-10-23T16:24:21.837Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:21.837Z"
+}
+[2025-10-23T16:24:21.838Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:21.842Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:21.842Z"
+}
+[2025-10-23T16:24:21.843Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:21.844Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236661844_btdiohwx8",
+  "timestamp": "2025-10-23T16:24:21.844Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "289",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:24:21.848Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:24:21.850Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:24:21.851Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:21.883Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:21.884Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:24:21.887Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "38ms"
+}
+[2025-10-23T16:24:26.354Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:26.354Z"
+}
+[2025-10-23T16:24:26.357Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:26.361Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236666360_flu7lmiuq",
+  "timestamp": "2025-10-23T16:24:26.361Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "289",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:24:26.371Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:24:26.374Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:24:26.377Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:26.418Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:26.420Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:24:26.427Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "56ms"
+}
+[2025-10-23T16:24:28.734Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:28.734Z"
+}
+[2025-10-23T16:24:28.738Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:28.745Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:24:28.745Z"
+}
+[2025-10-23T16:24:28.749Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:24:28.751Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236668751_6677t5vux",
+  "timestamp": "2025-10-23T16:24:28.751Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "289",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:24:28.760Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:24:28.764Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:24:28.768Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:28.810Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:24:28.813Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:24:28.819Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "59ms"
+}
+[2025-10-23T16:25:40.486Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:25:40.486Z"
+}
+[2025-10-23T16:25:40.490Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:25:40.499Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:25:40.499Z"
+}
+[2025-10-23T16:25:40.501Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:25:40.504Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761236740504_39wztqudq",
+  "timestamp": "2025-10-23T16:25:40.504Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "288",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:25:40.515Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT kant",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:25:40.520Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:25:40.524Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:25:40.559Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:25:40.562Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "PANEURAS AUTOAMTIONS",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:25:40.568Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT kant",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "53ms"
+}
+[2025-10-23T16:31:16.730Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:16.730Z"
+}
+[2025-10-23T16:31:16.731Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:16.736Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:16.736Z"
+}
+[2025-10-23T16:31:16.737Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:16.739Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237076739_nbs28z4v3",
+  "timestamp": "2025-10-23T16:31:16.739Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "282",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:16.746Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts247@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:16.748Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts247@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:16.750Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts247@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:17.022Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "udditalerts247@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:17.024Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "udditalerts247@gmail.com",
+  "phone_number": "8171514146",
+  "existingEmail": "udditalerts247@gmail.com",
+  "existingPhone": "7456886877"
+}
+[2025-10-23T16:31:22.874Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:22.874Z"
+}
+[2025-10-23T16:31:22.875Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:22.880Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:22.880Z"
+}
+[2025-10-23T16:31:22.882Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:22.885Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237082884_vj95p4qmw",
+  "timestamp": "2025-10-23T16:31:22.884Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:22.891Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:22.892Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:22.893Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:22.940Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:22.946Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:22.953Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "62ms"
+}
+[2025-10-23T16:31:24.270Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:24.270Z"
+}
+[2025-10-23T16:31:24.271Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:24.272Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237084272_rx7c8k059",
+  "timestamp": "2025-10-23T16:31:24.272Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:24.275Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:24.277Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:24.280Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:24.319Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:24.320Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:24.324Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "49ms"
+}
+[2025-10-23T16:31:29.407Z] [INFO] [PID:7768] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:31:36.039Z] [INFO] [PID:26608] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:31:36.782Z] [INFO] [PID:26608] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:31:36.782Z"
+}
+[2025-10-23T16:31:36.790Z] [INFO] [PID:26608] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:31:37.304Z] [INFO] [PID:26608] ✅ Connected to MongoDB
+[2025-10-23T16:31:39.902Z] [INFO] [PID:26608] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:31:39.902Z"
+}
+[2025-10-23T16:31:43.068Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:43.068Z"
+}
+[2025-10-23T16:31:43.069Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:43.073Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:43.073Z"
+}
+[2025-10-23T16:31:43.074Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:43.076Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237103076_tycemy04u",
+  "timestamp": "2025-10-23T16:31:43.076Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:43.079Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:43.080Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:43.081Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:43.117Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:43.139Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:43.141Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "62ms"
+}
+[2025-10-23T16:31:44.293Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:44.293Z"
+}
+[2025-10-23T16:31:44.294Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:44.295Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237104295_nnfwq1jhg",
+  "timestamp": "2025-10-23T16:31:44.295Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:44.299Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:44.300Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:44.302Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:44.336Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:44.337Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:44.339Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "40ms"
+}
+[2025-10-23T16:31:44.682Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:44.682Z"
+}
+[2025-10-23T16:31:44.683Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:44.685Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237104684_hn9adhwjr",
+  "timestamp": "2025-10-23T16:31:44.685Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:44.688Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:44.689Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:44.691Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:44.726Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:44.728Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:44.730Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "42ms"
+}
+[2025-10-23T16:31:45.027Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:45.027Z"
+}
+[2025-10-23T16:31:45.028Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:45.029Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237105029_vkik49n3p",
+  "timestamp": "2025-10-23T16:31:45.029Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:45.033Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:45.036Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:45.037Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.074Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.075Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:45.079Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "46ms"
+}
+[2025-10-23T16:31:45.379Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:45.379Z"
+}
+[2025-10-23T16:31:45.382Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:45.384Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237105383_di5if67ps",
+  "timestamp": "2025-10-23T16:31:45.383Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:45.387Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:45.388Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:45.389Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.430Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.451Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:45.455Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "67ms"
+}
+[2025-10-23T16:31:45.794Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:31:45.794Z"
+}
+[2025-10-23T16:31:45.795Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:31:45.797Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237105797_9bh14ehfc",
+  "timestamp": "2025-10-23T16:31:45.797Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "281",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:31:45.801Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:31:45.803Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers",
+  "monthly_shipments": "2500-5000"
+}
+[2025-10-23T16:31:45.804Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.836Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8171514146"
+}
+[2025-10-23T16:31:45.837Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIP",
+  "user_type": "manufacturers---wholesalers"
+}
+[2025-10-23T16:31:45.838Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "37ms"
+}
+[2025-10-23T16:33:27.610Z] [INFO] [PID:26608] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:33:35.053Z] [INFO] [PID:6668] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:33:35.669Z] [INFO] [PID:6668] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:33:35.669Z"
+}
+[2025-10-23T16:33:35.680Z] [INFO] [PID:6668] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:33:36.144Z] [INFO] [PID:6668] ✅ Connected to MongoDB
+[2025-10-23T16:33:37.432Z] [INFO] [PID:6668] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:33:37.432Z"
+}
+[2025-10-23T16:36:02.913Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:36:02.913Z"
+}
+[2025-10-23T16:36:02.915Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:36:02.919Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:36:02.919Z"
+}
+[2025-10-23T16:36:02.920Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:36:02.922Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237362922_bzo3octmo",
+  "timestamp": "2025-10-23T16:36:02.922Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "288",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:36:02.926Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "courier-service-providers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURA AUTOAMTIONSl",
+    "your_name": "UDDIT UDDITk",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts47@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:36:02.927Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "PANEURA AUTOAMTIONSl",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:36:02.928Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:36:02.965Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:36:02.966Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts47@gmail.com",
+  "company_name": "PANEURA AUTOAMTIONSl",
+  "user_type": "courier-service-providers"
+}
+[2025-10-23T16:36:03.456Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa59729474fbfd72d49e63",
+  "email": "udditalerts47@gmail.com",
+  "company_name": "PANEURA AUTOAMTIONSl",
+  "client_id": "SS63230",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:36:03.461Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa59729474fbfd72d49e63"
+}
+[2025-10-23T16:36:03.463Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa59729474fbfd72d49e63",
+  "email": "udditalerts47@gmail.com",
+  "company_name": "PANEURA AUTOAMTIONSl",
+  "responseTime": "536ms"
+}
+[2025-10-23T16:38:57.984Z] [INFO] [PID:6668] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:39:11.782Z] [INFO] [PID:16236] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:39:12.688Z] [INFO] [PID:16236] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:39:12.688Z"
+}
+[2025-10-23T16:39:12.703Z] [INFO] [PID:16236] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:39:13.217Z] [INFO] [PID:16236] ✅ Connected to MongoDB
+[2025-10-23T16:39:16.312Z] [INFO] [PID:16236] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:39:16.312Z"
+}
+[2025-10-23T16:39:57.480Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:39:57.480Z"
+}
+[2025-10-23T16:39:57.481Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:39:57.484Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:39:57.484Z"
+}
+[2025-10-23T16:39:57.485Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:39:57.485Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237597485_bccyftnvl",
+  "timestamp": "2025-10-23T16:39:57.485Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "274",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:39:57.488Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPK",
+    "your_name": "UDDIT UDDITM",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:39:57.489Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "SITABIENCEIPK",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:39:57.489Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:39:57.524Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:39:57.526Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "user_type": "individual-shippers"
+}
+[2025-10-23T16:39:58.064Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5a5d9474fbfd72d49e67",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "client_id": "SS09247",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:39:58.067Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5a5d9474fbfd72d49e67"
+}
+[2025-10-23T16:39:58.069Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5a5d9474fbfd72d49e67",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "responseTime": "581ms"
+}
+[2025-10-23T16:42:49.373Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:42:49.373Z"
+}
+[2025-10-23T16:42:49.375Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:42:49.379Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:42:49.379Z"
+}
+[2025-10-23T16:42:49.380Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:42:49.381Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237769380_6shg2a20l",
+  "timestamp": "2025-10-23T16:42:49.380Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "271",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:42:49.383Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "uddit@ai&mLk",
+    "your_name": "UDDIT MO",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts47@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:42:49.384Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "uddit@ai&mLk",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:42:49.385Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:42:49.416Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:42:49.417Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633",
+  "existingEmail": "udditalerts27@gmail.com",
+  "existingPhone": "8630697633"
+}
+[2025-10-23T16:42:57.810Z] [INFO] [PID:16236] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:43:15.554Z] [INFO] [PID:29204] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:43:16.337Z] [INFO] [PID:29204] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:43:16.337Z"
+}
+[2025-10-23T16:43:16.345Z] [INFO] [PID:29204] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:43:16.890Z] [INFO] [PID:29204] ✅ Connected to MongoDB
+[2025-10-23T16:43:19.313Z] [INFO] [PID:29204] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:43:19.313Z"
+}
+[2025-10-23T16:43:23.037Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:43:23.037Z"
+}
+[2025-10-23T16:43:23.038Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:43:23.042Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:43:23.042Z"
+}
+[2025-10-23T16:43:23.043Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:43:23.045Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237803045_mmtfy4iy7",
+  "timestamp": "2025-10-23T16:43:23.045Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "271",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:43:23.050Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "uddit@ai&mLk",
+    "your_name": "UDDIT MO",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts47@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:43:23.051Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "uddit@ai&mLk",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:43:23.051Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:43:23.082Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts47@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:43:23.082Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts47@gmail.com",
+  "company_name": "uddit@ai&mLk",
+  "user_type": "corporate-enterprise"
+}
+[2025-10-23T16:43:23.581Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5b2b9474fbfd72d49e6c",
+  "email": "udditalerts47@gmail.com",
+  "company_name": "uddit@ai&mLk",
+  "client_id": "SS79668",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:43:23.583Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5b2b9474fbfd72d49e6c"
+}
+[2025-10-23T16:43:23.584Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5b2b9474fbfd72d49e6c",
+  "email": "udditalerts47@gmail.com",
+  "company_name": "uddit@ai&mLk",
+  "responseTime": "534ms"
+}
+[2025-10-23T16:44:47.974Z] [INFO] [PID:29204] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:45:43.507Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:45:43.507Z"
+}
+[2025-10-23T16:45:43.508Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:45:43.511Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:45:43.511Z"
+}
+[2025-10-23T16:45:43.512Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:45:43.514Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761237943514_kifbruxx8",
+  "timestamp": "2025-10-23T16:45:43.514Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "280",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:45:43.518Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "courier-service-providers",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPM",
+    "your_name": "UDDIT UDDITK",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:45:43.518Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "SITABIENCEIPM",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:45:43.519Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:45:43.551Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts24@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:45:43.552Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts24@gmail.com",
+  "company_name": "SITABIENCEIPM",
+  "user_type": "courier-service-providers"
+}
+[2025-10-23T16:45:44.052Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5bb79474fbfd72d49e70",
+  "email": "udditalerts24@gmail.com",
+  "company_name": "SITABIENCEIPM",
+  "client_id": "SS17925",
+  "user_type": "courier-service-providers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:45:44.059Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5bb79474fbfd72d49e70"
+}
+[2025-10-23T16:45:44.060Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5bb79474fbfd72d49e70",
+  "email": "udditalerts24@gmail.com",
+  "company_name": "SITABIENCEIPM",
+  "responseTime": "542ms"
+}
+[2025-10-23T16:46:07.918Z] [INFO] [PID:2100] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:46:08.480Z] [INFO] [PID:2100] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:46:08.480Z"
+}
+[2025-10-23T16:46:08.489Z] [INFO] [PID:2100] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:46:08.947Z] [INFO] [PID:2100] ✅ Connected to MongoDB
+[2025-10-23T16:46:11.300Z] [INFO] [PID:2100] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:46:11.300Z"
+}
+[2025-10-23T16:46:19.039Z] [INFO] [PID:2100] 🛑 SIGINT received, shutting down gracefully

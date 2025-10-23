@@ -42,6 +42,7 @@ export interface User {
   last_login?: string;
   email_verified: boolean;
   phone_verified: boolean;
+  otp_verified: boolean;
 }
 
 export interface Document {

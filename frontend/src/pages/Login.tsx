@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import OTPVerificationModal from '../components/OTPVerificationModal';
 
 interface LoginFormData {
   email: string;
@@ -16,6 +17,9 @@ const Login: React.FC = () => {
   const { login, loading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpPhoneNumber, setOtpPhoneNumber] = useState('');
+  const [otpError, setOtpError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user came from registration page
@@ -34,9 +38,26 @@ const Login: React.FC = () => {
     try {
       await login(data.email, data.password);
       navigate('/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login failed:', err);
+      
+      // Check if OTP verification is required
+      if (err.response?.status === 403 && err.response?.data?.requires_otp_verification) {
+        setOtpPhoneNumber(err.response.data.phone_number);
+        setShowOTPModal(true);
+        setOtpError(null);
+      }
     }
+  };
+
+  const handleOTPVerificationSuccess = (user: any) => {
+    setShowOTPModal(false);
+    setOtpError(null);
+    navigate('/dashboard');
+  };
+
+  const handleOTPVerificationError = (error: string) => {
+    setOtpError(error);
   };
 
   return (
@@ -85,6 +106,12 @@ const Login: React.FC = () => {
                 {error && (
                   <div className="error-message">
                     <p>{error}</p>
+                  </div>
+                )}
+
+                {otpError && (
+                  <div className="error-message">
+                    <p>{otpError}</p>
                   </div>
                 )}
 
@@ -198,6 +225,17 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      {showOTPModal && otpPhoneNumber && (
+        <OTPVerificationModal
+          isOpen={showOTPModal}
+          onClose={() => setShowOTPModal(false)}
+          phoneNumber={otpPhoneNumber}
+          onVerificationSuccess={handleOTPVerificationSuccess}
+          onVerificationError={handleOTPVerificationError}
+        />
+      )}
     </div>
   );
 };

@@ -8,3 +8,224 @@
   "name": "CastError",
   "message": "Cast to ObjectId failed for value \"test-id\" (type string) at path \"_id\" for model \"User\""
 }
+[2025-10-23T16:24:07.581Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "49ms"
+}
+[2025-10-23T16:24:21.887Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "38ms"
+}
+[2025-10-23T16:24:26.427Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "56ms"
+}
+[2025-10-23T16:24:28.819Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "59ms"
+}
+[2025-10-23T16:25:40.568Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "1000-2500",
+    "company_name": "PANEURAS AUTOAMTIONS",
+    "your_name": "UDDIT kant",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts24@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "53ms"
+}
+[2025-10-23T16:31:22.953Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "62ms"
+}
+[2025-10-23T16:31:24.324Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "49ms"
+}
+[2025-10-23T16:31:43.141Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "62ms"
+}
+[2025-10-23T16:31:44.339Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "40ms"
+}
+[2025-10-23T16:31:44.730Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "42ms"
+}
+[2025-10-23T16:31:45.079Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "46ms"
+}
+[2025-10-23T16:31:45.455Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "67ms"
+}
+[2025-10-23T16:31:45.838Z] [ERROR] [PID:25492] Registration error occurred | Data: {
+  "error": "User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.",
+  "stack": "ValidationError: User validation failed: user_type: `manufacturers---wholesalers` is not a valid enum value for path `user_type`.\n    at Document.invalidate (C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\IPDevlopmentAdmin\\Downloads\\shipsarthi\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "body": {
+    "user_type": "manufacturers---wholesalers",
+    "monthly_shipments": "2500-5000",
+    "company_name": "SITABIENCEIP",
+    "your_name": "UDDIT UDDIT",
+    "state": "Uttar Pradesh",
+    "phone_number": "8171514146",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  },
+  "responseTime": "37ms"
+}

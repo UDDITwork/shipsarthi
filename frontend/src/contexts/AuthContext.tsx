@@ -65,6 +65,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const response = await authService.register(userData);
       
+      // Log the response for debugging
+      console.log('🔧 Registration Response:', response);
+      
       // Don't automatically log in the user after registration
       // Just return the response for the component to handle
       return response;

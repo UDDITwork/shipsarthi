@@ -11,8 +11,9 @@ interface LoginResponse {
 interface RegisterResponse {
   status: string;
   message: string;
-  token: string;
+  token?: string;
   user: User;
+  requires_otp_verification?: boolean;
 }
 
 export const authService = {
