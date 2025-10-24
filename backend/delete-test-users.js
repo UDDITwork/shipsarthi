@@ -9,7 +9,7 @@ const testUsers = [
     phone_number: '8171514146'
   },
   {
-    phone_number: '8630697633'
+    phone_number: '8368824707'
   }
 ];
 

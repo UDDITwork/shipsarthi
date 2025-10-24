@@ -229,3 +229,28 @@
   },
   "responseTime": "37ms"
 }
+[2025-10-23T17:13:25.895Z] [ERROR] [PID:16512] Send OTP error occurred | Data: {
+  "error": "Failed to send OTP",
+  "phone_number": "8630697633",
+  "responseTime": "294ms"
+}
+[2025-10-23T18:40:22.887Z] [ERROR] [PID:16512] Send OTP error occurred | Data: {
+  "error": "Failed to send OTP",
+  "phone_number": "8630697633",
+  "responseTime": "299ms"
+}
+[2025-10-23T18:51:19.351Z] [ERROR] [PID:27268] Send OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8239697729",
+  "responseTime": "316ms"
+}
+[2025-10-23T18:51:19.405Z] [ERROR] [PID:27268] Send OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8239697729",
+  "responseTime": "345ms"
+}
+[2025-10-23T19:22:38.569Z] [ERROR] [PID:7372] Resend OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8368824707",
+  "responseTime": "368ms"
+}

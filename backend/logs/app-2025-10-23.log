@@ -2739,3 +2739,2699 @@
   "timestamp": "2025-10-23T16:46:11.300Z"
 }
 [2025-10-23T16:46:19.039Z] [INFO] [PID:2100] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:49:14.651Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T16:49:14.653Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238154653_7x0lx5cm9",
+  "timestamp": "2025-10-23T16:49:14.653Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "266",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:49:14.656Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "TEST COMPANY",
+    "your_name": "TEST USER",
+    "state": "Uttar Pradesh",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "testpass123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:49:14.660Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:49:14.661Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T16:49:14.702Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T16:49:14.704Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T16:49:23.829Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T16:49:23.831Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238163830_adwzmwt1k",
+  "timestamp": "2025-10-23T16:49:23.831Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "279",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:49:23.834Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "TEST COMPANY",
+    "your_name": "TEST USER",
+    "state": "Uttar Pradesh",
+    "phone_number": "9876543210",
+    "email": "test1761238163744@example.com",
+    "password": "testpass123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:49:23.836Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test1761238163744@example.com",
+  "phone_number": "9876543210",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:49:23.838Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test1761238163744@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T16:49:23.873Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test1761238163744@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T16:49:23.877Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "test1761238163744@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T16:49:32.958Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T16:49:32.961Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238172961_x4z7j3brd",
+  "timestamp": "2025-10-23T16:49:32.961Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "279",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:49:32.966Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "TEST COMPANY",
+    "your_name": "TEST USER",
+    "state": "Uttar Pradesh",
+    "phone_number": "9876543288",
+    "email": "test1761238172868@example.com",
+    "password": "testpass123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:49:32.969Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test1761238172868@example.com",
+  "phone_number": "9876543288",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:49:32.971Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test1761238172868@example.com",
+  "phone_number": "9876543288"
+}
+[2025-10-23T16:49:33.008Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "test1761238172868@example.com",
+  "phone_number": "9876543288"
+}
+[2025-10-23T16:49:33.010Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "test1761238172868@example.com",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers"
+}
+[2025-10-23T16:49:33.866Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5c9d9474fbfd72d49e76",
+  "email": "test1761238172868@example.com",
+  "company_name": "TEST COMPANY",
+  "client_id": "SS20718",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:49:33.870Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5c9d9474fbfd72d49e76"
+}
+[2025-10-23T16:49:33.872Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5c9d9474fbfd72d49e76",
+  "email": "test1761238172868@example.com",
+  "company_name": "TEST COMPANY",
+  "responseTime": "906ms"
+}
+[2025-10-23T16:50:08.418Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T16:50:08.419Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238208419_o25aypji3",
+  "timestamp": "2025-10-23T16:50:08.419Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "279",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:50:08.422Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "TEST COMPANY",
+    "your_name": "TEST USER",
+    "state": "Uttar Pradesh",
+    "phone_number": "9876543254",
+    "email": "test1761238208357@example.com",
+    "password": "testpass123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:50:08.424Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test1761238208357@example.com",
+  "phone_number": "9876543254",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:50:08.425Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test1761238208357@example.com",
+  "phone_number": "9876543254"
+}
+[2025-10-23T16:50:08.456Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "test1761238208357@example.com",
+  "phone_number": "9876543254"
+}
+[2025-10-23T16:50:08.457Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "test1761238208357@example.com",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers"
+}
+[2025-10-23T16:50:09.117Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5cc09474fbfd72d49e7a",
+  "email": "test1761238208357@example.com",
+  "company_name": "TEST COMPANY",
+  "client_id": "SS86856",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T16:50:09.122Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5cc09474fbfd72d49e7a"
+}
+[2025-10-23T16:50:09.123Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5cc09474fbfd72d49e7a",
+  "email": "test1761238208357@example.com",
+  "company_name": "TEST COMPANY",
+  "responseTime": "701ms"
+}
+[2025-10-23T16:51:48.428Z] [INFO] [PID:27164] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:51:48.942Z] [INFO] [PID:27164] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:51:48.942Z"
+}
+[2025-10-23T16:51:48.958Z] [INFO] [PID:27164] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:51:49.455Z] [INFO] [PID:27164] ✅ Connected to MongoDB
+[2025-10-23T16:51:51.910Z] [INFO] [PID:27164] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:51:51.910Z"
+}
+[2025-10-23T16:52:40.210Z] [INFO] [PID:27164] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T16:52:59.186Z] [INFO] [PID:300] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T16:52:59.802Z] [INFO] [PID:300] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T16:52:59.802Z"
+}
+[2025-10-23T16:52:59.811Z] [INFO] [PID:300] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T16:53:00.402Z] [INFO] [PID:300] ✅ Connected to MongoDB
+[2025-10-23T16:53:01.583Z] [INFO] [PID:300] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T16:53:01.583Z"
+}
+[2025-10-23T16:53:31.160Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:53:31.160Z"
+}
+[2025-10-23T16:53:31.162Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:53:31.165Z] [INFO] [PID:25492] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T16:53:31.165Z"
+}
+[2025-10-23T16:53:31.166Z] [INFO] [PID:25492] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T16:53:31.167Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238411167_4i9yo5t4s",
+  "timestamp": "2025-10-23T16:53:31.167Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "276",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T16:53:31.170Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "SITABIENCEIPK",
+    "your_name": "UDDIT UDDITS",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T16:53:31.171Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "SITABIENCEIPK",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:53:31.171Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:53:31.204Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T16:53:31.204Z] [INFO] [PID:25492] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "user_type": "corporate-enterprise"
+}
+[2025-10-23T16:53:31.674Z] [INFO] [PID:25492] User created successfully | Data: {
+  "userId": "68fa5d8b9474fbfd72d49e7e",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "client_id": "SS55713",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T16:53:31.677Z] [DEBUG] [PID:25492] JWT token generated | Data: {
+  "userId": "68fa5d8b9474fbfd72d49e7e"
+}
+[2025-10-23T16:53:31.678Z] [INFO] [PID:25492] Registration completed successfully | Data: {
+  "userId": "68fa5d8b9474fbfd72d49e7e",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPK",
+  "responseTime": "508ms"
+}
+[2025-10-23T17:00:45.067Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:00:45.068Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238845068_vshle3k06",
+  "timestamp": "2025-10-23T17:00:45.068Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "240",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:00:45.070Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "Test Company",
+    "your_name": "Test User",
+    "state": "Test State",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "password123",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:00:45.071Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "Test Company",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-23T17:00:45.072Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:00:45.109Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:00:45.110Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T17:00:54.119Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:00:54.121Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238854121_5z42oxbk1",
+  "timestamp": "2025-10-23T17:00:54.121Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "240",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:00:54.126Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "Test Company",
+    "your_name": "Test User",
+    "state": "Test State",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "password123",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:00:54.128Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "Test Company",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-23T17:00:54.132Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:00:54.160Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:00:54.163Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T17:01:33.451Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:01:33.452Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238893452_debw5jp41",
+  "timestamp": "2025-10-23T17:01:33.452Z",
+  "method": "GET",
+  "url": "/api/health",
+  "originalUrl": "/api/health",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+  "headers": {
+    "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.22621.4249",
+    "host": "localhost:5000",
+    "connection": "Keep-Alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:01:45.072Z] [INFO] [PID:25492] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:01:45.074Z] [INFO] [PID:25492] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761238905074_vomhssf1u",
+  "timestamp": "2025-10-23T17:01:45.074Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "240",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:01:45.077Z] [INFO] [PID:25492] Registration attempt started | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "Test Company",
+    "your_name": "Test User",
+    "state": "Test State",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "password123",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:01:45.079Z] [DEBUG] [PID:25492] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "Test Company",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-23T17:01:45.080Z] [DEBUG] [PID:25492] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:01:45.115Z] [DEBUG] [PID:25492] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:01:45.116Z] [WARN] [PID:25492] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T17:04:53.866Z] [INFO] [PID:16512] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T17:04:55.422Z] [INFO] [PID:16512] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T17:04:55.422Z"
+}
+[2025-10-23T17:04:55.450Z] [INFO] [PID:16512] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T17:04:56.099Z] [INFO] [PID:16512] ✅ Connected to MongoDB
+[2025-10-23T17:04:57.398Z] [INFO] [PID:16512] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T17:04:57.398Z"
+}
+[2025-10-23T17:07:58.800Z] [INFO] [PID:16512] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:07:58.809Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239278808_ycs10dir7",
+  "timestamp": "2025-10-23T17:07:58.808Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "240",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:07:58.924Z] [INFO] [PID:16512] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "Test Company",
+    "your_name": "Test User",
+    "state": "Test State",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "password123",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:07:58.928Z] [DEBUG] [PID:16512] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "Test Company",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-23T17:07:58.930Z] [DEBUG] [PID:16512] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:07:59.045Z] [DEBUG] [PID:16512] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:07:59.048Z] [WARN] [PID:16512] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T17:08:14.887Z] [INFO] [PID:16512] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:08:14.890Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239294889_aj5v7a1l7",
+  "timestamp": "2025-10-23T17:08:14.890Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "240",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:08:14.898Z] [INFO] [PID:16512] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "e-commerce-sellers",
+    "monthly_shipments": "10-300",
+    "company_name": "Test Company",
+    "your_name": "Test User",
+    "state": "Test State",
+    "phone_number": "9876543210",
+    "email": "test@example.com",
+    "password": "password123",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:08:14.899Z] [DEBUG] [PID:16512] Registration data extracted | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "company_name": "Test Company",
+  "user_type": "e-commerce-sellers",
+  "monthly_shipments": "10-300"
+}
+[2025-10-23T17:08:14.900Z] [DEBUG] [PID:16512] Checking for existing user | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:08:14.940Z] [DEBUG] [PID:16512] User existence check completed | Data: {
+  "userExists": true,
+  "email": "test@example.com",
+  "phone_number": "9876543210"
+}
+[2025-10-23T17:08:14.941Z] [WARN] [PID:16512] Registration failed - user already exists | Data: {
+  "email": "test@example.com",
+  "phone_number": "9876543210",
+  "existingEmail": "test@example.com",
+  "existingPhone": "9876543210"
+}
+[2025-10-23T17:10:46.798Z] [INFO] [PID:16512] 🌐 CORS - Request with no origin (allowed) | Data: {
+  "origin": null
+}
+[2025-10-23T17:10:46.800Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239446800_y90nzxzw6",
+  "timestamp": "2025-10-23T17:10:46.800Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "contentType": "application/json",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "axios/1.12.2",
+    "content-length": "279",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "localhost:5000",
+    "connection": "keep-alive"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:10:46.805Z] [INFO] [PID:16512] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "axios/1.12.2",
+  "body": {
+    "user_type": "individual-shippers",
+    "monthly_shipments": "300-1000",
+    "company_name": "TEST COMPANY",
+    "your_name": "TEST USER",
+    "state": "Uttar Pradesh",
+    "phone_number": "9876543342",
+    "email": "test1761239447439@example.com",
+    "password": "testpass123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:10:46.806Z] [DEBUG] [PID:16512] Registration data extracted | Data: {
+  "email": "test1761239447439@example.com",
+  "phone_number": "9876543342",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T17:10:46.807Z] [DEBUG] [PID:16512] Checking for existing user | Data: {
+  "email": "test1761239447439@example.com",
+  "phone_number": "9876543342"
+}
+[2025-10-23T17:10:46.855Z] [DEBUG] [PID:16512] User existence check completed | Data: {
+  "userExists": false,
+  "email": "test1761239447439@example.com",
+  "phone_number": "9876543342"
+}
+[2025-10-23T17:10:46.856Z] [INFO] [PID:16512] Creating new user | Data: {
+  "email": "test1761239447439@example.com",
+  "company_name": "TEST COMPANY",
+  "user_type": "individual-shippers"
+}
+[2025-10-23T17:10:47.861Z] [INFO] [PID:16512] User created successfully (pending OTP verification) | Data: {
+  "userId": "68fa619626346bbf1173bb34",
+  "email": "test1761239447439@example.com",
+  "company_name": "TEST COMPANY",
+  "client_id": "SS31406",
+  "user_type": "individual-shippers",
+  "monthly_shipments": "300-1000",
+  "phone_verified": false
+}
+[2025-10-23T17:10:47.862Z] [INFO] [PID:16512] Registration completed successfully (OTP verification required) | Data: {
+  "userId": "68fa619626346bbf1173bb34",
+  "email": "test1761239447439@example.com",
+  "company_name": "TEST COMPANY",
+  "responseTime": "1056ms"
+}
+[2025-10-23T17:10:47.862Z] [INFO] [PID:16512] 🔧 DEBUG: Sending registration response | Data: {
+  "requires_otp_verification": true,
+  "userId": "68fa619626346bbf1173bb34"
+}
+[2025-10-23T17:10:47.863Z] [INFO] [PID:16512] 🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG | Data: {
+  "userId": "68fa619626346bbf1173bb34",
+  "requires_otp_verification": true
+}
+[2025-10-23T17:11:22.790Z] [INFO] [PID:28288] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T17:11:26.821Z] [INFO] [PID:28288] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T17:11:26.821Z"
+}
+[2025-10-23T17:11:27.406Z] [INFO] [PID:28288] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T17:11:28.451Z] [INFO] [PID:28288] ✅ Connected to MongoDB
+[2025-10-23T17:11:29.495Z] [INFO] [PID:28288] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T17:11:29.495Z"
+}
+[2025-10-23T17:12:16.871Z] [INFO] [PID:28288] 🛑 SIGINT received, shutting down gracefully
+[2025-10-23T17:12:39.405Z] [INFO] [PID:29068] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T17:12:41.795Z] [INFO] [PID:29068] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T17:12:41.795Z"
+}
+[2025-10-23T17:12:41.830Z] [INFO] [PID:29068] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T17:12:42.573Z] [INFO] [PID:29068] ✅ Connected to MongoDB
+[2025-10-23T17:12:43.797Z] [INFO] [PID:29068] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T17:12:43.797Z"
+}
+[2025-10-23T17:13:24.958Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:24.958Z"
+}
+[2025-10-23T17:13:24.959Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:24.962Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:24.962Z"
+}
+[2025-10-23T17:13:24.963Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:24.963Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239604963_l5xozgq8y",
+  "timestamp": "2025-10-23T17:13:24.963Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "276",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:13:24.965Z] [INFO] [PID:16512] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers-wholesalers",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPS",
+    "your_name": "Uddit 'k",
+    "state": "Uttar Pradesh",
+    "phone_number": "8630697633",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T17:13:24.966Z] [DEBUG] [PID:16512] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633",
+  "company_name": "SITABIENCEIPS",
+  "user_type": "manufacturers-wholesalers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T17:13:24.966Z] [DEBUG] [PID:16512] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T17:13:24.994Z] [DEBUG] [PID:16512] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8630697633"
+}
+[2025-10-23T17:13:24.995Z] [INFO] [PID:16512] Creating new user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPS",
+  "user_type": "manufacturers-wholesalers"
+}
+[2025-10-23T17:13:25.564Z] [INFO] [PID:16512] User created successfully (pending OTP verification) | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPS",
+  "client_id": "SS18910",
+  "user_type": "manufacturers-wholesalers",
+  "monthly_shipments": "300-1000",
+  "phone_verified": false
+}
+[2025-10-23T17:13:25.565Z] [INFO] [PID:16512] Registration completed successfully (OTP verification required) | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "email": "udditalerts27@gmail.com",
+  "company_name": "SITABIENCEIPS",
+  "responseTime": "600ms"
+}
+[2025-10-23T17:13:25.565Z] [INFO] [PID:16512] 🔧 DEBUG: Sending registration response | Data: {
+  "requires_otp_verification": true,
+  "userId": "68fa623426346bbf1173bb38"
+}
+[2025-10-23T17:13:25.565Z] [INFO] [PID:16512] 🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "requires_otp_verification": true
+}
+[2025-10-23T17:13:25.587Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:25.587Z"
+}
+[2025-10-23T17:13:25.588Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:25.591Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:25.591Z"
+}
+[2025-10-23T17:13:25.591Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:25.594Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:25.594Z"
+}
+[2025-10-23T17:13:25.595Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:25.596Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239605596_kw8elm8sh",
+  "timestamp": "2025-10-23T17:13:25.596Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:13:25.601Z] [INFO] [PID:16512] Send OTP request started | Data: {
+  "phone_number": "8630697633",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T17:13:25.606Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T17:13:25.606Z"
+}
+[2025-10-23T17:13:25.606Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T17:13:25.607Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761239605607_0ghs8o3h3",
+  "timestamp": "2025-10-23T17:13:25.607Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T17:13:25.610Z] [INFO] [PID:16512] Send OTP request started | Data: {
+  "phone_number": "8630697633",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T17:13:25.678Z] [INFO] [PID:16512] OTP token generated | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "otpExpires": "2025-10-23T17:18:25.636Z"
+}
+[2025-10-23T17:13:25.684Z] [INFO] [PID:16512] OTP token generated | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "otpExpires": "2025-10-23T17:18:25.645Z"
+}
+[2025-10-23T17:13:25.885Z] [INFO] [PID:16512] MSG91 Send OTP Response | Data: {
+  "mobile": "918630697633",
+  "status": 200,
+  "response": {
+    "request_id": "356a7776517a6b764432326a",
+    "type": "success"
+  }
+}
+[2025-10-23T17:13:25.886Z] [INFO] [PID:16512] OTP sent successfully | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "requestId": "356a7776517a6b764432326a",
+  "responseTime": "276ms"
+}
+[2025-10-23T17:13:25.894Z] [INFO] [PID:16512] MSG91 Send OTP Response | Data: {
+  "mobile": "918630697633",
+  "status": 200,
+  "response": {
+    "request_id": "Invalid authkey or Token",
+    "type": "error"
+  }
+}
+[2025-10-23T17:13:25.895Z] [ERROR] [PID:16512] Send OTP error occurred | Data: {
+  "error": "Failed to send OTP",
+  "phone_number": "8630697633",
+  "responseTime": "294ms"
+}
+[2025-10-23T18:36:29.097Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:36:29.097Z"
+}
+[2025-10-23T18:36:29.098Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:36:29.103Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:36:29.103Z"
+}
+[2025-10-23T18:36:29.106Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:36:29.107Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761244589107_rcwmqd5fc",
+  "timestamp": "2025-10-23T18:36:29.107Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:36:29.109Z] [INFO] [PID:16512] Send OTP request started | Data: {
+  "phone_number": "8630697633",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:36:29.466Z] [INFO] [PID:16512] OTP token generated | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "otpExpires": "2025-10-23T18:41:29.408Z"
+}
+[2025-10-23T18:36:29.630Z] [INFO] [PID:16512] MSG91 Send OTP Response | Data: {
+  "mobile": "918630697633",
+  "status": 200,
+  "response": {
+    "request_id": "356a783066436e5357726841",
+    "type": "success"
+  }
+}
+[2025-10-23T18:36:29.633Z] [INFO] [PID:16512] OTP sent successfully | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "requestId": "356a783066436e5357726841",
+  "responseTime": "524ms"
+}
+[2025-10-23T18:40:22.575Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:40:22.575Z"
+}
+[2025-10-23T18:40:22.577Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:40:22.584Z] [INFO] [PID:16512] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:40:22.584Z"
+}
+[2025-10-23T18:40:22.584Z] [INFO] [PID:16512] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:40:22.586Z] [INFO] [PID:16512] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761244822585_1edkldqh2",
+  "timestamp": "2025-10-23T18:40:22.586Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:40:22.588Z] [INFO] [PID:16512] Send OTP request started | Data: {
+  "phone_number": "8630697633",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:40:22.667Z] [INFO] [PID:16512] OTP token generated | Data: {
+  "userId": "68fa623426346bbf1173bb38",
+  "phone_number": "8630697633",
+  "otpExpires": "2025-10-23T18:45:22.619Z"
+}
+[2025-10-23T18:40:22.886Z] [INFO] [PID:16512] MSG91 Send OTP Response | Data: {
+  "mobile": "918630697633",
+  "status": 200,
+  "response": {
+    "request_id": "Invalid authkey or Token",
+    "type": "error"
+  }
+}
+[2025-10-23T18:40:22.887Z] [ERROR] [PID:16512] Send OTP error occurred | Data: {
+  "error": "Failed to send OTP",
+  "phone_number": "8630697633",
+  "responseTime": "299ms"
+}
+[2025-10-23T18:46:20.569Z] [INFO] [PID:27268] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T18:46:21.555Z] [INFO] [PID:27268] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T18:46:21.555Z"
+}
+[2025-10-23T18:46:21.568Z] [INFO] [PID:27268] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T18:46:22.164Z] [INFO] [PID:27268] ✅ Connected to MongoDB
+[2025-10-23T18:46:24.459Z] [INFO] [PID:27268] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T18:46:24.459Z"
+}
+[2025-10-23T18:47:04.574Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:04.574Z"
+}
+[2025-10-23T18:47:04.579Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:04.606Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:04.606Z"
+}
+[2025-10-23T18:47:04.607Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:04.612Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245224611_id2gf2xfv",
+  "timestamp": "2025-10-23T18:47:04.611Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "275",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:47:04.661Z] [INFO] [PID:27268] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPk",
+    "your_name": "UDDIT UDDITl",
+    "state": "Uttar Pradesh",
+    "phone_number": "8368824707",
+    "email": "udditalerts27@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T18:47:04.663Z] [DEBUG] [PID:27268] Registration data extracted | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8368824707",
+  "company_name": "SITABIENCEIPk",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T18:47:04.664Z] [DEBUG] [PID:27268] Checking for existing user | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8368824707"
+}
+[2025-10-23T18:47:04.728Z] [DEBUG] [PID:27268] User existence check completed | Data: {
+  "userExists": true,
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8368824707"
+}
+[2025-10-23T18:47:04.730Z] [WARN] [PID:27268] Registration failed - user already exists | Data: {
+  "email": "udditalerts27@gmail.com",
+  "phone_number": "8368824707",
+  "existingEmail": "udditalerts27@gmail.com",
+  "existingPhone": "8630697633"
+}
+[2025-10-23T18:47:11.709Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:11.709Z"
+}
+[2025-10-23T18:47:11.711Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:11.722Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:11.722Z"
+}
+[2025-10-23T18:47:11.724Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:11.728Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245231728_qquu5blgp",
+  "timestamp": "2025-10-23T18:47:11.728Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "276",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:47:11.741Z] [INFO] [PID:27268] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPk",
+    "your_name": "UDDIT UDDITl",
+    "state": "Uttar Pradesh",
+    "phone_number": "8368824707",
+    "email": "udditalerts270@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T18:47:11.743Z] [DEBUG] [PID:27268] Registration data extracted | Data: {
+  "email": "udditalerts270@gmail.com",
+  "phone_number": "8368824707",
+  "company_name": "SITABIENCEIPk",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T18:47:11.745Z] [DEBUG] [PID:27268] Checking for existing user | Data: {
+  "email": "udditalerts270@gmail.com",
+  "phone_number": "8368824707"
+}
+[2025-10-23T18:47:11.785Z] [DEBUG] [PID:27268] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts270@gmail.com",
+  "phone_number": "8368824707"
+}
+[2025-10-23T18:47:11.788Z] [INFO] [PID:27268] Creating new user | Data: {
+  "email": "udditalerts270@gmail.com",
+  "company_name": "SITABIENCEIPk",
+  "user_type": "corporate-enterprise"
+}
+[2025-10-23T18:47:12.987Z] [INFO] [PID:27268] User created successfully (pending OTP verification) | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "email": "udditalerts270@gmail.com",
+  "company_name": "SITABIENCEIPk",
+  "client_id": "SS54935",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "300-1000",
+  "phone_verified": false
+}
+[2025-10-23T18:47:12.988Z] [INFO] [PID:27268] Registration completed successfully (OTP verification required) | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "email": "udditalerts270@gmail.com",
+  "company_name": "SITABIENCEIPk",
+  "responseTime": "1247ms"
+}
+[2025-10-23T18:47:12.989Z] [INFO] [PID:27268] 🔧 DEBUG: Sending registration response | Data: {
+  "requires_otp_verification": true,
+  "userId": "68fa782f60be29b3febbfc9c"
+}
+[2025-10-23T18:47:12.990Z] [INFO] [PID:27268] 🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "requires_otp_verification": true
+}
+[2025-10-23T18:47:13.025Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:13.025Z"
+}
+[2025-10-23T18:47:13.026Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:13.030Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:13.030Z"
+}
+[2025-10-23T18:47:13.032Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:13.038Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:13.038Z"
+}
+[2025-10-23T18:47:13.040Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:13.042Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245233042_m04ht3853",
+  "timestamp": "2025-10-23T18:47:13.042Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:47:13.046Z] [INFO] [PID:27268] Send OTP request started | Data: {
+  "phone_number": "8368824707",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:47:13.050Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:47:13.049Z"
+}
+[2025-10-23T18:47:13.050Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:47:13.052Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245233052_2tlzbwr2s",
+  "timestamp": "2025-10-23T18:47:13.052Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:47:13.056Z] [INFO] [PID:27268] Send OTP request started | Data: {
+  "phone_number": "8368824707",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:47:13.125Z] [INFO] [PID:27268] OTP token generated | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "phone_number": "8368824707",
+  "otpExpires": "2025-10-23T18:52:13.081Z"
+}
+[2025-10-23T18:47:13.146Z] [INFO] [PID:27268] OTP token generated | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "phone_number": "8368824707",
+  "otpExpires": "2025-10-23T18:52:13.093Z"
+}
+[2025-10-23T18:47:13.393Z] [INFO] [PID:27268] MSG91 Send OTP Response | Data: {
+  "mobile": "918368824707",
+  "status": 200,
+  "response": {
+    "request_id": "356a7830716d4c6678665362",
+    "type": "success"
+  }
+}
+[2025-10-23T18:47:13.401Z] [INFO] [PID:27268] OTP sent successfully | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "phone_number": "8368824707",
+  "requestId": "356a7830716d4c6678665362",
+  "responseTime": "346ms"
+}
+[2025-10-23T18:47:13.413Z] [INFO] [PID:27268] MSG91 Send OTP Response | Data: {
+  "mobile": "918368824707",
+  "status": 200,
+  "response": {
+    "request_id": "356a7830716d4c54734a4533",
+    "type": "success"
+  }
+}
+[2025-10-23T18:47:13.417Z] [INFO] [PID:27268] OTP sent successfully | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "phone_number": "8368824707",
+  "requestId": "356a7830716d4c54734a4533",
+  "responseTime": "372ms"
+}
+[2025-10-23T18:51:17.916Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:17.916Z"
+}
+[2025-10-23T18:51:17.920Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:17.930Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:17.930Z"
+}
+[2025-10-23T18:51:17.932Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:17.937Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245477936_fsl4povy1",
+  "timestamp": "2025-10-23T18:51:17.936Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "279",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:51:17.945Z] [INFO] [PID:27268] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "manufacturers-wholesalers",
+    "monthly_shipments": "300-1000",
+    "company_name": "SITABIENCEIPl",
+    "your_name": "UDDIT UDDITp",
+    "state": "Uttar Pradesh",
+    "phone_number": "8239697729",
+    "email": "udditalerts7@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T18:51:17.947Z] [DEBUG] [PID:27268] Registration data extracted | Data: {
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729",
+  "company_name": "SITABIENCEIPl",
+  "user_type": "manufacturers-wholesalers",
+  "monthly_shipments": "300-1000"
+}
+[2025-10-23T18:51:17.949Z] [DEBUG] [PID:27268] Checking for existing user | Data: {
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T18:51:17.993Z] [DEBUG] [PID:27268] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T18:51:17.994Z] [INFO] [PID:27268] Creating new user | Data: {
+  "email": "udditalerts7@gmail.com",
+  "company_name": "SITABIENCEIPl",
+  "user_type": "manufacturers-wholesalers"
+}
+[2025-10-23T18:51:18.934Z] [INFO] [PID:27268] User created successfully (pending OTP verification) | Data: {
+  "userId": "68fa792560be29b3febbfca4",
+  "email": "udditalerts7@gmail.com",
+  "company_name": "SITABIENCEIPl",
+  "client_id": "SS56683",
+  "user_type": "manufacturers-wholesalers",
+  "monthly_shipments": "300-1000",
+  "phone_verified": false
+}
+[2025-10-23T18:51:18.936Z] [INFO] [PID:27268] Registration completed successfully (OTP verification required) | Data: {
+  "userId": "68fa792560be29b3febbfca4",
+  "email": "udditalerts7@gmail.com",
+  "company_name": "SITABIENCEIPl",
+  "responseTime": "991ms"
+}
+[2025-10-23T18:51:18.938Z] [INFO] [PID:27268] 🔧 DEBUG: Sending registration response | Data: {
+  "requires_otp_verification": true,
+  "userId": "68fa792560be29b3febbfca4"
+}
+[2025-10-23T18:51:18.940Z] [INFO] [PID:27268] 🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG | Data: {
+  "userId": "68fa792560be29b3febbfca4",
+  "requires_otp_verification": true
+}
+[2025-10-23T18:51:18.997Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:18.997Z"
+}
+[2025-10-23T18:51:18.999Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:19.009Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:19.009Z"
+}
+[2025-10-23T18:51:19.011Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:19.020Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:19.020Z"
+}
+[2025-10-23T18:51:19.023Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:19.027Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245479026_8wefpnoe6",
+  "timestamp": "2025-10-23T18:51:19.027Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:51:19.034Z] [INFO] [PID:27268] Send OTP request started | Data: {
+  "phone_number": "8239697729",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:51:19.045Z] [INFO] [PID:27268] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T18:51:19.045Z"
+}
+[2025-10-23T18:51:19.048Z] [INFO] [PID:27268] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T18:51:19.055Z] [INFO] [PID:27268] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761245479054_rl93y6ane",
+  "timestamp": "2025-10-23T18:51:19.054Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T18:51:19.061Z] [INFO] [PID:27268] Send OTP request started | Data: {
+  "phone_number": "8239697729",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T18:51:19.163Z] [INFO] [PID:27268] OTP token generated | Data: {
+  "userId": "68fa792560be29b3febbfca4",
+  "phone_number": "8239697729",
+  "otpExpires": "2025-10-23T18:56:19.080Z"
+}
+[2025-10-23T18:51:19.234Z] [INFO] [PID:27268] OTP token generated | Data: {
+  "userId": "68fa792560be29b3febbfca4",
+  "phone_number": "8239697729",
+  "otpExpires": "2025-10-23T18:56:19.106Z"
+}
+[2025-10-23T18:51:19.345Z] [INFO] [PID:27268] MSG91 Send OTP Response | Data: {
+  "mobile": "918239697729",
+  "status": 200,
+  "response": {
+    "message": "IP is not whitelisted",
+    "type": "error"
+  }
+}
+[2025-10-23T18:51:19.351Z] [ERROR] [PID:27268] Send OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8239697729",
+  "responseTime": "316ms"
+}
+[2025-10-23T18:51:19.403Z] [INFO] [PID:27268] MSG91 Send OTP Response | Data: {
+  "mobile": "918239697729",
+  "status": 200,
+  "response": {
+    "message": "IP is not whitelisted",
+    "type": "error"
+  }
+}
+[2025-10-23T18:51:19.405Z] [ERROR] [PID:27268] Send OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8239697729",
+  "responseTime": "345ms"
+}
+[2025-10-23T19:14:00.581Z] [INFO] [PID:7372] ✅ Tracking service started - will run every 3 hours
+[2025-10-23T19:14:01.528Z] [INFO] [PID:7372] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-23T19:14:01.528Z"
+}
+[2025-10-23T19:14:01.542Z] [INFO] [PID:7372] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health"
+}
+[2025-10-23T19:14:02.169Z] [INFO] [PID:7372] ✅ Connected to MongoDB
+[2025-10-23T19:14:04.456Z] [INFO] [PID:7372] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-23T19:14:04.456Z"
+}
+[2025-10-23T19:16:47.450Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:16:47.450Z"
+}
+[2025-10-23T19:16:47.453Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:16:47.474Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:16:47.474Z"
+}
+[2025-10-23T19:16:47.477Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:16:47.484Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247007483_m8n05tyv7",
+  "timestamp": "2025-10-23T19:16:47.483Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "272",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:16:47.621Z] [INFO] [PID:7372] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "uddit@ai&mLl",
+    "your_name": "UDDIT kiop",
+    "state": "Uttar Pradesh",
+    "phone_number": "8239697729",
+    "email": "udditalerts7@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T19:16:47.626Z] [DEBUG] [PID:7372] Registration data extracted | Data: {
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729",
+  "company_name": "uddit@ai&mLl",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T19:16:47.629Z] [DEBUG] [PID:7372] Checking for existing user | Data: {
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T19:16:47.738Z] [DEBUG] [PID:7372] User existence check completed | Data: {
+  "userExists": true,
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T19:16:47.742Z] [WARN] [PID:7372] Registration failed - user already exists | Data: {
+  "email": "udditalerts7@gmail.com",
+  "phone_number": "8239697729",
+  "existingEmail": "udditalerts7@gmail.com",
+  "existingPhone": "8239697729"
+}
+[2025-10-23T19:16:54.706Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:16:54.706Z"
+}
+[2025-10-23T19:16:54.709Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:16:54.721Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:16:54.721Z"
+}
+[2025-10-23T19:16:54.724Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:16:54.728Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247014728_mm2gahnn3",
+  "timestamp": "2025-10-23T19:16:54.728Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "273",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:16:54.748Z] [INFO] [PID:7372] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "uddit@ai&mLl",
+    "your_name": "UDDIT kiop",
+    "state": "Uttar Pradesh",
+    "phone_number": "8239697729",
+    "email": "udditalerts70@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T19:16:54.751Z] [DEBUG] [PID:7372] Registration data extracted | Data: {
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "8239697729",
+  "company_name": "uddit@ai&mLl",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T19:16:54.758Z] [DEBUG] [PID:7372] Checking for existing user | Data: {
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T19:16:54.821Z] [DEBUG] [PID:7372] User existence check completed | Data: {
+  "userExists": true,
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "8239697729"
+}
+[2025-10-23T19:16:54.825Z] [WARN] [PID:7372] Registration failed - user already exists | Data: {
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "8239697729",
+  "existingEmail": "udditalerts7@gmail.com",
+  "existingPhone": "8239697729"
+}
+[2025-10-23T19:18:07.216Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:07.216Z"
+}
+[2025-10-23T19:18:07.218Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:07.235Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:07.235Z"
+}
+[2025-10-23T19:18:07.237Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:07.240Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247087239_hetywv66o",
+  "timestamp": "2025-10-23T19:18:07.240Z",
+  "method": "POST",
+  "url": "/api/auth/register",
+  "originalUrl": "/api/auth/register",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "273",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:18:07.250Z] [INFO] [PID:7372] 🚨 REGISTER ROUTE EXECUTED - NEW VERSION | Data: {
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "body": {
+    "user_type": "corporate-enterprise",
+    "monthly_shipments": "1000-2500",
+    "company_name": "uddit@ai&mLl",
+    "your_name": "UDDIT kiop",
+    "state": "Uttar Pradesh",
+    "phone_number": "9351205202",
+    "email": "udditalerts70@gmail.com",
+    "password": "jpmcA123",
+    "reference_code": "",
+    "terms_accepted": true
+  }
+}
+[2025-10-23T19:18:07.253Z] [DEBUG] [PID:7372] Registration data extracted | Data: {
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "9351205202",
+  "company_name": "uddit@ai&mLl",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500"
+}
+[2025-10-23T19:18:07.255Z] [DEBUG] [PID:7372] Checking for existing user | Data: {
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "9351205202"
+}
+[2025-10-23T19:18:07.305Z] [DEBUG] [PID:7372] User existence check completed | Data: {
+  "userExists": false,
+  "email": "udditalerts70@gmail.com",
+  "phone_number": "9351205202"
+}
+[2025-10-23T19:18:07.307Z] [INFO] [PID:7372] Creating new user | Data: {
+  "email": "udditalerts70@gmail.com",
+  "company_name": "uddit@ai&mLl",
+  "user_type": "corporate-enterprise"
+}
+[2025-10-23T19:18:08.335Z] [INFO] [PID:7372] User created successfully (pending OTP verification) | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "email": "udditalerts70@gmail.com",
+  "company_name": "uddit@ai&mLl",
+  "client_id": "SS50039",
+  "user_type": "corporate-enterprise",
+  "monthly_shipments": "1000-2500",
+  "phone_verified": false
+}
+[2025-10-23T19:18:08.337Z] [INFO] [PID:7372] Registration completed successfully (OTP verification required) | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "email": "udditalerts70@gmail.com",
+  "company_name": "uddit@ai&mLl",
+  "responseTime": "1087ms"
+}
+[2025-10-23T19:18:08.339Z] [INFO] [PID:7372] 🔧 DEBUG: Sending registration response | Data: {
+  "requires_otp_verification": true,
+  "userId": "68fa7f6f3822a783052052f0"
+}
+[2025-10-23T19:18:08.341Z] [INFO] [PID:7372] 🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "requires_otp_verification": true
+}
+[2025-10-23T19:18:08.398Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:08.398Z"
+}
+[2025-10-23T19:18:08.400Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:08.408Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:08.408Z"
+}
+[2025-10-23T19:18:08.411Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:08.421Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:08.421Z"
+}
+[2025-10-23T19:18:08.423Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:08.426Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247088426_4l2igiaji",
+  "timestamp": "2025-10-23T19:18:08.426Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:18:08.434Z] [INFO] [PID:7372] Send OTP request started | Data: {
+  "phone_number": "9351205202",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T19:18:08.444Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:18:08.444Z"
+}
+[2025-10-23T19:18:08.446Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:18:08.448Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247088448_scten0b29",
+  "timestamp": "2025-10-23T19:18:08.448Z",
+  "method": "POST",
+  "url": "/api/otp/send",
+  "originalUrl": "/api/otp/send",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "29",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:18:08.453Z] [INFO] [PID:7372] Send OTP request started | Data: {
+  "phone_number": "9351205202",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T19:18:08.523Z] [INFO] [PID:7372] OTP token generated | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "phone_number": "9351205202",
+  "otpExpires": "2025-10-23T19:23:08.470Z"
+}
+[2025-10-23T19:18:08.545Z] [INFO] [PID:7372] OTP token generated | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "phone_number": "9351205202",
+  "otpExpires": "2025-10-23T19:23:08.494Z"
+}
+[2025-10-23T19:18:08.729Z] [INFO] [PID:7372] MSG91 Send OTP Response | Data: {
+  "mobile": "919351205202",
+  "status": 200,
+  "response": {
+    "request_id": "356a78305668636c64656454",
+    "type": "success"
+  }
+}
+[2025-10-23T19:18:08.735Z] [INFO] [PID:7372] OTP sent successfully | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "phone_number": "9351205202",
+  "requestId": "356a78305668636c64656454",
+  "responseTime": "301ms"
+}
+[2025-10-23T19:18:08.743Z] [INFO] [PID:7372] MSG91 Send OTP Response | Data: {
+  "mobile": "919351205202",
+  "status": 200,
+  "response": {
+    "request_id": "356a7830566862454338584b",
+    "type": "success"
+  }
+}
+[2025-10-23T19:18:08.747Z] [INFO] [PID:7372] OTP sent successfully | Data: {
+  "userId": "68fa7f6f3822a783052052f0",
+  "phone_number": "9351205202",
+  "requestId": "356a7830566862454338584b",
+  "responseTime": "293ms"
+}
+[2025-10-23T19:22:38.174Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:22:38.174Z"
+}
+[2025-10-23T19:22:38.177Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:22:38.187Z] [INFO] [PID:7372] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-23T19:22:38.187Z"
+}
+[2025-10-23T19:22:38.190Z] [INFO] [PID:7372] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-23T19:22:38.193Z] [INFO] [PID:7372] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761247358193_s2cgvzet2",
+  "timestamp": "2025-10-23T19:22:38.193Z",
+  "method": "POST",
+  "url": "/api/otp/resend",
+  "originalUrl": "/api/otp/resend",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "contentType": "application/json",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "content-length": "48",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTA3MjEyOSwiZXhwIjoxNzYxNjc2OTI5fQ.THO2x9fFJu1MnLx56b_T2evunFjKlea9XP3RU7zn81E",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Google Chrome\";v=\"141\", \"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"141\"",
+    "content-type": "application/json",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-23T19:22:38.201Z] [INFO] [PID:7372] Resend OTP request started | Data: {
+  "phone_number": "8368824707",
+  "retry_type": "sms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+}
+[2025-10-23T19:22:38.283Z] [INFO] [PID:7372] New OTP token generated for resend | Data: {
+  "userId": "68fa782f60be29b3febbfc9c",
+  "phone_number": "8368824707",
+  "otpExpires": "2025-10-23T19:27:38.242Z"
+}
+[2025-10-23T19:22:38.565Z] [INFO] [PID:7372] MSG91 Resend OTP Response | Data: {
+  "mobile": "918368824707",
+  "retryType": "sms",
+  "status": 200,
+  "response": {
+    "message": "IP is not whitelisted",
+    "type": "error",
+    "code": "418"
+  }
+}
+[2025-10-23T19:22:38.569Z] [ERROR] [PID:7372] Resend OTP error occurred | Data: {
+  "error": "IP is not whitelisted",
+  "phone_number": "8368824707",
+  "responseTime": "368ms"
+}
+[2025-10-23T21:30:00.034Z] [INFO] [PID:7372] 🔄 Starting scheduled shipment tracking...
+[2025-10-23T21:30:00.356Z] [INFO] [PID:7372] 🔍 Found 0 orders to track
+[2025-10-23T21:30:00.357Z] [INFO] [PID:7372] ✅ Completed scheduled shipment tracking
+[2025-10-24T06:30:00.057Z] [INFO] [PID:7372] 🔄 Starting scheduled shipment tracking...
+[2025-10-24T06:30:00.506Z] [INFO] [PID:7372] 🔍 Found 0 orders to track
+[2025-10-24T06:30:00.506Z] [INFO] [PID:7372] ✅ Completed scheduled shipment tracking
+[2025-10-24T09:30:00.089Z] [INFO] [PID:7372] 🔄 Starting scheduled shipment tracking...
+[2025-10-24T09:30:00.383Z] [INFO] [PID:7372] 🔍 Found 0 orders to track
+[2025-10-24T09:30:00.384Z] [INFO] [PID:7372] ✅ Completed scheduled shipment tracking
+[2025-10-24T12:30:00.107Z] [INFO] [PID:7372] 🔄 Starting scheduled shipment tracking...
+[2025-10-24T12:30:00.165Z] [INFO] [PID:7372] 🔍 Found 0 orders to track
+[2025-10-24T12:30:00.166Z] [INFO] [PID:7372] ✅ Completed scheduled shipment tracking
+[2025-10-24T18:11:54.384Z] [INFO] [PID:7372] 🛑 SIGINT received, shutting down gracefully

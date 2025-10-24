@@ -17,11 +17,12 @@ class MSG91Service {
    */
   async sendOTP(mobile, params = {}) {
     return new Promise((resolve, reject) => {
+      // Use MSG91 API v5 with proper URL structure
       const options = {
         method: 'POST',
         hostname: this.baseUrl,
         port: null,
-        path: `/api/v5/otp?otp_expiry=${this.otpExpiry}&template_id=${this.templateId}&mobile=${mobile}&authkey=${this.authKey}&realTimeResponse=1`,
+        path: `/api/v5/otp?authkey=${this.authKey}&mobile=${mobile}&template_id=${this.templateId}&otp_expiry=${this.otpExpiry}`,
         headers: {
           'content-type': 'application/json',
           'Content-Type': 'application/JSON'
@@ -110,10 +111,8 @@ class MSG91Service {
         method: 'GET',
         hostname: this.baseUrl,
         port: null,
-        path: `/api/v5/otp/verify?otp=${otp}&mobile=${mobile}`,
-        headers: {
-          authkey: this.authKey
-        }
+        path: `/api/v5/otp/verify?otp=${otp}&mobile=${mobile}&authkey=${this.authKey}`,
+        headers: {}
       };
 
       const req = https.request(options, (res) => {

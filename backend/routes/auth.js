@@ -28,7 +28,7 @@ router.post('/register', [
   body('terms_accepted').equals('true')
 ], async (req, res) => {
   const startTime = Date.now();
-  logger.info('Registration attempt started', {
+  logger.info('🚨 REGISTER ROUTE EXECUTED - NEW VERSION', {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
     body: req.body
@@ -139,6 +139,17 @@ router.post('/register', [
       responseTime: `${responseTime}ms`
     });
 
+    // DEBUG: Log the response before sending
+    logger.info('🔧 DEBUG: Sending registration response', {
+      requires_otp_verification: true,
+      userId: user._id
+    });
+
+    logger.info('🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG', {
+      userId: user._id,
+      requires_otp_verification: true
+    });
+
     res.status(201).json({
       status: 'success',
       message: 'User registered successfully. Please verify your phone number with OTP to complete registration.',
@@ -242,20 +253,7 @@ router.post('/login', [
       otpVerified: user.otp_verified
     });
 
-    // Check if OTP verification is required
-    if (!user.otp_verified && user.account_status === 'pending_verification') {
-      logger.warn('Login failed - OTP verification required', {
-        userId: user._id,
-        email: user.email,
-        phone_number: user.phone_number
-      });
-      return res.status(403).json({
-        status: 'error',
-        message: 'Phone number verification required. Please verify your phone number with OTP.',
-        requires_otp_verification: true,
-        phone_number: user.phone_number
-      });
-    }
+    // OTP verification check removed - users can login without phone verification
 
 
     // Check if account is locked
