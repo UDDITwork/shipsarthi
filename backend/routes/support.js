@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const { auth } = require('../middleware/auth');
 const SupportTicket = require('../models/Support');
+const websocketService = require('../services/websocketService');
 
 const router = express.Router();
 
@@ -232,6 +233,34 @@ router.post('/', auth, upload.array('attachments', 5), [
 
     // Add initial message to conversation
     await ticket.addMessage('user', user.your_name, req.body.description, attachments);
+
+    // Log ticket creation for admin notifications
+    console.log(`🔔 NEW TICKET CREATED: ${ticket.ticket_id} by ${user.your_name} (${user.email})`);
+    console.log(`📋 Ticket Details:`, {
+      ticket_id: ticket.ticket_id,
+      category: ticket.category,
+      priority: ticket.priority,
+      status: ticket.status,
+      client: {
+        name: user.your_name,
+        email: user.email,
+        company: user.company_name
+      }
+    });
+
+    // Send WebSocket notification to admins
+    websocketService.notifyNewTicket({
+      ticket_id: ticket.ticket_id,
+      _id: ticket._id,
+      category: ticket.category,
+      priority: ticket.priority,
+      status: ticket.status,
+      client_name: user.your_name,
+      client_email: user.email,
+      client_company: user.company_name,
+      subject: ticket.subject,
+      description: ticket.description
+    });
 
     res.status(201).json({
       status: 'success',

@@ -3,7 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const { body, validationResult, query } = require('express-validator');
 const { auth } = require('../middleware/auth');
-const Ticket = require('../models/Ticket');
+const SupportTicket = require('../models/Support');
 const Order = require('../models/Order');
 const cloudinaryService = require('../services/cloudinaryService');
 
@@ -77,13 +77,13 @@ router.get('/', auth, [
       ];
     }
 
-    const tickets = await Ticket.find(filter)
-      .sort({ createdAt: -1 })
+    const tickets = await SupportTicket.find(filter)
+      .sort({ created_at: -1 })
       .skip(skip)
       .limit(limit)
       .populate('related_orders', 'order_id delhivery_data.waybill');
 
-    const totalTickets = await Ticket.countDocuments(filter);
+    const totalTickets = await SupportTicket.countDocuments(filter);
 
     res.json({
       status: 'success',
@@ -112,7 +112,7 @@ router.get('/', auth, [
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({
+    const ticket = await SupportTicket.findOne({
       _id: req.params.id,
       user_id: req.user._id
     }).populate('related_orders', 'order_id delhivery_data.waybill customer_info');
@@ -211,20 +211,24 @@ router.post('/', auth, upload.array('files', 5), [
     }).select('_id');
 
     // Create ticket
-    const ticket = new Ticket({
+    const ticket = new SupportTicket({
       user_id: userId,
       category,
       awb_numbers: awbArray,
-      comment,
+      subject: `Support Request - ${category}`,
+      description: comment,
       attachments,
       related_orders: relatedOrders.map(o => o._id),
-      metadata: {
-        browser: req.headers['user-agent'],
-        ip_address: req.ip
+      customer_info: {
+        name: req.user.your_name,
+        email: req.user.email,
+        phone: req.user.phone_number,
+        company_name: req.user.company_name
       }
     });
 
-    await ticket.save();
+    // Add initial message to conversation
+    await ticket.addMessage('user', req.user.your_name, comment, attachments);
 
     res.status(201).json({
       status: 'success',
@@ -256,7 +260,7 @@ router.post('/:id/comment', auth, upload.array('files', 3), [
       });
     }
 
-    const ticket = await Ticket.findOne({
+    const ticket = await SupportTicket.findOne({
       _id: req.params.id,
       user_id: req.user._id
     });
@@ -288,12 +292,8 @@ router.post('/:id/comment', auth, upload.array('files', 3), [
       }
     }
 
-    // Add comment
-    await ticket.addComment({
-      comment_by: 'user',
-      comment_text: req.body.comment,
-      attachments
-    });
+    // Add comment using SupportTicket method
+    await ticket.addMessage('user', req.user.your_name, req.body.comment, attachments);
 
     res.json({
       status: 'success',
@@ -325,7 +325,7 @@ router.patch('/:id/status', auth, [
       });
     }
 
-    const ticket = await Ticket.findOne({
+    const ticket = await SupportTicket.findOne({
       _id: req.params.id,
       user_id: req.user._id
     });
@@ -340,14 +340,16 @@ router.patch('/:id/status', auth, [
     const { status } = req.body;
 
     if (status === 'resolved') {
-      await ticket.resolveTicket({
-        resolved_by: req.user.name || req.user.email,
-        resolution_text: req.body.resolution_text || 'Issue resolved'
-      });
+      await ticket.resolve(
+        req.body.resolution_text || 'Issue resolved',
+        'issue_resolved',
+        req.body.internal_notes || ''
+      );
     } else if (status === 'closed') {
-      await ticket.closeTicket();
-    } else if (status === 'open') {
-      await ticket.reopenTicket();
+      await ticket.close(req.body.closure_reason || '');
+    } else {
+      ticket.status = status;
+      await ticket.save();
     }
 
     res.json({
@@ -381,7 +383,7 @@ router.post('/:id/rating', auth, [
       });
     }
 
-    const ticket = await Ticket.findOne({
+    const ticket = await SupportTicket.findOne({
       _id: req.params.id,
       user_id: req.user._id
     });
@@ -393,10 +395,12 @@ router.post('/:id/rating', auth, [
       });
     }
 
-    await ticket.addRating({
-      score: req.body.score,
-      feedback: req.body.feedback
-    });
+    ticket.resolution.customer_satisfaction = {
+      rating: req.body.score,
+      feedback: req.body.feedback || '',
+      survey_date: new Date()
+    };
+    await ticket.save();
 
     res.json({
       status: 'success',
@@ -421,15 +425,15 @@ router.get('/statistics/overview', auth, async (req, res) => {
     const userId = req.user._id;
 
     const stats = {
-      open: await Ticket.countDocuments({ user_id: userId, status: 'open' }),
-      resolved: await Ticket.countDocuments({ user_id: userId, status: 'resolved' }),
-      closed: await Ticket.countDocuments({ user_id: userId, status: 'closed' })
+      open: await SupportTicket.countDocuments({ user_id: userId, status: 'open' }),
+      resolved: await SupportTicket.countDocuments({ user_id: userId, status: 'resolved' }),
+      closed: await SupportTicket.countDocuments({ user_id: userId, status: 'closed' })
     };
     
     stats.all = stats.open + stats.resolved + stats.closed;
 
     // Category breakdown
-    const categoryStats = await Ticket.aggregate([
+    const categoryStats = await SupportTicket.aggregate([
       { $match: { user_id: userId } },
       { $group: { _id: '$category', count: { $sum: 1 } } },
       { $sort: { count: -1 } }

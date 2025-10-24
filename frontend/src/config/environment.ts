@@ -5,6 +5,7 @@ interface EnvironmentConfig {
   isDevelopment: boolean;
   isProduction: boolean;
   apiUrl: string;
+  wsUrl: string;
   environment: 'development' | 'production';
 }
 
@@ -32,15 +33,20 @@ const detectEnvironment = (): EnvironmentConfig => {
   
   // Determine API URL
   let apiUrl: string;
+  let wsUrl: string;
   
   if (finalEnvironment === 'production' || process.env.NODE_ENV === 'production') {
     // Production API URL priority: REACT_APP_PRODUCTION_API_URL > REACT_APP_API_URL > default
     apiUrl = process.env.REACT_APP_PRODUCTION_API_URL || 
              process.env.REACT_APP_API_URL || 
              'https://shipsarthi.onrender.com/api';
+    // Production WebSocket URL
+    wsUrl = process.env.REACT_APP_WS_URL || 'wss://shipsarthi.onrender.com';
   } else {
     // Development API URL priority: REACT_APP_API_URL > default
     apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    // Development WebSocket URL
+    wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:5000';
   }
   
   console.log('🔧 ENVIRONMENT CONFIGURATION:', {
@@ -64,6 +70,7 @@ const detectEnvironment = (): EnvironmentConfig => {
     isDevelopment: finalIsDevelopment,
     isProduction: !finalIsDevelopment,
     apiUrl,
+    wsUrl,
     environment: finalEnvironment
   };
 };

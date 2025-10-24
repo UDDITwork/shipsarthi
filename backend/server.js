@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const http = require('http');
 const { connectDB, checkDBHealth } = require('./config/db');
 const logger = require('./utils/logger');
 const trackingService = require('./services/trackingService');
+const websocketService = require('./services/websocketService');
 require('dotenv').config();
 
 const app = express();
@@ -315,22 +317,34 @@ app.use((req, res) => {
   });
 });
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize WebSocket service
+websocketService.initialize(server);
+
 // Start Server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   logger.info('🚀 Server started', {
     port: PORT,
     environment: process.env.NODE_ENV,
-    healthCheck: `http://localhost:${PORT}/api/health`
+    healthCheck: `http://localhost:${PORT}/api/health`,
+    websocket: `ws://localhost:${PORT}`
   });
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
 });
 
 // Graceful Shutdown
 process.on('SIGTERM', () => {
   logger.info('🛑 SIGTERM received, shutting down gracefully');
   console.log('🛑 SIGTERM received, shutting down gracefully');
+  
+  // Cleanup WebSocket service
+  websocketService.cleanup();
+  
   mongoose.connection.close();
   process.exit(0);
 });
@@ -338,6 +352,10 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   logger.info('🛑 SIGINT received, shutting down gracefully');
   console.log('🛑 SIGINT received, shutting down gracefully');
+  
+  // Cleanup WebSocket service
+  websocketService.cleanup();
+  
   mongoose.connection.close();
   process.exit(0);
 });

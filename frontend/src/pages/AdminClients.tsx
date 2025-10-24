@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { adminService, AdminClient, AdminClientsResponse } from '../services/adminService';
 import DocumentViewerModal from '../components/DocumentViewerModal';
+import AdminTicketModal from '../components/AdminTicketModal';
+import NotificationBell from '../components/NotificationBell';
 import './AdminClients.css';
 
 const AdminClients: React.FC = () => {
@@ -40,6 +42,10 @@ const AdminClients: React.FC = () => {
   // Document viewer modal state
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<AdminClient | null>(null);
+
+  // Ticket modal state
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [selectedClientForTickets, setSelectedClientForTickets] = useState<AdminClient | null>(null);
 
   useEffect(() => {
     // Only fetch data if admin is authenticated
@@ -122,6 +128,24 @@ const AdminClients: React.FC = () => {
     setSelectedClient(null);
   };
 
+  const handleViewTickets = (client: AdminClient) => {
+    setSelectedClientForTickets(client);
+    setTicketModalOpen(true);
+  };
+
+  const handleCloseTicketModal = () => {
+    setTicketModalOpen(false);
+    setSelectedClientForTickets(null);
+  };
+
+  const handleTicketClick = (ticketId: string) => {
+    // Find the client who owns this ticket and open their ticket modal
+    // This is a simplified approach - in a real app, you'd fetch the client by ticket ID
+    console.log('Ticket clicked:', ticketId);
+    // For now, we'll just show a message
+    alert(`Ticket ${ticketId} clicked. This would open the ticket details.`);
+  };
+
   const handleDocumentModalKYCUpdate = () => {
     // Refresh the clients list when KYC is updated from the modal
     fetchClients();
@@ -160,8 +184,15 @@ const AdminClients: React.FC = () => {
   return (
     <div className="admin-clients">
       <div className="admin-header">
-        <h1>Client Management</h1>
-        <p>Manage all registered clients and their accounts</p>
+        <div className="header-content">
+          <div>
+            <h1>Client Management</h1>
+            <p>Manage all registered clients and their accounts</p>
+          </div>
+          <div className="header-actions">
+            <NotificationBell onTicketClick={handleTicketClick} />
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -260,7 +291,13 @@ const AdminClients: React.FC = () => {
                   </td>
                   <td>
                     <div className="company-info">
-                      <strong>{client.company_name}</strong>
+                      <strong 
+                        className="cursor-pointer hover:text-blue-600 hover:underline"
+                        onClick={() => handleViewTickets(client)}
+                        title="Click to view tickets"
+                      >
+                        {client.company_name}
+                      </strong>
                       <small>{client.your_name}</small>
                     </div>
                   </td>
@@ -367,6 +404,18 @@ const AdminClients: React.FC = () => {
           clientId={selectedClient._id}
           clientName={selectedClient.company_name}
           onKYCUpdate={handleDocumentModalKYCUpdate}
+        />
+      )}
+
+      {/* Admin Ticket Modal */}
+      {selectedClientForTickets && (
+        <AdminTicketModal
+          isOpen={ticketModalOpen}
+          onClose={handleCloseTicketModal}
+          clientId={selectedClientForTickets._id}
+          clientName={selectedClientForTickets.company_name}
+          clientEmail={selectedClientForTickets.email}
+          clientPhone={selectedClientForTickets.phone_number}
         />
       )}
     </div>

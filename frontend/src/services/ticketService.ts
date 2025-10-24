@@ -93,13 +93,13 @@ class TicketService {
           per_page: number;
         };
       }
-    }>(`/tickets?${params.toString()}`);
+    }>(`/support?${params.toString()}`);
     return response.data;
   }
 
   // Get single ticket
   async getTicket(ticketId: string): Promise<Ticket> {
-    const response = await apiService.get<{ data: Ticket }>(`/tickets/${ticketId}`);
+    const response = await apiService.get<{ data: Ticket }>(`/support/${ticketId}`);
     return response.data;
   }
 
@@ -108,15 +108,16 @@ class TicketService {
     const formData = new FormData();
     formData.append('category', ticketData.category);
     formData.append('awb_numbers', ticketData.awb_numbers);
-    formData.append('comment', ticketData.comment);
+    formData.append('subject', `Support Request - ${ticketData.category}`);
+    formData.append('description', ticketData.comment);
     
     if (ticketData.files) {
       ticketData.files.forEach(file => {
-        formData.append('files', file);
+        formData.append('attachments', file);
       });
     }
 
-    const response = await apiService.post<{ data: Ticket }>('/tickets', formData, {
+    const response = await apiService.post<{ data: Ticket }>('/support', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -135,7 +136,7 @@ class TicketService {
       });
     }
 
-    const response = await apiService.post<{ data: Ticket }>(`/tickets/${ticketId}/comment`, formData, {
+    const response = await apiService.post<{ data: Ticket }>(`/support/${ticketId}/messages`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -145,7 +146,7 @@ class TicketService {
 
   // Update ticket status
   async updateStatus(ticketId: string, status: 'open' | 'resolved' | 'closed', resolutionText?: string): Promise<Ticket> {
-    const response = await apiService.patch<{ data: Ticket }>(`/tickets/${ticketId}/status`, {
+    const response = await apiService.patch<{ data: Ticket }>(`/support/${ticketId}/status`, {
       status,
       resolution_text: resolutionText
     });
@@ -154,13 +155,13 @@ class TicketService {
 
   // Add rating to ticket
   async addRating(ticketId: string, rating: TicketRating): Promise<Ticket> {
-    const response = await apiService.post<{ data: Ticket }>(`/tickets/${ticketId}/rating`, rating);
+    const response = await apiService.post<{ data: Ticket }>(`/support/${ticketId}/rating`, rating);
     return response.data;
   }
 
   // Get ticket statistics
   async getStats(): Promise<TicketStats> {
-    const response = await apiService.get<{ data: TicketStats }>('/tickets/statistics/overview');
+    const response = await apiService.get<{ data: TicketStats }>('/support/statistics/overview');
     return response.data;
   }
 }
