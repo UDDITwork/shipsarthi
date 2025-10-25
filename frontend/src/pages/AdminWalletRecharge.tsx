@@ -19,7 +19,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
   onUpdateLabel
 }) => {
   const [amount, setAmount] = useState('');
-  const [selectedLabel, setSelectedLabel] = useState(client.user_category || 'Basic User');
+  const [selectedLabel, setSelectedLabel] = useState(client?.user_category || 'Basic User');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -73,7 +73,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !client) return null;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
@@ -417,13 +417,15 @@ const AdminWalletRecharge: React.FC = () => {
       </div>
 
       {/* Recharge Modal */}
-      <WalletRechargeModal
-        client={selectedClient!}
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        onRecharge={handleRecharge}
-        onUpdateLabel={handleUpdateLabel}
-      />
+      {selectedClient && (
+        <WalletRechargeModal
+          client={selectedClient}
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          onRecharge={handleRecharge}
+          onUpdateLabel={handleUpdateLabel}
+        />
+      )}
     </div>
   );
 };
