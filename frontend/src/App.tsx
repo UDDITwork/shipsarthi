@@ -28,11 +28,13 @@ import Channel from './pages/Channel';
 import AccountSettings from './pages/AccountSettings';
 import AssignCourier from './pages/AssignCourier';
 import Customers from './pages/Customers';
+import PriceListPage from './pages/PriceList';
 
 // Admin Components
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminClients from './pages/AdminClients';
+import AdminWalletRecharge from './pages/AdminWalletRecharge';
 import AdminLayout from './components/AdminLayout';
 
 // Protected Route Component
@@ -141,6 +143,14 @@ function App() {
               } 
             />
             <Route 
+              path="/price-list" 
+              element={
+                <ProtectedRoute>
+                  <PriceListPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/warehouse" 
               element={
                 <ProtectedRoute>
@@ -195,6 +205,14 @@ function App() {
               element={
                 <AdminLayout>
                   <AdminClients />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/wallet-recharge" 
+              element={
+                <AdminLayout>
+                  <AdminWalletRecharge />
                 </AdminLayout>
               } 
             />

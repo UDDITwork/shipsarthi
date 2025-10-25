@@ -6,6 +6,7 @@ const Order = require('../models/Order');
 const Package = require('../models/Package');
 const Customer = require('../models/Customer');
 const SupportTicket = require('../models/Support');
+const Transaction = require('../models/Transaction');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
@@ -73,6 +74,12 @@ router.get('/clients', async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
+
+    console.log('👥 Fetched clients with categories:', clients.map(c => ({
+      client_id: c.client_id,
+      company_name: c.company_name,
+      user_category: c.user_category
+    })));
 
     const totalClients = await User.countDocuments(query);
 
@@ -1088,6 +1095,268 @@ router.patch('/notifications/read-all', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error marking all notifications as read',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Recharge client wallet
+// @route   POST /api/admin/wallet-recharge
+// @access  Admin
+router.post('/wallet-recharge', async (req, res) => {
+  try {
+    const { client_id, amount, description } = req.body;
+
+    // Validate input
+    if (!client_id || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID and amount are required'
+      });
+    }
+
+    if (amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Amount must be greater than 0'
+      });
+    }
+
+    // Find the client
+    const client = await User.findById(client_id);
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    // Get current wallet balance
+    const currentBalance = client.wallet_balance || 0;
+    const newBalance = currentBalance + amount;
+
+    // Create transaction record
+    const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    
+    const transaction = new Transaction({
+      transaction_id: transactionId,
+      user_id: client_id,
+      transaction_type: 'credit',
+      category: 'admin_recharge',
+      amount: amount,
+      description: description || `Admin wallet recharge - ₹${amount}`,
+      status: 'completed',
+      completed_at: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
+      balance_info: {
+        opening_balance: currentBalance,
+        closing_balance: newBalance
+      }
+    });
+
+    // Update client wallet balance
+    client.wallet_balance = newBalance;
+    client.updated_at = new Date();
+
+    // Save both transaction and user
+    await Promise.all([
+      transaction.save(),
+      client.save()
+    ]);
+
+    // Log the recharge
+    logger.info('Admin wallet recharge completed', {
+      client_id,
+      client_email: client.email,
+      amount,
+      old_balance: currentBalance,
+      new_balance: newBalance,
+      admin_email: req.admin.email,
+      transaction_id: transactionId
+    });
+
+    // Send notification to client about wallet recharge
+    try {
+      const notification = {
+        type: 'wallet_recharge',
+        title: 'Wallet Recharged',
+        message: `Your wallet has been recharged with ₹${amount}. New balance: ₹${newBalance}`,
+        client_id: client_id,
+        client_name: client.company_name,
+        amount: amount,
+        new_balance: newBalance,
+        created_at: new Date()
+      };
+
+      // Send WebSocket notification if client is online
+      websocketService.sendNotificationToClient(client_id, notification);
+    } catch (notificationError) {
+      logger.warn('Failed to send wallet recharge notification', {
+        error: notificationError.message,
+        client_id
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Wallet recharged successfully',
+      data: {
+        client_id,
+        client_name: client.company_name,
+        client_email: client.email,
+        amount_added: amount,
+        previous_balance: currentBalance,
+        new_balance: newBalance,
+        transaction_id: transactionId
+      }
+    });
+
+  } catch (error) {
+    logger.error('Admin wallet recharge error', {
+      error: error.message,
+      stack: error.stack,
+      client_id: req.body.client_id,
+      amount: req.body.amount,
+      admin_email: req.admin?.email
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Error recharging wallet',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client wallet balance
+// @route   GET /api/admin/client-wallet/:clientId
+// @access  Admin
+router.get('/client-wallet/:clientId', async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    const client = await User.findById(clientId).select('_id client_id company_name email wallet_balance');
+    
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        client_id: client._id,
+        client_id_code: client.client_id,
+        company_name: client.company_name,
+        email: client.email,
+        wallet_balance: client.wallet_balance || 0
+      }
+    });
+
+  } catch (error) {
+    logger.error('Get client wallet balance error', {
+      error: error.message,
+      client_id: req.params.clientId,
+      admin_email: req.admin?.email
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching client wallet balance',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Update client user category/label
+// @route   PATCH /api/admin/clients/:clientId/label
+// @access  Admin
+router.patch('/clients/:clientId/label', async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const { user_category } = req.body;
+
+    // Validate input
+    if (!user_category) {
+      return res.status(400).json({
+        success: false,
+        message: 'User category is required'
+      });
+    }
+
+    // Validate category
+    const validCategories = ['Basic User', 'Lite User', 'New User', 'Advanced'];
+    if (!validCategories.includes(user_category)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user category. Must be one of: Basic User, Lite User, New User, Advanced'
+      });
+    }
+
+    // Find the client
+    const client = await User.findById(clientId);
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    // Update the user category
+    const oldCategory = client.user_category;
+    client.user_category = user_category;
+    client.updated_at = new Date();
+
+    console.log('🏷️ Updating client category:', {
+      clientId,
+      oldCategory,
+      newCategory: user_category,
+      clientEmail: client.email
+    });
+
+    const savedClient = await client.save();
+    
+    console.log('🏷️ Client category updated successfully:', {
+      clientId: savedClient._id,
+      user_category: savedClient.user_category,
+      updated_at: savedClient.updated_at
+    });
+
+    // Log the update
+    logger.info('Admin updated client user category', {
+      client_id: clientId,
+      client_email: client.email,
+      old_category: client.user_category,
+      new_category: user_category,
+      admin_email: req.admin.email
+    });
+
+    res.json({
+      success: true,
+      message: 'User category updated successfully',
+      data: {
+        client_id: clientId,
+        client_name: client.company_name,
+        client_email: client.email,
+        user_category: user_category
+      }
+    });
+
+  } catch (error) {
+    logger.error('Admin update client label error', {
+      error: error.message,
+      stack: error.stack,
+      client_id: req.params.clientId,
+      user_category: req.body.user_category,
+      admin_email: req.admin?.email
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Error updating user category',
       error: error.message
     });
   }

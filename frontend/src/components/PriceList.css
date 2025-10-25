@@ -1,0 +1,344 @@
+.price-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.rate-card-header {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rate-card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>') no-repeat;
+  background-size: contain;
+  opacity: 0.3;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.shipsarthi-logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-icon {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.truck-icon {
+  font-size: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.plane-icon {
+  font-size: 16px;
+  position: absolute;
+  top: 20%;
+  right: 20%;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rate-card-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.rate-card-title h1 {
+  font-size: 32px;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rate-card-title p {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.website-info {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.website-info p {
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.rate-card-content {
+  background: #fff;
+}
+
+.charges-section {
+  margin-bottom: 40px;
+}
+
+.charges-section h3 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #ff6b35;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  min-width: 800px;
+}
+
+.rate-table thead {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+}
+
+.rate-table th {
+  padding: 15px 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rate-table th:last-child {
+  border-right: none;
+}
+
+.rate-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  font-size: 14px;
+}
+
+.rate-table td:last-child {
+  border-right: none;
+}
+
+.rate-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.rate-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.rate-table tbody tr:nth-child(even):hover {
+  background: #e9ecef;
+}
+
+.cod-section {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #ff6b35;
+}
+
+.cod-section h3 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.cod-info p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.zone-definitions {
+  margin-bottom: 40px;
+}
+
+.zone-definitions h3 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #ff6b35;
+}
+
+.zone-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.zone-table thead {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+}
+
+.zone-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.zone-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.zone-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.zone-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.terms-section {
+  margin-bottom: 20px;
+}
+
+.terms-section h3 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #ff6b35;
+}
+
+.terms-list {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #ff6b35;
+}
+
+.terms-list li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.terms-list li:last-child {
+  margin-bottom: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #e74c3c;
+  background: #fdf2f2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .price-list-container {
+    padding: 10px;
+  }
+  
+  .rate-card-header {
+    padding: 20px;
+  }
+  
+  .logo-text {
+    font-size: 24px;
+  }
+  
+  .rate-card-title h1 {
+    font-size: 28px;
+  }
+  
+  .rate-table {
+    font-size: 12px;
+  }
+  
+  .rate-table th,
+  .rate-table td {
+    padding: 8px 6px;
+  }
+  
+  .zone-table th,
+  .zone-table td {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rate-card-header {
+    padding: 15px;
+  }
+  
+  .logo-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .rate-card-title h1 {
+    font-size: 24px;
+  }
+  
+  .rate-table th,
+  .rate-table td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+}

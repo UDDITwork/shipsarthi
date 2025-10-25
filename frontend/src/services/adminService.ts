@@ -8,6 +8,7 @@ export interface AdminClient {
   email: string;
   phone_number: string;
   user_type: string;
+  user_category?: string;
   account_status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
   kyc_status: {
     status: 'pending' | 'verified' | 'rejected';
@@ -396,6 +397,34 @@ class AdminService {
 
   async markAllNotificationsAsRead(): Promise<{ success: boolean; message: string }> {
     const response = await apiService.patch<{ success: boolean; message: string }>(`/api/admin/notifications/read-all`, {}, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  // Wallet recharge methods
+  async rechargeWallet(clientId: string, amount: number, description?: string): Promise<{ success: boolean; message: string; data: any }> {
+    const response = await apiService.post<{ success: boolean; message: string; data: any }>(`/api/admin/wallet-recharge`, {
+      client_id: clientId,
+      amount,
+      description
+    }, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientWalletBalance(clientId: string): Promise<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }> {
+    const response = await apiService.get<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }>(`/api/admin/client-wallet/${clientId}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async updateClientLabel(clientId: string, user_category: string): Promise<{ success: boolean; message: string; data: AdminClient }> {
+    const response = await apiService.patch<{ success: boolean; message: string; data: AdminClient }>(`/api/admin/clients/${clientId}/label`, {
+      user_category
+    }, {
       headers: this.getAdminHeaders()
     });
     return response;

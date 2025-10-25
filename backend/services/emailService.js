@@ -12,20 +12,25 @@ class EmailService {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Connection timeout settings
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 5000,    // 5 seconds
-      socketTimeout: 10000,     // 10 seconds
+      // Connection timeout settings - increased for Render
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 15000,    // 15 seconds
+      socketTimeout: 30000,     // 30 seconds
       // Retry settings
       pool: true,
       maxConnections: 5,
       maxMessages: 100,
       rateDelta: 1000,
       rateLimit: 5,
-      // TLS settings for Gmail
+      // TLS settings for Gmail - enhanced for Render
       tls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+        ciphers: 'SSLv3'
+      },
+      // Additional settings for Render deployment
+      requireTLS: true,
+      debug: false,
+      logger: false
     });
 
     // Verify connection configuration with enhanced logging

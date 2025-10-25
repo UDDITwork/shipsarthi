@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileDropdown from './ProfileDropdown';
 import { userService, UserProfile } from '../services/userService';
+import { walletService, WalletBalance } from '../services/walletService';
+import { notificationService } from '../services/notificationService';
 import './Layout.css';
 
 interface LayoutProps {
@@ -15,6 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
   const [loading, setLoading] = useState(true);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -50,7 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsProfileOpen(false);
   };
 
-  // Load user profile from MongoDB Atlas on component mount
+  // Load user profile and wallet balance on component mount
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -71,8 +74,43 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       }
     };
 
+    const fetchWalletBalance = async () => {
+      try {
+        const balance = await walletService.getWalletBalance();
+        setWalletBalance(balance);
+      } catch (error) {
+        console.error('❌ ERROR LOADING WALLET BALANCE:', error);
+      }
+    };
+
     fetchUserProfile();
+    fetchWalletBalance();
   }, [navigate]);
+
+  // Subscribe to wallet balance updates
+  useEffect(() => {
+    const unsubscribe = walletService.subscribe((balance) => {
+      console.log('💰 WALLET BALANCE UPDATED:', balance);
+      setWalletBalance(balance);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Listen for wallet recharge notifications
+  useEffect(() => {
+    const unsubscribe = notificationService.subscribe((notification) => {
+      if (notification.type === 'wallet_recharge') {
+        console.log('💰 WALLET RECHARGE NOTIFICATION:', notification);
+        // Refresh wallet balance when recharge notification is received
+        walletService.refreshBalance().catch(error => {
+          console.error('Failed to refresh wallet balance:', error);
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const menuItems = [
     { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
@@ -81,6 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/ndr', icon: '📦', label: 'NDR' },
     { path: '/tools', icon: '🔧', label: 'Tools' },
     { path: '/billing', icon: '💳', label: 'Billing' },
+    { path: '/price-list', icon: '💰', label: 'Price List' },
     { path: '/warehouse', icon: '🏢', label: 'Warehouse' },
     { path: '/channel', icon: '🔗', label: 'Channel' },
     { path: '/support', icon: '🎧', label: 'Support' },
@@ -128,7 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
            <div className="wallet-section">
              <span className="wallet-icon">💰</span>
              <span className="wallet-balance">
-               ₹{userProfile?.walletBalance?.toFixed(2) || '0.00'}
+               ₹{walletBalance?.balance?.toFixed(2) || userProfile?.walletBalance?.toFixed(2) || '0.00'}
              </span>
              <button className="recharge-button" onClick={handleRecharge}>
                Recharge

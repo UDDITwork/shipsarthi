@@ -545,6 +545,119 @@ router.post('/calculate-cost',
     }
 );
 
+// Calculate shipping cost based on rate card system
+router.post('/calculate-rate-card',
+    auth,
+    [
+        body('weight').isFloat({ min: 0.1 }).withMessage('Valid weight is required'),
+        body('dimensions.length').isFloat({ min: 0.1 }).withMessage('Valid length is required'),
+        body('dimensions.breadth').isFloat({ min: 0.1 }).withMessage('Valid breadth is required'),
+        body('dimensions.height').isFloat({ min: 0.1 }).withMessage('Valid height is required'),
+        body('zone').isIn(['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F']).withMessage('Valid zone is required'),
+        body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive')
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation failed',
+                    errors: errors.array()
+                });
+            }
+
+            const { weight, dimensions, zone, cod_amount } = req.body;
+            const userCategory = req.user.user_category || 'Basic User';
+
+            // Import rate card service
+            const RateCardService = require('../services/rateCardService');
+
+            // Calculate shipping charges
+            const result = RateCardService.calculateShippingCharges(
+                userCategory,
+                weight,
+                dimensions,
+                zone,
+                cod_amount || 0
+            );
+
+            res.json({
+                success: true,
+                message: 'Shipping charges calculated successfully',
+                data: {
+                    user_category: userCategory,
+                    weight: weight,
+                    dimensions: dimensions,
+                    zone: zone,
+                    cod_amount: cod_amount || 0,
+                    calculation_result: result
+                }
+            });
+        } catch (error) {
+            console.error('Calculate rate card cost error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message
+            });
+        }
+    }
+);
+
+// Get rate card for user category
+router.get('/rate-card/:userCategory', auth, async (req, res) => {
+    try {
+        const { userCategory } = req.params;
+        
+        // Import rate card service
+        const RateCardService = require('../services/rateCardService');
+        
+        const rateCard = RateCardService.getRateCard(userCategory);
+        
+        if (!rateCard) {
+            return res.status(404).json({
+                success: false,
+                message: `Rate card not found for user category: ${userCategory}`
+            });
+        }
+
+        res.json({
+            success: true,
+            data: rateCard
+        });
+    } catch (error) {
+        console.error('Get rate card error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
+// Get available user categories
+router.get('/user-categories', auth, async (req, res) => {
+    try {
+        // Import rate card service
+        const RateCardService = require('../services/rateCardService');
+        
+        const categories = RateCardService.getAvailableUserCategories();
+
+        res.json({
+            success: true,
+            data: categories
+        });
+    } catch (error) {
+        console.error('Get user categories error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
 router.get('/health', async (req, res) => {
     try {
         const healthStatus = delhiveryService.getHealthStatus();

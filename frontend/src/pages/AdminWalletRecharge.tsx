@@ -1,0 +1,449 @@
+import React, { useState, useEffect } from 'react';
+import { adminService, AdminClient } from '../services/adminService';
+import { walletService } from '../services/walletService';
+import './AdminWalletRecharge.css';
+
+interface WalletRechargeModalProps {
+  client: AdminClient;
+  isOpen: boolean;
+  onClose: () => void;
+  onRecharge: (clientId: string, amount: number) => Promise<void>;
+  onUpdateLabel: (clientId: string, label: string) => Promise<void>;
+}
+
+const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({ 
+  client, 
+  isOpen, 
+  onClose, 
+  onRecharge,
+  onUpdateLabel
+}) => {
+  const [amount, setAmount] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState(client.user_category || 'Basic User');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount || parseFloat(amount) <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
+    if (parseFloat(amount) < 1) {
+      setError('Minimum recharge amount is ₹1');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await onRecharge(client._id, parseFloat(amount));
+      setSuccess(true);
+      setAmount('');
+      
+      // Show success message for 2 seconds before closing
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to recharge wallet');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLabelChange = async (newLabel: string) => {
+    try {
+      await onUpdateLabel(client._id, newLabel);
+      setSelectedLabel(newLabel);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user label');
+    }
+  };
+
+  const handleClose = () => {
+    setAmount('');
+    setError(null);
+    setSuccess(false);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Wallet Recharge</h3>
+          <button className="close-btn" onClick={handleClose}>×</button>
+        </div>
+        
+        <div className="modal-body">
+          <div className="client-info">
+            <h4>{client.company_name}</h4>
+            <p>Client ID: {client.client_id}</p>
+            <p>Current Balance: ₹{client.wallet_balance || 0}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="recharge-form">
+            <div className="form-group">
+              <label htmlFor="amount">Add Amount (₹)</label>
+              <input
+                type="number"
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount to add"
+                min="1"
+                step="0.01"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="userLabel">User Category</label>
+              <select
+                id="userLabel"
+                value={selectedLabel}
+                onChange={(e) => handleLabelChange(e.target.value)}
+                className="label-select"
+              >
+                <option value="Basic User">Basic User</option>
+                <option value="Lite User">Lite User</option>
+                <option value="New User">New User</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+            {success && <div className="success-message">✅ Wallet recharged successfully! Balance updated.</div>}
+
+            <div className="form-actions">
+              <button type="button" onClick={handleClose} className="cancel-btn">
+                Cancel
+              </button>
+              <button type="submit" disabled={loading} className="submit-btn">
+                {loading ? 'Adding...' : 'Add to Wallet'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AdminWalletRecharge: React.FC = () => {
+  const [clients, setClients] = useState<AdminClient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedClient, setSelectedClient] = useState<AdminClient | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Filters and search
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    user_type: '',
+    sortBy: 'created_at',
+    sortOrder: -1
+  });
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalClients: 0,
+    hasNext: false,
+    hasPrev: false
+  });
+
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  useEffect(() => {
+    fetchClients();
+  }, [page, filters]);
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getClients({
+        page,
+        limit,
+        ...filters
+      });
+      
+      setClients(response.data.clients);
+      setPagination(response.data.pagination);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch clients');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    setFilters(prev => ({ ...prev, search: searchTerm }));
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleClientClick = (client: AdminClient) => {
+    setSelectedClient(client);
+    setModalOpen(true);
+  };
+
+  const handleRecharge = async (clientId: string, amount: number) => {
+    try {
+      const response = await adminService.rechargeWallet(clientId, amount);
+      
+      // Refresh the clients list to show updated balances
+      fetchClients();
+      
+      // Trigger wallet balance update for the client (if they're currently logged in)
+      try {
+        await walletService.refreshBalance();
+      } catch (error) {
+        console.log('Could not refresh wallet balance (client may not be logged in)');
+      }
+      
+      return response;
+    } catch (err: any) {
+      throw new Error(err.message || 'Failed to recharge wallet');
+    }
+  };
+
+  const handleUpdateLabel = async (clientId: string, label: string) => {
+    try {
+      console.log('🏷️ Updating client label:', { clientId, label });
+      const response = await adminService.updateClientLabel(clientId, label);
+      console.log('🏷️ Label update response:', response);
+      
+      // Show success message
+      setSuccessMessage(`✅ User category updated to "${label}" successfully!`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+      
+      // Refresh the clients list to show updated labels
+      await fetchClients();
+      console.log('🏷️ Clients list refreshed after label update');
+    } catch (err: any) {
+      console.error('🏷️ Error updating label:', err);
+      setError(err.message || 'Failed to update user label');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedClient(null);
+  };
+
+  return (
+    <div className="admin-wallet-recharge">
+      <div className="page-header">
+        <h1>Wallet Recharge</h1>
+        <p>Manage client wallet balances and add funds</p>
+      </div>
+
+      {/* Filters */}
+      <div className="filters-section">
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Search clients..."
+            value={filters.search}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        <div className="filter-controls">
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="filter-select"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+            <option value="pending_verification">Pending Verification</option>
+          </select>
+
+          <select
+            value={filters.user_type}
+            onChange={(e) => handleFilterChange('user_type', e.target.value)}
+            className="filter-select"
+          >
+            <option value="">All Types</option>
+            <option value="e-commerce-sellers">E-commerce Sellers</option>
+            <option value="direct-to-consumer-brands">D2C Brands</option>
+            <option value="manufacturers-wholesalers">Manufacturers</option>
+            <option value="corporate-enterprise">Corporate</option>
+            <option value="courier-service-providers">Courier Services</option>
+            <option value="individual-shippers">Individual Shippers</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="success-message-global">
+          {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="error-message-global">
+          {error}
+        </div>
+      )}
+
+      {/* Clients List */}
+      <div className="clients-section">
+        {loading ? (
+          <div className="loading">Loading clients...</div>
+        ) : error ? (
+          <div className="error">Error: {error}</div>
+        ) : (
+          <>
+            <div className="clients-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Client ID</th>
+                    <th>Company Name</th>
+                    <th>Contact Person</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Current Balance</th>
+                    <th>Status</th>
+                    <th>Add Label</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.map((client) => (
+                    <tr key={client._id}>
+                      <td>
+                        <span className="client-id">{client.client_id}</span>
+                      </td>
+                      <td>
+                        <div className="company-info">
+                          <strong>{client.company_name}</strong>
+                        </div>
+                      </td>
+                      <td>{client.your_name}</td>
+                      <td>{client.email}</td>
+                      <td>{client.phone_number}</td>
+                      <td>
+                        <span className="wallet-balance">
+                          ₹{client.wallet_balance || 0}
+                        </span>
+                      </td>
+                      <td>
+                        <span 
+                          className="status-badge"
+                          style={{ 
+                            backgroundColor: getStatusColor(client.account_status) 
+                          }}
+                        >
+                          {client.account_status?.replace('_', ' ') || 'N/A'}
+                        </span>
+                      </td>
+                      <td>
+                        <select
+                          value={client.user_category || 'Basic User'}
+                          onChange={(e) => handleUpdateLabel(client._id, e.target.value)}
+                          className="label-dropdown"
+                        >
+                          <option value="Basic User">Basic User</option>
+                          <option value="Lite User">Lite User</option>
+                          <option value="New User">New User</option>
+                          <option value="Advanced">Advanced</option>
+                        </select>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleClientClick(client)}
+                          className="recharge-btn"
+                        >
+                          Recharge
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="pagination">
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={!pagination.hasPrev}
+                  className="page-btn"
+                >
+                  Previous
+                </button>
+                
+                <span className="page-info">
+                  Page {pagination.currentPage} of {pagination.totalPages}
+                </span>
+                
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={!pagination.hasNext}
+                  className="page-btn"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Recharge Modal */}
+      <WalletRechargeModal
+        client={selectedClient!}
+        isOpen={modalOpen}
+        onClose={handleCloseModal}
+        onRecharge={handleRecharge}
+        onUpdateLabel={handleUpdateLabel}
+      />
+    </div>
+  );
+};
+
+// Helper function to get status color
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return '#10b981';
+    case 'inactive':
+      return '#6b7280';
+    case 'suspended':
+      return '#ef4444';
+    case 'pending_verification':
+      return '#f59e0b';
+    default:
+      return '#6b7280';
+  }
+};
+
+export default AdminWalletRecharge;

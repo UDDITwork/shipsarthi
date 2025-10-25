@@ -13,18 +13,39 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for Render deployment - MUST be set before any middleware
+// In production (Render), trust the first proxy
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+  console.log('🔒 Trust proxy enabled for production deployment');
+} else {
+  app.set('trust proxy', false);
+  console.log('🔒 Trust proxy disabled for development');
+}
+
 // Security Middleware
 app.use(helmet());
 
-// Rate Limiting
+// Rate Limiting with proper configuration for proxy
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW) * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS),
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '15') * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
   message: {
     error: 'Too many requests, please try again later'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Trust proxy configuration
+  trustProxy: true,
+  // Skip successful requests
+  skipSuccessfulRequests: false,
+  // Skip failed requests
+  skipFailedRequests: false,
+  // Custom key generator to handle proxy headers
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For header if available, otherwise use IP
+    return req.ip || req.connection.remoteAddress;
+  }
 });
 app.use('/api/', limiter);
 

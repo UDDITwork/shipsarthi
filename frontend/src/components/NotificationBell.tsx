@@ -111,6 +111,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'message_received':
         return <MessageSquare className="w-4 h-4 text-green-500" />;
+      case 'wallet_recharge':
+        return <span className="text-lg">💰</span>;
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
     }
@@ -123,6 +125,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
       case 'ticket_update':
         return 'bg-yellow-50 border-yellow-200';
       case 'message_received':
+        return 'bg-green-50 border-green-200';
+      case 'wallet_recharge':
         return 'bg-green-50 border-green-200';
       default:
         return 'bg-gray-50 border-gray-200';

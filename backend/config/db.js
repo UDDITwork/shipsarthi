@@ -3,10 +3,8 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    // MongoDB Atlas optimized connection options
+    // MongoDB Atlas optimized connection options - updated for latest driver
     const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       maxPoolSize: parseInt(process.env.MONGODB_OPTIONS_POOL_SIZE) || 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,

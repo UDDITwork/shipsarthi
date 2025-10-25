@@ -180,6 +180,11 @@ const userSchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'suspended', 'pending_verification'],
     default: 'pending_verification'
   },
+  user_category: {
+    type: String,
+    enum: ['Basic User', 'Lite User', 'New User', 'Advanced'],
+    default: 'Basic User'
+  },
   wallet_balance: {
     type: Number,
     default: 0,
@@ -232,11 +237,11 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Indexes
-userSchema.index({ email: 1 });
+// Indexes (removed email index as it's already unique)
 userSchema.index({ phone_number: 1 });
 userSchema.index({ client_id: 1 });
 userSchema.index({ 'api_details.public_key': 1 });
+userSchema.index({ user_category: 1 });
 
 // Pre-save middleware to generate client_id
 userSchema.pre('save', async function(next) {

@@ -289,8 +289,7 @@ const delhiverySchema = new mongoose.Schema({
   waybill: {
     type: String,
     unique: true,
-    sparse: true,
-    index: true
+    sparse: true
   },
   package_id: {
     type: String
@@ -433,8 +432,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Order ID is required'],
     unique: true,
-    trim: true,
-    index: true
+    trim: true
   },
 
   reference_id: {
