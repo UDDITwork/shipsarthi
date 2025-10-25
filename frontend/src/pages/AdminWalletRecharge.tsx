@@ -207,9 +207,9 @@ const AdminWalletRecharge: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleRecharge = async (clientId: string, amount: number) => {
+  const handleRecharge = async (clientId: string, amount: number): Promise<void> => {
     try {
-      const response = await adminService.rechargeWallet(clientId, amount);
+      await adminService.rechargeWallet(clientId, amount);
       
       // Refresh the clients list to show updated balances
       fetchClients();
@@ -220,8 +220,6 @@ const AdminWalletRecharge: React.FC = () => {
       } catch (error) {
         console.log('Could not refresh wallet balance (client may not be logged in)');
       }
-      
-      return response;
     } catch (err: any) {
       throw new Error(err.message || 'Failed to recharge wallet');
     }

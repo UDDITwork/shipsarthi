@@ -187,7 +187,7 @@ class UserService {
 
   // Get dashboard data
   async getDashboardData(): Promise<{ data: DashboardData }> {
-    const response = await apiService.get<{ data: DashboardData }>('/api/dashboard/overview');
+    const response = await apiService.get<{ data: DashboardData }>('/dashboard/overview');
     return response;
   }
 }

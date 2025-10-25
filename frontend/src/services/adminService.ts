@@ -291,7 +291,7 @@ class AdminService {
     if (params.status) queryParams.append('status', params.status);
     if (params.category) queryParams.append('category', params.category);
 
-    const response = await apiService.get<AdminTicketsResponse>(`/api/admin/clients/${clientId}/tickets?${queryParams.toString()}`, {
+    const response = await apiService.get<AdminTicketsResponse>(`/admin/clients/${clientId}/tickets?${queryParams.toString()}`, {
       headers: this.getAdminHeaders()
     });
     return response;
@@ -318,21 +318,21 @@ class AdminService {
     if (params.date_from) queryParams.append('date_from', params.date_from);
     if (params.date_to) queryParams.append('date_to', params.date_to);
 
-    const response = await apiService.get<AdminTicketsResponse>(`/api/admin/tickets?${queryParams.toString()}`, {
+    const response = await apiService.get<AdminTicketsResponse>(`/admin/tickets?${queryParams.toString()}`, {
       headers: this.getAdminHeaders()
     });
     return response;
   }
 
   async getTicketDetails(ticketId: string): Promise<{ success: boolean; data: AdminTicket }> {
-    const response = await apiService.get<{ success: boolean; data: AdminTicket }>(`/api/admin/tickets/${ticketId}`, {
+    const response = await apiService.get<{ success: boolean; data: AdminTicket }>(`/admin/tickets/${ticketId}`, {
       headers: this.getAdminHeaders()
     });
     return response;
   }
 
   async sendTicketMessage(ticketId: string, message: string, isInternal: boolean = false): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.post<{ success: boolean; message: string }>(`/api/admin/tickets/${ticketId}/messages`, {
+    const response = await apiService.post<{ success: boolean; message: string }>(`/admin/tickets/${ticketId}/messages`, {
       message,
       is_internal: isInternal
     }, {
@@ -342,7 +342,7 @@ class AdminService {
   }
 
   async updateTicketStatus(ticketId: string, status: string, reason?: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.patch<{ success: boolean; message: string }>(`/api/admin/tickets/${ticketId}/status`, {
+    const response = await apiService.patch<{ success: boolean; message: string }>(`/admin/tickets/${ticketId}/status`, {
       status,
       reason
     }, {
@@ -352,7 +352,7 @@ class AdminService {
   }
 
   async assignTicket(ticketId: string, assignedTo: string, department: string = 'customer_service'): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.patch<{ success: boolean; message: string }>(`/api/admin/tickets/${ticketId}/assign`, {
+    const response = await apiService.patch<{ success: boolean; message: string }>(`/admin/tickets/${ticketId}/assign`, {
       assigned_to: assignedTo,
       department
     }, {
@@ -362,7 +362,7 @@ class AdminService {
   }
 
   async resolveTicket(ticketId: string, resolutionSummary: string, resolutionCategory: string, internalNotes?: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.post<{ success: boolean; message: string }>(`/api/admin/tickets/${ticketId}/resolve`, {
+    const response = await apiService.post<{ success: boolean; message: string }>(`/admin/tickets/${ticketId}/resolve`, {
       resolution_summary: resolutionSummary,
       resolution_category: resolutionCategory,
       internal_notes: internalNotes
@@ -375,7 +375,7 @@ class AdminService {
   // Notification methods
   async getNotifications(): Promise<{ success: boolean; data: { notifications: any[]; unread_count: number } }> {
     try {
-      const response = await apiService.get<{ success: boolean; data: { notifications: any[]; unread_count: number } }>(`/api/admin/notifications`, {
+      const response = await apiService.get<{ success: boolean; data: { notifications: any[]; unread_count: number } }>(`/admin/notifications`, {
         headers: this.getAdminHeaders()
       });
       return response;
@@ -389,14 +389,14 @@ class AdminService {
   }
 
   async markNotificationAsRead(notificationId: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.patch<{ success: boolean; message: string }>(`/api/admin/notifications/${notificationId}/read`, {}, {
+    const response = await apiService.patch<{ success: boolean; message: string }>(`/admin/notifications/${notificationId}/read`, {}, {
       headers: this.getAdminHeaders()
     });
     return response;
   }
 
   async markAllNotificationsAsRead(): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.patch<{ success: boolean; message: string }>(`/api/admin/notifications/read-all`, {}, {
+    const response = await apiService.patch<{ success: boolean; message: string }>(`/admin/notifications/read-all`, {}, {
       headers: this.getAdminHeaders()
     });
     return response;
@@ -404,7 +404,7 @@ class AdminService {
 
   // Wallet recharge methods
   async rechargeWallet(clientId: string, amount: number, description?: string): Promise<{ success: boolean; message: string; data: any }> {
-    const response = await apiService.post<{ success: boolean; message: string; data: any }>(`/api/admin/wallet-recharge`, {
+    const response = await apiService.post<{ success: boolean; message: string; data: any }>(`/admin/wallet-recharge`, {
       client_id: clientId,
       amount,
       description
@@ -415,14 +415,14 @@ class AdminService {
   }
 
   async getClientWalletBalance(clientId: string): Promise<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }> {
-    const response = await apiService.get<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }>(`/api/admin/client-wallet/${clientId}`, {
+    const response = await apiService.get<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }>(`/admin/client-wallet/${clientId}`, {
       headers: this.getAdminHeaders()
     });
     return response;
   }
 
   async updateClientLabel(clientId: string, user_category: string): Promise<{ success: boolean; message: string; data: AdminClient }> {
-    const response = await apiService.patch<{ success: boolean; message: string; data: AdminClient }>(`/api/admin/clients/${clientId}/label`, {
+    const response = await apiService.patch<{ success: boolean; message: string; data: AdminClient }>(`/admin/clients/${clientId}/label`, {
       user_category
     }, {
       headers: this.getAdminHeaders()

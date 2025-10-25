@@ -38,6 +38,7 @@ export interface User {
   };
   documents: Document[];
   account_status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
+  user_category: 'Basic User' | 'Lite User' | 'New User' | 'Advanced';
   wallet_balance: number;
   last_login?: string;
   email_verified: boolean;

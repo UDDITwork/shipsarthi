@@ -1,4 +1,5 @@
 // Shipping Service for rate card calculations and shipping charges
+import { apiService } from './api';
 
 export interface ShippingCalculationRequest {
   weight: number;
@@ -73,30 +74,12 @@ export interface RateCard {
 }
 
 class ShippingService {
-  private getHeaders() {
-    const token = localStorage.getItem('token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-  }
 
   // Calculate shipping charges using rate card system
   async calculateShippingCharges(request: ShippingCalculationRequest): Promise<ShippingCalculationResult> {
     try {
-      const response = await fetch('/api/shipping/calculate-rate-card', {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(request)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to calculate shipping charges');
-      }
-
-      const data = await response.json();
-      return data.data;
+      const response = await apiService.post<{ success: boolean; data: ShippingCalculationResult }>('/shipping/calculate-rate-card', request);
+      return response.data;
     } catch (error: any) {
       console.error('Calculate shipping charges error:', error);
       throw new Error(error.message || 'Failed to calculate shipping charges');
@@ -106,18 +89,8 @@ class ShippingService {
   // Get rate card for a specific user category
   async getRateCard(userCategory: string): Promise<RateCard> {
     try {
-      const response = await fetch(`/api/shipping/rate-card/${encodeURIComponent(userCategory)}`, {
-        method: 'GET',
-        headers: this.getHeaders()
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to get rate card');
-      }
-
-      const data = await response.json();
-      return data.data;
+      const response = await apiService.get<{ success: boolean; data: RateCard }>(`/shipping/rate-card/${encodeURIComponent(userCategory)}`);
+      return response.data;
     } catch (error: any) {
       console.error('Get rate card error:', error);
       throw new Error(error.message || 'Failed to get rate card');
@@ -127,18 +100,8 @@ class ShippingService {
   // Get available user categories
   async getUserCategories(): Promise<string[]> {
     try {
-      const response = await fetch('/api/shipping/user-categories', {
-        method: 'GET',
-        headers: this.getHeaders()
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to get user categories');
-      }
-
-      const data = await response.json();
-      return data.data;
+      const response = await apiService.get<{ success: boolean; data: string[] }>('/shipping/user-categories');
+      return response.data;
     } catch (error: any) {
       console.error('Get user categories error:', error);
       throw new Error(error.message || 'Failed to get user categories');

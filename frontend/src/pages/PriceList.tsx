@@ -2,18 +2,11 @@ import React, { useState, useEffect } from 'react';
 import PriceList from '../components/PriceList';
 import ShippingCalculator from '../components/ShippingCalculator';
 import { authService } from '../services/authService';
+import { User } from '../types';
 import './PriceListPage.css';
 
-interface UserProfile {
-  _id: string;
-  company_name: string;
-  email: string;
-  user_category: string;
-  account_status: string;
-}
-
 const PriceListPage: React.FC = () => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'rates' | 'calculator'>('rates');
@@ -25,7 +18,8 @@ const PriceListPage: React.FC = () => {
   const loadUserProfile = async () => {
     try {
       setLoading(true);
-      const profile = await authService.getProfile();
+      const response = await authService.getCurrentUser();
+      const profile = response.user;
       setUserProfile(profile);
       setError(null);
     } catch (err: any) {
