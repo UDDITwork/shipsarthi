@@ -1,3 +1,6 @@
+// CRITICAL: Load environment variables FIRST before any other imports
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -8,7 +11,6 @@ const { connectDB, checkDBHealth } = require('./config/db');
 const logger = require('./utils/logger');
 const trackingService = require('./services/trackingService');
 const websocketService = require('./services/websocketService');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

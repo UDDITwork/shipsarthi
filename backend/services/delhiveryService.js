@@ -1,4 +1,13 @@
 // Location: backend/services/delhiveryService.js
+// Ensure dotenv is loaded before reading env variables
+if (!process.env.DELHIVERY_API_KEY && typeof require !== 'undefined') {
+    try {
+        require('dotenv').config();
+    } catch (e) {
+        // dotenv already loaded or not available
+    }
+}
+
 const axios = require('axios');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
@@ -8,18 +17,48 @@ class DelhiveryService {
         this.baseURL = process.env.DELHIVERY_API_URL || 'https://track.delhivery.com/api';
         this.stagingURL = 'https://staging-express.delhivery.com/api';
         this.apiKey = process.env.DELHIVERY_API_KEY;
-        this.isProduction = process.env.NODE_ENV === 'production';
-        this.apiURL = this.isProduction ? this.baseURL : this.stagingURL;
         
+        // Debug: Log API key status (first 10 chars only for security)
+        const envKeys = Object.keys(process.env).filter(k => k.includes('DELHIVERY'));
+        console.log('🔑 Delhivery Service Initialized:', {
+            hasApiKey: !!this.apiKey,
+            apiKeyLength: this.apiKey?.length || 0,
+            apiKeyPreview: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'MISSING',
+            apiURL: this.baseURL,
+            envKeysFound: envKeys,
+            directEnvCheck: process.env.DELHIVERY_API_KEY ? `${process.env.DELHIVERY_API_KEY.substring(0, 10)}...` : 'NOT IN PROCESS.ENV',
+            constructorCalledAt: new Date().toISOString()
+        });
+        
+        // If API key is missing, log warning but don't fail - will fail at runtime
+        if (!this.apiKey || this.apiKey === 'your-delhivery-api-key') {
+            console.warn('⚠️ WARNING: Delhivery API Key not found during initialization!');
+            console.warn('This may cause issues when making API calls.');
+        }
+        // FORCE PRODUCTION URL - Don't use staging unless explicitly set
+        // Set DELHIVERY_USE_STAGING=true to use staging
+        const useStaging = process.env.DELHIVERY_USE_STAGING === 'true';
+        this.isProduction = !useStaging;
+        this.apiURL = useStaging ? this.stagingURL : this.baseURL;
+        
+        // Initialize client with API key if available, otherwise will update at runtime
         this.client = axios.create({
             baseURL: this.apiURL,
             headers: {
-                'Authorization': `Token ${this.apiKey}`,
+                'Authorization': `Token ${this.apiKey || ''}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             timeout: 30000
         });
+        
+        // Update client headers if API key becomes available later
+        this.updateClientHeaders = () => {
+            const activeApiKey = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (activeApiKey) {
+                this.client.defaults.headers['Authorization'] = `Token ${activeApiKey}`;
+            }
+        };
     }
 
     /**
@@ -58,12 +97,15 @@ class DelhiveryService {
                     hsn_code: orderData.products[0]?.hsn_code || '',
                     cod_amount: orderData.payment_info.cod_amount || 0,
                     order_date: new Date().toISOString().split('T')[0],
-                    total_amount: orderData.payment_info.order_value,
+                    total_amount: orderData.payment_info.order_value || 0,
+                    // Add end_date to avoid Delhivery error "NoneType object has no attribute 'end_date'"
+                    end_date: null, // Explicitly set to null as per Delhivery API requirement
                     seller_add: orderData.pickup_address?.full_address || '',
                     seller_name: orderData.seller_info?.name || '',
                     seller_inv: orderData.invoice_number || '',
                     quantity: orderData.products.reduce((sum, p) => sum + p.quantity, 0),
-                    waybill: this.generateWaybill(),
+                    // Use pre-fetched waybill if provided, otherwise let Delhivery generate it
+                    waybill: orderData.waybill || '', // Pre-fetched waybill from getWaybill API
                     shipment_width: orderData.package_info.dimensions.width || 10,
                     shipment_height: orderData.package_info.dimensions.height || 10,
                     shipment_length: orderData.package_info.dimensions.length || orderData.package_info.dimensions.width || 10,
@@ -82,95 +124,197 @@ class DelhiveryService {
                 }
             };
 
+            // Validate API key before making request - check both instance and process.env
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured', {
+                    instanceApiKey: !!this.apiKey,
+                    envApiKey: !!process.env.DELHIVERY_API_KEY,
+                    allDelhiveryEnvKeys: Object.keys(process.env).filter(k => k.includes('DELHIVERY'))
+                });
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+            
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+
+            // Ensure API key is set in client headers
+            this.updateClientHeaders();
+            
             logger.info('🚀 Creating Delhivery shipment', {
                 orderId: orderData.order_id,
-                paymentMode: orderData.payment_info.payment_mode
+                paymentMode: orderData.payment_info.payment_mode,
+                hasApiKey: !!apiKeyToUse,
+                apiKeyLength: apiKeyToUse?.length || 0,
+                url: `${this.apiURL}/cmu/create.json`
             });
 
-            const response = await this.client.post('/cmu/create.json', shipmentData);
+            // EXACT FORMAT AS PER DELHIVERY DOCUMENTATION:
+            // The data should be sent as form-urlencoded string
+            // According to docs: data: 'format=json&data={JSON_STRING}'
+            const dataString = JSON.stringify(shipmentData);
+            const postData = `format=json&data=${dataString}`;
+            
+            logger.info('📤 Sending shipment data', {
+                contentType: 'application/x-www-form-urlencoded',
+                bodyFormat: 'format=json&data={JSON}',
+                dataSize: dataString.length,
+                hasWaybill: !!shipmentData.shipments[0].waybill,
+                rawBody: postData.substring(0, 100) + '...'
+            });
+
+            // EXACT format from Delhivery documentation
+            // Send as form-urlencoded, not JSON
+            const response = await axios.post(`${this.apiURL}/cmu/create.json`, postData, {
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'  // Form-urlencoded!
+                },
+                timeout: 30000
+            });
 
             // Log the full response for debugging
             logger.info('📦 Delhivery API Response', {
                 orderId: orderData.order_id,
                 responseData: JSON.stringify(response.data),
-                responseStatus: response.status
+                responseStatus: response.status,
+                responseKeys: Object.keys(response.data || {})
             });
 
-            // Check if request was successful
-            if (response.data && (response.data.success || response.status === 200)) {
-                // Extract waybill/AWB from response
-                // Delhivery API can return waybill in different structures:
-                // 1. response.data.packages[0].waybill
-                // 2. response.data.waybill (single waybill)
-                // 3. response.data.pkgs[0].waybill
-                // 4. response.data.items[0].waybill
-                let awbNumber = null;
-                let packages = [];
+            // Parse Delhivery API response - they can send in ANY format
+            let awbNumber = null;
+            let packages = [];
+            let isSuccess = false;
 
-                // Try different response structures
-                if (response.data.packages && Array.isArray(response.data.packages) && response.data.packages.length > 0) {
-                    packages = response.data.packages;
-                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
-                } else if (response.data.pkgs && Array.isArray(response.data.pkgs) && response.data.pkgs.length > 0) {
-                    packages = response.data.pkgs;
-                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
-                } else if (response.data.waybill) {
-                    awbNumber = response.data.waybill;
-                    packages = [{
-                        waybill: response.data.waybill,
-                        status: response.data.status || 'Success',
-                        refnum: response.data.refnum || orderData.order_id,
-                        label_url: response.data.label_url,
-                        expected_delivery_date: response.data.expected_delivery_date
-                    }];
-                } else if (response.data.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
-                    packages = response.data.items;
-                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
-                } else if (response.data[0] && response.data[0].waybill) {
-                    // Sometimes response is an array
-                    packages = Array.isArray(response.data) ? response.data : [response.data[0]];
-                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
-                }
-
-                // Fallback to locally generated waybill if API didn't return one
-                if (!awbNumber) {
-                    awbNumber = shipmentData.shipments[0].waybill;
-                    logger.warn('⚠️ No AWB in API response, using generated waybill', {
-                        orderId: orderData.order_id,
-                        generatedWaybill: awbNumber
-                    });
-                }
-
-                logger.info('✅ Shipment created successfully', {
-                    orderId: orderData.order_id,
-                    awbNumber: awbNumber,
-                    packagesCount: packages.length,
-                    responseStructure: Object.keys(response.data)
-                });
-
-                return {
-                    success: true,
-                    waybill: awbNumber,
-                    tracking_id: awbNumber,
-                    label_url: packages[0]?.label_url || packages[0]?.label || null,
-                    expected_delivery: packages[0]?.expected_delivery_date || null,
-                    packages: packages.length > 0 ? packages : [{
-                        waybill: awbNumber,
-                        status: 'Success',
-                        refnum: orderData.order_id
-                    }],
-                    upload_wbn: response.data.upload_wbn || null,
-                    data: response.data
-                };
-            } else {
-                const errorMsg = response.data?.rmk || response.data?.message || 'Failed to create shipment';
-                logger.error('❌ Delhivery API returned failure', {
+            // Strategy: Extract AWB from EVERY possible location in response
+            // 1. Check for explicit error flag first (based on actual API test)
+            if (response.data.error === true || response.data.success === false) {
+                const errorMsg = response.data.rmk || response.data.message || 'Unknown error';
+                logger.error('❌ Delhivery API returned error', {
                     orderId: orderData.order_id,
                     error: errorMsg,
-                    responseData: response.data
+                    responseData: response.data,
+                    errorType: 'API_ERROR'
                 });
                 throw new Error(errorMsg);
             }
+
+            // 2. Extract AWB from various possible locations (based on actual API test)
+            if (response.data.packages && Array.isArray(response.data.packages) && response.data.packages.length > 0) {
+                packages = response.data.packages;
+                
+                // Check if package has waybill (not empty string)
+                const firstPackage = packages[0];
+                if (firstPackage.waybill && firstPackage.waybill.trim() !== '') {
+                    awbNumber = firstPackage.waybill;
+                    isSuccess = true;
+                    logger.info('✅ AWB found in packages[0].waybill', { 
+                        awbNumber, 
+                        packageCount: packages.length,
+                        packageStatus: firstPackage.status,
+                        packageRefnum: firstPackage.refnum,
+                        serviceable: firstPackage.serviceable,
+                        sortCode: firstPackage.sort_code
+                    });
+                } else {
+                    // Package exists but waybill is empty (failed package)
+                    logger.warn('⚠️ Package created but waybill is empty', {
+                        packageStatus: firstPackage.status,
+                        packageRemarks: firstPackage.remarks,
+                        packageRefnum: firstPackage.refnum
+                    });
+                }
+            } else if (response.data.pkgs && Array.isArray(response.data.pkgs) && response.data.pkgs.length > 0) {
+                packages = response.data.pkgs;
+                awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                if (awbNumber) {
+                    isSuccess = true;
+                    logger.info('✅ AWB found in pkgs array', { awbNumber });
+                }
+            } else if (response.data.waybill) {
+                awbNumber = response.data.waybill;
+                packages = [{
+                    waybill: response.data.waybill,
+                    status: response.data.status || 'Success',
+                    refnum: response.data.refnum || orderData.order_id,
+                    label_url: response.data.label_url,
+                    expected_delivery_date: response.data.expected_delivery_date
+                }];
+                isSuccess = true;
+                logger.info('✅ AWB found in waybill field', { awbNumber });
+            } else if (response.data.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
+                packages = response.data.items;
+                awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                if (awbNumber) {
+                    isSuccess = true;
+                    logger.info('✅ AWB found in items array', { awbNumber });
+                }
+            } else if (Array.isArray(response.data) && response.data.length > 0) {
+                packages = response.data;
+                awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                if (awbNumber) {
+                    isSuccess = true;
+                    logger.info('✅ AWB found in root array', { awbNumber });
+                }
+            } else if (response.data.upload_wbn) {
+                // upload_wbn is not the waybill, it's an upload reference
+                logger.info('📤 Upload WBN found (not waybill)', { uploadWbn: response.data.upload_wbn });
+            }
+
+            // 3. If no AWB found in response, check if we sent a pre-fetched waybill
+            if (!awbNumber && orderData.waybill) {
+                awbNumber = orderData.waybill;
+                isSuccess = true;
+                logger.info('✅ Using pre-fetched waybill', { awbNumber });
+            }
+
+            // 4. If still no AWB, it's a failure
+            if (!awbNumber) {
+                logger.error('❌ No AWB number found in ANY field', {
+                    orderId: orderData.order_id,
+                    responseKeys: Object.keys(response.data || {}),
+                    responseSample: JSON.stringify(response.data).substring(0, 200),
+                    sentWaybill: orderData.waybill || 'none'
+                });
+                throw new Error('Delhivery API did not return AWB number. Please check API response.');
+            }
+
+            // Mark as success
+            isSuccess = true;
+
+            // Success - return response
+            logger.info('✅ Shipment created successfully', {
+                orderId: orderData.order_id,
+                awbNumber: awbNumber,
+                packagesCount: packages.length,
+                responseStructure: Object.keys(response.data)
+            });
+
+            return {
+                success: true,
+                waybill: awbNumber,
+                tracking_id: awbNumber,
+                label_url: packages[0]?.label_url || packages[0]?.label || null,
+                expected_delivery: packages[0]?.expected_delivery_date || null,
+                packages: packages.length > 0 ? packages : [{
+                    waybill: awbNumber,
+                    status: 'Success',
+                    refnum: orderData.order_id
+                }],
+                upload_wbn: response.data.upload_wbn || null,
+                // Additional fields from actual API response
+                serviceable: packages[0]?.serviceable || false,
+                sort_code: packages[0]?.sort_code || null,
+                payment_mode: packages[0]?.payment || null,
+                cod_amount: packages[0]?.cod_amount || 0,
+                remarks: packages[0]?.remarks || [],
+                data: response.data
+            };
         } catch (error) {
             logger.error('❌ Delhivery createShipment error', {
                 orderId: orderData.order_id,
@@ -465,27 +609,115 @@ class DelhiveryService {
      */
     async getWaybill(count = 1) {
         try {
-            const response = await this.client.get(`/waybill/api/bulk/json/?count=${count}`);
-
-            if (response.data && response.data.length > 0) {
-                return {
-                    success: true,
-                    waybills: response.data
-                };
-            } else {
+            // Fetch WayBill API format:
+            // GET /waybill/api/bulk/json/?token={API_KEY}&count={count}
+            // IMPORTANT: Token is sent as QUERY PARAM, not Authorization header!
+            // Validate API key before making request - check both instance and process.env
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured', {
+                    instanceApiKey: !!this.apiKey,
+                    envApiKey: !!process.env.DELHIVERY_API_KEY
+                });
                 return {
                     success: false,
-                    error: 'No waybill available'
+                    error: 'Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.'
                 };
             }
+            
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+            
+            // Use the active API key
+            apiKeyToUse = this.apiKey;
+
+            logger.info('📋 Fetching waybill from Delhivery', {
+                count: count,
+                apiURL: this.apiURL,
+                hasApiKey: !!this.apiKey,
+                apiKeyLength: this.apiKey?.length || 0
+            });
+            
+            // Fetch WayBill API needs different approach - token in params, not header
+            // Use production URL directly: https://track.delhivery.com/waybill/api/bulk/json/
+            const baseDomain = this.apiURL.includes('staging') 
+                ? 'https://staging-express.delhivery.com'
+                : 'https://track.delhivery.com';
+            const waybillURL = `${baseDomain}/waybill/api/bulk/json/`;
+            
+            logger.info('📋 Waybill API Request', {
+                waybillURL: waybillURL,
+                usingStaging: this.apiURL.includes('staging'),
+                tokenParam: apiKeyToUse ? `${apiKeyToUse.substring(0, 10)}...` : 'MISSING',
+                apiKeyFromInstance: !!this.apiKey,
+                apiKeyFromEnv: !!process.env.DELHIVERY_API_KEY
+            });
+            
+            const response = await axios.get(waybillURL, {
+                params: {
+                    token: apiKeyToUse,  // Token as query parameter
+                    count: count
+                },
+                headers: {
+                    'Accept': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            logger.info('📋 Waybill API Response', {
+                status: response.status,
+                dataLength: response.data?.length || 0,
+                data: response.data,
+                dataType: typeof response.data
+            });
+
+            // Handle different response formats:
+            // 1. String: "44800710000302" -> convert to array
+            // 2. Array: ["44800710000302"] -> use as is
+            let waybills = [];
+            
+            if (typeof response.data === 'string') {
+                // API returned single waybill as string
+                waybills = [response.data];
+                logger.info('✅ Waybill fetched (string format)', {
+                    waybill: response.data
+                });
+            } else if (Array.isArray(response.data) && response.data.length > 0) {
+                // API returned array
+                waybills = response.data;
+                logger.info('✅ Waybill fetched (array format)', {
+                    waybillCount: response.data.length,
+                    firstWaybill: response.data[0]
+                });
+            } else {
+                logger.warn('⚠️ Waybill API returned empty response', {
+                    responseData: response.data
+                });
+                return {
+                    success: false,
+                    error: 'No waybill available in response'
+                };
+            }
+            
+            return {
+                success: true,
+                waybills: waybills
+            };
         } catch (error) {
             logger.error('❌ Waybill fetch failed', {
-                error: error.response?.data || error.message
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                url: error.config?.url
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to get waybill'
+                error: error.response?.data?.message || error.message || 'Failed to get waybill',
+                statusCode: error.response?.status
             };
         }
     }
@@ -842,26 +1074,83 @@ class DelhiveryService {
         try {
             logger.info('🏭 Creating warehouse in Delhivery', {
                 name: warehouseData.name,
-                pincode: warehouseData.pin
+                pincode: warehouseData.pin,
+                method: 'POST', // CORRECTED: POST not PUT
+                endpoint: 'https://track.delhivery.com/api/backend/clientwarehouse/create/'
             });
 
-            const response = await this.client.post('/api/backend/clientwarehouse/create/', warehouseData);
+            // Validate API key
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for warehouse creation');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
 
-            logger.info('✅ Warehouse created successfully', {
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+
+            // CORRECT METHOD DISCOVERED THROUGH TESTING:
+            // Method: POST (NOT PUT as per documentation!)
+            // URL: https://track.delhivery.com/api/backend/clientwarehouse/create/
+            // Content-Type: application/json
+            // Data: JSON object
+            const warehouseURL = 'https://track.delhivery.com/api/backend/clientwarehouse/create/';
+            const response = await axios.post(warehouseURL, warehouseData, {
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            // Enhanced success validation
+            const isSuccess = response.status >= 200 && response.status < 300;
+            const hasValidData = response.data && (
+                response.data.data || 
+                response.data.success === true || 
+                response.data.status === 'success' ||
+                response.data.message?.toLowerCase().includes('success')
+            );
+
+            logger.info('✅ Warehouse creation response received', {
                 name: warehouseData.name,
-                response: response.data
+                responseStatus: response.status,
+                responseData: response.data,
+                isSuccess,
+                hasValidData,
+                finalSuccess: isSuccess && hasValidData
             });
 
-            return {
-                success: true,
-                data: response.data,
-                message: 'Warehouse registered successfully'
-            };
+            if (isSuccess && hasValidData) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: 'Warehouse registered successfully',
+                    delhivery_warehouse_id: response.data.data?.name || response.data.name
+                };
+            } else {
+                logger.warn('⚠️ Delhivery API returned success status but invalid data', {
+                    name: warehouseData.name,
+                    status: response.status,
+                    data: response.data
+                });
+                
+                return {
+                    success: false,
+                    error: 'Delhivery API returned invalid response data',
+                    response_data: response.data
+                };
+            }
 
         } catch (error) {
             logger.error('❌ Warehouse creation failed', {
                 name: warehouseData.name,
-                error: error.response?.data || error.message
+                error: error.response?.data || error.message,
+                status: error.response?.status
             });
 
             return {

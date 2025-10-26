@@ -558,14 +558,29 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         console.log('✅ FRONTEND: Order created successfully', {
           order: data.data.order,
           awb: data.data.awb_number,
+          shipment_info: data.data.shipment_info,
           timestamp: new Date().toISOString()
         });
         
         // Show success message with order details
-        const successMessage = `Order created successfully!\n\nOrder ID: ${data.data.order.order_id}\nAWB: ${data.data.awb_number || 'Will be assigned'}\nStatus: ${data.data.order.status}`;
+        const awbDisplay = data.data.awb_number 
+          ? `✅ AWB Number: ${data.data.awb_number}` 
+          : '⚠️ AWB: Will be assigned (Delhivery processing)';
+        
+        const successMessage = `Order created successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n${awbDisplay}\n📊 Status: ${data.data.order.status}\n\n${data.data.shipment_info?.label_url ? `📄 Label URL: ${data.data.shipment_info.label_url}` : ''}`;
         alert(successMessage);
         
-        onOrderCreated(data.data.order);
+        // Transform order data to include AWB for parent component
+        const orderWithAWB = {
+          ...data.data.order,
+          awb: data.data.awb_number,
+          delhivery_data: {
+            waybill: data.data.awb_number,
+            ...data.data.shipment_info
+          }
+        };
+        
+        onOrderCreated(orderWithAWB);
         onClose();
         // Reset form
         setFormData({

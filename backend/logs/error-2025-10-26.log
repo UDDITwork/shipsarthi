@@ -8,3 +8,260 @@
 [2025-10-26T16:54:49.837Z] [ERROR] [PID:9288] ❌ Delhivery createShipment error | Data: {
   "error": "Cannot read properties of undefined (reading 'buyer_name')"
 }
+[2025-10-26T17:59:36.811Z] [ERROR] [PID:15004] ❌ No AWB number received from Delhivery API | Data: {
+  "orderId": "ORD1761500741898057",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 0,
+    "upload_wbn": null,
+    "replacement_count": 0,
+    "rmk": "Package creation API error.Package might be saved.Please contact tech.admin@delhivery.com. Error message is 'NoneType' object has no attribute 'end_date' . Quote this error message while reporting.",
+    "pickups_count": 0,
+    "packages": [],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "error": true,
+    "cod_amount": 0
+  },
+  "responseKeys": [
+    "cash_pickups_count",
+    "package_count",
+    "upload_wbn",
+    "replacement_count",
+    "rmk",
+    "pickups_count",
+    "packages",
+    "cash_pickups",
+    "cod_count",
+    "success",
+    "prepaid_count",
+    "error",
+    "cod_amount"
+  ]
+}
+[2025-10-26T17:59:36.850Z] [ERROR] [PID:15004] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761500741898057",
+  "error": "Delhivery API did not return AWB number. Please check API response."
+}
+[2025-10-26T18:42:03.443Z] [ERROR] [PID:13184] ❌ Waybill fetch failed | Data: {
+  "error": "Bad Request! Invalid request. Unable to fetch client name for the token."
+}
+[2025-10-26T18:42:03.519Z] [ERROR] [PID:13184] ❌ No AWB number received from Delhivery API | Data: {
+  "orderId": "ORD1761501588289017",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 0,
+    "upload_wbn": null,
+    "replacement_count": 0,
+    "rmk": "Package creation API error.Package might be saved.Please contact tech.admin@delhivery.com. Error message is 'NoneType' object has no attribute 'end_date' . Quote this error message while reporting.",
+    "pickups_count": 0,
+    "packages": [],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "error": true,
+    "cod_amount": 0
+  },
+  "responseKeys": [
+    "cash_pickups_count",
+    "package_count",
+    "upload_wbn",
+    "replacement_count",
+    "rmk",
+    "pickups_count",
+    "packages",
+    "cash_pickups",
+    "cod_count",
+    "success",
+    "prepaid_count",
+    "error",
+    "cod_amount"
+  ],
+  "sentWaybill": "none"
+}
+[2025-10-26T18:42:03.523Z] [ERROR] [PID:13184] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761501588289017",
+  "error": "Delhivery API did not return AWB number. Please check API response."
+}
+[2025-10-26T19:09:45.531Z] [ERROR] [PID:13780] ❌ Waybill fetch failed | Data: {
+  "error": "Login or API Key Required",
+  "status": 401,
+  "url": "https://track.delhivery.com/waybill/api/bulk/json/"
+}
+[2025-10-26T19:09:45.623Z] [ERROR] [PID:13780] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761505666330744",
+  "error": {
+    "detail": "Authentication credentials were not provided."
+  }
+}
+[2025-10-26T19:16:39.949Z] [ERROR] [PID:10720] ❌ Delhivery API Key not configured
+[2025-10-26T19:16:39.959Z] [ERROR] [PID:10720] ❌ Delhivery API Key not configured
+[2025-10-26T19:16:39.962Z] [ERROR] [PID:10720] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761506101679501",
+  "error": "Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables."
+}
+[2025-10-26T19:22:27.456Z] [ERROR] [PID:18424] ❌ Delhivery API Key not configured
+[2025-10-26T19:22:27.467Z] [ERROR] [PID:18424] ❌ Delhivery API Key not configured
+[2025-10-26T19:22:27.471Z] [ERROR] [PID:18424] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761506207345225",
+  "error": "Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables."
+}
+[2025-10-26T19:31:42.992Z] [ERROR] [PID:10508] ❌ Delhivery API Key not configured
+[2025-10-26T19:31:43.002Z] [ERROR] [PID:10508] ❌ Delhivery API Key not configured
+[2025-10-26T19:31:43.004Z] [ERROR] [PID:10508] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761507021818882",
+  "error": "Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables."
+}
+[2025-10-26T19:37:14.592Z] [ERROR] [PID:8744] ❌ No AWB number received from Delhivery API | Data: {
+  "orderId": "ORD1761507332964870",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 0,
+    "upload_wbn": null,
+    "replacement_count": 0,
+    "rmk": "format key missing in POST",
+    "pickups_count": 0,
+    "packages": [],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "error": true,
+    "cod_amount": 0
+  },
+  "responseKeys": [
+    "cash_pickups_count",
+    "package_count",
+    "upload_wbn",
+    "replacement_count",
+    "rmk",
+    "pickups_count",
+    "packages",
+    "cash_pickups",
+    "cod_count",
+    "success",
+    "prepaid_count",
+    "error",
+    "cod_amount"
+  ],
+  "sentWaybill": "none"
+}
+[2025-10-26T19:37:14.594Z] [ERROR] [PID:8744] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761507332964870",
+  "error": "Delhivery API did not return AWB number. Please check API response."
+}
+[2025-10-26T19:44:58.560Z] [ERROR] [PID:2672] ❌ No AWB number received from Delhivery API | Data: {
+  "orderId": "ORD1761507793887446",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 0,
+    "upload_wbn": null,
+    "replacement_count": 0,
+    "rmk": "format key missing in POST",
+    "pickups_count": 0,
+    "packages": [],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "error": true,
+    "cod_amount": 0
+  },
+  "responseKeys": [
+    "cash_pickups_count",
+    "package_count",
+    "upload_wbn",
+    "replacement_count",
+    "rmk",
+    "pickups_count",
+    "packages",
+    "cash_pickups",
+    "cod_count",
+    "success",
+    "prepaid_count",
+    "error",
+    "cod_amount"
+  ],
+  "sentWaybill": "none"
+}
+[2025-10-26T19:44:58.564Z] [ERROR] [PID:2672] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1761507793887446",
+  "error": "Delhivery API did not return AWB number. Please check API response."
+}
+[2025-10-26T20:04:03.699Z] [ERROR] [PID:2672] ❌ Warehouse creation failed | Data: {
+  "name": "SHREE JI JEWELLERS",
+  "error": "\n\n\n<!---->\n<!---->\n<!--\n\n\n\n<script src=\"https://static.delhivery.com/js/auth0.min.js\"></script>\n<script>\n    function get_legacy_token_name() {\n        var umsTokenName = '';\n        if (!getCookieName(umsTokenName)) {\n            if(\"prod\" === 'prod') {\n                umsTokenName = 'ums_token';\n            } else {\n                umsTokenName = \"prod\" +'_ums_token';\n            }\n        }\n        return umsTokenName\n    }\n</script>-->\n<!doctype html>\n<script>\n    var unsupported_browser = false;\n</script>\n\n<style type=\"text/css\" media=\"print\">\n .hmp { display: none; }\n</style>\n<style type=\"text/css\">\n    .wraparound {\n        word-break: break-all;\n        overflow-wrap: anywhere;\n    }\n</style>\n<style>\n .dcp {\n    -webkit-user-select: none;\n    -khtml-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    -o-user-select: none;\n    user-select: none;\n }\n</style>\n\n<!--[if lte IE 8]>\n<script type=\"text/javascript\">unsupported_browser = true;</script>\n<![endif]-->\n\n<script>\nif (unsupported_browser == true){\n    alert('Please use a modern browser to continue...');\n    location.replace(\"http://browsehappy.com/\");\n}\n</script>\n\n<!--[if lt IE 7 ]> <html class=\"no-js ie6\" lang=\"en\"> <![endif]-->\n<!--[if IE 7 ]>    <html class=\"no-js ie7\" lang=\"en\"> <![endif]-->\n<!--[if IE 8 ]>    <html class=\"no-js ie8\" lang=\"en\"> <![endif]-->\n<!--[if (gte IE 9)|!(IE)]><!-->\n\n<html class=\"no-js\" lang=\"en\">\n<!--<![endif]-->\n    <head>\n        <meta charset=\"utf-8\">\n        <!--<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">-->\n        <meta name=\"description\" content=\"\">\n        <meta name=\"author\" content=\"\">\n        <meta name=\"robots\" content=\"noindex\">\n        \n        <title>Delhivery | </title>\n\n        <link rel=\"icon\" type=\"image/png\" href=\"https://static.delhivery.com/images/favicon.png\" />\n        <!--[if !IE]>-->\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"https://static.delhivery.com/css/main.embedded.min.css?version=20160516\" media=\"screen, projection\">\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"https://static.delhivery.com/css/main-print.embedded.min.css?version=20130924\" media=\"print\">\n        <link rel='stylesheet' type=\"text/css\" href='https://static.delhivery.com/css/smoothness/jquery-ui.min.css'>\n        <!--<![endif]-->\n        <!--[if gte IE 8]>\n        <link rel=\"stylesheet\" href=\"https://static.delhivery.com/css/main.embedded.min.css?version=20130924\" type=\"text/css\" media=\"screen, projection\">\n        <link rel=\"stylesheet\" href=\"https://static.delhivery.com/css/main-print.embedded.min.css?version=20130924\" type=\"text/css\" media=\"print\">\n        <![endif]-->\n        <!--[if lt IE 8]>\n        <link rel=\"stylesheet\" href=\"https://static.delhivery.com/css/main.normal.min.css?version=20130924\" type=\"text/css\" media=\"screen, projection\">\n        <link rel=\"stylesheet\" href=\"https://static.delhivery.com/css/main-print.normal.min.css?version=20130924\" type=\"text/css\" media=\"print\">\n        <link rel=\"stylesheet\" href=\"https://static.delhivery.com/css/blueprint/ie.css?version=20130924\" type=\"text/css\" media=\"screen, projection\"><![endif]-->\n        \n        <script type='text/javascript' src='https://static.delhivery.com/js/jquery-2.0.3.min.js'></script>\n        <script type='text/javascript' src='https://static.delhivery.com/js/angular.js?v=29_06_2017'></script>\n        <script type='text/javascript' src='https://static.delhivery.com/js/jquery-ui-1.10.3.min.js'></script>\n        <script type='text/javascript' src=\"https://static.delhivery.com/js/jquery.ui.widget.js\"></script>\n        <script type='text/javascript' src=\"https://static.delhivery.com/js/jquery.iframe-transport.js\"></script>\n        <script type='text/javascript' src=\"https://static.delhivery.com/js/jquery.fileupload.js\"></script>\n        <script type=\"text/javascript\" src=\"https://static.delhivery.com/js/bootstrap.min.js\"></script>\n        <script type='text/javascript' src='https://static.delhivery.com/js/jquery.blockUI.js'></script>\n        <script src='https://static.delhivery.com/js/typeahead.bundle.js'></script>\n        <script type='text/javascript' src='https://static.delhivery.com/js/csrf_cookie.js'></script>\n        <script src='https://static.delhivery.com/js/ng-service-menu.bundle.min.js?v=14_09_2017'></script>\n        <script src='https://static.delhivery.com/js/ng-user-details-bundle.min.js?v=14_09_2017'></script>\n        <script src=\"https://static.delhivery.com/js/auth0.min.js\"></script>\n        <script type=\"text/javascript\">\n            function alert_unexpected(wbn) {\n                if (wbn === undefined){\n                    wbn = '';\n                }\n                var msg = '<p> <span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:0 7px 100px 0;\"></span> A missing package <strong>'+ wbn +'</strong> has been scanned, this incident will be reported. </p>'+\n                    'Please click a picture of shipment and send an email to <em>express-audit@delhivery.com</em>';\n\n                // create div based on wbn\n                var outerDiv = $(\"<div/>\", {\n                    'id':\"unexpected_pkg_\"+wbn,\n                    'title':'Unexpected Package Scan',\n                    'style':\"display: none;\",\n                    'html': msg\n                    })\n\n                $( outerDiv ).dialog({\n                    modal: false,\n                    height: 250,\n                    width: 400,\n                    buttons: {\n                        Ok: function() {\n                            $( this ).dialog( \"close\" );\n                        }\n                    }\n                });\n            };\n        </script>\n        <script type=\"text/javascript\">\n\n        (function() {\n\n            angular.module('hq.userDetails', ['delhivery.auth'])\n            .config(function($DelhiveryLoginProvider){\n                $DelhiveryLoginProvider.init({\n                    environment: \"prod\"\n                });\n            })\n            .controller('userDetailsController', ['$scope', function($scope) {\n\n                $scope.logout = function() {\n                    window.location.href='/accounts/logout';\n                }\n\n            }]);\n        })();\n        </script>\n        <script type=\"text/javascript\">\n\n        (function() {\n\n            angular.module('hq.serviceMenu', ['menu.services', 'hq.userDetails'])\n            .config(function($menuServicesProvider){\n\n                $menuServicesProvider.init({\n                    environment: \"prod\",\n                    showCenter: false\n                });\n            })\n            .controller('serviceMenuController', ['$scope', function($scope) {\n\n                $scope.isAppHq = true;\n\n\n            }]);\n\n        })();\n\n\n        </script>\n        <script type=\"text/javascript\">\n            function alert_xray(wbn) {\n                if (wbn === undefined){\n                    wbn = '';\n                }\n                var msg = '<p> <span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:0 7px 100px 0;\"></span> A missing package <strong>'+ wbn +'</strong> has been scanned, this incident will be reported. </p>'+\n                    'Shipment need to be X-rayed. Please X-Ray the shipment if available';\n\n                // create div based on wbn\n                var outerDiv = $(\"<div/>\", {\n                    'id':\"xray_pkg_\"+wbn,\n                    'title':'Xray Package Scan',\n                    'style':\"display: none;\",\n                    'html': msg\n                    })\n\n                $( outerDiv ).dialog({\n                    modal: false,\n                    height: 250,\n                    width: 400,\n                    buttons: {\n                        Ok: function() {\n                            $( this ).dialog( \"close\" );\n                        }\n                    }\n                });\n            };\n        </script>\n        \n        <style>\n            #center_name {\n                color:#0066CC;\n            }\n            #center_name:hover {\n                color:#59B4FF;\n                cursor: pointer;\n            }\n            #select-center:after {\n                content: ' |';\n            }\n            #select-center .empty-message {\n                padding: 5px 10px;\n                text-align: center;\n                background: white;\n            }\n            .tt-dropdown-menu {\n                min-width: 160px;\n                margin-top: 2px;\n                padding: 5px;\n                background-color: #fff;\n                border: 1px solid #ccc;\n                border: 1px solid rgba(0,0,0,.2);\n                *border-right-width: 2px;\n                *border-bottom-width: 2px;\n                -webkit-border-radius: 6px;\n                -moz-border-radius: 6px;\n                border-radius: 6px;\n                -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);\n                -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);\n                box-shadow: 0 5px 10px rgba(0,0,0,.2);\n                -webkit-background-clip: padding-box;\n                -moz-background-clip: padding;\n                background-clip: padding-box;\n            }\n            .tt-suggestion.tt-cursor {\n              color: #fff;\n              background-color: #0097cf;\n            }\n            .tt-suggestion {\n              padding: 3px 20px;\n              font-size: 12px;\n              line-height: 24px;\n            }\n            .tt-suggestion.tt-cursor {\n              color: #fff;\n              background-color: #0097cf;\n            }\n            .tt-suggestion.tt-cursor a {\n              color: #fff;\n            }\n            .tt-suggestion p {\n              margin: 0;\n            }\n    \t    .nav_elem_link {\n    \t      border-bottom: 4px solid #ffffff;\n    \t    }\n\n            tr.high_priority > td {\n                background-color: #82FA58 !important;\n            }\n            tr.air_restricted > td {\n                background-color: #F2B866 !important;\n            }\n            tr.xray_required > td {\n                background-color: #FA5858 !important;\n            }\n            tr.surface_mode > td {\n                background-color: #F4FA58 !important;\n            }\n            tr.football > td {\n                background-color: #7BCCB5 !important;\n            }\n            tr.mps_package > td {\n                background-color: #DC9FBC !important;\n            }\n            /*tr.rpc_ageing > td {\n                background-color: #8DABF6 !important;\n            */}\n\n            .hq-ng-user-details {\n                display: inline-block;\n            }\n\n            .hq-ng-user-details .user-details-section {\n                height: inherit;\n                float: none;\n                padding: 0;\n            }\n\n            .hq-ng-user-details .user-details-section .display-text {\n                height: initial;\n                margin-top: 0;\n            }\n\n            .hq-ng-user-details .user-details-section .display-text .angle-down {\n                display: none;\n            }\n\n            .hq-ng-user-details .user-details-section .display-text .user-name {\n                top: 1px;\n                color: #0066CC;\n                font-size: 1.4em;\n            }\n\n            .hq-ng-user-details .user-details-section .sub-menu {\n                left: -45px;\n                top: 20px;\n                width: 135px;\n                line-height: 0;\n                text-align: center;\n            }\n\n            .hq-ng-user-details .user-details-section:hover {\n                background: none;\n                color: #59B4FF;\n                cursor: pointer;\n            }\n\n            .hq-ng-user-details .user-details-section .sub-menu li {\n                list-style-type: none;\n                font-size: 10px;\n                color: #0066CC;\n                padding: 10px;\n            }\n\n            .hq-ng-user-details .angle-down {\n                float: right;\n                position: absolute;\n                top: 3px;\n                right: -8px;\n                cursor: pointer;\n            }\n\n           .changePasswordModal .modal-body {\n                position: relative;\n                background: #fff;\n                margin-top: calc(50% - 80vh);\n                margin-left: calc(50% - 17.5vw);\n                width: 35vw;\n                height: 40vh;\n                z-index: 99;\n                padding-top: 16px;\n            }\n\n            .changePasswordModal .modal-body .close-button {\n                width: 15px;\n            }\n\n            .changePasswordModal .modal-body .input-details .input-wrapper .text input {\n                height: 20px;\n            }\n\n            .changePasswordModal .modal-body .input-details .input-wrapper label {\n                line-height: 3.1;\n            }\n\n            .changePasswordModal .modal-body .modal-footer {\n                margin-left: 25%;\n            }\n\n            .changePasswordModal .modal-body .modal-footer .button {\n                border: medium none;\n                font-family: inherit;\n                height: 25px;\n                border-radius: 2px;\n                line-height: 1.9;\n                min-width: 120px;\n                transition: all .3s;\n                cursor: pointer;\n                font-size: 10px;\n                text-align: center;\n                border: 1px solid #999;\n                border-top: 1px solid #999;\n                border-left: 1px solid #999;\n                font-weight: bold;\n                color: #565656;\n            }\n\n            .changePasswordModal .modal-body .modal-footer .button.button-save {\n                    background: #f5f5f5;\n                    color: green;\n            }\n\n             .changePasswordModal .modal-body .modal-footer .button.button-close {\n                    background: #f5f5f5;\n                    color: red;\n            }\n\n            .changePasswordModal .modal-body .modal-footer .button:hover {\n                box-shadow: none;\n                background-color: #dff4ff !important;\n                border: 1px solid #c2e1ef;\n                color: #369;\n            }\n\n            .hq-ng-service-menu {\n                width: 100%;\n                display: inline-block;\n            }\n\n\n            .hq-ng-service-menu .service-menu-section .service-menu-inner {\n                justify-content: space-between;\n            }\n\n            .hq-ng-service-menu .service-menu-section .menu {\n                width: 22%;\n            }\n\n            .hq-ng-service-menu .service-menu-section .menu-overlay {\n                margin: 0;\n                position: relative;\n                top: 20px;\n            }\n\n            .service-menu-section .menu-overlay span {\n                font-size: 15px;\n            }\n\n            .service-menu-section .waybill-search {\n                width: 70%;\n            }\n\n            .service-menu-section .menu-waybill input {\n                border: 1px solid #8c8888;\n            }\n\n            .service-menu-section .searchicon {\n                top: 8px;\n            }\n\n            .services-overlay.open {\n                height: calc(100% - 55px);\n                top: 55px;\n                box-shadow: 0px 1px 3px 1px rgba(0,0,0,0.30);\n            }\n\n            .hq-ng-service-menu .service-menu-section .menu-overlay.open .menu-title {\n                margin-right: 1px;\n            }\n\n            .hq-ng-service-menu .service-menu-section .menu-overlay .angle-up {\n                height: 5px;\n            }\n\n\n            .hq-ng-service-menu .services-overlay .go-to-home {\n                font-size: 16px;\n                margin-left: 30px;\n                font-family: inherit;\n            }\n\n            .hq-ng-service-menu .services-overlay .service-overlay-content .service-container .frequent-services {\n                margin-top: 10px;\n            }\n\n            .services-overlay a {\n                text-decoration: none;\n            }\n            .announcement-static {\n                color: #000000;\n                font-size: 14px;\n                overflow: hidden;\n                position: relative;\n                background: rgb(254,178,26);\n                background: linear-gradient(90deg, #feb21a 0%, #fedb28 50%, #feb21a 100%);\n                text-align: -webkit-center;\n                text-align: center;\n            }\n\n            .announcement-static:hover p {\n                -webkit-animation-play-state: paused;\n               -moz-animation-play-state: paused;\n               -o-animation-play-state: paused;\n               animation-play-state: paused;\n             }\n            .announcement-static p {\n                overflow: hidden;\n                margin-top: 8px;\n                margin-right: 10px;\n                text-align: center;\n                float:left;\n                margin-bottom: 0px;\n                font-weight: 600;\n            }\n            .fit-content {\n                width: fit-content;\n                display: inline-block;\n                padding: 2px;\n            }\n            .announcement-static a {\n                margin-top: 4px;\n                display: inline-block;\n                float: none;\n                margin-bottom: 4px;\n                font-size: 12px !important;\n                height: 27px;\n                line-height: 12px;\n            }\n            .announcement-static p span{\n                color: #cd1212;\n                font-weight: 600;\n            }\n\n            @media only screen and (max-width: 1024px) {\n                .announcement-static p {\n                    width: 100vw;\n                }\n            }\n            .btn-primary, .btn-red {\n                background: #f0503c;\n                border: 1px solid #f0503c;\n                color: #fff;\n                font-family: OpenSans-Regular;\n                letter-spacing: 1.2px;\n            }\n            .btn {\n                border-radius: 3px;\n                font-family: OpenSans-Semibold;\n                font-size: 13px;\n                line-height: 16px;\n                outline: none;\n                padding: 6px 20px;\n                letter-spacing: .5px;\n                text-transform: uppercase;\n                transition: all .1s ease .1s!important;\n                word-spacing: 3px;\n                text-decoration: none;\n            }\n            .btn {\n                display: inline-block;\n                padding: 6px 12px;\n                margin-bottom: 0;\n                font-size: 14px;\n                font-weight: 400;\n                line-height: 1.42857143;\n                text-align: center;\n                white-space: nowrap;\n                vertical-align: middle;\n                -ms-touch-action: manipulation;\n                touch-action: manipulation;\n                cursor: pointer;\n                -webkit-user-select: none;\n                -moz-user-select: none;\n                -ms-user-select: none;\n                user-select: none;\n                background-image: none;\n                border: 1px solid transparent;\n                border-radius: 4px;\n            }\n\n        </style>\n        <script type=\"text/javascript\">\n            function get_legacy_token_name() {\n                var umsTokenName = '';\n                if (!getCookieName(umsTokenName)) {\n                    if(\"prod\" === 'prod') {\n                        umsTokenName = 'ums_token';\n                    } else {\n                        umsTokenName = \"prod\" +'_ums_token';\n                    }\n                }\n                return umsTokenName\n            }\n            var getCookieName = function(cookieName) {\n\n                var name = cookieName + '=',\n                    ca = document.cookie.split(';');\n\n                for (var i = 0; i < ca.length; i++) {\n\n                    var c = ca[i];\n                    while (c.charAt(0) === ' ') {\n                        c = c.substring(1)\n                    }\n\n                    if (c.indexOf(name) === 0) {\n\n                        var cookieValue = c.substring(name.length, c.length);\n\n                        try {\n\n                            if (JSON.parse(cookieValue)) {\n                                return JSON.parse(cookieValue)\n                            }\n\n                        } catch (e) {\n                            return cookieValue;\n                        }\n                    }\n                }\n                return null;\n            };\n\n             $.ajaxSetup({\n                statusCode: {\n                    401: function (xhr) {\n                       window.location.href='/accounts/logout';\n                    }\n                }\n             });\n\n             $.ajaxPrefilter( function(options) {\n                  var umsTokenName = get_legacy_token_name();\n\n\t           if(window.location.pathname !== '/accounts/login/' && (!getCookieName('sessionid') || !getCookieName(umsTokenName))) {\n                         window.location.href='/accounts/logout';\n\t           }\n\n              });\n\n\n        </script>\n\n    </head>\n    <body>\n        <div id=\"container\" class=\"container\">\n            <div id=\"main\" class=\"main\">\n                <header>\n                    <div class=\"span-24 noprint\">\n                        <div class=\"span-6 first prepend-top hide_on_login_logout\" style=\"width:220px\">\n                            <a href=\"/\"><img src=\"https://static.delhivery.com/images/logo.png\" alt=\"Delhivery\" style='{border: 0;}' class=\"logo\" title=\"Delhivery\" /></a>\n                        </div>\n                        <div class=\"span-18 last\" style=\"width:720px\">\n                        <nav>\n                            \n                                <div class=\"column prepend-top span-11 last right hide_on_login_logout\">\n                                    <ul id=\"minitabs\">\n                                        <li><a href=\"https://www.delhivery.com/index.html\" >Home</a></li>\n                                        <li><a href=\"https://www.delhivery.com/services.html\" >Services</a></li>\n                                        <li><a href=\"https://www.delhivery.com/about-us.html\" >About Us</a></li>\n                                        <li><a href=\"https://www.delhivery.com/careers.html\" >Careers</a></li>\n                                        <li><a href=\"https://www.delhivery.com/contact.html\">Contact</a></li>\n                                    </ul>\n                                </div>\n                            \n                        </nav>\n                        </div>\n                    </div>\n                </header>\n                <section>\n                    <div class=\"span-24\">\n                        <div id='notification_bar'>\n                            <p></p>\n                        </div>\n                        \n   \n           <h1>Page not found</h1>\n           <p>The page you requested for was not found on this server.</p>\n   \n\n                    </div>\n                </section>\n                \n                <hr class=\"space noprint\">\n                <div class=\"push\"></div>\n            </div><!--end of main-->\n            <footer>\n                <hr class=\"noprint\">\n                <div class=\"span-24 noprint\">\n                    <p class=\"small quiet\">Copyright &copy; <time datetime=\"2011-03-24\">2011</time> SSN Logistics | <a href=\"https://www.delhivery.com/terms/\">Terms &amp; Conditions</a> | <a href=\"https://www.delhivery.com/privacy/\">Privacy &amp; Security</a></p>\n                    \n                </div>\n            </footer>\n        </div> <!--! end of #container -->\n        <form id=\"global_search_form\" action=\"/p/list/1\" method=\"GET\"></form>\n        <script type='text/javascript' src=\"https://static.delhivery.com/js/modernizr-1.7.min.js\"></script>\n        <script type='text/javascript' src=\"https://static.delhivery.com/js/plugins.js?v=1\"></script>\n        <script type='text/javascript' src='https://static.delhivery.com/js/notify.js'></script>\n        <script type=\"text/javascript\">\n                var _gaq = _gaq || [];\n                _gaq.push(['_setAccount', 'UA-27886886-1']);\n                _gaq.push(['_setDomainName', 'delhivery.com']);\n                _gaq.push(['_trackPageview']);\n\n                (function() {\n                    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;\n                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);\n                })();\n        </script>\n        \n        \n\n        \n        <script type=\"text/javascript\" src=\"https://static.delhivery.com/js/navigation.js?version=20150320\"></script>\n        <script type=\"text/javascript\" src=\"https://static.delhivery.com/js/jquery.delhivery.js?version=20140331\"></script>\n        \n        \n    </body>\n</html>\n"
+}
+[2025-10-26T20:11:11.463Z] [ERROR] [PID:19788] ❌ Warehouse creation failed | Data: {
+  "name": "MEHUL WAREHOUSE",
+  "error": {
+    "detail": "Method 'PUT' not allowed."
+  },
+  "status": 405
+}
+[2025-10-26T20:11:11.583Z] [ERROR] [PID:19788] ❌ WAREHOUSE CREATED BUT DELHIVERY REGISTRATION FAILED - HIDING FROM FRONTEND | Data: {
+  "requestId": "req_1761509470766_a81kwplzf",
+  "warehouseId": "68fe805fdd4ddda9a70fac00",
+  "warehouseName": "MEHUL WAREHOUSE",
+  "delhiveryError": "Request failed with status code 405",
+  "action": "Warehouse hidden from frontend until Delhivery registration succeeds"
+}
+[2025-10-26T20:37:20.598Z] [ERROR] [PID:29336] ❌ Warehouse creation failed | Data: {
+  "name": "UDDIT WAREHOUSE",
+  "error": {
+    "error_code": [
+      2000
+    ],
+    "data": {
+      "business_hours": {
+        "WED": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        },
+        "THU": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        },
+        "TUE": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        },
+        "MON": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        },
+        "FRI": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        },
+        "SAT": {
+          "start_time": "09:30",
+          "close_time": "18:30"
+        }
+      },
+      "name": "UDDIT WAREHOUSE",
+      "pincode": "400001",
+      "phone": "9876543210",
+      "address": "UDDIT Warehouse, Industrial Area",
+      "secondary_phone": null,
+      "message": "some error while creating/updating warehouse",
+      "other_phone": null,
+      "business_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT"
+      ]
+    },
+    "success": false,
+    "error": [
+      "Transaction Failed: client-warehouse of client: cms::client::0f9c1b0f-ab42-11f0-8d4f-0242c89ff6cd with name: UDDIT WAREHOUSE already exists CLIENT_STORES_CREATE"
+    ]
+  },
+  "status": 400
+}

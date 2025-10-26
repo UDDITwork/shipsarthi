@@ -35,6 +35,9 @@ router.get('/', auth, [
       filterQuery.is_active = false;
     }
 
+    // Only show warehouses that are registered with Delhivery
+    filterQuery.delhivery_registered = true;
+    
     const warehouses = await Warehouse.find(filterQuery)
       .sort({ is_default: -1, createdAt: -1 });
 
@@ -62,7 +65,8 @@ router.get('/dropdown', auth, async (req, res) => {
   try {
     const warehouses = await Warehouse.find({
       user_id: req.user._id,
-      is_active: true
+      is_active: true,
+      delhivery_registered: true  // Only show Delhivery-registered warehouses
     })
     .select('_id name title address.city address.state address.pincode')
     .sort({ is_default: -1, createdAt: -1 });
@@ -87,7 +91,8 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const warehouse = await Warehouse.findOne({
       _id: req.params.id,
-      user_id: req.user._id
+      user_id: req.user._id,
+      delhivery_registered: true  // Only show Delhivery-registered warehouses
     });
 
     if (!warehouse) {
@@ -128,10 +133,10 @@ router.post('/', auth, [
   body('address.state').notEmpty().trim().withMessage('State is required'),
   body('address.pincode').matches(/^\d{6}$/).withMessage('Valid 6-digit pincode is required'),
   body('address.country').optional().trim(),
-  body('return_address.full_address').optional().trim(),
-  body('return_address.city').optional().trim(),
-  body('return_address.state').optional().trim(),
-  body('return_address.pincode').optional().matches(/^\d{6}$/),
+  body('return_address.full_address').notEmpty().trim().withMessage('Return address is required for Delhivery registration'),
+  body('return_address.city').notEmpty().trim().withMessage('Return city is required'),
+  body('return_address.state').notEmpty().trim().withMessage('Return state is required'),
+  body('return_address.pincode').matches(/^\d{6}$/).withMessage('Valid 6-digit return pincode is required'),
   body('return_address.country').optional().trim(),
   body('gstin').optional().matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/),
   body('support_contact.email').optional().isEmail(),
@@ -256,43 +261,18 @@ router.post('/', auth, [
       }
     });
 
-    // Create warehouse in database
-    const warehouse = new Warehouse({
+    // Prepare warehouse data for Delhivery registration
+    const tempWarehouse = new Warehouse({
       ...warehouseData,
       user_id: userId
     });
 
-    try {
-      await warehouse.save();
-      logger.info('✅ WAREHOUSE SAVED TO DATABASE', {
-        requestId,
-        warehouseId: warehouse._id,
-        warehouseName: warehouse.name
-      });
-    } catch (saveError) {
-      logger.error('❌ DATABASE SAVE ERROR', {
-        requestId,
-        userId,
-        error: saveError.message,
-        errorStack: saveError.stack,
-        warehouseData: {
-          name: warehouseData.name,
-          title: warehouseData.title
-        },
-        validationErrors: saveError.errors ? Object.keys(saveError.errors).map(key => ({
-          field: key,
-          message: saveError.errors[key].message
-        })) : null
-      });
-      throw saveError;
-    }
-
-    // Register with Delhivery
-    const delhiveryData = warehouse.toDelhiveryFormat();
+    // Register with Delhivery FIRST (before saving to database)
+    const delhiveryData = tempWarehouse.toDelhiveryFormat();
     
     logger.info('🚀 ATTEMPTING DELHIVERY REGISTRATION', {
       requestId,
-      warehouseId: warehouse._id,
+      warehouseName: delhiveryData.name,
       delhiveryData: {
         name: delhiveryData.name,
         city: delhiveryData.city,
@@ -303,10 +283,40 @@ router.post('/', auth, [
     const delhiveryResult = await delhiveryService.createWarehouse(delhiveryData);
 
     if (delhiveryResult.success) {
-      warehouse.delhivery_registered = true;
-      warehouse.delhivery_response = delhiveryResult.data;
-      warehouse.delhivery_warehouse_id = delhiveryResult.data.data?.name;
-      await warehouse.save();
+      // Only save to database if Delhivery registration succeeds
+      const warehouse = new Warehouse({
+        ...warehouseData,
+        user_id: userId,
+        delhivery_registered: true,
+        delhivery_response: delhiveryResult.data,
+        delhivery_warehouse_id: delhiveryResult.data.data?.name
+      });
+
+      try {
+        await warehouse.save();
+        logger.info('✅ WAREHOUSE SAVED TO DATABASE (Delhivery Registered)', {
+          requestId,
+          warehouseId: warehouse._id,
+          warehouseName: warehouse.name,
+          delhiveryWarehouseId: warehouse.delhivery_warehouse_id
+        });
+      } catch (saveError) {
+        logger.error('❌ DATABASE SAVE ERROR AFTER DELHIVERY SUCCESS', {
+          requestId,
+          userId,
+          error: saveError.message,
+          errorStack: saveError.stack,
+          warehouseData: {
+            name: warehouseData.name,
+            title: warehouseData.title
+          },
+          validationErrors: saveError.errors ? Object.keys(saveError.errors).map(key => ({
+            field: key,
+            message: saveError.errors[key].message
+          })) : null
+        });
+        throw saveError;
+      }
 
       const duration = Date.now() - startTime;
       logger.info('✅ WAREHOUSE CREATED SUCCESSFULLY', {
@@ -314,6 +324,7 @@ router.post('/', auth, [
         warehouseId: warehouse._id,
         warehouseName: warehouse.name,
         delhiveryRegistered: true,
+        delhiveryWarehouseId: warehouse.delhivery_warehouse_id,
         duration: `${duration}ms`
       });
 
@@ -328,27 +339,21 @@ router.post('/', auth, [
         }
       });
     } else {
-      // Mark as not registered but keep in database
-      warehouse.delhivery_registered = false;
-      warehouse.delhivery_response = {
-        error: delhiveryResult.error,
-        timestamp: new Date()
-      };
-      await warehouse.save();
-
-      logger.warn('⚠️ WAREHOUSE CREATED BUT DELHIVERY REGISTRATION FAILED', {
+      // Delhivery registration failed - DO NOT save to database
+      logger.error('❌ DELHIVERY REGISTRATION FAILED - WAREHOUSE NOT SAVED', {
         requestId,
-        warehouseId: warehouse._id,
-        warehouseName: warehouse.name,
-        delhiveryError: delhiveryResult.error
+        warehouseName: warehouseData.name,
+        delhiveryError: delhiveryResult.error,
+        action: 'Warehouse not saved to database due to Delhivery registration failure'
       });
 
-      res.status(201).json({
-        status: 'partial_success',
-        message: 'Warehouse created in database but failed to register with Delhivery',
-        data: {
-          warehouse,
-          delhivery_error: delhiveryResult.error
+      res.status(400).json({
+        status: 'error',
+        message: 'Failed to register warehouse with Delhivery. Warehouse not created.',
+        error: {
+          warehouse_name: warehouseData.name,
+          delhivery_error: delhiveryResult.error,
+          note: 'Warehouse is only saved after successful Delhivery registration'
         }
       });
     }
@@ -695,7 +700,8 @@ router.get('/statistics/overview', auth, async (req, res) => {
     const defaultWarehouse = await Warehouse.findOne({
       user_id: userId,
       is_default: true,
-      is_active: true
+      is_active: true,
+      delhivery_registered: true  // Only show Delhivery-registered warehouses
     });
 
     res.json({

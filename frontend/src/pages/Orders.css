@@ -1,4 +1,65 @@
 /* location is frontend/src/pages/Orders.css */
+
+/* AWB Number Column Styles */
+.awb-cell {
+  padding: 8px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.awb-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.awb-label {
+  font-size: 11px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.awb-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #002B59;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+.copy-awb-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.copy-awb-btn:hover {
+  background-color: #e9ecef;
+}
+
+.no-awb {
+  padding: 8px;
+  text-align: center;
+}
+
+.no-awb-text {
+  font-size: 12px;
+  color: #dc3545;
+  font-style: italic;
+  background-color: #f8d7da;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
 .orders-container {
     width: 100%;
     padding: 0;

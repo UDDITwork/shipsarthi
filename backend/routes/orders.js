@@ -408,8 +408,8 @@ router.post('/', auth, [
       user_id: userId,
       order_id: orderId,
       order_date: req.body.order_date ? new Date(req.body.order_date) : new Date(),
-      reference_id: req.body.reference_id,
-      invoice_number: req.body.invoice_number,
+      reference_id: req.body.reference_id && req.body.reference_id.trim() ? req.body.reference_id.trim() : undefined, // Set to undefined if empty to avoid duplicate key error
+      invoice_number: req.body.invoice_number && req.body.invoice_number.trim() ? req.body.invoice_number.trim() : undefined,
       
       customer_info: {
         buyer_name: req.body.customer_info.buyer_name,
@@ -478,61 +478,43 @@ router.post('/', auth, [
       status: 'new'
     };
 
+    // Create order object but DON'T save to database yet
     const order = new Order(orderData);
-    await order.save();
     
-    console.log('💾 ORDER SAVED TO DATABASE', {
+    console.log('📋 ORDER PREPARED (NOT SAVED YET)', {
       orderId: order.order_id,
       timestamp: new Date().toISOString()
     });
 
-    // Create or update customer record
-    try {
-      const customerData = {
-        name: order.customer_info.buyer_name,
-        phone: order.customer_info.phone,
-        alternate_phone: order.customer_info.alternate_phone,
-        email: order.customer_info.email,
-        gstin: order.customer_info.gstin,
-        address: {
-          address_line_1: order.delivery_address.address_line_1,
-          address_line_2: order.delivery_address.address_line_2,
-          full_address: order.delivery_address.full_address,
-          landmark: order.delivery_address.landmark,
-          city: order.delivery_address.city,
-          state: order.delivery_address.state,
-          pincode: order.delivery_address.pincode,
-          country: order.delivery_address.country,
-          address_type: order.delivery_address.address_type
-        },
-        channel: 'order_creation'
-      };
-
-      const customer = await Customer.findOrCreate(userId, customerData);
-      
-      // Update customer order statistics
-      await customer.updateOrderStats(order.payment_info.total_amount);
-      
-      console.log('👤 CUSTOMER CREATED/UPDATED', {
-        orderId: order.order_id,
-        customerId: customer._id,
-        customerName: customer.name,
-        customerPhone: customer.phone,
-        timestamp: new Date().toISOString()
-      });
-    } catch (customerError) {
-      console.error('❌ CUSTOMER CREATION FAILED', {
-        orderId: order.order_id,
-        error: customerError.message,
-        timestamp: new Date().toISOString()
-      });
-      // Don't fail the order creation if customer creation fails
-    }
-
-    // Create shipment with Delhivery API
+    // Create shipment with Delhivery API FIRST
     let delhiveryResult = null;
     try {
-      // Prepare order data for Delhivery API (service expects order structure, not formatted shipment data)
+      // STEP 1: Fetch waybill from Delhivery BEFORE creating shipment
+      console.log('📋 FETCHING WAYBILL FROM DELHIVERY', {
+        orderId: order.order_id,
+        timestamp: new Date().toISOString()
+      });
+
+      const waybillResult = await delhiveryService.getWaybill(1);
+      let preFetchedWaybill = null;
+
+      if (waybillResult.success && waybillResult.waybills && waybillResult.waybills.length > 0) {
+        preFetchedWaybill = waybillResult.waybills[0]; // Get first waybill from array
+        console.log('✅ WAYBILL FETCHED', {
+          orderId: order.order_id,
+          waybill: preFetchedWaybill,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.log('⚠️ WAYBILL FETCH FAILED, Delhivery will auto-generate', {
+          orderId: order.order_id,
+          error: waybillResult.error,
+          timestamp: new Date().toISOString()
+        });
+        // Continue without pre-fetched waybill - Delhivery will generate
+      }
+
+      // STEP 2: Prepare order data for Delhivery API (service expects order structure, not formatted shipment data)
       const orderDataForDelhivery = {
         order_id: order.order_id,
         customer_info: {
@@ -582,7 +564,8 @@ router.post('/', auth, [
         },
         invoice_number: order.invoice_number || `INV${order.order_id}`,
         shipping_mode: order.shipping_mode || 'Surface',
-        address_type: order.delivery_address.address_type || 'home'
+        address_type: order.delivery_address.address_type || 'home',
+        waybill: preFetchedWaybill || undefined // Send pre-fetched waybill if available
       };
 
       console.log('🌐 CALLING DELHIVERY API', {
@@ -598,6 +581,16 @@ router.post('/', auth, [
 
       // Call Delhivery API to create shipment
       delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
+
+      console.log('📥 DELHIVERY RESULT RECEIVED', {
+        orderId: order.order_id,
+        success: delhiveryResult?.success,
+        hasWaybill: !!delhiveryResult?.waybill,
+        hasPackages: !!delhiveryResult?.packages,
+        packagesLength: delhiveryResult?.packages?.length || 0,
+        fullResult: JSON.stringify(delhiveryResult),
+        timestamp: new Date().toISOString()
+      });
 
       if (delhiveryResult.success) {
         // Extract AWB/waybill from response - handle multiple response formats
@@ -623,7 +616,7 @@ router.post('/', auth, [
         }
 
         if (awbNumber) {
-          console.log('✅ DELHIVERY API SUCCESS', {
+          console.log('✅ DELHIVERY API SUCCESS - SHIPMENT CREATED', {
             orderId: order.order_id,
             awb: awbNumber,
             source: delhiveryResult.packages ? 'packages' : 'waybill',
@@ -653,30 +646,119 @@ router.post('/', auth, [
             order.status = 'new';
           }
           
+          // NOW SAVE TO DATABASE - Only after Delhivery confirms shipment creation
           await order.save();
+          
+          console.log('💾 ORDER SAVED TO DATABASE AFTER DELHIVERY SUCCESS', {
+            orderId: order.order_id,
+            awb: awbNumber,
+            status: order.status,
+            timestamp: new Date().toISOString()
+          });
+          
+          // Create or update customer record AFTER successful order save
+          try {
+            const customerData = {
+              name: order.customer_info.buyer_name,
+              phone: order.customer_info.phone,
+              alternate_phone: order.customer_info.alternate_phone,
+              email: order.customer_info.email,
+              gstin: order.customer_info.gstin,
+              address: {
+                address_line_1: order.delivery_address.address_line_1,
+                address_line_2: order.delivery_address.address_line_2,
+                full_address: order.delivery_address.full_address,
+                landmark: order.delivery_address.landmark,
+                city: order.delivery_address.city,
+                state: order.delivery_address.state,
+                pincode: order.delivery_address.pincode,
+                country: order.delivery_address.country,
+                address_type: order.delivery_address.address_type
+              },
+              channel: 'order_creation'
+            };
+
+            const customer = await Customer.findOrCreate(userId, customerData);
+            
+            // Update customer order statistics
+            await customer.updateOrderStats(order.payment_info.total_amount);
+            
+            console.log('👤 CUSTOMER CREATED/UPDATED AFTER ORDER SUCCESS', {
+              orderId: order.order_id,
+              customerId: customer._id,
+              customerName: customer.name,
+              customerPhone: customer.phone,
+              timestamp: new Date().toISOString()
+            });
+          } catch (customerError) {
+            console.error('❌ CUSTOMER CREATION FAILED', {
+              orderId: order.order_id,
+              error: customerError.message,
+              timestamp: new Date().toISOString()
+            });
+            // Don't fail the order creation if customer creation fails
+          }
           
           console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', awbNumber);
         } else {
-          console.log('⚠️ DELHIVERY API SUCCESS BUT NO AWB FOUND', {
+          console.log('⚠️ DELHIVERY API SUCCESS BUT NO AWB FOUND - ORDER NOT SAVED', {
             orderId: order.order_id,
             delhiveryResponse: delhiveryResult,
+            hasWaybill: !!delhiveryResult?.waybill,
+            hasPackages: !!delhiveryResult?.packages,
+            hasTrackingId: !!delhiveryResult?.tracking_id,
+            delhiveryResultKeys: Object.keys(delhiveryResult || {}),
             timestamp: new Date().toISOString()
+          });
+          
+          // Don't save order if no AWB was generated
+          return res.status(400).json({
+            status: 'error',
+            message: 'Shipment creation failed - No AWB number generated by Delhivery',
+            debug_info: {
+              delhivery_success: delhiveryResult?.success || false,
+              has_waybill: !!delhiveryResult?.waybill,
+              has_packages: !!delhiveryResult?.packages,
+              response_keys: Object.keys(delhiveryResult || {})
+            }
           });
         }
       } else {
-        console.log('❌ DELHIVERY API FAILED', {
+        console.log('❌ DELHIVERY API FAILED - ORDER NOT SAVED', {
           orderId: order.order_id,
           delhiveryResponse: delhiveryResult,
           error: delhiveryResult.error,
           timestamp: new Date().toISOString()
         });
-        // Don't fail the order creation if shipment creation fails
-        // Just log the error and continue
+        
+        // Return error - don't save order if Delhivery fails
+        return res.status(400).json({
+          status: 'error',
+          message: 'Shipment creation failed with Delhivery',
+          error: delhiveryResult.error || 'Unknown Delhivery API error',
+          debug_info: {
+            delhivery_success: delhiveryResult?.success || false,
+            response_data: delhiveryResult
+          }
+        });
       }
     } catch (delhiveryError) {
-      console.error('❌ Error creating shipment with Delhivery:', delhiveryError.message);
-      // Don't fail the order creation if Delhivery API fails
-      // Just log the error and continue
+      console.error('❌ DELHIVERY API ERROR - ORDER NOT SAVED:', {
+        orderId: order.order_id,
+        error: delhiveryError.message,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Return error - don't save order if Delhivery API fails
+      return res.status(500).json({
+        status: 'error',
+        message: 'Failed to create shipment with Delhivery',
+        error: delhiveryError.message,
+        debug_info: {
+          error_type: 'DELHIVERY_API_ERROR',
+          order_id: order.order_id
+        }
+      });
     }
 
     // Save package template if requested
@@ -715,9 +797,10 @@ router.post('/', auth, [
     
     const awbNumber = order.delhivery_data?.waybill || delhiveryResult?.waybill || null;
     
-    console.log('🎉 ORDER CREATION COMPLETED', {
+    // Only reach here if Delhivery API succeeded and order was saved
+    console.log('🎉 ORDER AND SHIPMENT CREATION COMPLETED', {
       orderId: order.order_id,
-      awb: awbNumber || 'N/A',
+      awb: order.delhivery_data?.waybill || 'N/A',
       status: order.status,
       delhiverySuccess: delhiveryResult?.success || false,
       timestamp: new Date().toISOString()
@@ -725,20 +808,19 @@ router.post('/', auth, [
 
     res.status(201).json({
       status: 'success',
-      message: 'Order created successfully',
+      message: 'Order and shipment created successfully',
       data: {
-        order,
-        delhivery_result: delhiveryResult,
-        awb_number: awbNumber,
-        shipment_created: !!awbNumber,
-        ...(awbNumber && {
-          shipment_info: {
-            awb_number: awbNumber,
-            label_url: order.delhivery_data?.label_url || delhiveryResult?.label_url,
-            expected_delivery: order.delhivery_data?.expected_delivery_date || delhiveryResult?.expected_delivery,
-            status: order.delhivery_data?.status || 'Success'
-          }
-        })
+        order: order,
+        awb_number: order.delhivery_data?.waybill || null,
+        shipment_info: order.delhivery_data || null,
+        delhivery_confirmation: {
+          success: true,
+          awb: order.delhivery_data?.waybill,
+          status: order.delhivery_data?.status,
+          serviceable: order.delhivery_data?.serviceable,
+          label_url: order.delhivery_data?.label_url,
+          expected_delivery: order.delhivery_data?.expected_delivery_date
+        }
       }
     });
 

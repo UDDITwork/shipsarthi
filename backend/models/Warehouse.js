@@ -85,22 +85,26 @@ const warehouseSchema = new mongoose.Schema({
     }
   },
 
-  // Return Address
+  // Return Address (Required for Delhivery)
   return_address: {
     full_address: {
       type: String,
+      required: [true, 'Return address is required for Delhivery registration'],
       trim: true
     },
     city: {
       type: String,
+      required: [true, 'Return city is required'],
       trim: true
     },
     state: {
       type: String,
+      required: [true, 'Return state is required'],
       trim: true
     },
     pincode: {
       type: String,
+      required: [true, 'Return pincode is required'],
       match: [/^\d{6}$/, 'Please enter a valid 6-digit pincode']
     },
     country: {
@@ -257,14 +261,12 @@ warehouseSchema.methods.toDelhiveryFormat = function() {
     country: this.address.country
   };
 
-  // Add return address only if it exists
-  if (this.return_address && this.return_address.full_address) {
-    data.return_address = this.return_address.full_address;
-    data.return_city = this.return_address.city;
-    data.return_pin = this.return_address.pincode;
-    data.return_state = this.return_address.state;
-    data.return_country = this.return_address.country;
-  }
+  // Return address is required for Delhivery
+  data.return_address = this.return_address.full_address;
+  data.return_city = this.return_address.city;
+  data.return_pin = this.return_address.pincode;
+  data.return_state = this.return_address.state;
+  data.return_country = this.return_address.country;
 
   return data;
 };

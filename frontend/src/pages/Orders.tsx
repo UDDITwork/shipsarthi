@@ -255,17 +255,51 @@ const Orders: React.FC = () => {
 
   const handleOrderCreated = (order: any) => {
     console.log('🎉 ORDER CREATED CALLBACK:', order);
+    // Transform the order to match our frontend format
+    const transformedOrder = {
+      _id: order._id,
+      orderId: order.order_id,
+      referenceId: order.reference_id || '',
+      orderDate: order.order_date,
+      customerName: order.customer_info?.buyer_name || '',
+      customerPhone: order.customer_info?.phone || '',
+      customerAddress: order.delivery_address?.full_address || '',
+      pin: order.delivery_address?.pincode || '',
+      city: order.delivery_address?.city || '',
+      state: order.delivery_address?.state || '',
+      productName: order.products?.[0]?.product_name || '',
+      quantity: order.products?.[0]?.quantity || 0,
+      weight: order.package_info?.weight || 0,
+      length: order.package_info?.dimensions?.length,
+      width: order.package_info?.dimensions?.width,
+      height: order.package_info?.dimensions?.height,
+      paymentMode: order.payment_info?.payment_mode || '',
+      codAmount: order.payment_info?.cod_amount || 0,
+      totalAmount: order.payment_info?.total_amount || 0,
+      warehouse: order.pickup_address?.name || '',
+      pickupLocation: order.pickup_address?.full_address || '',
+      status: order.status,
+      awb: order.awb || order.delhivery_data?.waybill || '',
+      trackingUrl: order.delhivery_data?.tracking_url || '',
+      pickupRequestId: order.delhivery_data?.pickup_request_id || '',
+      pickupRequestStatus: order.delhivery_data?.pickup_request_status || 'pending',
+      pickupRequestDate: order.delhivery_data?.pickup_request_date,
+      pickupRequestTime: order.delhivery_data?.pickup_request_time || '',
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt
+    };
+    
     // Add the new order to the list
     setOrders(prev => {
-      const newOrders = [order, ...prev];
+      const newOrders = [transformedOrder, ...prev];
       console.log('🔄 UPDATING ORDERS STATE:', {
         previous: prev.length,
         new: newOrders.length,
-        newOrder: order
+        newOrder: transformedOrder,
+        awb: transformedOrder.awb
       });
       return newOrders;
     });
-    alert('Order created successfully!');
   };
 
   const handleAssignCourier = (orderId: string) => {
@@ -317,7 +351,7 @@ const Orders: React.FC = () => {
         'Total Amount': order.totalAmount,
         'Warehouse': order.warehouse,
         'Status': order.status,
-        'AWB': order.awb || 'N/A',
+        'AWB Number': order.awb || 'Not Generated',
         'Created At': new Date(order.createdAt).toLocaleString()
       }));
 
@@ -889,6 +923,7 @@ const Orders: React.FC = () => {
                 <th>Package Details</th>
                 <th>Payment</th>
                 <th>Shipping Details</th>
+                <th>AWB Number</th>
                 <th>Pickup Status</th>
                 <th>Warehouse</th>
                 <th>Action</th>
@@ -897,13 +932,13 @@ const Orders: React.FC = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="loading-cell">
+                  <td colSpan={11} className="loading-cell">
                     Loading orders...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="no-data-cell">
+                  <td colSpan={11} className="no-data-cell">
                     <div className="no-orders">
                       <div className="no-orders-icon">📦</div>
                       <h3>No orders found</h3>
@@ -960,7 +995,32 @@ const Orders: React.FC = () => {
                       <div className="shipping-details-cell">
                         <div>{order.city || 'N/A'}, {order.state || 'N/A'}</div>
                         <div>PIN: {order.pin || 'N/A'}</div>
-                        {order.awb && <div>AWB: {order.awb}</div>}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="awb-cell">
+                        {order.awb ? (
+                          <div className="awb-number">
+                            <span className="awb-label">AWB:</span>
+                            <span className="awb-value">{order.awb}</span>
+                            <button 
+                              className="copy-awb-btn" 
+                              title="Copy AWB"
+                              onClick={() => {
+                                if (order.awb) {
+                                  navigator.clipboard.writeText(order.awb);
+                                  alert('AWB copied to clipboard!');
+                                }
+                              }}
+                            >
+                              📋
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="no-awb">
+                            <span className="no-awb-text">Not Generated</span>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td>

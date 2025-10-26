@@ -160,10 +160,12 @@ const AddWarehouse: React.FC = () => {
     if (!formData.contact_person.name.trim()) {
       newErrors['contact_person.name'] = 'Contact person name is required';
     }
-    if (!formData.contact_person.phone.match(/^[6-9]\d{9}$/)) {
+    if (!formData.contact_person.phone.trim()) {
+      newErrors['contact_person.phone'] = 'Phone number is required';
+    } else if (!formData.contact_person.phone.replace(/\D/g, '').match(/^[6-9]\d{9}$/)) {
       newErrors['contact_person.phone'] = 'Valid 10-digit phone number is required';
     }
-    if (formData.contact_person.alternative_phone && !formData.contact_person.alternative_phone.match(/^[6-9]\d{9}$/)) {
+    if (formData.contact_person.alternative_phone && !formData.contact_person.alternative_phone.replace(/\D/g, '').match(/^[6-9]\d{9}$/)) {
       newErrors['contact_person.alternative_phone'] = 'Valid 10-digit phone number is required';
     }
     if (formData.contact_person.email && !formData.contact_person.email.match(/^\S+@\S+\.\S+$/)) {
@@ -183,6 +185,20 @@ const AddWarehouse: React.FC = () => {
     }
     if (formData.gstin && !formData.gstin.match(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)) {
       newErrors.gstin = 'Valid GST number is required';
+    }
+
+    // CRITICAL: Return address is REQUIRED by Delhivery API
+    if (!formData.return_address.full_address.trim()) {
+      newErrors['return_address.full_address'] = 'Return address is required for Delhivery registration';
+    }
+    if (!formData.return_address.city.trim()) {
+      newErrors['return_address.city'] = 'Return city is required';
+    }
+    if (!formData.return_address.state.trim()) {
+      newErrors['return_address.state'] = 'Return state is required';
+    }
+    if (!formData.return_address.pincode.match(/^\d{6}$/)) {
+      newErrors['return_address.pincode'] = 'Valid 6-digit return pincode is required';
     }
 
     setErrors(newErrors);
@@ -235,13 +251,13 @@ const AddWarehouse: React.FC = () => {
           pincode: formData.address.pincode.trim(),
           country: formData.address.country.trim(),
         },
-        return_address: formData.return_address.full_address?.trim() ? {
+        return_address: {
           full_address: formData.return_address.full_address.trim(),
           city: formData.return_address.city.trim(),
           state: formData.return_address.state.trim(),
           pincode: formData.return_address.pincode.trim(),
           country: formData.return_address.country.trim(),
-        } : undefined,
+        },
         gstin: formData.gstin?.trim() || undefined,
         support_contact: (formData.support_contact.email?.trim() || formData.support_contact.phone?.trim()) ? {
           email: formData.support_contact.email?.trim() || undefined,
@@ -551,7 +567,66 @@ const AddWarehouse: React.FC = () => {
             </div>
           </div>
 
-          {/* Row 4: GSTIN, Support Email, Support Phone, Status */}
+          {/* Row 4: Return Address */}
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label>Return Address (Required for Delhivery)</label>
+              <input
+                type="text"
+                name="return_address.full_address"
+                placeholder="Enter return address"
+                value={formData.return_address.full_address}
+                onChange={handleChange}
+                className={errors['return_address.full_address'] ? 'error' : ''}
+              />
+              {errors['return_address.full_address'] && <span className="error-msg">{errors['return_address.full_address']}</span>}
+            </div>
+          </div>
+
+          {/* Row 5: Return Address Details */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Return City</label>
+              <input
+                type="text"
+                name="return_address.city"
+                placeholder="Return city name"
+                value={formData.return_address.city}
+                onChange={handleChange}
+                className={errors['return_address.city'] ? 'error' : ''}
+              />
+              {errors['return_address.city'] && <span className="error-msg">{errors['return_address.city']}</span>}
+            </div>
+
+            <div className="form-group">
+              <label>Return State</label>
+              <input
+                type="text"
+                name="return_address.state"
+                placeholder="Return state name"
+                value={formData.return_address.state}
+                onChange={handleChange}
+                className={errors['return_address.state'] ? 'error' : ''}
+              />
+              {errors['return_address.state'] && <span className="error-msg">{errors['return_address.state']}</span>}
+            </div>
+
+            <div className="form-group">
+              <label>Return Pincode</label>
+              <input
+                type="text"
+                name="return_address.pincode"
+                placeholder="Enter 6 digit return pincode"
+                value={formData.return_address.pincode}
+                onChange={handleChange}
+                maxLength={6}
+                className={errors['return_address.pincode'] ? 'error' : ''}
+              />
+              {errors['return_address.pincode'] && <span className="error-msg">{errors['return_address.pincode']}</span>}
+            </div>
+          </div>
+
+          {/* Row 6: GSTIN, Support Email, Support Phone, Status */}
           <div className="form-row">
             <div className="form-group">
               <label>GSTIN</label>
