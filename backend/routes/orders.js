@@ -532,92 +532,142 @@ router.post('/', auth, [
     // Create shipment with Delhivery API
     let delhiveryResult = null;
     try {
-      // Prepare shipment data for Delhivery API
-      const shipmentData = {
-        shipments: [{
-          name: order.customer_info.buyer_name,
-          add: order.delivery_address.full_address,
-          pin: order.delivery_address.pincode,
+      // Prepare order data for Delhivery API (service expects order structure, not formatted shipment data)
+      const orderDataForDelhivery = {
+        order_id: order.order_id,
+        customer_info: {
+          buyer_name: order.customer_info.buyer_name,
+          phone: order.customer_info.phone,
+          email: order.customer_info.email || ''
+        },
+        delivery_address: {
+          full_address: order.delivery_address.full_address,
+          pincode: order.delivery_address.pincode,
           city: order.delivery_address.city,
           state: order.delivery_address.state,
-          country: order.delivery_address.country,
-          phone: order.customer_info.phone,
-          order: order.order_id,
+          country: order.delivery_address.country || 'India',
+          address_type: order.delivery_address.address_type || 'home'
+        },
+        pickup_address: {
+          name: pickupAddress.name || 'SHIPSARTHI C2C',
+          full_address: pickupAddress.full_address,
+          city: pickupAddress.city,
+          state: pickupAddress.state,
+          pincode: pickupAddress.pincode,
+          phone: pickupAddress.phone,
+          country: pickupAddress.country || 'India'
+        },
+        products: order.products.map(p => ({
+          product_name: p.product_name,
+          quantity: p.quantity,
+          hsn_code: p.hsn_code || '',
+          unit_price: p.unit_price || 0
+        })),
+        package_info: {
+          weight: order.package_info.weight, // in kg
+          dimensions: {
+            width: order.package_info.dimensions.width,
+            height: order.package_info.dimensions.height,
+            length: order.package_info.dimensions.length || order.package_info.dimensions.width
+          }
+        },
+        payment_info: {
           payment_mode: order.payment_info.payment_mode,
-          return_pin: pickupAddress.pincode,
-          return_city: pickupAddress.city,
-          return_phone: pickupAddress.phone,
-          return_add: pickupAddress.full_address,
-          return_state: pickupAddress.state,
-          return_country: pickupAddress.country,
-          products_desc: order.products.map(p => p.product_name).join(', '),
-          hsn_code: order.products[0]?.hsn_code || '',
-          cod_amount: order.payment_info.payment_mode === 'COD' ? order.payment_info.cod_amount.toString() : '',
-          order_date: order.order_date,
-          total_amount: order.payment_info.total_amount.toString(),
-          seller_add: pickupAddress.full_address,
-          seller_name: order.seller_info.name || 'SHIPSARTHI',
-          seller_inv: order.invoice_number || `INV${order.order_id}`,
-          quantity: order.products.reduce((sum, p) => sum + p.quantity, 0).toString(),
-          waybill: '',
-          shipment_width: order.package_info.dimensions.width.toString(),
-          shipment_height: order.package_info.dimensions.height.toString(),
-          weight: (order.package_info.weight * 1000).toString(), // Convert kg to grams
-          seller_gst_tin: order.seller_info.gst_number || '',
-          shipping_mode: order.shipping_mode,
-          address_type: order.delivery_address.address_type
-        }],
-        pickup_location: {
-          name: pickupAddress.name || 'SHIPSARTHI C2C'
-        }
+          cod_amount: order.payment_info.cod_amount || 0,
+          order_value: order.payment_info.order_value || order.payment_info.total_amount || 0
+        },
+        seller_info: {
+          name: order.seller_info?.name || 'SHIPSARTHI',
+          gst_number: order.seller_info?.gst_number || ''
+        },
+        invoice_number: order.invoice_number || `INV${order.order_id}`,
+        shipping_mode: order.shipping_mode || 'Surface',
+        address_type: order.delivery_address.address_type || 'home'
       };
 
       console.log('🌐 CALLING DELHIVERY API', {
         orderId: order.order_id,
-        shipmentData: shipmentData,
+        orderData: {
+          order_id: orderDataForDelhivery.order_id,
+          customer_name: orderDataForDelhivery.customer_info.buyer_name,
+          delivery_pincode: orderDataForDelhivery.delivery_address.pincode,
+          pickup_pincode: orderDataForDelhivery.pickup_address.pincode
+        },
         timestamp: new Date().toISOString()
       });
 
       // Call Delhivery API to create shipment
-      delhiveryResult = await delhiveryService.createShipment(shipmentData);
+      delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
 
-      if (delhiveryResult.success && delhiveryResult.packages && delhiveryResult.packages.length > 0) {
-        const packageData = delhiveryResult.packages[0];
-        
-        console.log('✅ DELHIVERY API SUCCESS', {
-          orderId: order.order_id,
-          awb: packageData.waybill,
-          delhiveryResponse: delhiveryResult,
-          timestamp: new Date().toISOString()
-        });
-        
-        // Update order with Delhivery response
-        order.delhivery_data = {
-          waybill: packageData.waybill || '',
-          package_id: packageData.refnum || order.order_id,
-          upload_wbn: delhiveryResult.upload_wbn,
-          status: packageData.status,
-          serviceable: packageData.serviceable,
-          sort_code: packageData.sort_code,
-          remarks: packageData.remarks || [],
-          cod_amount: packageData.cod_amount || 0,
-          payment: packageData.payment
-        };
+      if (delhiveryResult.success) {
+        // Extract AWB/waybill from response - handle multiple response formats
+        let awbNumber = null;
+        let packageData = null;
 
-        // Update order status based on Delhivery response
-        if (packageData.status === 'Success') {
-          order.status = 'ready_to_ship';
-        } else {
-          order.status = 'new';
+        // Try to get AWB from packages array first
+        if (delhiveryResult.packages && Array.isArray(delhiveryResult.packages) && delhiveryResult.packages.length > 0) {
+          packageData = delhiveryResult.packages[0];
+          awbNumber = packageData.waybill || packageData.AWB || packageData.wb || null;
         }
         
-        await order.save();
-        
-        console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', packageData.waybill);
+        // Fallback to direct waybill property
+        if (!awbNumber && delhiveryResult.waybill) {
+          awbNumber = delhiveryResult.waybill;
+          packageData = packageData || { waybill: awbNumber, status: 'Success' };
+        }
+
+        // Fallback to tracking_id
+        if (!awbNumber && delhiveryResult.tracking_id) {
+          awbNumber = delhiveryResult.tracking_id;
+          packageData = packageData || { waybill: awbNumber, status: 'Success' };
+        }
+
+        if (awbNumber) {
+          console.log('✅ DELHIVERY API SUCCESS', {
+            orderId: order.order_id,
+            awb: awbNumber,
+            source: delhiveryResult.packages ? 'packages' : 'waybill',
+            delhiveryResponse: delhiveryResult,
+            timestamp: new Date().toISOString()
+          });
+          
+          // Update order with Delhivery response
+          order.delhivery_data = {
+            waybill: awbNumber,
+            package_id: packageData?.refnum || order.order_id,
+            upload_wbn: delhiveryResult.upload_wbn || null,
+            status: packageData?.status || 'Success',
+            serviceable: packageData?.serviceable,
+            sort_code: packageData?.sort_code,
+            remarks: packageData?.remarks || [],
+            cod_amount: packageData?.cod_amount || 0,
+            payment: packageData?.payment,
+            label_url: delhiveryResult.label_url || packageData?.label_url || null,
+            expected_delivery_date: delhiveryResult.expected_delivery || packageData?.expected_delivery_date || null
+          };
+
+          // Update order status based on Delhivery response
+          if (packageData?.status === 'Success' || !packageData?.status) {
+            order.status = 'ready_to_ship';
+          } else {
+            order.status = 'new';
+          }
+          
+          await order.save();
+          
+          console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', awbNumber);
+        } else {
+          console.log('⚠️ DELHIVERY API SUCCESS BUT NO AWB FOUND', {
+            orderId: order.order_id,
+            delhiveryResponse: delhiveryResult,
+            timestamp: new Date().toISOString()
+          });
+        }
       } else {
         console.log('❌ DELHIVERY API FAILED', {
           orderId: order.order_id,
           delhiveryResponse: delhiveryResult,
+          error: delhiveryResult.error,
           timestamp: new Date().toISOString()
         });
         // Don't fail the order creation if shipment creation fails
@@ -660,10 +710,16 @@ router.post('/', auth, [
       }
     }
 
+    // Refresh order from database to get the latest delhivery_data
+    await order.populate('user_id', 'name email');
+    
+    const awbNumber = order.delhivery_data?.waybill || delhiveryResult?.waybill || null;
+    
     console.log('🎉 ORDER CREATION COMPLETED', {
       orderId: order.order_id,
-      awb: order.delhivery_data?.waybill || 'N/A',
+      awb: awbNumber || 'N/A',
       status: order.status,
+      delhiverySuccess: delhiveryResult?.success || false,
       timestamp: new Date().toISOString()
     });
 
@@ -673,7 +729,16 @@ router.post('/', auth, [
       data: {
         order,
         delhivery_result: delhiveryResult,
-        awb_number: order.delhivery_data?.waybill || null
+        awb_number: awbNumber,
+        shipment_created: !!awbNumber,
+        ...(awbNumber && {
+          shipment_info: {
+            awb_number: awbNumber,
+            label_url: order.delhivery_data?.label_url || delhiveryResult?.label_url,
+            expected_delivery: order.delhivery_data?.expected_delivery_date || delhiveryResult?.expected_delivery,
+            status: order.delhivery_data?.status || 'Success'
+          }
+        })
       }
     });
 

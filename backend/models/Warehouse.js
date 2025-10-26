@@ -195,6 +195,29 @@ warehouseSchema.index({ user_id: 1, is_active: 1 });
 warehouseSchema.index({ user_id: 1, name: 1 });
 warehouseSchema.index({ 'address.pincode': 1 });
 
+// Ensure no unique index on warehouse_id (remove if exists)
+warehouseSchema.post('save', async function() {
+  try {
+    const db = this.constructor.db;
+    const collection = db.collection('warehouses');
+    const indexes = await collection.indexes();
+    const warehouseIdIndex = indexes.find(idx => 
+      idx.key && idx.key.warehouse_id !== undefined && idx.unique
+    );
+    if (warehouseIdIndex) {
+      console.warn('⚠️ Found problematic unique index on warehouse_id, attempting to remove...');
+      try {
+        await collection.dropIndex(warehouseIdIndex.name);
+        console.log('✅ Removed problematic warehouse_id unique index');
+      } catch (err) {
+        console.warn('⚠️ Could not remove index (may require manual removal):', err.message);
+      }
+    }
+  } catch (err) {
+    // Ignore errors in post-save hook
+  }
+});
+
 // Pre-save middleware to generate warehouse code
 warehouseSchema.pre('save', async function(next) {
   if (this.isNew && !this.warehouse_code) {

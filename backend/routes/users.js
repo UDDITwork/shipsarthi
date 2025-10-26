@@ -25,9 +25,12 @@ const upload = multer({
 // Get user profile data
 router.get('/profile', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password -api_details.private_key');
+    // Use _id instead of id for better compatibility
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('-password -api_details.private_key');
     
     if (!user) {
+      console.error('❌ USER NOT FOUND:', { userId, userFromAuth: req.user });
       return res.status(404).json({
         status: 'error',
         message: 'User not found'
@@ -63,10 +66,16 @@ router.get('/profile', auth, async (req, res) => {
       data: userProfile
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error('❌ Error fetching user profile:', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?._id || req.user?.id,
+      timestamp: new Date().toISOString()
+    });
     res.status(500).json({
       status: 'error',
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -76,9 +85,12 @@ router.put('/profile', auth, async (req, res) => {
   try {
     const { company_name, your_name, phone_number, gstin, address } = req.body;
     
+    // Use _id instead of id for better compatibility
+    const userId = req.user._id || req.user.id;
+    
     // Debug: Log incoming data
     console.log('📥 BACKEND RECEIVED DATA:', {
-      userId: req.user.id,
+      userId: userId,
       body: req.body,
       timestamp: new Date().toISOString()
     });
@@ -93,13 +105,13 @@ router.put('/profile', auth, async (req, res) => {
     console.log('🔄 UPDATE DATA TO SAVE:', updateData);
 
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      userId,
       updateData,
       { new: true, runValidators: true }
     ).select('-password -api_details.private_key');
 
     if (!user) {
-      console.log('❌ USER NOT FOUND:', req.user.id);
+      console.log('❌ USER NOT FOUND:', userId);
       return res.status(404).json({
         status: 'error',
         message: 'User not found'
@@ -150,7 +162,8 @@ router.put('/profile', auth, async (req, res) => {
 // Get user dashboard data
 router.get('/dashboard', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('company_name wallet_balance joined_date');
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('company_name wallet_balance joined_date');
     
     if (!user) {
       return res.status(404).json({
@@ -268,7 +281,8 @@ router.post('/upload-document', auth, upload.single('file'), [
     });
 
     // Update user document
-    const user = await User.findById(req.user.id);
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -314,7 +328,8 @@ router.post('/upload-document', auth, upload.single('file'), [
 // @access  Private
 router.get('/documents', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('documents');
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('documents');
 
     if (!user) {
       return res.status(404).json({
@@ -355,7 +370,8 @@ router.post('/reset-password', auth, [
 
     const { current_password, new_password } = req.body;
 
-    const user = await User.findById(req.user.id);
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         status: 'error',
@@ -395,7 +411,8 @@ router.post('/reset-password', auth, [
 // @access  Private
 router.get('/api-keys', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('api_details');
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('api_details');
 
     if (!user) {
       return res.status(404).json({
@@ -427,7 +444,8 @@ router.get('/api-keys', auth, async (req, res) => {
 // @access  Private
 router.post('/regenerate-api-keys', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -470,7 +488,8 @@ router.post('/regenerate-api-keys', auth, async (req, res) => {
 // @access  Private
 router.get('/kyc-status', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('kyc_status documents');
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('kyc_status documents');
 
     if (!user) {
       return res.status(404).json({
@@ -507,7 +526,8 @@ router.get('/kyc-status', auth, async (req, res) => {
 // @access  Private
 router.post('/submit-kyc', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({

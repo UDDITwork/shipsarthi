@@ -198,51 +198,152 @@ const AddWarehouse: React.FC = () => {
 
     setLoading(true);
 
+    // Helper function to clean phone number (remove +91 prefix if present)
+    const cleanPhone = (phone: string): string => {
+      if (!phone) return '';
+      // Remove any non-digit characters except the 10 digits
+      const cleaned = phone.replace(/\D/g, '');
+      // If it starts with 91 and has 12 digits, remove the 91 prefix
+      if (cleaned.length === 12 && cleaned.startsWith('91')) {
+        return cleaned.substring(2);
+      }
+      // Return last 10 digits if longer
+      if (cleaned.length > 10) {
+        return cleaned.substring(cleaned.length - 10);
+      }
+      return cleaned;
+    };
+
+    // Convert form data to API format
+    let apiData: CreateWarehouseData | null = null;
+
     try {
-      // Convert form data to API format
-      const apiData: CreateWarehouseData = {
-        name: formData.name,
-        title: formData.title,
+      apiData = {
+        name: formData.name.trim(),
+        title: formData.title.trim(),
         contact_person: {
-          name: formData.contact_person.name,
-          phone: formData.contact_person.phone,
-          alternative_phone: formData.contact_person.alternative_phone || undefined,
-          email: formData.contact_person.email || undefined,
+          name: formData.contact_person.name.trim(),
+          phone: cleanPhone(formData.contact_person.phone),
+          alternative_phone: formData.contact_person.alternative_phone ? cleanPhone(formData.contact_person.alternative_phone) : undefined,
+          email: formData.contact_person.email?.trim() || undefined,
         },
         address: {
-          full_address: formData.address.full_address,
-          landmark: formData.address.landmark || undefined,
-          city: formData.address.city,
-          state: formData.address.state,
-          pincode: formData.address.pincode,
-          country: formData.address.country,
+          full_address: formData.address.full_address.trim(),
+          landmark: formData.address.landmark?.trim() || undefined,
+          city: formData.address.city.trim(),
+          state: formData.address.state.trim(),
+          pincode: formData.address.pincode.trim(),
+          country: formData.address.country.trim(),
         },
-        return_address: formData.return_address.full_address ? {
-          full_address: formData.return_address.full_address,
-          city: formData.return_address.city,
-          state: formData.return_address.state,
-          pincode: formData.return_address.pincode,
-          country: formData.return_address.country,
+        return_address: formData.return_address.full_address?.trim() ? {
+          full_address: formData.return_address.full_address.trim(),
+          city: formData.return_address.city.trim(),
+          state: formData.return_address.state.trim(),
+          pincode: formData.return_address.pincode.trim(),
+          country: formData.return_address.country.trim(),
         } : undefined,
-        gstin: formData.gstin || undefined,
-        support_contact: (formData.support_contact.email || formData.support_contact.phone) ? {
-          email: formData.support_contact.email || undefined,
-          phone: formData.support_contact.phone || undefined,
+        gstin: formData.gstin?.trim() || undefined,
+        support_contact: (formData.support_contact.email?.trim() || formData.support_contact.phone?.trim()) ? {
+          email: formData.support_contact.email?.trim() || undefined,
+          phone: formData.support_contact.phone ? cleanPhone(formData.support_contact.phone) : undefined,
         } : undefined,
         is_default: formData.is_default,
         is_active: formData.is_active,
-        notes: formData.notes || undefined,
-      };
+        notes: formData.notes?.trim() || undefined,
+      } as CreateWarehouseData;
+
+      // Log request before sending
+      console.log('🚀 SENDING WAREHOUSE CREATION REQUEST:', {
+        timestamp: new Date().toISOString(),
+        data: {
+          name: apiData.name,
+          title: apiData.title,
+          phone: apiData.contact_person.phone,
+          city: apiData.address.city,
+          state: apiData.address.state,
+          pincode: apiData.address.pincode
+        }
+      });
 
       // API call to create warehouse
       const response = await warehouseService.createWarehouse(apiData);
       
-      alert(`Warehouse "${response.title}" created successfully!`);
+      console.log('✅ WAREHOUSE CREATED SUCCESSFULLY:', {
+        timestamp: new Date().toISOString(),
+        warehouseId: response._id,
+        warehouseName: response.name || response.title
+      });
+      
+      alert(`Warehouse "${response.title || response.name}" created successfully!`);
       navigate('/warehouse');
       
     } catch (error: any) {
-      console.error('Error creating warehouse:', error);
-      alert(`Failed to create warehouse: ${error.message || 'Unknown error'}`);
+      // Comprehensive error logging
+      const errorLog = {
+        timestamp: new Date().toISOString(),
+        errorType: error.name || 'Unknown',
+        errorMessage: error.message,
+        statusCode: error.response?.status,
+        statusText: error.response?.statusText,
+        requestData: (() => {
+          if (apiData) {
+            return {
+              name: apiData.name,
+              title: apiData.title,
+              phone: apiData.contact_person.phone,
+              city: apiData.address.city,
+              state: apiData.address.state,
+              pincode: apiData.address.pincode
+            };
+          }
+          return {
+            name: formData.name,
+            title: formData.title,
+            phone: formData.contact_person.phone,
+            city: formData.address.city,
+            state: formData.address.state,
+            pincode: formData.address.pincode
+          };
+        })(),
+        responseData: error.response?.data,
+        stack: error.stack
+      };
+      
+      console.error('❌ WAREHOUSE CREATION ERROR:', errorLog);
+      
+      // Log to console with details
+      if (error.response?.data) {
+        console.error('📋 Error Response Data:', error.response.data);
+      }
+      
+      if (error.response?.data?.errors) {
+        console.error('🔍 Validation Errors:', error.response.data.errors);
+      }
+      
+      // Extract detailed error message from response
+      let errorMessage = 'Failed to create warehouse';
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // Handle validation errors
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          const validationErrors = errorData.errors.map((err: any) => 
+            `${err.param || err.field || err.path}: ${err.msg || err.message}`
+          ).join('\n');
+          errorMessage = `Validation errors:\n${validationErrors}`;
+          console.error('❌ Validation Failed:', validationErrors);
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Show user-friendly error message
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

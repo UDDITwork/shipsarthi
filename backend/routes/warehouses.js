@@ -4,6 +4,8 @@ const { body, validationResult, query } = require('express-validator');
 const { auth } = require('../middleware/auth');
 const Warehouse = require('../models/Warehouse');
 const delhiveryService = require('../services/delhiveryService');
+const logger = require('../utils/logger');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -135,11 +137,32 @@ router.post('/', auth, [
   body('support_contact.email').optional().isEmail(),
   body('support_contact.phone').optional().matches(/^[6-9]\d{9}$/),
   body('is_default').optional().isBoolean(),
+  body('is_active').optional().isBoolean(),
   body('notes').optional().trim()
 ], async (req, res) => {
+  const requestId = req.requestId || `warehouse_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const startTime = Date.now();
+  
   try {
+    logger.info('🏢 WAREHOUSE CREATION REQUEST', {
+      requestId,
+      userId: req.user._id,
+      userEmail: req.user.email,
+      warehouseName: req.body.name,
+      title: req.body.title,
+      rawPhone: req.body.contact_person?.phone,
+      timestamp: new Date().toISOString()
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('⚠️ WAREHOUSE VALIDATION FAILED', {
+        requestId,
+        userId: req.user._id,
+        errors: errors.array(),
+        requestBody: req.body
+      });
+      
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -156,30 +179,143 @@ router.post('/', auth, [
     });
 
     if (existingWarehouse) {
+      logger.warn('⚠️ WAREHOUSE NAME ALREADY EXISTS', {
+        requestId,
+        userId,
+        warehouseName: req.body.name,
+        existingWarehouseId: existingWarehouse._id
+      });
+      
       return res.status(400).json({
         status: 'error',
         message: 'Warehouse with this name already exists'
       });
     }
 
+    // Helper function to clean phone number (remove +91 prefix if present)
+    const cleanPhone = (phone) => {
+      if (!phone) return phone;
+      const original = phone;
+      const cleaned = String(phone).replace(/\D/g, '');
+      let result = cleaned;
+      
+      if (cleaned.length === 12 && cleaned.startsWith('91')) {
+        result = cleaned.substring(2);
+      } else if (cleaned.length > 10) {
+        result = cleaned.substring(cleaned.length - 10);
+      }
+      
+      if (original !== result) {
+        logger.debug('📞 PHONE NUMBER CLEANED', {
+          requestId,
+          original,
+          cleaned: result
+        });
+      }
+      
+      return result;
+    };
+
+    // Clean phone numbers before creating warehouse
+    const warehouseData = { ...req.body };
+    const phoneCleaning = {};
+    
+    if (warehouseData.contact_person?.phone) {
+      const original = warehouseData.contact_person.phone;
+      warehouseData.contact_person.phone = cleanPhone(warehouseData.contact_person.phone);
+      phoneCleaning.contact_phone = { original, cleaned: warehouseData.contact_person.phone };
+    }
+    if (warehouseData.contact_person?.alternative_phone) {
+      const original = warehouseData.contact_person.alternative_phone;
+      warehouseData.contact_person.alternative_phone = cleanPhone(warehouseData.contact_person.alternative_phone);
+      phoneCleaning.alternative_phone = { original, cleaned: warehouseData.contact_person.alternative_phone };
+    }
+    if (warehouseData.support_contact?.phone) {
+      const original = warehouseData.support_contact.phone;
+      warehouseData.support_contact.phone = cleanPhone(warehouseData.support_contact.phone);
+      phoneCleaning.support_phone = { original, cleaned: warehouseData.support_contact.phone };
+    }
+
+    if (Object.keys(phoneCleaning).length > 0) {
+      logger.info('📞 PHONE NUMBERS PROCESSED', {
+        requestId,
+        phoneCleaning
+      });
+    }
+
+    logger.debug('📝 WAREHOUSE DATA PREPARED', {
+      requestId,
+      warehouseData: {
+        name: warehouseData.name,
+        title: warehouseData.title,
+        city: warehouseData.address?.city,
+        state: warehouseData.address?.state,
+        pincode: warehouseData.address?.pincode,
+        phone: warehouseData.contact_person?.phone,
+        hasReturnAddress: !!warehouseData.return_address?.full_address
+      }
+    });
+
     // Create warehouse in database
     const warehouse = new Warehouse({
-      ...req.body,
+      ...warehouseData,
       user_id: userId
     });
 
-    await warehouse.save();
+    try {
+      await warehouse.save();
+      logger.info('✅ WAREHOUSE SAVED TO DATABASE', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name
+      });
+    } catch (saveError) {
+      logger.error('❌ DATABASE SAVE ERROR', {
+        requestId,
+        userId,
+        error: saveError.message,
+        errorStack: saveError.stack,
+        warehouseData: {
+          name: warehouseData.name,
+          title: warehouseData.title
+        },
+        validationErrors: saveError.errors ? Object.keys(saveError.errors).map(key => ({
+          field: key,
+          message: saveError.errors[key].message
+        })) : null
+      });
+      throw saveError;
+    }
 
     // Register with Delhivery
     const delhiveryData = warehouse.toDelhiveryFormat();
+    
+    logger.info('🚀 ATTEMPTING DELHIVERY REGISTRATION', {
+      requestId,
+      warehouseId: warehouse._id,
+      delhiveryData: {
+        name: delhiveryData.name,
+        city: delhiveryData.city,
+        pin: delhiveryData.pin
+      }
+    });
     
     const delhiveryResult = await delhiveryService.createWarehouse(delhiveryData);
 
     if (delhiveryResult.success) {
       warehouse.delhivery_registered = true;
       warehouse.delhivery_response = delhiveryResult.data;
-      warehouse.delhivery_warehouse_id = delhiveryResult.data.data?.name; // Store Delhivery warehouse name
+      warehouse.delhivery_warehouse_id = delhiveryResult.data.data?.name;
       await warehouse.save();
+
+      const duration = Date.now() - startTime;
+      logger.info('✅ WAREHOUSE CREATED SUCCESSFULLY', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name,
+        delhiveryRegistered: true,
+        duration: `${duration}ms`
+      });
 
       res.status(201).json({
         status: 'success',
@@ -200,6 +336,13 @@ router.post('/', auth, [
       };
       await warehouse.save();
 
+      logger.warn('⚠️ WAREHOUSE CREATED BUT DELHIVERY REGISTRATION FAILED', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name,
+        delhiveryError: delhiveryResult.error
+      });
+
       res.status(201).json({
         status: 'partial_success',
         message: 'Warehouse created in database but failed to register with Delhivery',
@@ -211,10 +354,138 @@ router.post('/', auth, [
     }
 
   } catch (error) {
+    const duration = Date.now() - startTime;
+    
+    // Handle duplicate key error for warehouse_id index
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.warehouse_id) {
+      logger.warn('⚠️ WAREHOUSE_ID INDEX ERROR DETECTED - Attempting auto-fix', {
+        requestId,
+        errorMessage: error.message,
+        keyPattern: error.keyPattern
+      });
+      
+      try {
+        // Attempt to remove the problematic index
+        const db = mongoose.connection.db;
+        const collection = db.collection('warehouses');
+        const indexes = await collection.indexes();
+        const warehouseIdIndex = indexes.find(idx => 
+          idx.key && idx.key.warehouse_id !== undefined
+        );
+        
+        if (warehouseIdIndex) {
+          await collection.dropIndex(warehouseIdIndex.name);
+          logger.info('✅ Removed problematic warehouse_id index, retrying warehouse creation', {
+            requestId,
+            indexName: warehouseIdIndex.name
+          });
+          
+          // Retry warehouse creation
+          try {
+            const warehouse = new Warehouse({
+              ...warehouseData,
+              user_id: userId
+            });
+            await warehouse.save();
+            
+            // Continue with Delhivery registration
+            const delhiveryData = warehouse.toDelhiveryFormat();
+            const delhiveryResult = await delhiveryService.createWarehouse(delhiveryData);
+            
+            if (delhiveryResult.success) {
+              warehouse.delhivery_registered = true;
+              warehouse.delhivery_response = delhiveryResult.data;
+              warehouse.delhivery_warehouse_id = delhiveryResult.data.data?.name;
+              await warehouse.save();
+              
+              logger.info('✅ WAREHOUSE CREATED SUCCESSFULLY (after index fix)', {
+                requestId,
+                warehouseId: warehouse._id
+              });
+              
+              return res.status(201).json({
+                status: 'success',
+                message: 'Warehouse created successfully',
+                data: {
+                  warehouse,
+                  delhivery_response: delhiveryResult.data
+                }
+              });
+            } else {
+              warehouse.delhivery_registered = false;
+              warehouse.delhivery_response = { error: delhiveryResult.error };
+              await warehouse.save();
+              
+              return res.status(201).json({
+                status: 'partial_success',
+                message: 'Warehouse created but Delhivery registration failed',
+                data: { warehouse }
+              });
+            }
+          } catch (retryError) {
+            logger.error('❌ RETRY FAILED AFTER INDEX REMOVAL', {
+              requestId,
+              error: retryError.message
+            });
+            throw retryError;
+          }
+        }
+      } catch (fixError) {
+        logger.error('❌ Failed to auto-fix warehouse_id index', {
+          requestId,
+          error: fixError.message
+        });
+      }
+    }
+    
+    logger.error('❌ WAREHOUSE CREATION ERROR', {
+      requestId,
+      userId: req.user?._id,
+      userEmail: req.user?.email,
+      errorName: error.name,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      errorCode: error.code,
+      duration: `${duration}ms`,
+      requestBody: {
+        name: req.body.name,
+        title: req.body.title,
+        phone: req.body.contact_person?.phone,
+        city: req.body.address?.city,
+        state: req.body.address?.state,
+        pincode: req.body.address?.pincode
+      },
+      mongooseErrors: error.errors ? Object.keys(error.errors).map(key => ({
+        field: key,
+        message: error.errors[key].message,
+        value: error.errors[key].value
+      })) : null
+    });
+    
     console.error('Create warehouse error:', error);
+    
+    // Provide helpful error message for duplicate key errors
+    let errorMessage = error.message || 'Server error creating warehouse';
+    if (error.code === 11000) {
+      if (error.keyPattern && error.keyPattern.warehouse_id) {
+        errorMessage = 'Database index error. Please contact support or run the fix script: node backend/scripts/remove-warehouse-id-index.js';
+      } else {
+        const field = Object.keys(error.keyPattern || {})[0];
+        errorMessage = `${field} already exists`;
+      }
+    }
+    
     res.status(500).json({
       status: 'error',
-      message: error.message || 'Server error creating warehouse'
+      message: errorMessage,
+      ...(process.env.NODE_ENV === 'development' && { 
+        errorDetails: {
+          name: error.name,
+          message: error.message,
+          code: error.code,
+          keyPattern: error.keyPattern
+        }
+      })
     });
   }
 });

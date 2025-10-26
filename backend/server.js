@@ -35,17 +35,10 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Trust proxy configuration
-  trustProxy: true,
-  // Skip successful requests
-  skipSuccessfulRequests: false,
-  // Skip failed requests
-  skipFailedRequests: false,
-  // Custom key generator to handle proxy headers
-  keyGenerator: (req) => {
-    // Use X-Forwarded-For header if available, otherwise use IP
-    return req.ip || req.connection.remoteAddress;
-  }
+  // Trust proxy configuration - this handles IPv4 and IPv6 correctly
+  trustProxy: true
+  // Removed custom keyGenerator - express-rate-limit handles IP extraction automatically
+  // when trustProxy is set, properly handling both IPv4 and IPv6 addresses
 });
 app.use('/api/', limiter);
 

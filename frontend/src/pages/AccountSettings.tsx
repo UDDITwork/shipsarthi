@@ -136,22 +136,40 @@ const AccountSettings: React.FC = () => {
           account_holder_name: ''
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error fetching user data:', error);
       
       // Type-safe error handling
       const errorDetails = {
         message: error instanceof Error ? error.message : 'Unknown error',
-        status: (error as any)?.response?.status || 'N/A',
-        data: (error as any)?.response?.data || 'N/A',
-        config: (error as any)?.config || 'N/A'
+        status: error?.response?.status || 'N/A',
+        data: error?.response?.data || 'N/A',
+        url: error?.config?.url || 'N/A',
+        timestamp: new Date().toISOString()
       };
       
       console.error('❌ Error details:', errorDetails);
       
+      // Check if it's an authentication error
+      if (error?.response?.status === 401) {
+        alert('Your session has expired. Please log in again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+      }
+      
+      // Check if it's a network error
+      if (!error?.response) {
+        alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
+        setUser(null);
+        return;
+      }
+      
       // Show error state instead of dummy data
       setUser(null);
-      alert('Failed to load user data. Please check if you are logged in and try again.');
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load user data. Please check if you are logged in and try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

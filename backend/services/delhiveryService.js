@@ -47,7 +47,7 @@ class DelhiveryService {
                     country: 'India',
                     phone: orderData.customer_info.phone,
                     order: orderData.order_id,
-                    payment_mode: orderData.payment_info.payment_mode,
+                    payment_mode: orderData.payment_info.payment_mode === 'Prepaid' ? 'Prepaid' : (orderData.payment_info.payment_mode === 'COD' ? 'COD' : 'Prepaid'),
                     return_pin: orderData.pickup_address?.pincode || '',
                     return_city: orderData.pickup_address?.city || '',
                     return_phone: orderData.pickup_address?.phone || '',
@@ -64,8 +64,9 @@ class DelhiveryService {
                     seller_inv: orderData.invoice_number || '',
                     quantity: orderData.products.reduce((sum, p) => sum + p.quantity, 0),
                     waybill: this.generateWaybill(),
-                    shipment_width: orderData.package_info.dimensions.width,
-                    shipment_height: orderData.package_info.dimensions.height,
+                    shipment_width: orderData.package_info.dimensions.width || 10,
+                    shipment_height: orderData.package_info.dimensions.height || 10,
+                    shipment_length: orderData.package_info.dimensions.length || orderData.package_info.dimensions.width || 10,
                     weight: orderData.package_info.weight,
                     seller_gst_tin: orderData.seller_info?.gst_number || '',
                     shipping_mode: orderData.shipping_mode || 'Surface',
@@ -88,22 +89,87 @@ class DelhiveryService {
 
             const response = await this.client.post('/cmu/create.json', shipmentData);
 
-            if (response.data.success) {
+            // Log the full response for debugging
+            logger.info('📦 Delhivery API Response', {
+                orderId: orderData.order_id,
+                responseData: JSON.stringify(response.data),
+                responseStatus: response.status
+            });
+
+            // Check if request was successful
+            if (response.data && (response.data.success || response.status === 200)) {
+                // Extract waybill/AWB from response
+                // Delhivery API can return waybill in different structures:
+                // 1. response.data.packages[0].waybill
+                // 2. response.data.waybill (single waybill)
+                // 3. response.data.pkgs[0].waybill
+                // 4. response.data.items[0].waybill
+                let awbNumber = null;
+                let packages = [];
+
+                // Try different response structures
+                if (response.data.packages && Array.isArray(response.data.packages) && response.data.packages.length > 0) {
+                    packages = response.data.packages;
+                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                } else if (response.data.pkgs && Array.isArray(response.data.pkgs) && response.data.pkgs.length > 0) {
+                    packages = response.data.pkgs;
+                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                } else if (response.data.waybill) {
+                    awbNumber = response.data.waybill;
+                    packages = [{
+                        waybill: response.data.waybill,
+                        status: response.data.status || 'Success',
+                        refnum: response.data.refnum || orderData.order_id,
+                        label_url: response.data.label_url,
+                        expected_delivery_date: response.data.expected_delivery_date
+                    }];
+                } else if (response.data.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
+                    packages = response.data.items;
+                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                } else if (response.data[0] && response.data[0].waybill) {
+                    // Sometimes response is an array
+                    packages = Array.isArray(response.data) ? response.data : [response.data[0]];
+                    awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
+                }
+
+                // Fallback to locally generated waybill if API didn't return one
+                if (!awbNumber) {
+                    awbNumber = shipmentData.shipments[0].waybill;
+                    logger.warn('⚠️ No AWB in API response, using generated waybill', {
+                        orderId: orderData.order_id,
+                        generatedWaybill: awbNumber
+                    });
+                }
+
                 logger.info('✅ Shipment created successfully', {
                     orderId: orderData.order_id,
-                    waybill: shipmentData.shipments[0].waybill
+                    awbNumber: awbNumber,
+                    packagesCount: packages.length,
+                    responseStructure: Object.keys(response.data)
                 });
 
                 return {
                     success: true,
-                    waybill: shipmentData.shipments[0].waybill,
-                    tracking_id: response.data.packages?.[0]?.waybill || shipmentData.shipments[0].waybill,
-                    label_url: response.data.packages?.[0]?.label_url,
-                    expected_delivery: response.data.packages?.[0]?.expected_delivery_date,
+                    waybill: awbNumber,
+                    tracking_id: awbNumber,
+                    label_url: packages[0]?.label_url || packages[0]?.label || null,
+                    expected_delivery: packages[0]?.expected_delivery_date || null,
+                    packages: packages.length > 0 ? packages : [{
+                        waybill: awbNumber,
+                        status: 'Success',
+                        refnum: orderData.order_id
+                    }],
+                    upload_wbn: response.data.upload_wbn || null,
                     data: response.data
                 };
             } else {
-                throw new Error(response.data.rmk || 'Failed to create shipment');
+                const errorMsg = response.data?.rmk || response.data?.message || 'Failed to create shipment';
+                logger.error('❌ Delhivery API returned failure', {
+                    orderId: orderData.order_id,
+                    error: errorMsg,
+                    responseData: response.data
+                });
+                throw new Error(errorMsg);
             }
         } catch (error) {
             logger.error('❌ Delhivery createShipment error', {

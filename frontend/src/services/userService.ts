@@ -76,14 +76,22 @@ export interface DocumentUploadData {
 class UserService {
   // Get user profile
   async getProfile(): Promise<User> {
-    const response = await apiService.get<{ data: User }>('/users/profile');
-    return response.data;
+    const response = await apiService.get<{ status: string; data?: User; message?: string }>('/users/profile');
+    // Verify response has data property
+    if (response.status === 'success' && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to load user profile');
   }
 
   // Update user profile
   async updateProfile(data: UpdateProfileData): Promise<User> {
-    const response = await apiService.put<{ data: User }>('/users/profile', data);
-    return response.data;
+    const response = await apiService.put<{ status: string; data?: User; message?: string }>('/users/profile', data);
+    // Verify response has data property
+    if (response.status === 'success' && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to update profile');
   }
 
   // Reset password

@@ -75,17 +75,58 @@ export interface CreateWarehouseData {
 class WarehouseService {
   // Create new warehouse
   async createWarehouse(warehouseData: CreateWarehouseData): Promise<Warehouse> {
-    const response = await apiService.post<{ 
-      status: string;
-      message: string;
-      data: {
-        warehouse: Warehouse;
-        delhivery_response?: any;
-        business_hours?: any;
-        business_days?: string[];
+    try {
+      console.log('📤 Warehouse Service: Sending POST request to /warehouses', {
+        timestamp: new Date().toISOString(),
+        payload: warehouseData
+      });
+
+      const response = await apiService.post<{ 
+        status: string;
+        message: string;
+        data: {
+          warehouse: Warehouse;
+          delhivery_response?: any;
+          business_hours?: any;
+          business_days?: string[];
+        }
+      }>('/warehouses', warehouseData);
+      
+      console.log('📥 Warehouse Service: Received response', {
+        timestamp: new Date().toISOString(),
+        status: response.status,
+        hasData: !!response.data,
+        hasWarehouse: !!(response as any).data?.warehouse
+      });
+      
+      // Handle different response structures
+      if (response.data && response.data.warehouse) {
+        return response.data.warehouse;
+      } else if (response.data) {
+        // If data is directly the warehouse object
+        return response.data as any;
+      } else {
+        return response as any;
       }
-    }>('/warehouses', warehouseData);
-    return (response as any).data.warehouse;
+    } catch (error: any) {
+      console.error('❌ Warehouse Service: API Error', {
+        timestamp: new Date().toISOString(),
+        errorMessage: error.message,
+        statusCode: error.response?.status,
+        statusText: error.response?.statusText,
+        responseData: error.response?.data,
+        requestData: warehouseData
+      });
+      
+      // Re-throw with better error details
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        const enhancedError = new Error(errorData.message || 'Failed to create warehouse');
+        (enhancedError as any).response = error.response;
+        throw enhancedError;
+      }
+      throw error;
+    }
   }
 
   // Get all warehouses

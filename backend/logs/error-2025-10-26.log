@@ -1,0 +1,10 @@
+[2025-10-26T16:36:41.337Z] [ERROR] [PID:9288] ❌ Warehouse creation failed | Data: {
+  "name": "MAMURA SECTOR",
+  "error": "There has been an error but we were asked to not let you see that.                         Please contact the dev team."
+}
+[2025-10-26T16:47:27.158Z] [ERROR] [PID:9288] ❌ Delhivery createShipment error | Data: {
+  "error": "Cannot read properties of undefined (reading 'buyer_name')"
+}
+[2025-10-26T16:54:49.837Z] [ERROR] [PID:9288] ❌ Delhivery createShipment error | Data: {
+  "error": "Cannot read properties of undefined (reading 'buyer_name')"
+}
