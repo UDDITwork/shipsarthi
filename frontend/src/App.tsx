@@ -22,6 +22,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import ShipmentCancellation from './pages/ShipmentCancellation';
 import OrderCancellation from './pages/OrderCancellation';
+import ReturnPolicy from './pages/ReturnPolicy';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Tracking from './pages/Tracking';
@@ -56,6 +57,7 @@ function App() {
             <Route path="/tracking" element={<Tracking />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/return-policy" element={<ReturnPolicy />} />
             <Route path="/shipment-cancellation" element={<ShipmentCancellation />} />
             <Route path="/order-cancellation" element={<OrderCancellation />} />
             
