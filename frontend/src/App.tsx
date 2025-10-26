@@ -16,6 +16,7 @@ import Support from './pages/Support';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
 import AddWarehouse from './pages/AddWarehouse';
+import WarehouseManagement from './pages/WarehouseManagement';
 // import Settings from './pages/Settings'; // Replaced with AccountSettings
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
@@ -154,7 +155,7 @@ function App() {
               path="/warehouse" 
               element={
                 <ProtectedRoute>
-                  <AddWarehouse />
+                  <WarehouseManagement />
                 </ProtectedRoute>
               } 
             />

@@ -76,9 +76,23 @@ export interface RateCard {
 class ShippingService {
 
   // Calculate shipping charges using rate card system
-  async calculateShippingCharges(request: ShippingCalculationRequest): Promise<ShippingCalculationResult> {
+  async calculateShippingCharges(request: ShippingCalculationRequest): Promise<{
+    forwardCharges: number;
+    rtoCharges: number;
+    codCharges: number;
+    totalCharges: number;
+    volumetricWeight: number;
+    chargeableWeight: number;
+  }> {
     try {
-      const response = await apiService.post<{ success: boolean; data: ShippingCalculationResult }>('/shipping/calculate-rate-card', request);
+      const response = await apiService.post<{ success: boolean; data: {
+        forwardCharges: number;
+        rtoCharges: number;
+        codCharges: number;
+        totalCharges: number;
+        volumetricWeight: number;
+        chargeableWeight: number;
+      } }>('/shipping/calculate-rate-card', request);
       return response.data;
     } catch (error: any) {
       console.error('Calculate shipping charges error:', error);

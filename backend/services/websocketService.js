@@ -4,7 +4,8 @@ const logger = require('../utils/logger');
 class WebSocketService {
   constructor() {
     this.wss = null;
-    this.clients = new Map();
+    this.clients = new Map(); // Maps WebSocket clientId -> WebSocket connection
+    this.userClients = new Map(); // Maps MongoDB user_id -> Set of WebSocket clientIds
   }
 
   initialize(server) {
@@ -20,7 +21,7 @@ class WebSocketService {
         ws.on('message', (message) => {
           try {
             const data = JSON.parse(message);
-            this.handleMessage(clientId, data);
+            this.handleMessage(clientId, data, ws);
           } catch (error) {
             logger.error('Error parsing WebSocket message:', error);
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
@@ -28,7 +29,7 @@ class WebSocketService {
         });
         
         ws.on('close', (code, reason) => {
-          this.clients.delete(clientId);
+          this.handleDisconnect(clientId);
           logger.info('🔌 WebSocket client disconnected', { 
             clientId, 
             code, 
@@ -39,7 +40,7 @@ class WebSocketService {
         
         ws.on('error', (error) => {
           logger.error('WebSocket error:', error);
-          this.clients.delete(clientId);
+          this.handleDisconnect(clientId);
         });
       });
       
@@ -57,11 +58,22 @@ class WebSocketService {
     return `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  handleMessage(clientId, data) {
+  handleMessage(clientId, data, ws) {
     logger.info('🔌 WebSocket message received', { clientId, data });
     
     // Handle different message types
     switch (data.type) {
+      case 'authenticate':
+        // Client is authenticating with their user_id
+        if (data.user_id) {
+          const userIdStr = String(data.user_id);
+          this.registerUser(clientId, userIdStr);
+          this.sendToClient(clientId, { type: 'authenticated', user_id: userIdStr });
+          logger.info('🔌 WebSocket client authenticated', { clientId, user_id: userIdStr });
+        } else {
+          this.sendToClient(clientId, { type: 'error', message: 'user_id required for authentication' });
+        }
+        break;
       case 'ping':
         this.sendToClient(clientId, { type: 'pong', timestamp: Date.now() });
         break;
@@ -77,6 +89,29 @@ class WebSocketService {
         logger.info('Unknown message type:', data.type);
         this.sendToClient(clientId, { type: 'error', message: 'Unknown message type' });
     }
+  }
+
+  registerUser(clientId, userId) {
+    // Convert userId to string for consistent storage
+    const userIdStr = String(userId);
+    // Add clientId to user's set of connections
+    if (!this.userClients.has(userIdStr)) {
+      this.userClients.set(userIdStr, new Set());
+    }
+    this.userClients.get(userIdStr).add(clientId);
+  }
+
+  handleDisconnect(clientId) {
+    // Remove client from clients map
+    this.clients.delete(clientId);
+    
+    // Remove clientId from all user mappings
+    this.userClients.forEach((clientIds, userId) => {
+      clientIds.delete(clientId);
+      if (clientIds.size === 0) {
+        this.userClients.delete(userId);
+      }
+    });
   }
 
   sendToClient(clientId, message) {
@@ -202,6 +237,49 @@ class WebSocketService {
     
     this.broadcastToAdmins(notification);
     logger.info('🔔 New message notification sent', { ticketData, messageData });
+  }
+
+  // Send notification to a specific client by their MongoDB user_id
+  sendNotificationToClient(userId, notification) {
+    // Convert userId to string for consistent lookup
+    const userIdStr = String(userId);
+    const userClientIds = this.userClients.get(userIdStr);
+    
+    if (!userClientIds || userClientIds.size === 0) {
+      logger.info('🔔 No active WebSocket connections for user', { userId: userIdStr });
+      return false;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    const messageStr = JSON.stringify(notification);
+
+    userClientIds.forEach(clientId => {
+      const client = this.clients.get(clientId);
+      if (client && client.readyState === WebSocket.OPEN) {
+        try {
+          client.send(messageStr);
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          logger.error('Error sending notification to client:', { clientId, userId, error });
+          // Remove failed connection
+          this.handleDisconnect(clientId);
+        }
+      } else {
+        // Remove stale connection
+        this.handleDisconnect(clientId);
+      }
+    });
+
+    logger.info('🔔 Notification sent to client', { 
+      userId, 
+      successCount, 
+      errorCount,
+      notification_type: notification.type 
+    });
+
+    return successCount > 0;
   }
 }
 

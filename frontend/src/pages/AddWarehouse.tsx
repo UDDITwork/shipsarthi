@@ -238,7 +238,7 @@ const AddWarehouse: React.FC = () => {
       const response = await warehouseService.createWarehouse(apiData);
       
       alert(`Warehouse "${response.title}" created successfully!`);
-      navigate('/warehouses');
+      navigate('/warehouse');
       
     } catch (error: any) {
       console.error('Error creating warehouse:', error);
@@ -249,7 +249,7 @@ const AddWarehouse: React.FC = () => {
   };
 
   const handleDismiss = () => {
-    navigate('/warehouses');
+    navigate('/warehouse');
   };
 
   return (

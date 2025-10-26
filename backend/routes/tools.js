@@ -6,6 +6,63 @@ const Order = require('../models/Order');
 
 const router = express.Router();
 
+// Get pincode information
+router.get('/pincode-info/:pincode', async (req, res) => {
+    try {
+        const { pincode } = req.params;
+        
+        if (!pincode || pincode.length !== 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid 6-digit pincode is required'
+            });
+        }
+
+        // Use Delhivery serviceability to get pincode info
+        if (delhiveryService.validateApiKey()) {
+            try {
+                const serviceabilityResult = await delhiveryService.getServiceability(pincode);
+                
+                if (serviceabilityResult && serviceabilityResult.length > 0) {
+                    const location = serviceabilityResult[0];
+                    return res.json({
+                        success: true,
+                        data: {
+                            pincode: pincode,
+                            city: location.city || 'Unknown',
+                            state: location.state || 'Unknown',
+                            serviceable: location.serviceable || false
+                        }
+                    });
+                }
+            } catch (error) {
+                console.log('Delhivery serviceability check failed, using fallback');
+            }
+        }
+
+        // Fallback: Basic pincode validation
+        const pincodeData = {
+            pincode: pincode,
+            city: 'Unknown',
+            state: 'Unknown',
+            serviceable: true
+        };
+
+        res.json({
+            success: true,
+            data: pincodeData
+        });
+
+    } catch (error) {
+        console.error('Get pincode info error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
 router.post('/rate-calculator',
     auth,
     [

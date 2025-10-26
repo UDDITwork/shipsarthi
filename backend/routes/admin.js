@@ -1190,7 +1190,8 @@ router.post('/wallet-recharge', async (req, res) => {
       };
 
       // Send WebSocket notification if client is online
-      websocketService.sendNotificationToClient(client_id, notification);
+      // Convert client_id to string to ensure proper matching
+      websocketService.sendNotificationToClient(String(client_id), notification);
     } catch (notificationError) {
       logger.warn('Failed to send wallet recharge notification', {
         error: notificationError.message,

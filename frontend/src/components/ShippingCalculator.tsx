@@ -61,10 +61,10 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
         cod_amount: codAmount > 0 ? codAmount : undefined
       });
 
-      setCalculationResult(result.calculation_result);
+      setCalculationResult(result);
       
       if (onCalculate) {
-        onCalculate(result.calculation_result);
+        onCalculate(result);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to calculate shipping charges');

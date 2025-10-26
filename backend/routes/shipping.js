@@ -585,14 +585,7 @@ router.post('/calculate-rate-card',
             res.json({
                 success: true,
                 message: 'Shipping charges calculated successfully',
-                data: {
-                    user_category: userCategory,
-                    weight: weight,
-                    dimensions: dimensions,
-                    zone: zone,
-                    cod_amount: cod_amount || 0,
-                    calculation_result: result
-                }
+                data: result
             });
         } catch (error) {
             console.error('Calculate rate card cost error:', error);

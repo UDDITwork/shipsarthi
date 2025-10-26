@@ -62,6 +62,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         const response = await userService.getUserProfile();
         console.log('👤 USER PROFILE LOADED:', response.data);
         setUserProfile(response.data);
+        
+        // Connect to WebSocket with user ID after profile is loaded
+        if (response.data._id) {
+          notificationService.connect(response.data._id);
+        }
       } catch (error: any) {
         console.error('❌ ERROR LOADING USER PROFILE:', error);
         // If user is not authenticated, redirect to login
@@ -85,6 +90,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     fetchUserProfile();
     fetchWalletBalance();
+    
+    // Cleanup: disconnect WebSocket on unmount
+    return () => {
+      notificationService.disconnect();
+    };
   }, [navigate]);
 
   // Subscribe to wallet balance updates

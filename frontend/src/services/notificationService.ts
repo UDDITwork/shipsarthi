@@ -6,8 +6,9 @@ class NotificationService {
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
   private listeners: Array<(notification: any) => void> = [];
+  private userId: string | null = null;
 
-  connect() {
+  connect(userId?: string) {
     // Prevent multiple connections
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       console.log('🔌 WebSocket already connected');
@@ -20,6 +21,11 @@ class NotificationService {
       this.ws = null;
     }
     
+    // Store user ID for reconnection
+    if (userId) {
+      this.userId = userId;
+    }
+    
     const wsUrl = environmentConfig.wsUrl;
     
     try {
@@ -28,12 +34,29 @@ class NotificationService {
       this.ws.onopen = () => {
         console.log('🔌 WebSocket connected');
         this.reconnectAttempts = 0;
+        
+        // Authenticate with user ID if available
+        if (this.userId) {
+          this.ws?.send(JSON.stringify({
+            type: 'authenticate',
+            user_id: this.userId
+          }));
+          console.log('🔌 WebSocket authentication sent', { user_id: this.userId });
+        }
       };
       
       this.ws.onmessage = (event) => {
         try {
-          const notification = JSON.parse(event.data);
-          this.listeners.forEach(listener => listener(notification));
+          const data = JSON.parse(event.data);
+          
+          // Handle authentication response
+          if (data.type === 'authenticated') {
+            console.log('🔌 WebSocket authenticated successfully', { user_id: data.user_id });
+            return;
+          }
+          
+          // Handle other notifications
+          this.listeners.forEach(listener => listener(data));
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
@@ -66,7 +89,7 @@ class NotificationService {
       console.log(`🔌 Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
       
       setTimeout(() => {
-        this.connect();
+        this.connect(this.userId || undefined);
       }, this.reconnectInterval);
     } else {
       console.error('🔌 Max reconnection attempts reached');
