@@ -1079,22 +1079,118 @@ router.patch('/notifications/:id/read', async (req, res) => {
   }
 });
 
-// @desc    Mark all notifications as read
-// @route   PATCH /api/admin/notifications/read-all
+// @desc    Test Delhivery API connection
+// @route   GET /api/admin/test-delhivery-api
 // @access  Admin
-router.patch('/notifications/read-all', async (req, res) => {
+router.get('/test-delhivery-api', async (req, res) => {
   try {
-    // For now, we'll just return success since we're using ticket status for notifications
+    logger.info('🧪 Admin testing Delhivery API connection');
+
+    // Test API key validation
+    const apiKeyValid = delhiveryService.validateApiKey();
+    
+    if (!apiKeyValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Delhivery API key is not properly configured',
+        details: {
+          hasApiKey: !!process.env.DELHIVERY_API_KEY,
+          apiKeyLength: process.env.DELHIVERY_API_KEY?.length || 0,
+          apiURL: process.env.DELHIVERY_API_URL || 'https://track.delhivery.com/api'
+        }
+      });
+    }
+
+    // Test API connection
+    const connectionTest = await delhiveryService.testApiConnection();
+
     res.json({
       success: true,
-      message: 'All notifications marked as read'
+      message: 'Delhivery API test completed',
+      results: {
+        apiKeyValidation: apiKeyValid,
+        connectionTest: connectionTest,
+        configuration: {
+          apiURL: process.env.DELHIVERY_API_URL || 'https://track.delhivery.com/api',
+          apiKeyLength: process.env.DELHIVERY_API_KEY?.length || 0,
+          apiKeyPreview: process.env.DELHIVERY_API_KEY ? 
+            `${process.env.DELHIVERY_API_KEY.substring(0, 10)}...` : 'NOT SET'
+        }
+      }
     });
 
   } catch (error) {
-    logger.error('Error marking all notifications as read:', error);
+    logger.error('❌ Error testing Delhivery API:', error);
     res.status(500).json({
       success: false,
-      message: 'Error marking all notifications as read',
+      message: 'Error testing Delhivery API',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get tracking failures summary
+// @route   GET /api/admin/tracking-failures
+// @access  Admin
+router.get('/tracking-failures', async (req, res) => {
+  try {
+    const { limit = 50, offset = 0 } = req.query;
+
+    // Get orders with tracking failures
+    const orders = await Order.find({
+      'delhivery_data.tracking_failures': { $exists: true, $not: { $size: 0 } }
+    })
+    .select('order_id delhivery_data.tracking_failures delhivery_data.waybill status')
+    .sort({ 'delhivery_data.tracking_failures.timestamp': -1 })
+    .limit(parseInt(limit))
+    .skip(parseInt(offset));
+
+    // Count total orders with tracking failures
+    const totalCount = await Order.countDocuments({
+      'delhivery_data.tracking_failures': { $exists: true, $not: { $size: 0 } }
+    });
+
+    // Get failure statistics
+    const failureStats = await Order.aggregate([
+      {
+        $match: {
+          'delhivery_data.tracking_failures': { $exists: true, $not: { $size: 0 } }
+        }
+      },
+      {
+        $unwind: '$delhivery_data.tracking_failures'
+      },
+      {
+        $group: {
+          _id: '$delhivery_data.tracking_failures.errorType',
+          count: { $sum: 1 },
+          latestFailure: { $max: '$delhivery_data.tracking_failures.timestamp' }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        orders: orders,
+        pagination: {
+          total: totalCount,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          hasMore: totalCount > parseInt(offset) + parseInt(limit)
+        },
+        failureStats: failureStats
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Error fetching tracking failures:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching tracking failures',
       error: error.message
     });
   }
@@ -1142,11 +1238,10 @@ router.post('/wallet-recharge', async (req, res) => {
       transaction_id: transactionId,
       user_id: client_id,
       transaction_type: 'credit',
-      category: 'admin_recharge',
+      transaction_category: 'manual_adjustment',
       amount: amount,
       description: description || `Admin wallet recharge - ₹${amount}`,
       status: 'completed',
-      completed_at: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
       balance_info: {
@@ -1192,6 +1287,25 @@ router.post('/wallet-recharge', async (req, res) => {
       // Send WebSocket notification if client is online
       // Convert client_id to string to ensure proper matching
       websocketService.sendNotificationToClient(String(client_id), notification);
+
+      // Send real-time wallet balance update
+      const walletUpdate = {
+        type: 'wallet_balance_update',
+        balance: newBalance,
+        currency: 'INR',
+        previous_balance: currentBalance,
+        amount_added: amount,
+        transaction_id: transactionId,
+        timestamp: new Date().toISOString()
+      };
+
+      websocketService.sendNotificationToClient(String(client_id), walletUpdate);
+      
+      logger.info('💰 Real-time wallet update sent', {
+        client_id,
+        new_balance: newBalance,
+        amount_added: amount
+      });
     } catch (notificationError) {
       logger.warn('Failed to send wallet recharge notification', {
         error: notificationError.message,

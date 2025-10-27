@@ -454,7 +454,7 @@ class DelhiveryService {
         try {
             logger.info('🚫 Cancelling shipment', { waybill });
 
-            const response = await this.client.post('/api/backend/clientwarehouse/editorders/', {
+            const response = await this.client.post('/backend/clientwarehouse/editorders/', {
                 waybill: waybill,
                 cancellation: true
             });
@@ -528,7 +528,7 @@ class DelhiveryService {
      */
     async getRates(pickupPincode, deliveryPincode, weight, codAmount = 0) {
         try {
-            const response = await this.client.get('/api/kinko/v1/invoice/charges/.json', {
+            const response = await this.client.get('/kinko/v1/invoice/charges/.json', {
                 params: {
                     md: 'S',
                     ss: 'Delivered',
@@ -730,7 +730,7 @@ class DelhiveryService {
      */
     async updateOrder(waybill, updateData) {
         try {
-            const response = await this.client.post('/api/backend/clientwarehouse/editorders/', {
+            const response = await this.client.post('/backend/clientwarehouse/editorders/', {
                 waybill: waybill,
                 ...updateData
             });
@@ -814,7 +814,7 @@ class DelhiveryService {
         try {
             logger.info('🔄 Initiating RTO', { waybill, reason });
 
-            const response = await this.client.post('/api/backend/clientwarehouse/editorders/', {
+            const response = await this.client.post('/backend/clientwarehouse/editorders/', {
                 waybill: waybill,
                 return_type: 'RTO',
                 return_reason: reason
@@ -893,7 +893,7 @@ class DelhiveryService {
                 });
             }
 
-            const response = await this.client.post('/api/p/update', {
+            const response = await this.client.post('/p/update', {
                 data: [{
                     waybill: waybill,
                     act: action
@@ -946,7 +946,7 @@ class DelhiveryService {
         try {
             logger.info('📊 Fetching NDR status', { uplId });
 
-            const response = await this.client.get(`/api/cmu/get_bulk_upl/${uplId}`, {
+            const response = await this.client.get(`/cmu/get_bulk_upl/${uplId}`, {
                 params: { verbose: 'true' }
             });
 
@@ -1031,7 +1031,7 @@ class DelhiveryService {
                 act: action
             }));
 
-            const response = await this.client.post('/api/p/update', { data });
+            const response = await this.client.post('/p/update', { data });
 
             logger.info('✅ Bulk NDR action successful', {
                 waybillCount: waybills.length,
@@ -1164,8 +1164,81 @@ class DelhiveryService {
      * Validate API Key
      * @returns {boolean} Validation status
      */
+    /**
+     * Validate API key and configuration
+     * @returns {boolean} True if API key is valid
+     */
     validateApiKey() {
-        return !!this.apiKey && this.apiKey !== 'your-delhivery-api-key';
+        if (!this.apiKey || this.apiKey === 'your-delhivery-api-key') {
+            logger.error('❌ Delhivery API Key not configured');
+            return false;
+        }
+        
+        if (this.apiKey.length < 20) {
+            logger.error('❌ Delhivery API Key appears to be invalid (too short)', {
+                apiKeyLength: this.apiKey.length,
+                apiKeyPreview: this.apiKey.substring(0, 10) + '...'
+            });
+            return false;
+        }
+        
+        logger.info('✅ Delhivery API Key validation passed', {
+            apiKeyLength: this.apiKey.length,
+            apiKeyPreview: this.apiKey.substring(0, 10) + '...',
+            apiURL: this.apiURL
+        });
+        
+        return true;
+    }
+
+    /**
+     * Test API connectivity and authentication
+     * @returns {Promise<Object>} Test result
+     */
+    async testApiConnection() {
+        try {
+            logger.info('🧪 Testing Delhivery API connection', {
+                apiURL: this.apiURL,
+                hasApiKey: !!this.apiKey
+            });
+
+            // Test with a dummy waybill to check API connectivity
+            const testWaybill = 'TEST123456789';
+            const response = await this.client.get('/v1/packages/json/', {
+                params: {
+                    waybill: testWaybill
+                },
+                timeout: 10000 // 10 second timeout
+            });
+
+            logger.info('✅ Delhivery API connection test successful', {
+                status: response.status,
+                statusText: response.statusText,
+                responseType: typeof response.data
+            });
+
+            return {
+                success: true,
+                message: 'API connection successful',
+                status: response.status,
+                apiURL: this.apiURL
+            };
+        } catch (error) {
+            logger.error('❌ Delhivery API connection test failed', {
+                error: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                apiURL: this.apiURL
+            });
+
+            return {
+                success: false,
+                message: 'API connection failed',
+                error: error.message,
+                status: error.response?.status,
+                apiURL: this.apiURL
+            };
+        }
     }
 
     /**
@@ -1174,32 +1247,177 @@ class DelhiveryService {
      * @param {string} refIds - Reference IDs (optional)
      * @returns {Promise} Tracking response
      */
-    async trackShipment(waybill, refIds = '') {
-        try {
-            const response = await this.client.get('/api/v1/packages/json/', {
+    /**
+     * Track Shipment with retry mechanism
+     * @param {string} waybill - Waybill number to track
+     * @param {string} refIds - Reference IDs (optional)
+     * @param {number} maxRetries - Maximum number of retries (default: 3)
+     * @returns {Promise} Tracking response
+     */
+    async trackShipment(waybill, refIds = '', maxRetries = 3) {
+        let lastError = null;
+        
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                logger.info('🔍 Tracking shipment attempt', {
+                    waybill: waybill,
+                    attempt: attempt,
+                    maxRetries: maxRetries
+                });
+
+                // Use the correct Delhivery tracking endpoint
+                const response = await this.client.get('/v1/packages/json/', {
                 params: {
                     waybill: waybill,
                     ref_ids: refIds
                 }
             });
 
+                // Check if response is HTML (error page) instead of JSON
+                if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+                    logger.error('❌ Delhivery API returned HTML error page', {
+                        waybill: waybill,
+                        attempt: attempt,
+                        responseType: typeof response.data,
+                        responseLength: response.data.length,
+                        responsePreview: response.data.substring(0, 200)
+                    });
+                    
+                    // Don't retry HTML error pages - they indicate endpoint issues
+                    return {
+                        success: false,
+                        error: 'Delhivery API returned error page - waybill may not exist or API endpoint issue',
+                        waybill: waybill,
+                        errorType: 'HTML_ERROR_PAGE',
+                        attempts: attempt
+                    };
+                }
+
+                // Validate response data structure
+                if (!response.data || typeof response.data !== 'object') {
+                    logger.error('❌ Invalid tracking response format', {
+                        waybill: waybill,
+                        attempt: attempt,
+                        responseData: response.data,
+                        responseType: typeof response.data
+                    });
+                    
+                    // Retry for invalid response format
+                    if (attempt < maxRetries) {
+                        await this.delay(1000 * attempt); // Exponential backoff
+                        continue;
+                    }
+                    
+                    return {
+                        success: false,
+                        error: 'Invalid response format from Delhivery API',
+                        waybill: waybill,
+                        errorType: 'INVALID_RESPONSE_FORMAT',
+                        attempts: attempt
+                    };
+                }
+
+                logger.info('✅ Tracking successful', {
+                    waybill: waybill,
+                    attempt: attempt,
+                    responseKeys: Object.keys(response.data)
+                });
+
             return {
                 success: true,
                 data: response.data,
-                waybill: waybill
+                    waybill: waybill,
+                    attempts: attempt
             };
         } catch (error) {
-            logger.error('❌ Shipment tracking failed', {
+                lastError = error;
+                
+                // Enhanced error logging
+                const errorDetails = {
                 waybill: waybill,
-                error: error.response?.data || error.message
-            });
+                    attempt: attempt,
+                    maxRetries: maxRetries,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    headers: error.config?.headers,
+                    responseData: error.response?.data,
+                    errorMessage: error.message
+                };
 
+                logger.error('❌ Shipment tracking failed', errorDetails);
+
+                // Determine error type and provide appropriate message
+                let errorMessage = 'Failed to track shipment';
+                let errorType = 'UNKNOWN_ERROR';
+                let shouldRetry = false;
+
+                if (error.response?.status === 404) {
+                    errorMessage = 'Waybill not found - shipment may not exist or may have been purged';
+                    errorType = 'WAYBILL_NOT_FOUND';
+                    shouldRetry = false; // Don't retry 404 errors
+                } else if (error.response?.status === 401) {
+                    errorMessage = 'Authentication failed - check API key';
+                    errorType = 'AUTHENTICATION_ERROR';
+                    shouldRetry = false; // Don't retry auth errors
+                } else if (error.response?.status === 403) {
+                    errorMessage = 'Access forbidden - insufficient permissions';
+                    errorType = 'PERMISSION_ERROR';
+                    shouldRetry = false; // Don't retry permission errors
+                } else if (error.response?.status >= 500) {
+                    errorMessage = 'Delhivery server error - try again later';
+                    errorType = 'SERVER_ERROR';
+                    shouldRetry = true; // Retry server errors
+                } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+                    errorMessage = 'Network timeout - connection reset';
+                    errorType = 'NETWORK_ERROR';
+                    shouldRetry = true; // Retry network errors
+                } else {
+                    shouldRetry = true; // Retry other errors
+                }
+
+                // If this is the last attempt or we shouldn't retry, return error
+                if (attempt === maxRetries || !shouldRetry) {
+                    return {
+                        success: false,
+                        error: errorMessage,
+                        waybill: waybill,
+                        errorType: errorType,
+                        statusCode: error.response?.status,
+                        attempts: attempt
+                    };
+                }
+
+                // Wait before retrying (exponential backoff)
+                const delayMs = 1000 * Math.pow(2, attempt - 1); // 1s, 2s, 4s, etc.
+                logger.info('⏳ Retrying tracking request', {
+                    waybill: waybill,
+                    attempt: attempt,
+                    nextAttempt: attempt + 1,
+                    delayMs: delayMs
+                });
+                
+                await this.delay(delayMs);
+            }
+        }
+
+        // This should never be reached, but just in case
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to track shipment',
-                waybill: waybill
-            };
-        }
+            error: 'Max retries exceeded',
+            waybill: waybill,
+            errorType: 'MAX_RETRIES_EXCEEDED',
+            attempts: maxRetries
+        };
+    }
+
+    /**
+     * Utility method for delays
+     * @param {number} ms - Milliseconds to delay
+     */
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**
@@ -1218,7 +1436,7 @@ class DelhiveryService {
                 pt: costData.payment_type || 'Pre-paid'
             };
 
-            const response = await this.client.get('/api/kinko/v1/invoice/charges/.json', {
+            const response = await this.client.get('/kinko/v1/invoice/charges/.json', {
                 params: params
             });
 

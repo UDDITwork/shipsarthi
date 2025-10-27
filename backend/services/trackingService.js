@@ -78,7 +78,21 @@ class TrackingService {
     async trackSingleShipment(order) {
         const waybill = order.delhivery_data.waybill;
         
+        if (!waybill) {
+            logger.warn('⚠️ No waybill found for order', {
+                orderId: order.order_id,
+                delhiveryData: order.delhivery_data
+            });
+            return;
+        }
+        
         try {
+            logger.info('🔍 Tracking shipment', {
+                orderId: order.order_id,
+                waybill: waybill,
+                currentStatus: order.status
+            });
+
             const trackingResult = await delhiveryService.trackShipment(waybill);
             
             if (trackingResult.success && trackingResult.data) {
@@ -118,13 +132,76 @@ class TrackingService {
                     
                     await order.save();
                     
-                    logger.info(`✅ Updated order ${order.order_id} status: ${oldStatus} → ${newStatus}`);
+                    logger.info('✅ Order status updated', {
+                        orderId: order.order_id,
+                        waybill: waybill,
+                        oldStatus: oldStatus,
+                        newStatus: newStatus,
+                        trackingStatus: trackingData.status
+                    });
+                } else {
+                    logger.info('📊 No status change needed', {
+                        orderId: order.order_id,
+                        waybill: waybill,
+                        currentStatus: order.status,
+                        trackingStatus: trackingData.status
+                    });
                 }
             } else {
-                logger.warn(`⚠️ Failed to track order ${order.order_id}: ${trackingResult.error}`);
+                // Handle different types of tracking failures
+                const errorType = trackingResult.errorType || 'UNKNOWN_ERROR';
+                const errorMessage = trackingResult.error || 'Unknown tracking error';
+                
+                logger.warn('⚠️ Failed to track order', {
+                    orderId: order.order_id,
+                    waybill: waybill,
+                    errorType: errorType,
+                    errorMessage: errorMessage,
+                    statusCode: trackingResult.statusCode
+                });
+
+                // Update tracking failure info
+                order.delhivery_data.tracking_failures = order.delhivery_data.tracking_failures || [];
+                order.delhivery_data.tracking_failures.push({
+                    timestamp: new Date(),
+                    errorType: errorType,
+                    errorMessage: errorMessage,
+                    statusCode: trackingResult.statusCode
+                });
+
+                // Keep only last 10 failures to prevent document size issues
+                if (order.delhivery_data.tracking_failures.length > 10) {
+                    order.delhivery_data.tracking_failures = order.delhivery_data.tracking_failures.slice(-10);
+                }
+
+                await order.save();
+
+                // Don't throw error for tracking failures - just log and continue
+                return;
             }
         } catch (error) {
-            logger.error(`❌ Error tracking order ${order.order_id}:`, error.message);
+            logger.error('❌ Error tracking order', {
+                orderId: order.order_id,
+                waybill: waybill,
+                error: error.message,
+                stack: error.stack
+            });
+
+            // Update tracking failure info
+            order.delhivery_data.tracking_failures = order.delhivery_data.tracking_failures || [];
+            order.delhivery_data.tracking_failures.push({
+                timestamp: new Date(),
+                errorType: 'SYSTEM_ERROR',
+                errorMessage: error.message,
+                statusCode: null
+            });
+
+            // Keep only last 10 failures
+            if (order.delhivery_data.tracking_failures.length > 10) {
+                order.delhivery_data.tracking_failures = order.delhivery_data.tracking_failures.slice(-10);
+            }
+
+            await order.save();
         }
     }
 

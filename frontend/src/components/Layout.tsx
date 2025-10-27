@@ -116,6 +116,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         walletService.refreshBalance().catch(error => {
           console.error('Failed to refresh wallet balance:', error);
         });
+      } else if (notification.type === 'wallet_balance_update') {
+        console.log('💰 REAL-TIME WALLET BALANCE UPDATE:', notification);
+        // Update wallet balance immediately without API call
+        const updatedBalance = {
+          balance: notification.balance,
+          currency: notification.currency || 'INR'
+        };
+        setWalletBalance(updatedBalance);
+        // Also notify wallet service listeners
+        walletService.notifyBalanceUpdate(updatedBalance);
       }
     });
 

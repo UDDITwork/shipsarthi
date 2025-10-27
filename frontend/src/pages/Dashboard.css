@@ -34,6 +34,15 @@
     font-weight: 500;
   }
   
+  /* Date/Time Display Container */
+  .date-time-display {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
   /* Date Range Display */
   .date-range-display {
     display: flex;
@@ -43,12 +52,121 @@
     background-color: #FFFFFF;
     border: 1px solid #002B59;
     border-radius: 8px;
-    width: fit-content;
-    margin-left: auto;
-    margin-bottom: 20px;
     font-size: 14px;
     color: #002B59;
     font-weight: 500;
+  }
+
+  /* Current Time Display */
+  .current-time-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #002B59 0%, #21476E 100%);
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 43, 89, 0.2);
+  }
+
+  .clock-icon {
+    font-size: 18px;
+    animation: tick 1s ease-in-out infinite;
+  }
+
+  @keyframes tick {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  .time-text {
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+  }
+
+  .day-text {
+    font-size: 12px;
+    opacity: 0.9;
+    text-transform: capitalize;
+  }
+
+  /* Wallet Balance Section */
+  .wallet-balance-section {
+    margin-bottom: 30px;
+  }
+
+  .wallet-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #F68723 0%, #FF9F40 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(246, 135, 35, 0.2);
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .wallet-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(246, 135, 35, 0.3);
+  }
+
+  .wallet-icon {
+    font-size: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wallet-info {
+    flex: 1;
+  }
+
+  .wallet-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 4px;
+  }
+
+  .wallet-amount {
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .wallet-amount.updating {
+    animation: balanceUpdate 0.6s ease-in-out;
+  }
+
+  @keyframes balanceUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); color: #4CAF50; }
+    100% { transform: scale(1); }
+  }
+
+  .wallet-recharge-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .wallet-recharge-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
   }
   
   .calendar-icon {
@@ -379,57 +497,51 @@
   
   /* Chart Container */
   .chart-container {
-    min-height: 300px;
+    min-height: 350px;
+    height: 350px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
   }
   
-  .pie-chart-placeholder {
-    width: 100%;
+  .no-chart-data {
     text-align: center;
+    padding: 40px;
+    color: #999999;
+    font-style: italic;
   }
   
-  .chart-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-width: 300px;
-    margin: 0 auto;
+  .no-chart-data p {
+    margin: 0;
+    font-size: 16px;
   }
   
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #333333;
+  /* Transaction Types */
+  .transaction-type.credit {
+    color: #28A745;
+    font-weight: 600;
   }
   
-  .legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
+  .transaction-type.debit {
+    color: #DC3545;
+    font-weight: 600;
   }
   
-  .legend-color.pickup-pending {
-    background-color: #6B8CAE;
+  /* Status Badges */
+  .status-badge.completed {
+    color: #28A745;
+    font-weight: 600;
   }
   
-  .legend-color.in-transit {
-    background-color: #4A6B8A;
+  .status-badge.pending {
+    color: #FFC107;
+    font-weight: 600;
   }
   
-  .legend-color.delivered {
-    background-color: #2D4A66;
-  }
-  
-  .legend-color.ndr-pending {
-    background-color: #1A3347;
-  }
-  
-  .legend-color.rto {
-    background-color: #0A1A28;
+  .status-badge.failed {
+    color: #DC3545;
+    font-weight: 600;
   }
   
   /* Responsive Design */
@@ -481,10 +593,28 @@
     .dashboard-container {
       padding: 15px;
     }
+
+    .date-time-display {
+      flex-direction: column;
+      gap: 10px;
+    }
   
     .date-range-display {
       font-size: 12px;
       padding: 10px 15px;
+    }
+
+    .current-time-display {
+      font-size: 12px;
+      padding: 10px 15px;
+    }
+
+    .time-text {
+      font-size: 12px;
+    }
+
+    .day-text {
+      font-size: 11px;
     }
   
     .metrics-column {

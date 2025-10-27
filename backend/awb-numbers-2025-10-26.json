@@ -1,0 +1,38 @@
+{
+  "totalOrders": 2,
+  "extractedAt": "2025-10-26T22:55:31.330Z",
+  "orders": [
+    {
+      "orderId": "ORD1761512735974270",
+      "awbNumber": "44800710000361",
+      "status": "ready_to_ship",
+      "createdAt": "2025-10-26T21:08:18.275Z",
+      "updatedAt": "2025-10-26T21:08:19.386Z"
+    },
+    {
+      "orderId": "ORD1761500364901730",
+      "awbNumber": "SHIP1761500711312P1LWHV",
+      "status": "ready_to_ship",
+      "createdAt": "2025-10-26T17:45:11.105Z",
+      "updatedAt": "2025-10-26T17:45:11.541Z"
+    }
+  ],
+  "awbNumbersOnly": [
+    "44800710000361",
+    "SHIP1761500711312P1LWHV"
+  ],
+  "statusGroups": {
+    "ready_to_ship": [
+      {
+        "orderId": "ORD1761512735974270",
+        "awb": "44800710000361",
+        "createdAt": "2025-10-26T21:08:18.275Z"
+      },
+      {
+        "orderId": "ORD1761500364901730",
+        "awb": "SHIP1761500711312P1LWHV",
+        "createdAt": "2025-10-26T17:45:11.105Z"
+      }
+    ]
+  }
+}

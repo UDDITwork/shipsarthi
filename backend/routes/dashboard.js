@@ -40,12 +40,12 @@ router.get('/overview', auth, async (req, res) => {
     // Get today's metrics
     const todaysOrders = await Order.countDocuments({
       user_id: userId,
-      created_at: { $gte: today.toDate() }
+      order_date: { $gte: today.toDate() }
     });
 
     const yesterdaysOrders = await Order.countDocuments({
       user_id: userId,
-      created_at: {
+      order_date: {
         $gte: yesterday.toDate(),
         $lt: today.toDate()
       }
@@ -56,7 +56,7 @@ router.get('/overview', auth, async (req, res) => {
       {
         $match: {
           user_id: userId,
-          created_at: { $gte: today.toDate() },
+          order_date: { $gte: today.toDate() },
           'status': { $ne: 'cancelled' }
         }
       },
@@ -72,7 +72,7 @@ router.get('/overview', auth, async (req, res) => {
       {
         $match: {
           user_id: userId,
-          created_at: {
+          order_date: {
             $gte: yesterday.toDate(),
             $lt: today.toDate()
           },
@@ -92,7 +92,7 @@ router.get('/overview', auth, async (req, res) => {
       {
         $match: {
           user_id: userId,
-          created_at: { $gte: last30Days.toDate() },
+          order_date: { $gte: last30Days.toDate() },
           'payment_info.shipping_charges': { $gt: 0 }
         }
       },
