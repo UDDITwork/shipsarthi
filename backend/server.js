@@ -239,6 +239,9 @@ app.get('/api/test-email', async (req, res) => {
   }
 });
 
+// Sitemap Route (before API routes to avoid conflicts)
+app.use('/', require('./routes/sitemap'));
+
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/otp', require('./routes/otp'));
