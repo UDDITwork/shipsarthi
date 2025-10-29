@@ -30,6 +30,45 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate('/billing');
   };
 
+  const handleRefreshWallet = async () => {
+    try {
+      console.log('🔄 Manually refreshing wallet balance...');
+      const balance = await walletService.refreshBalance();
+      setWalletBalance(balance);
+      console.log('✅ Wallet balance refreshed:', balance);
+    } catch (error) {
+      console.error('❌ Failed to refresh wallet balance:', error);
+    }
+  };
+
+  const handleDebugWallet = async () => {
+    try {
+      console.log('🔍 DEBUG: Testing wallet balance API...');
+      
+      // Test direct API call
+      const response = await fetch('/api/user/wallet-balance', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      console.log('🔍 DEBUG: Direct API response:', data);
+      
+      if (data.success) {
+        const balance = {
+          balance: data.data.balance,
+          currency: data.data.currency || 'INR'
+        };
+        setWalletBalance(balance);
+        console.log('✅ DEBUG: Wallet balance updated from direct API:', balance);
+      }
+    } catch (error) {
+      console.error('❌ DEBUG: Direct API call failed:', error);
+    }
+  };
+
   const handleTickets = () => {
     navigate('/support');
   };
@@ -83,6 +122,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       try {
         const balance = await walletService.getWalletBalance();
         setWalletBalance(balance);
+        console.log('💰 Initial wallet balance loaded:', balance);
       } catch (error) {
         console.error('❌ ERROR LOADING WALLET BALANCE:', error);
       }
@@ -96,6 +136,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       notificationService.disconnect();
     };
   }, [navigate]);
+
+  // Auto-refresh wallet balance every 30 seconds as fallback
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        console.log('🔄 Auto-refreshing wallet balance...');
+        const balance = await walletService.getWalletBalance();
+        setWalletBalance(balance);
+        console.log('✅ Auto-refresh wallet balance:', balance);
+      } catch (error) {
+        console.error('❌ Auto-refresh wallet balance failed:', error);
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Refresh wallet balance when page becomes visible (user switches back to tab)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (!document.hidden) {
+        try {
+          console.log('👁️ Page became visible, refreshing wallet balance...');
+          const balance = await walletService.getWalletBalance();
+          setWalletBalance(balance);
+          console.log('✅ Wallet balance refreshed on visibility change:', balance);
+        } catch (error) {
+          console.error('❌ Failed to refresh wallet balance on visibility change:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // Subscribe to wallet balance updates
   useEffect(() => {
@@ -113,7 +188,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (notification.type === 'wallet_recharge') {
         console.log('💰 WALLET RECHARGE NOTIFICATION:', notification);
         // Refresh wallet balance when recharge notification is received
-        walletService.refreshBalance().catch(error => {
+        walletService.refreshBalance().then(balance => {
+          setWalletBalance(balance);
+          console.log('✅ Wallet balance refreshed after recharge notification:', balance);
+        }).catch(error => {
           console.error('Failed to refresh wallet balance:', error);
         });
       } else if (notification.type === 'wallet_balance_update') {
@@ -126,6 +204,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         setWalletBalance(updatedBalance);
         // Also notify wallet service listeners
         walletService.notifyBalanceUpdate(updatedBalance);
+        console.log('✅ Wallet balance updated in real-time:', updatedBalance);
       }
     });
 
@@ -187,8 +266,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
            <div className="wallet-section">
              <span className="wallet-icon">💰</span>
              <span className="wallet-balance">
-               ₹{walletBalance?.balance?.toFixed(2) || userProfile?.walletBalance?.toFixed(2) || '0.00'}
+               ₹{walletBalance?.balance?.toFixed(2) || (userProfile as any)?.wallet_balance?.toFixed(2) || '0.00'}
              </span>
+             <button className="refresh-wallet-button" onClick={handleRefreshWallet} title="Refresh Wallet Balance">
+               🔄
+             </button>
+             <button className="debug-wallet-button" onClick={handleDebugWallet} title="Debug Wallet API">
+               🔍
+             </button>
              <button className="recharge-button" onClick={handleRecharge}>
                Recharge
              </button>

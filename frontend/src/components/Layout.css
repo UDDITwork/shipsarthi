@@ -130,6 +130,43 @@
     color: #002B59;
   }
   
+  .refresh-wallet-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .refresh-wallet-button:hover {
+    background-color: #E0E0E0;
+  }
+  
+  .refresh-wallet-button:active {
+    transform: scale(0.95);
+  }
+  
+  .debug-wallet-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    color: #FF6B35;
+  }
+  
+  .debug-wallet-button:hover {
+    background-color: #FFE0D6;
+  }
+  
+  .debug-wallet-button:active {
+    transform: scale(0.95);
+  }
+  
   .recharge-button {
     padding: 8px 20px;
     background-color: #002B59;

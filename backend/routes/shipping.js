@@ -554,7 +554,8 @@ router.post('/calculate-rate-card',
         body('dimensions.breadth').isFloat({ min: 0.1 }).withMessage('Valid breadth is required'),
         body('dimensions.height').isFloat({ min: 0.1 }).withMessage('Valid height is required'),
         body('zone').isIn(['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F']).withMessage('Valid zone is required'),
-        body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive')
+        body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive'),
+        body('order_type').optional().isIn(['forward', 'rto']).withMessage('Order type must be "forward" or "rto"')
     ],
     async (req, res) => {
         try {
@@ -567,25 +568,70 @@ router.post('/calculate-rate-card',
                 });
             }
 
-            const { weight, dimensions, zone, cod_amount } = req.body;
+            const { weight, dimensions, zone, cod_amount, order_type = 'forward' } = req.body;
             const userCategory = req.user.user_category || 'Basic User';
 
-            // Import rate card service
+            // SECURITY: Validate user category exists and is valid
             const RateCardService = require('../services/rateCardService');
+            const availableCategories = RateCardService.getAvailableUserCategories();
+            
+            if (!availableCategories.includes(userCategory)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid user category. Please contact admin to update your account.',
+                    user_category: userCategory,
+                    available_categories: availableCategories
+                });
+            }
 
-            // Calculate shipping charges
+            // Validate rate card exists for user category
+            const rateCard = RateCardService.getRateCard(userCategory);
+            if (!rateCard) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Rate card not available for your user category: ${userCategory}`,
+                    user_category: userCategory
+                });
+            }
+
+            // Validate order type
+            if (!['forward', 'rto'].includes(order_type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid order type. Must be "forward" or "rto"',
+                    order_type: order_type
+                });
+            }
+
+            // Calculate shipping charges with correct order type
             const result = RateCardService.calculateShippingCharges(
                 userCategory,
                 weight,
                 dimensions,
                 zone,
-                cod_amount || 0
+                cod_amount || 0,
+                order_type
             );
+
+            // Log rate calculation for audit
+            console.log('💰 Rate calculated:', {
+                user_id: req.user._id,
+                user_category: userCategory,
+                weight: weight,
+                zone: zone,
+                cod_amount: cod_amount || 0,
+                total_charges: result.totalCharges,
+                timestamp: new Date().toISOString()
+            });
 
             res.json({
                 success: true,
                 message: 'Shipping charges calculated successfully',
-                data: result
+                data: {
+                    ...result,
+                    user_category: userCategory,
+                    rate_card_applied: rateCard.userCategory
+                }
             });
         } catch (error) {
             console.error('Calculate rate card cost error:', error);
@@ -602,18 +648,43 @@ router.post('/calculate-rate-card',
 router.get('/rate-card/:userCategory', auth, async (req, res) => {
     try {
         const { userCategory } = req.params;
+        const userCategoryFromToken = req.user.user_category || 'Basic User';
+        
+        // SECURITY: Validate that user can only access their own category's rate card
+        // Handle "Advanced User" vs "Advanced" mismatch
+        const normalizedUserCategory = userCategoryFromToken === 'Advanced User' ? 'Advanced' : userCategoryFromToken;
+        const normalizedRequestedCategory = userCategory === 'Advanced User' ? 'Advanced' : userCategory;
+        
+        if (normalizedRequestedCategory !== normalizedUserCategory) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied. You can only view your own user category rate card.',
+                user_category: userCategoryFromToken,
+                requested_category: userCategory
+            });
+        }
         
         // Import rate card service
         const RateCardService = require('../services/rateCardService');
         
-        const rateCard = RateCardService.getRateCard(userCategory);
+        // Use normalized category for rate card lookup
+        const rateCard = RateCardService.getRateCard(normalizedRequestedCategory);
         
         if (!rateCard) {
             return res.status(404).json({
                 success: false,
-                message: `Rate card not found for user category: ${userCategory}`
+                message: `Rate card not found for user category: ${userCategory}`,
+                available_categories: RateCardService.getAvailableUserCategories()
             });
         }
+
+        // Log rate card access for audit
+        console.log('📊 Rate card accessed:', {
+            user_id: req.user._id,
+            user_category: userCategory,
+            client_email: req.user.email,
+            timestamp: new Date().toISOString()
+        });
 
         res.json({
             success: true,

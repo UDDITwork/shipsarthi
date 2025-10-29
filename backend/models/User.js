@@ -182,7 +182,7 @@ const userSchema = new mongoose.Schema({
   },
   user_category: {
     type: String,
-    enum: ['Basic User', 'Lite User', 'New User', 'Advanced'],
+    enum: ['Basic User', 'Lite User', 'New User', 'Advanced', 'Advanced User'],
     default: 'Basic User'
   },
   wallet_balance: {

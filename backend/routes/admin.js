@@ -1260,13 +1260,18 @@ router.post('/wallet-recharge', async (req, res) => {
       client.save()
     ]);
 
-    // Log the recharge
+    // CRITICAL: Retrieve the live updated wallet balance from database
+    const updatedClient = await User.findById(client_id).select('wallet_balance email company_name');
+    const liveUpdatedBalance = updatedClient.wallet_balance || 0;
+
+    // Log the recharge with live database balance
     logger.info('Admin wallet recharge completed', {
       client_id,
-      client_email: client.email,
+      client_email: updatedClient.email,
       amount,
       old_balance: currentBalance,
-      new_balance: newBalance,
+      calculated_new_balance: newBalance,
+      live_database_balance: liveUpdatedBalance,
       admin_email: req.admin.email,
       transaction_id: transactionId
     });
@@ -1276,11 +1281,11 @@ router.post('/wallet-recharge', async (req, res) => {
       const notification = {
         type: 'wallet_recharge',
         title: 'Wallet Recharged',
-        message: `Your wallet has been recharged with ₹${amount}. New balance: ₹${newBalance}`,
+        message: `Your wallet has been recharged with ₹${amount}. New balance: ₹${liveUpdatedBalance}`,
         client_id: client_id,
-        client_name: client.company_name,
+        client_name: updatedClient.company_name,
         amount: amount,
-        new_balance: newBalance,
+        new_balance: liveUpdatedBalance,
         created_at: new Date()
       };
 
@@ -1288,10 +1293,10 @@ router.post('/wallet-recharge', async (req, res) => {
       // Convert client_id to string to ensure proper matching
       websocketService.sendNotificationToClient(String(client_id), notification);
 
-      // Send real-time wallet balance update
+      // Send real-time wallet balance update with LIVE DATABASE BALANCE
       const walletUpdate = {
         type: 'wallet_balance_update',
-        balance: newBalance,
+        balance: liveUpdatedBalance, // Use live database balance, not calculated
         currency: 'INR',
         previous_balance: currentBalance,
         amount_added: amount,
@@ -1301,10 +1306,12 @@ router.post('/wallet-recharge', async (req, res) => {
 
       websocketService.sendNotificationToClient(String(client_id), walletUpdate);
       
-      logger.info('💰 Real-time wallet update sent', {
+      logger.info('💰 Real-time wallet update sent with LIVE DATABASE BALANCE', {
         client_id,
-        new_balance: newBalance,
-        amount_added: amount
+        live_database_balance: liveUpdatedBalance,
+        calculated_balance: newBalance,
+        amount_added: amount,
+        balance_match: liveUpdatedBalance === newBalance ? 'MATCH' : 'MISMATCH'
       });
     } catch (notificationError) {
       logger.warn('Failed to send wallet recharge notification', {
@@ -1318,11 +1325,11 @@ router.post('/wallet-recharge', async (req, res) => {
       message: 'Wallet recharged successfully',
       data: {
         client_id,
-        client_name: client.company_name,
-        client_email: client.email,
+        client_name: updatedClient.company_name,
+        client_email: updatedClient.email,
         amount_added: amount,
         previous_balance: currentBalance,
-        new_balance: newBalance,
+        new_balance: liveUpdatedBalance, // Use live database balance
         transaction_id: transactionId
       }
     });
@@ -1444,10 +1451,37 @@ router.patch('/clients/:clientId/label', async (req, res) => {
     logger.info('Admin updated client user category', {
       client_id: clientId,
       client_email: client.email,
-      old_category: client.user_category,
+      old_category: oldCategory,
       new_category: user_category,
       admin_email: req.admin.email
     });
+
+    // Send WebSocket notification to client about user category update
+    try {
+      const notification = {
+        type: 'user_category_updated',
+        title: 'User Category Updated',
+        message: `Your user category has been updated to "${user_category}"`,
+        client_id: clientId,
+        client_name: client.company_name,
+        old_category: oldCategory,
+        new_category: user_category,
+        created_at: new Date()
+      };
+
+      // Send WebSocket notification if client is online
+      websocketService.sendNotificationToClient(String(clientId), notification);
+      
+      logger.info('🏷️ User category update notification sent', {
+        client_id: clientId,
+        new_category: user_category
+      });
+    } catch (notificationError) {
+      logger.warn('Failed to send user category update notification', {
+        error: notificationError.message,
+        client_id: clientId
+      });
+    }
 
     res.json({
       success: true,

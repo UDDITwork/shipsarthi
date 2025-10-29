@@ -50,9 +50,259 @@ interface ShippingCalculationResponse {
   chargeableWeight: number;
 }
 
+interface RateCardData {
+  userCategory: string;
+  carrier: string;
+  forwardCharges: Array<{
+    condition: string;
+    zones: { [key: string]: number };
+  }>;
+  rtoCharges: Array<{
+    condition: string;
+    zones: { [key: string]: number };
+  }>;
+  codCharges: {
+    percentage: number;
+    minimumAmount: number;
+    gstAdditional: boolean;
+  };
+  zoneDefinitions: { [key: string]: string[] };
+  termsAndConditions: string[];
+}
+
+// Price List Tab Component
+const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => void }> = ({ userCategory, onRefreshUserData }) => {
+  const [rateCardData, setRateCardData] = useState<RateCardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchRateCard();
+  }, [userCategory]);
+
+  const fetchRateCard = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await apiService.get<{ success: boolean; data: RateCardData }>(`/shipping/rate-card/${userCategory}`);
+      
+      if (response.success && response.data) {
+        console.log('Rate card data received:', response.data);
+        setRateCardData(response.data);
+      } else {
+        console.error('Invalid rate card response:', response);
+        setError('Invalid rate card data received');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch rate card');
+      console.error('Rate card fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const zones = ['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F'];
+
+  if (loading) {
+    return (
+      <div className="price-list-section">
+        <div className="price-list-header">
+          <h2>Price List - {userCategory}</h2>
+        </div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading rate card...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="price-list-section">
+        <div className="price-list-header">
+          <h2>Price List - {userCategory}</h2>
+        </div>
+        <div className="error-container">
+          <div className="error-icon">❌</div>
+          <p>{error}</p>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <button onClick={fetchRateCard} className="retry-btn">
+              Retry
+            </button>
+            <button onClick={onRefreshUserData} className="retry-btn" style={{ backgroundColor: '#007bff' }}>
+              Refresh User Data
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!rateCardData) {
+    return (
+      <div className="price-list-section">
+        <div className="price-list-header">
+          <h2>Price List - {userCategory}</h2>
+        </div>
+        <div className="no-data-container">
+          <div className="no-data-icon">📋</div>
+          <p>No rate card data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="price-list-section">
+      <div className="price-list-header">
+        <h2>Price List - {userCategory}</h2>
+        <div className="rate-card-info">
+          <span className="carrier-badge">{rateCardData.carrier}</span>
+          <span className="category-badge">{rateCardData.userCategory}</span>
+        </div>
+      </div>
+
+      <div className="price-tables">
+        {/* Forward Charges Table */}
+        <div className="price-table-container">
+          <h3>Forward Charges (₹)</h3>
+          <div className="table-wrapper">
+            <table className="price-table">
+              <thead>
+                <tr>
+                  <th>Weight Slab</th>
+                  {zones.map(zone => (
+                    <th key={zone}>Zone {zone}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rateCardData.forwardCharges && rateCardData.forwardCharges.length > 0 ? (
+                  rateCardData.forwardCharges.map((charge, index) => (
+                    <tr key={index}>
+                      <td className="weight-slab">{charge.condition}</td>
+                      {zones.map(zone => (
+                        <td key={zone} className="price-cell">
+                          ₹{charge.zones && charge.zones[zone] ? charge.zones[zone] : '-'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={zones.length + 1} className="text-center text-gray-500">
+                      No forward charges data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* RTO Charges Table */}
+        <div className="price-table-container">
+          <h3>RTO Charges (₹)</h3>
+          <div className="table-wrapper">
+            <table className="price-table">
+              <thead>
+                <tr>
+                  <th>Weight Slab</th>
+                  {zones.map(zone => (
+                    <th key={zone}>Zone {zone}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rateCardData.rtoCharges && rateCardData.rtoCharges.length > 0 ? (
+                  rateCardData.rtoCharges.map((charge, index) => (
+                    <tr key={index}>
+                      <td className="weight-slab">{charge.condition}</td>
+                      {zones.map(zone => (
+                        <td key={zone} className="price-cell">
+                          ₹{charge.zones && charge.zones[zone] ? charge.zones[zone] : '-'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={zones.length + 1} className="text-center text-gray-500">
+                      No RTO charges data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* COD Charges */}
+        <div className="cod-charges-container">
+          <h3>COD Charges</h3>
+          <div className="cod-details">
+            <div className="cod-item">
+              <span className="cod-label">Percentage:</span>
+              <span className="cod-value">{rateCardData.codCharges?.percentage || 'N/A'}%</span>
+            </div>
+            <div className="cod-item">
+              <span className="cod-label">Minimum Amount:</span>
+              <span className="cod-value">₹{rateCardData.codCharges?.minimumAmount || 'N/A'}</span>
+            </div>
+            <div className="cod-item">
+              <span className="cod-label">GST Additional:</span>
+              <span className="cod-value">{rateCardData.codCharges?.gstAdditional ? 'Yes' : 'No'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Zone Definitions */}
+        <div className="zone-definitions-container">
+          <h3>Zone Definitions</h3>
+          <div className="zone-grid">
+            {rateCardData.zoneDefinitions && Object.keys(rateCardData.zoneDefinitions).length > 0 ? (
+              Object.entries(rateCardData.zoneDefinitions).map(([zone, states]) => (
+                <div key={zone} className="zone-item">
+                  <div className="zone-name">Zone {zone}</div>
+                  <div className="zone-states">
+                    {Array.isArray(states) ? states.join(', ') : 'No states defined'}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="zone-item">
+                <div className="zone-name">No Zone Data</div>
+                <div className="zone-states">Zone definitions not available</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="terms-container">
+          <h3>Terms & Conditions</h3>
+          <ul className="terms-list">
+            {rateCardData.termsAndConditions && rateCardData.termsAndConditions.length > 0 ? (
+              rateCardData.termsAndConditions.map((term, index) => (
+                <li key={index} className="term-item">
+                  {term}
+                </li>
+              ))
+            ) : (
+              <li className="term-item">No terms and conditions available</li>
+            )}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Tools: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'domestic' | 'international'>('domestic');
+  const { user, refreshUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<'calculator' | 'price-list'>('calculator');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ShippingCalculationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +329,16 @@ const Tools: React.FC = () => {
 
   // Get user category for rate card selection
   const userCategory = user?.user_category || 'Basic User';
+
+  // Force refresh user data if there's a mismatch
+  const handleRefreshUserData = async () => {
+    try {
+      await refreshUser();
+      console.log('User data refreshed, current category:', user?.user_category);
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     if (field.includes('.')) {
@@ -253,30 +513,51 @@ const Tools: React.FC = () => {
     <Layout>
       <div className="tools-page">
         <div className="tools-header">
-          <h1>Shipping Tools</h1>
-          <p>Calculate shipping rates based on your user category: <strong>{userCategory}</strong></p>
+          <div className="header-content">
+            <div className="header-text">
+              <h1>Shipping Tools</h1>
+              <p>Calculate shipping rates based on your user category: <strong>{userCategory}</strong></p>
+            </div>
+            <button 
+              className="refresh-btn"
+              onClick={refreshUser}
+              title="Refresh user data"
+            >
+              🔄 Refresh
+            </button>
+          </div>
         </div>
 
         <div className="tools-content">
-          {/* Shipping Calculator */}
-          <div className="calculator-section">
-            <div className="calculator-header">
-              <h2>Shipping Rate Calculator</h2>
-              <div className="tabs">
-                <button 
-                  className={`tab ${activeTab === 'domestic' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('domestic')}
-                >
-                  Domestic
-                </button>
-                <button 
-                  className={`tab ${activeTab === 'international' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('international')}
-                >
-                  International
-                </button>
+          {/* Main Tabs */}
+          <div className="main-tabs">
+            <button 
+              className={`main-tab ${activeTab === 'calculator' ? 'active' : ''}`}
+              onClick={() => setActiveTab('calculator')}
+            >
+              📊 Rate Calculator
+            </button>
+            <button 
+              className={`main-tab ${activeTab === 'price-list' ? 'active' : ''}`}
+              onClick={() => setActiveTab('price-list')}
+            >
+              💰 Price List
+            </button>
+          </div>
+
+          {/* Calculator Tab */}
+          {activeTab === 'calculator' && (
+            <div className="calculator-section">
+              <div className="calculator-header">
+                <h2>Shipping Rate Calculator</h2>
+                <div className="tabs">
+                  <button 
+                    className={`tab active`}
+                  >
+                    Domestic
+                  </button>
+                </div>
               </div>
-            </div>
 
             <div className="calculator-form">
               <div className="form-row">
@@ -460,10 +741,9 @@ const Tools: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Location Display */}
-          <div className="location-section">
+            {/* Location Display */}
+            <div className="location-section">
             <div className="location-card">
               <div className="location-header">
                 <span className="location-icon">📍</span>
@@ -516,63 +796,70 @@ const Tools: React.FC = () => {
             </div>
           </div>
 
-          {/* Results */}
-          {error && (
-            <div className="error-message">
-              <span>❌ {error}</span>
-            </div>
-          )}
+            {/* Results */}
+            {error && (
+              <div className="error-message">
+                <span>❌ {error}</span>
+              </div>
+            )}
 
-          {result && (
-            <div className="results-section">
-              <h3>Shipping Calculation Results</h3>
-              <div className="results-card">
-                <div className="result-header">
-                  <div className="user-category-badge">
-                    Rate Card: {result.user_category}
-                  </div>
-                  <div className="zone-badge">
-                    Zone: {result.zone}
-                  </div>
-                </div>
-                
-                <div className="result-details">
-                  <div className="result-row">
-                    <span className="result-label">Weight:</span>
-                    <span className="result-value">{result.weight} kg</span>
-                  </div>
-                  <div className="result-row">
-                    <span className="result-label">Chargeable Weight:</span>
-                    <span className="result-value">{result.calculation_result.chargeableWeight.toFixed(2)} kg</span>
-                  </div>
-                  <div className="result-row">
-                    <span className="result-label">Volumetric Weight:</span>
-                    <span className="result-value">{result.calculation_result.volumetricWeight.toFixed(2)} kg</span>
-                  </div>
-                  <div className="result-row">
-                    <span className="result-label">Forward Charges:</span>
-                    <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
-                  </div>
-                  <div className="result-row">
-                    <span className="result-label">RTO Charges:</span>
-                    <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
-                  </div>
-                  {result.cod_amount > 0 && (
-                    <div className="result-row">
-                      <span className="result-label">COD Charges:</span>
-                      <span className="result-value">₹{result.calculation_result.codCharges.toFixed(2)}</span>
+            {result && (
+              <div className="results-section">
+                <h3>Shipping Calculation Results</h3>
+                <div className="results-card">
+                  <div className="result-header">
+                    <div className="user-category-badge">
+                      Rate Card: {result.user_category}
                     </div>
-                  )}
-                  <div className="result-row total-row">
-                    <span className="result-label">Total Charges:</span>
-                    <span className="result-value total-value">₹{result.calculation_result.totalCharges.toFixed(2)}</span>
+                    <div className="zone-badge">
+                      Zone: {result.zone}
+                    </div>
+                  </div>
+                  
+                  <div className="result-details">
+                    <div className="result-row">
+                      <span className="result-label">Weight:</span>
+                      <span className="result-value">{result.weight} kg</span>
+                    </div>
+                    <div className="result-row">
+                      <span className="result-label">Chargeable Weight:</span>
+                      <span className="result-value">{result.calculation_result.chargeableWeight.toFixed(2)} kg</span>
+                    </div>
+                    <div className="result-row">
+                      <span className="result-label">Volumetric Weight:</span>
+                      <span className="result-value">{result.calculation_result.volumetricWeight.toFixed(2)} kg</span>
+                    </div>
+                    <div className="result-row">
+                      <span className="result-label">Forward Charges:</span>
+                      <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
+                    </div>
+                    <div className="result-row">
+                      <span className="result-label">RTO Charges:</span>
+                      <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
+                    </div>
+                    {result.cod_amount > 0 && (
+                      <div className="result-row">
+                        <span className="result-label">COD Charges:</span>
+                        <span className="result-value">₹{result.calculation_result.codCharges.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="result-row total-row">
+                      <span className="result-label">Total Charges:</span>
+                      <span className="result-value total-value">₹{result.calculation_result.totalCharges.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
             </div>
           )}
+
+          {/* Price List Tab */}
+          {activeTab === 'price-list' && (
+            <PriceListTab userCategory={userCategory} onRefreshUserData={handleRefreshUserData} />
+          )}
         </div>
-    </div>
+      </div>
     </Layout>
   );
 };

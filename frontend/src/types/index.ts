@@ -38,7 +38,7 @@ export interface User {
   };
   documents: Document[];
   account_status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
-  user_category: 'Basic User' | 'Lite User' | 'New User' | 'Advanced';
+  user_category: 'Basic User' | 'Lite User' | 'New User' | 'Advanced' | 'Advanced User';
   wallet_balance: number;
   last_login?: string;
   email_verified: boolean;
@@ -168,6 +168,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   loading: boolean;
   error: string | null;
 }

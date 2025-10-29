@@ -321,7 +321,8 @@ const RATE_CARDS = {
   "New User": NEW_USER_RATE_CARD,
   "Basic User": BASIC_USER_RATE_CARD,
   "Lite User": LITE_USER_RATE_CARD,
-  "Advanced": ADVANCED_USER_RATE_CARD
+  "Advanced": ADVANCED_USER_RATE_CARD,
+  "Advanced User": ADVANCED_USER_RATE_CARD  // Alias for "Advanced"
 };
 
 class RateCardService {
@@ -330,8 +331,13 @@ class RateCardService {
     return RATE_CARDS[userCategory] || null;
   }
 
+  // Get available user categories
+  static getAvailableUserCategories() {
+    return Object.keys(RATE_CARDS);
+  }
+
   // Calculate shipping charges based on weight, dimensions, and zone
-  static calculateShippingCharges(userCategory, weight, dimensions, zone, codAmount = 0) {
+  static calculateShippingCharges(userCategory, weight, dimensions, zone, codAmount = 0, orderType = 'forward') {
     const rateCard = this.getRateCard(userCategory);
     if (!rateCard) {
       throw new Error(`Rate card not found for user category: ${userCategory}`);
@@ -359,7 +365,17 @@ class RateCardService {
       }
     }
 
-    const totalCharges = forwardCharges + rtoCharges + codCharges;
+    // CORRECT LOGIC: Don't add forward and RTO charges together
+    // Calculate total based on order type
+    let totalCharges;
+    if (orderType === 'forward') {
+      totalCharges = forwardCharges + codCharges;
+    } else if (orderType === 'rto') {
+      totalCharges = rtoCharges + codCharges;
+    } else {
+      // For display purposes, show forward charges as default
+      totalCharges = forwardCharges + codCharges;
+    }
 
     return {
       forwardCharges,
@@ -367,7 +383,8 @@ class RateCardService {
       codCharges,
       totalCharges,
       volumetricWeight,
-      chargeableWeight
+      chargeableWeight,
+      orderType: orderType
     };
   }
 

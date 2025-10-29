@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthContextType, RegisterData } from '../types';
 import { authService } from '../services/authService';
+import { websocketService } from '../services/websocketService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -22,6 +23,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshUser = async () => {
+    try {
+      if (!token) return;
+      
+      const response = await authService.getCurrentUser();
+      const updatedUser = response.user;
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      console.log('🔄 User data refreshed:', {
+        user_category: updatedUser.user_category,
+        company_name: updatedUser.company_name
+      });
+    } catch (err: any) {
+      console.error('Failed to refresh user data:', err);
+    }
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
@@ -37,6 +57,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  // WebSocket connection and message handling
+  useEffect(() => {
+    if (user && token) {
+      // Connect to WebSocket
+      websocketService.connect(user._id);
+
+      // Handle user category updates
+      websocketService.onMessage('user_category_updated', (data) => {
+        console.log('🏷️ User category updated, refreshing user data...');
+        refreshUser();
+      });
+
+      // Handle wallet balance updates
+      websocketService.onMessage('wallet_balance_update', (data) => {
+        console.log('💰 Wallet balance updated, refreshing user data...');
+        refreshUser();
+      });
+
+      // Cleanup on unmount
+      return () => {
+        websocketService.offMessage('user_category_updated');
+        websocketService.offMessage('wallet_balance_update');
+        websocketService.disconnect();
+      };
+    }
+  }, [user, token, refreshUser]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -92,6 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
     loading,
     error
   };

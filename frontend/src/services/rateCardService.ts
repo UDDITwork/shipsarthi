@@ -354,7 +354,8 @@ export const RATE_CARDS: { [key: string]: RateCard } = {
   "New User": NEW_USER_RATE_CARD,
   "Basic User": BASIC_USER_RATE_CARD,
   "Lite User": LITE_USER_RATE_CARD,
-  "Advanced": ADVANCED_USER_RATE_CARD
+  "Advanced": ADVANCED_USER_RATE_CARD,
+  "Advanced User": ADVANCED_USER_RATE_CARD  // Alias for "Advanced"
 };
 
 export class RateCardService {

@@ -193,6 +193,10 @@ router.post('/wallet/verify-payment',
                 user.wallet_balance = (user.wallet_balance || 0) + transaction.amount;
                 await user.save();
 
+                // CRITICAL: Retrieve the live updated wallet balance from database
+                const updatedUser = await User.findById(req.user._id).select('wallet_balance');
+                const liveUpdatedBalance = updatedUser.wallet_balance || 0;
+
                 await transaction.save();
 
                 res.json({
@@ -201,7 +205,7 @@ router.post('/wallet/verify-payment',
                     data: {
                         transaction_id: transaction_id,
                         amount_added: transaction.amount,
-                        new_balance: user.wallet_balance
+                        new_balance: liveUpdatedBalance // Use live database balance
                     }
                 });
             } else {
@@ -624,13 +628,17 @@ router.post('/deduct-wallet',
                 user.save()
             ]);
 
+            // CRITICAL: Retrieve the live updated wallet balance from database
+            const updatedUser = await User.findById(req.user._id).select('wallet_balance');
+            const liveUpdatedBalance = updatedUser.wallet_balance || 0;
+
             res.json({
                 success: true,
                 message: 'Amount deducted successfully',
                 data: {
                     transaction_id: transactionId,
                     amount_deducted: amount,
-                    remaining_balance: user.wallet_balance
+                    remaining_balance: liveUpdatedBalance // Use live database balance
                 }
             });
         } catch (error) {

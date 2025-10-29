@@ -6,6 +6,45 @@ const Order = require('../models/Order');
 
 const router = express.Router();
 
+// Zone mapping function (simplified - in production, use proper zone mapping service)
+function getZoneFromPincode(pickupPincode, deliveryPincode) {
+    // This is a simplified zone mapping
+    // In production, you should use a proper zone mapping service
+    const pickupState = getStateFromPincode(pickupPincode);
+    const deliveryState = getStateFromPincode(deliveryPincode);
+    
+    // Zone mapping logic (simplified)
+    if (pickupState === deliveryState) {
+        return 'A'; // Same state
+    } else if (isNeighboringState(pickupState, deliveryState)) {
+        return 'B'; // Neighboring state
+    } else {
+        return 'C1'; // Default for other cases
+    }
+}
+
+function getStateFromPincode(pincode) {
+    // Simplified state mapping based on pincode ranges
+    const pincodeNum = parseInt(pincode);
+    if (pincodeNum >= 110000 && pincodeNum <= 119999) return 'Delhi';
+    if (pincodeNum >= 400000 && pincodeNum <= 499999) return 'Maharashtra';
+    if (pincodeNum >= 500000 && pincodeNum <= 599999) return 'Telangana';
+    if (pincodeNum >= 600000 && pincodeNum <= 699999) return 'Tamil Nadu';
+    if (pincodeNum >= 700000 && pincodeNum <= 799999) return 'West Bengal';
+    return 'Other';
+}
+
+function isNeighboringState(state1, state2) {
+    const neighboringStates = {
+        'Delhi': ['Haryana', 'Uttar Pradesh'],
+        'Maharashtra': ['Gujarat', 'Madhya Pradesh', 'Karnataka'],
+        'Telangana': ['Andhra Pradesh', 'Maharashtra', 'Karnataka'],
+        'Tamil Nadu': ['Kerala', 'Karnataka', 'Andhra Pradesh'],
+        'West Bengal': ['Odisha', 'Jharkhand', 'Bihar']
+    };
+    return neighboringStates[state1]?.includes(state2) || false;
+}
+
 // Get pincode information
 router.get('/pincode-info/:pincode', async (req, res) => {
     try {
@@ -98,6 +137,20 @@ router.post('/rate-calculator',
                 declared_value = 0
             } = req.body;
 
+            // SECURITY: Validate user category before calculating rates
+            const userCategory = req.user.user_category || 'Basic User';
+            const RateCardService = require('../services/rateCardService');
+            const availableCategories = RateCardService.getAvailableUserCategories();
+            
+            if (!availableCategories.includes(userCategory)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid user category. Please contact admin to update your account.',
+                    user_category: userCategory,
+                    available_categories: availableCategories
+                });
+            }
+
             const pickupServiceability = await delhiveryService.getServiceability(pickup_pincode);
             const deliveryServiceability = await delhiveryService.getServiceability(delivery_pincode);
 
@@ -125,24 +178,37 @@ router.post('/rate-calculator',
             const volumetricWeight = (length * width * height) / 5000;
             const chargeableWeight = Math.max(weight, volumetricWeight);
 
-            const ratesResult = await delhiveryService.getRates(
-                pickup_pincode,
-                delivery_pincode,
+            // CORRECT LOGIC: Use Rate Card Service instead of Delhivery API for accurate calculations
+            
+            // Get zone from pincode (simplified - in production, use proper zone mapping)
+            const zone = getZoneFromPincode(pickup_pincode, delivery_pincode);
+            
+            // Calculate using rate card with forward order type
+            const rateResult = RateCardService.calculateShippingCharges(
+                userCategory,
                 chargeableWeight,
-                cod_amount
+                { length, breadth: width, height },
+                zone,
+                cod_amount || 0,
+                'forward' // Default to forward orders
             );
 
-            if (!ratesResult.success) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Failed to calculate rates',
-                    error: ratesResult.error
-                });
-            }
+            // Calculate additional charges
+            const fuelSurcharge = rateResult.forwardCharges * 0.08;
+            const gst = (rateResult.forwardCharges + rateResult.codCharges + fuelSurcharge) * 0.18;
+            const totalAmount = rateResult.forwardCharges + rateResult.codCharges + fuelSurcharge + gst;
 
-            const fuelSurcharge = ratesResult.freight_charge * 0.08;
-            const gst = (ratesResult.freight_charge + ratesResult.cod_charge + fuelSurcharge) * 0.18;
-            const totalAmount = ratesResult.freight_charge + ratesResult.cod_charge + fuelSurcharge + gst;
+            // Log rate calculation for audit
+            console.log('💰 Tools rate calculated:', {
+                user_id: req.user._id,
+                user_category: userCategory,
+                pickup_pincode,
+                delivery_pincode,
+                weight: weight,
+                cod_amount: cod_amount,
+                total_amount: parseFloat(totalAmount.toFixed(2)),
+                timestamp: new Date().toISOString()
+            });
 
             const response = {
                 success: true,
@@ -162,20 +228,24 @@ router.post('/rate-calculator',
                         dimensions: { length, width, height }
                     },
                     pricing: {
-                        freight_charge: parseFloat(ratesResult.freight_charge.toFixed(2)),
-                        cod_charge: parseFloat(ratesResult.cod_charge.toFixed(2)),
+                        forward_charges: parseFloat(rateResult.forwardCharges.toFixed(2)),
+                        rto_charges: parseFloat(rateResult.rtoCharges.toFixed(2)),
+                        cod_charge: parseFloat(rateResult.codCharges.toFixed(2)),
                         fuel_surcharge: parseFloat(fuelSurcharge.toFixed(2)),
                         gst: parseFloat(gst.toFixed(2)),
                         total_amount: parseFloat(totalAmount.toFixed(2)),
-                        currency: 'INR'
+                        currency: 'INR',
+                        order_type: 'forward'
                     },
                     service_info: {
-                        expected_delivery_days: ratesResult.expected_delivery_days,
+                        expected_delivery_days: 3, // Default delivery days
                         cod_available: deliveryServiceability.cash_on_delivery,
                         pickup_available: pickupServiceability.pickup_available,
-                        service_type: 'Surface'
+                        service_type: 'Surface',
+                        zone: zone
                     },
-                    estimated_delivery_date: new Date(Date.now() + (ratesResult.expected_delivery_days * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+                    estimated_delivery_date: new Date(Date.now() + (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+                    user_category: userCategory
                 }
             };
 
