@@ -23,34 +23,35 @@ router.get('/pincode-info/:pincode', async (req, res) => {
             try {
                 const serviceabilityResult = await delhiveryService.getServiceability(pincode);
                 
-                if (serviceabilityResult && serviceabilityResult.length > 0) {
-                    const location = serviceabilityResult[0];
+                if (serviceabilityResult && serviceabilityResult.success && serviceabilityResult.serviceable) {
                     return res.json({
                         success: true,
-                        data: {
-                            pincode: pincode,
-                            city: location.city || 'Unknown',
-                            state: location.state || 'Unknown',
-                            serviceable: location.serviceable || false
-                        }
+                        pincode: pincode,
+                        city: serviceabilityResult.city || 'Unknown',
+                        state: serviceabilityResult.state_code || 'Unknown',
+                        serviceable: serviceabilityResult.serviceable || false
+                    });
+                } else if (serviceabilityResult && serviceabilityResult.success && !serviceabilityResult.serviceable) {
+                    return res.json({
+                        success: true,
+                        pincode: pincode,
+                        city: 'Not Serviceable',
+                        state: 'Not Serviceable',
+                        serviceable: false
                     });
                 }
             } catch (error) {
-                console.log('Delhivery serviceability check failed, using fallback');
+                console.log('Delhivery serviceability check failed, using fallback:', error.message);
             }
         }
 
         // Fallback: Basic pincode validation
-        const pincodeData = {
+        res.json({
+            success: true,
             pincode: pincode,
             city: 'Unknown',
             state: 'Unknown',
             serviceable: true
-        };
-
-        res.json({
-            success: true,
-            data: pincodeData
         });
 
     } catch (error) {

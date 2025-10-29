@@ -1,6 +1,26 @@
+# robots.txt for Ship Sarthi
 # https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow:
 
-# Sitemap
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /orders
+Disallow: /packages
+Disallow: /ndr
+Disallow: /support
+Disallow: /tools
+Disallow: /billing
+Disallow: /customers
+Disallow: /warehouse
+Disallow: /channel
+Disallow: /settings
+Disallow: /account
+Disallow: /admin
+
+# Sitemap location
 Sitemap: https://shipsarthi.com/sitemap.xml
+
+# Crawl-delay (optional, helps prevent server overload)
+Crawl-delay: 1
+

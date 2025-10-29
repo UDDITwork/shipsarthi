@@ -75,6 +75,7 @@ const Tools: React.FC = () => {
 
   const [pickupLocation, setPickupLocation] = useState<{city: string, state: string} | null>(null);
   const [deliveryLocation, setDeliveryLocation] = useState<{city: string, state: string} | null>(null);
+  const [validatingPincode, setValidatingPincode] = useState<{pickup: boolean, delivery: boolean}>({pickup: false, delivery: false});
 
   // Get user category for rate card selection
   const userCategory = user?.user_category || 'Basic User';
@@ -101,8 +102,8 @@ const Tools: React.FC = () => {
     if (pincode.length !== 6) return null;
     
     try {
-      const response = await apiService.get<{ success: boolean; data: { city: string; state: string; serviceable: boolean } }>(`/utils/pincode-info/${pincode}`);
-      return response.data;
+      const response = await apiService.get<{ city: string; state: string; serviceable: boolean }>(`/tools/pincode-info/${pincode}`);
+      return response;
     } catch (error) {
       console.error('Pincode validation error:', error);
       return null;
@@ -113,13 +114,39 @@ const Tools: React.FC = () => {
     handleInputChange(type === 'pickup' ? 'pickupPincode' : 'deliveryPincode', pincode);
     
     if (pincode.length === 6) {
-      const locationInfo = await validatePincode(pincode);
-      if (locationInfo) {
-        if (type === 'pickup') {
-          setPickupLocation({ city: locationInfo.city, state: locationInfo.state });
+      setValidatingPincode(prev => ({ ...prev, [type]: true }));
+      
+      try {
+        const locationInfo = await validatePincode(pincode);
+        if (locationInfo && locationInfo.city && locationInfo.state) {
+          if (type === 'pickup') {
+            setPickupLocation({ 
+              city: locationInfo.city, 
+              state: locationInfo.state 
+            });
+          } else {
+            setDeliveryLocation({ 
+              city: locationInfo.city, 
+              state: locationInfo.state 
+            });
+          }
         } else {
-          setDeliveryLocation({ city: locationInfo.city, state: locationInfo.state });
+          // Handle invalid pincode
+          if (type === 'pickup') {
+            setPickupLocation({ city: 'Invalid Pincode', state: 'Please check' });
+          } else {
+            setDeliveryLocation({ city: 'Invalid Pincode', state: 'Please check' });
+          }
         }
+      } catch (error) {
+        console.error('Pincode validation error:', error);
+        if (type === 'pickup') {
+          setPickupLocation({ city: 'Error', state: 'Try again' });
+        } else {
+          setDeliveryLocation({ city: 'Error', state: 'Try again' });
+        }
+      } finally {
+        setValidatingPincode(prev => ({ ...prev, [type]: false }));
       }
     } else {
       if (type === 'pickup') {
@@ -217,6 +244,7 @@ const Tools: React.FC = () => {
     });
     setPickupLocation(null);
     setDeliveryLocation(null);
+    setValidatingPincode({pickup: false, delivery: false});
     setResult(null);
     setError(null);
   };
@@ -442,10 +470,16 @@ const Tools: React.FC = () => {
                 <span className="location-label">Pickup Location</span>
               </div>
               <div className="location-details">
-                {pickupLocation ? (
+                {validatingPincode.pickup ? (
+                  <div className="location-loading">Validating...</div>
+                ) : pickupLocation ? (
                   <>
-                    <div className="location-city">{pickupLocation.city}</div>
-                    <div className="location-state">{pickupLocation.state}</div>
+                    <div className={`location-city ${pickupLocation.city.includes('Invalid') || pickupLocation.city.includes('Error') ? 'error' : ''}`}>
+                      {pickupLocation.city}
+                    </div>
+                    <div className={`location-state ${pickupLocation.state.includes('Please check') || pickupLocation.state.includes('Try again') ? 'error' : ''}`}>
+                      {pickupLocation.state}
+                    </div>
                   </>
                 ) : (
                   <div className="location-placeholder">City, State</div>
@@ -464,10 +498,16 @@ const Tools: React.FC = () => {
                 <span className="location-label">Delivery Location</span>
               </div>
               <div className="location-details">
-                {deliveryLocation ? (
+                {validatingPincode.delivery ? (
+                  <div className="location-loading">Validating...</div>
+                ) : deliveryLocation ? (
                   <>
-                    <div className="location-city">{deliveryLocation.city}</div>
-                    <div className="location-state">{deliveryLocation.state}</div>
+                    <div className={`location-city ${deliveryLocation.city.includes('Invalid') || deliveryLocation.city.includes('Error') ? 'error' : ''}`}>
+                      {deliveryLocation.city}
+                    </div>
+                    <div className={`location-state ${deliveryLocation.state.includes('Please check') || deliveryLocation.state.includes('Try again') ? 'error' : ''}`}>
+                      {deliveryLocation.state}
+                    </div>
                   </>
                 ) : (
                   <div className="location-placeholder">City, State</div>

@@ -483,37 +483,111 @@ class DelhiveryService {
      */
     async getServiceability(pincode) {
         try {
-            const response = await this.client.get(`/c/api/pin-codes/json/?filter_codes=${pincode}`);
+            // Use production URL directly as specified
+            const productionURL = 'https://track.delhivery.com';
+            const serviceabilityURL = `${productionURL}/c/api/pin-codes/json/?filter_codes=${pincode}`;
+            
+            logger.info('🔍 Checking serviceability with production URL', {
+                pincode,
+                url: serviceabilityURL,
+                apiKeyLength: this.apiKey?.length || 0
+            });
 
-            if (response.data.delivery_codes && response.data.delivery_codes.length > 0) {
-                const serviceData = response.data.delivery_codes[0];
+            // Make direct request to production URL
+            const response = await axios.get(serviceabilityURL, {
+                headers: {
+                    'Authorization': `Token ${this.apiKey}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 15000
+            });
+
+            logger.info('✅ Serviceability API response received', {
+                pincode,
+                status: response.status,
+                dataKeys: Object.keys(response.data || {}),
+                responseType: typeof response.data
+            });
+
+            // Check if response is HTML (error page) instead of JSON
+            if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+                logger.error('❌ Serviceability API returned HTML error page', {
+                    pincode,
+                    responsePreview: response.data.substring(0, 200)
+                });
+                
                 return {
-                    success: true,
-                    serviceable: true,
-                    cash_on_delivery: serviceData.cash_on_delivery === 'Y',
-                    cash_pickup: serviceData.cash_pickup === 'Y',
-                    state_code: serviceData.state_code,
-                    district: serviceData.district,
-                    city: serviceData.city,
-                    pre_paid: serviceData.pre_paid === 'Y',
-                    pickup_available: serviceData.pickup === 'Y'
-                };
-            } else {
-                return {
-                    success: true,
-                    serviceable: false,
-                    message: 'Pincode not serviceable'
+                    success: false,
+                    error: 'Delhivery API returned error page - serviceability endpoint may be incorrect',
+                    serviceable: false
                 };
             }
+
+            // Parse response data
+            if (response.data && typeof response.data === 'object') {
+                if (response.data.delivery_codes && response.data.delivery_codes.length > 0) {
+                    const serviceData = response.data.delivery_codes[0].postal_code;
+                    
+                    logger.info('✅ Serviceability data found', {
+                        pincode,
+                        serviceable: true,
+                        city: serviceData.city,
+                        state: serviceData.state_code,
+                        cod: serviceData.cod
+                    });
+
+                    return {
+                        success: true,
+                        serviceable: true,
+                        cash_on_delivery: serviceData.cod === 'Y',
+                        cash_pickup: serviceData.cash === 'Y',
+                        state_code: serviceData.state_code,
+                        district: serviceData.district,
+                        city: serviceData.city,
+                        pre_paid: serviceData.pre_paid === 'Y',
+                        pickup_available: serviceData.pickup === 'Y'
+                    };
+                } else {
+                    logger.info('ℹ️ Pincode not serviceable', {
+                        pincode,
+                        responseData: response.data
+                    });
+
+                    return {
+                        success: true,
+                        serviceable: false,
+                        message: 'Pincode not serviceable',
+                        city: 'Not Serviceable',
+                        state_code: 'Not Serviceable'
+                    };
+                }
+            } else {
+                logger.warn('⚠️ Invalid response format from serviceability API', {
+                    pincode,
+                    responseData: response.data,
+                    responseType: typeof response.data
+                });
+
+                return {
+                    success: false,
+                    error: 'Invalid response format from Delhivery API',
+                    serviceable: false
+                };
+            }
+
         } catch (error) {
             logger.error('❌ Serviceability check failed', {
                 pincode,
-                error: error.response?.data || error.message
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                url: error.config?.url
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to check serviceability'
+                error: error.response?.data?.message || error.message || 'Failed to check serviceability',
+                serviceable: false
             };
         }
     }
@@ -528,29 +602,87 @@ class DelhiveryService {
      */
     async getRates(pickupPincode, deliveryPincode, weight, codAmount = 0) {
         try {
-            const response = await this.client.get('/kinko/v1/invoice/charges/.json', {
-                params: {
-                    md: 'S',
-                    ss: 'Delivered',
-                    d_pin: deliveryPincode,
-                    o_pin: pickupPincode,
-                    cgm: weight * 1000,
-                    pt: codAmount > 0 ? 'COD' : 'Pre-paid',
-                    cod: codAmount > 0 ? 1 : 0
-                }
+            // Use production URL directly as specified
+            const productionURL = 'https://track.delhivery.com';
+            const ratesURL = `${productionURL}/kinko/v1/invoice/charges/.json`;
+            
+            const params = {
+                md: 'S',
+                ss: 'Delivered',
+                d_pin: deliveryPincode,
+                o_pin: pickupPincode,
+                cgm: weight * 1000,
+                pt: codAmount > 0 ? 'COD' : 'Pre-paid',
+                cod: codAmount > 0 ? 1 : 0
+            };
+
+            logger.info('💰 Getting rates from production URL', {
+                pickupPincode,
+                deliveryPincode,
+                weight,
+                codAmount,
+                url: ratesURL,
+                params
             });
+
+            const response = await axios.get(ratesURL, {
+                params: params,
+                headers: {
+                    'Authorization': `Token ${this.apiKey}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 15000
+            });
+
+            logger.info('✅ Rates API response received', {
+                pickupPincode,
+                deliveryPincode,
+                status: response.status,
+                dataKeys: Object.keys(response.data || {}),
+                responseType: typeof response.data
+            });
+
+            // Check if response is HTML (error page) instead of JSON
+            if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+                logger.error('❌ Rates API returned HTML error page', {
+                    pickupPincode,
+                    deliveryPincode,
+                    responsePreview: response.data.substring(0, 200)
+                });
+                
+                return {
+                    success: false,
+                    error: 'Delhivery API returned error page - rates endpoint may be incorrect'
+                };
+            }
 
             if (response.data && response.data[0]) {
                 const rateData = response.data[0];
+                
+                logger.info('✅ Rates data found', {
+                    pickupPincode,
+                    deliveryPincode,
+                    freightCharge: rateData.freight_charge,
+                    codCharge: rateData.cod_charges,
+                    deliveryDays: rateData.expected_delivery_days
+                });
+
                 return {
                     success: true,
                     freight_charge: parseFloat(rateData.freight_charge || 0),
                     cod_charge: parseFloat(rateData.cod_charges || 0),
                     total_charge: parseFloat(rateData.total_amount || 0),
-                    expected_delivery_days: parseInt(rateData.expected_delivery_days || 0),
+                    expected_delivery_days: parseInt(rateData.expected_delivery_days || 3),
                     currency: 'INR'
                 };
             } else {
+                logger.warn('⚠️ No rate information available', {
+                    pickupPincode,
+                    deliveryPincode,
+                    responseData: response.data
+                });
+
                 return {
                     success: false,
                     error: 'No rate information available'
@@ -560,7 +692,9 @@ class DelhiveryService {
             logger.error('❌ Rate calculation failed', {
                 pickupPincode,
                 deliveryPincode,
-                error: error.response?.data || error.message
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                url: error.config?.url
             });
 
             return {

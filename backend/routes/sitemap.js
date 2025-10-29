@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-// Generate dynamic sitemap XML
+// Generate dynamic sitemap XML - Only public pages
 router.get('/sitemap.xml', (req, res) => {
   res.set('Content-Type', 'application/xml');
+  
+  const today = new Date().toISOString().split('T')[0];
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -14,15 +16,23 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Homepage -->
   <url>
     <loc>https://shipsarthi.com/</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
-  <!-- About Us -->
+  <!-- Tracking -->
+  <url>
+    <loc>https://shipsarthi.com/tracking</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- About -->
   <url>
     <loc>https://shipsarthi.com/about</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -30,23 +40,15 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Contact -->
   <url>
     <loc>https://shipsarthi.com/contact</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  
-  <!-- Tracking -->
-  <url>
-    <loc>https://shipsarthi.com/tracking</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
   
   <!-- Login -->
   <url>
     <loc>https://shipsarthi.com/login</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -54,7 +56,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Register -->
   <url>
     <loc>https://shipsarthi.com/register</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -62,7 +64,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Privacy Policy -->
   <url>
     <loc>https://shipsarthi.com/privacy-policy</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -70,7 +72,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Terms and Conditions -->
   <url>
     <loc>https://shipsarthi.com/terms-conditions</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -78,7 +80,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Return Policy -->
   <url>
     <loc>https://shipsarthi.com/return-policy</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -86,7 +88,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Shipment Cancellation -->
   <url>
     <loc>https://shipsarthi.com/shipment-cancellation</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -94,7 +96,7 @@ router.get('/sitemap.xml', (req, res) => {
   <!-- Order Cancellation -->
   <url>
     <loc>https://shipsarthi.com/order-cancellation</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
