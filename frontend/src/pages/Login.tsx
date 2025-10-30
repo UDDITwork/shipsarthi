@@ -28,11 +28,32 @@ const Login: React.FC = () => {
     }
   }, [location]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormData>();
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('remembered_email');
+    const savedPassword = localStorage.getItem('remembered_password');
+    if (savedEmail && savedPassword) {
+      setValue('email', savedEmail);
+      setValue('password', savedPassword);
+      setValue('remember_me', true);
+    }
+  }, [setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data.email, data.password);
+      
+      // Handle Remember Me functionality
+      if (data.remember_me) {
+        localStorage.setItem('remembered_email', data.email);
+        localStorage.setItem('remembered_password', data.password);
+      } else {
+        localStorage.removeItem('remembered_email');
+        localStorage.removeItem('remembered_password');
+      }
+      
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Login failed:', err);

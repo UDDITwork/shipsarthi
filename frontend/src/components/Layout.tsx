@@ -76,6 +76,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleLogout = () => {
     // Clear auth and redirect to login
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // DO NOT clear remembered_email and remembered_password on logout
+    // These should persist based on user's Remember Me checkbox choice
     navigate('/login');
   };
 

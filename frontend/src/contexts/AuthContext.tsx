@@ -131,6 +131,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // DO NOT clear remembered_email and remembered_password on logout
+    // These should persist based on user's Remember Me checkbox choice
   };
 
   const value: AuthContextType = {
