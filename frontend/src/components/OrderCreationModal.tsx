@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './OrderCreationModal.css';
 import { generateOrderId } from '../utils/orderIdGenerator';
 import { environmentConfig } from '../config/environment';
+import { apiService } from '../services/api';
 
 interface OrderCreationModalProps {
   isOpen: boolean;
@@ -59,6 +60,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   const [warehouseError, setWarehouseError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredWarehouses, setFilteredWarehouses] = useState<Warehouse[]>([]);
+  
+  // Pincode validation states
+  const [validatingDeliveryPincode, setValidatingDeliveryPincode] = useState(false);
+  const [validatingPickupPincode, setValidatingPickupPincode] = useState(false);
 
   // Form Data
   const [formData, setFormData] = useState({
@@ -237,6 +242,93 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         [field]: value
       }
     }));
+  };
+
+  // Pincode validation function using Delhivery API
+  const validatePincode = async (pincode: string) => {
+    if (pincode.length !== 6) return null;
+    
+    try {
+      const response = await apiService.get<{ city: string; state: string; serviceable: boolean }>(`/tools/pincode-info/${pincode}`);
+      return response;
+    } catch (error) {
+      console.error('Pincode validation error:', error);
+      return null;
+    }
+  };
+
+  // Handle delivery pincode change
+  const handleDeliveryPincodeChange = async (pincode: string) => {
+    // Update pincode in form data
+    handleNestedInputChange('delivery_address', 'pincode', pincode);
+    
+    // If pincode is 6 digits, validate it
+    if (pincode.length === 6) {
+      setValidatingDeliveryPincode(true);
+      
+      try {
+        const locationInfo = await validatePincode(pincode);
+        if (locationInfo && locationInfo.city && locationInfo.state && 
+            locationInfo.city !== 'Unknown' && locationInfo.state !== 'Unknown' &&
+            locationInfo.city !== 'Not Serviceable' && locationInfo.state !== 'Not Serviceable') {
+          // Auto-fill city and state
+          handleNestedInputChange('delivery_address', 'city', locationInfo.city);
+          handleNestedInputChange('delivery_address', 'state', locationInfo.state);
+        } else {
+          // Invalid pincode - clear fields
+          handleNestedInputChange('delivery_address', 'city', '');
+          handleNestedInputChange('delivery_address', 'state', '');
+        }
+      } catch (error) {
+        console.error('Pincode validation error:', error);
+        // On error, clear fields
+        handleNestedInputChange('delivery_address', 'city', '');
+        handleNestedInputChange('delivery_address', 'state', '');
+      } finally {
+        setValidatingDeliveryPincode(false);
+      }
+    } else {
+      // Clear city and state if pincode is incomplete
+      handleNestedInputChange('delivery_address', 'city', '');
+      handleNestedInputChange('delivery_address', 'state', '');
+    }
+  };
+
+  // Handle pickup pincode change (for manual warehouse entry)
+  const handlePickupPincodeChange = async (pincode: string) => {
+    // Update pincode in form data
+    handleNestedInputChange('pickup_address', 'pincode', pincode);
+    
+    // If pincode is 6 digits, validate it
+    if (pincode.length === 6) {
+      setValidatingPickupPincode(true);
+      
+      try {
+        const locationInfo = await validatePincode(pincode);
+        if (locationInfo && locationInfo.city && locationInfo.state && 
+            locationInfo.city !== 'Unknown' && locationInfo.state !== 'Unknown' &&
+            locationInfo.city !== 'Not Serviceable' && locationInfo.state !== 'Not Serviceable') {
+          // Auto-fill city and state
+          handleNestedInputChange('pickup_address', 'city', locationInfo.city);
+          handleNestedInputChange('pickup_address', 'state', locationInfo.state);
+        } else {
+          // Invalid pincode - clear fields
+          handleNestedInputChange('pickup_address', 'city', '');
+          handleNestedInputChange('pickup_address', 'state', '');
+        }
+      } catch (error) {
+        console.error('Pincode validation error:', error);
+        // On error, clear fields
+        handleNestedInputChange('pickup_address', 'city', '');
+        handleNestedInputChange('pickup_address', 'state', '');
+      } finally {
+        setValidatingPickupPincode(false);
+      }
+    } else {
+      // Clear city and state if pincode is incomplete
+      handleNestedInputChange('pickup_address', 'city', '');
+      handleNestedInputChange('pickup_address', 'state', '');
+    }
   };
 
   const handleWarehouseChange = (warehouseId: string) => {
@@ -841,18 +933,33 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                 <div className="form-row">
                   <div className="form-group">
                     <label>Pincode *</label>
-                    <input
-                      type="text"
-                      value={formData.delivery_address.pincode}
-                      onChange={(e) => {
-                        // Only allow digits and limit to 6 characters
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                        handleNestedInputChange('delivery_address', 'pincode', value);
-                      }}
-                      placeholder="Enter 6-digit pincode"
-                      maxLength={6}
-                      required
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        value={formData.delivery_address.pincode}
+                        onChange={(e) => {
+                          // Only allow digits and limit to 6 characters
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          handleDeliveryPincodeChange(value);
+                        }}
+                        placeholder="Enter 6-digit pincode"
+                        maxLength={6}
+                        required
+                        disabled={validatingDeliveryPincode}
+                      />
+                      {validatingDeliveryPincode && (
+                        <span style={{ 
+                          position: 'absolute', 
+                          right: '10px', 
+                          top: '50%', 
+                          transform: 'translateY(-50%)',
+                          fontSize: '12px',
+                          color: '#F68723'
+                        }}>
+                          Loading...
+                        </span>
+                      )}
+                    </div>
                     <small className="form-note">Enter 6-digit pincode</small>
                   </div>
                   <div className="form-group">
@@ -863,6 +970,8 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                       onChange={(e) => handleNestedInputChange('delivery_address', 'city', e.target.value)}
                       placeholder="City"
                       required
+                      readOnly={formData.delivery_address.pincode.length === 6}
+                      style={{ backgroundColor: formData.delivery_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
                     />
                   </div>
                   <div className="form-group">
@@ -873,6 +982,8 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                       onChange={(e) => handleNestedInputChange('delivery_address', 'state', e.target.value)}
                       placeholder="State"
                       required
+                      readOnly={formData.delivery_address.pincode.length === 6}
+                      style={{ backgroundColor: formData.delivery_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
                     />
                   </div>
                 </div>
@@ -1258,6 +1369,37 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
                         <div className="form-row">
                           <div className="form-group">
+                            <label>Pincode *</label>
+                            <div style={{ position: 'relative' }}>
+                              <input
+                                type="text"
+                                value={formData.pickup_address.pincode}
+                                onChange={(e) => {
+                                  // Only allow digits and limit to 6 characters
+                                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                  handlePickupPincodeChange(value);
+                                }}
+                                placeholder="Enter 6-digit pincode"
+                                maxLength={6}
+                                required
+                                disabled={validatingPickupPincode}
+                              />
+                              {validatingPickupPincode && (
+                                <span style={{ 
+                                  position: 'absolute', 
+                                  right: '10px', 
+                                  top: '50%', 
+                                  transform: 'translateY(-50%)',
+                                  fontSize: '12px',
+                                  color: '#F68723'
+                                }}>
+                                  Loading...
+                                </span>
+                              )}
+                            </div>
+                            <small className="form-note">Enter 6-digit pincode</small>
+                          </div>
+                          <div className="form-group">
                             <label>City *</label>
                             <input
                               type="text"
@@ -1265,6 +1407,8 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                               onChange={(e) => handleNestedInputChange('pickup_address', 'city', e.target.value)}
                               placeholder="Enter city"
                               required
+                              readOnly={formData.pickup_address.pincode.length === 6}
+                              style={{ backgroundColor: formData.pickup_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
                             />
                           </div>
                           <div className="form-group">
@@ -1275,23 +1419,9 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                               onChange={(e) => handleNestedInputChange('pickup_address', 'state', e.target.value)}
                               placeholder="Enter state"
                               required
+                              readOnly={formData.pickup_address.pincode.length === 6}
+                              style={{ backgroundColor: formData.pickup_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
                             />
-                          </div>
-                          <div className="form-group">
-                            <label>Pincode *</label>
-                            <input
-                              type="text"
-                              value={formData.pickup_address.pincode}
-                              onChange={(e) => {
-                                // Only allow digits and limit to 6 characters
-                                const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                handleNestedInputChange('pickup_address', 'pincode', value);
-                              }}
-                              placeholder="Enter 6-digit pincode"
-                              maxLength={6}
-                              required
-                            />
-                            <small className="form-note">Enter 6-digit pincode</small>
                           </div>
                         </div>
                       </div>

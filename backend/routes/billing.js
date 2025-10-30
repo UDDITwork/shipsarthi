@@ -69,6 +69,96 @@ router.get('/wallet/balance', auth, async (req, res) => {
     }
 });
 
+// @desc    Get wallet transactions with order details
+// @route   GET /api/billing/wallet-transactions
+// @access  Private
+router.get('/wallet-transactions', auth, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 25;
+        const skip = (page - 1) * limit;
+
+        // Get user info for account details
+        const user = await User.findById(req.user._id).select('email your_name');
+
+        // Get transactions with populated order info
+        const [transactions, totalCount] = await Promise.all([
+            Transaction.find({ user_id: req.user._id })
+                .sort({ transaction_date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: 'related_order_id',
+                    select: 'order_id delhivery_data package_info order_date',
+                    model: 'Order'
+                })
+                .lean(),
+            Transaction.countDocuments({ user_id: req.user._id })
+        ]);
+
+        // Calculate wallet summary
+        const [credits, debits] = await Promise.all([
+            Transaction.aggregate([
+                { $match: { user_id: req.user._id, transaction_type: 'credit', status: 'completed' } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+            Transaction.aggregate([
+                { $match: { user_id: req.user._id, transaction_type: 'debit', status: 'completed' } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ])
+        ]);
+
+        const totalCredits = credits[0]?.total || 0;
+        const totalDebits = debits[0]?.total || 0;
+        const currentBalance = user?.wallet_balance || 0;
+
+        // Transform transactions for frontend
+        const transformedTransactions = transactions.map(txn => ({
+            transaction_id: txn.transaction_id,
+            transaction_type: txn.transaction_type,
+            amount: txn.amount,
+            description: txn.description,
+            status: txn.status,
+            transaction_date: txn.transaction_date,
+            // Account details (constant for user)
+            account_name: user?.your_name || 'N/A',
+            account_email: user?.email || 'N/A',
+            // Order details
+            order_id: txn.order_info?.order_id || txn.related_order_id?.order_id || '',
+            awb_number: txn.order_info?.awb_number || txn.related_order_id?.delhivery_data?.waybill || '',
+            weight: txn.order_info?.weight || (txn.related_order_id?.package_info?.weight ? txn.related_order_id.package_info.weight * 1000 : null), // Convert kg to grams
+            zone: txn.order_info?.zone || '',
+            // Balance info
+            closing_balance: txn.balance_info?.closing_balance || 0
+        }));
+
+        res.json({
+            success: true,
+            data: {
+                transactions: transformedTransactions,
+                summary: {
+                    current_balance: currentBalance,
+                    total_credits: totalCredits,
+                    total_debits: totalDebits
+                },
+                pagination: {
+                    current_page: page,
+                    total_pages: Math.ceil(totalCount / limit),
+                    total_count: totalCount,
+                    per_page: limit
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Get wallet transactions error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
 router.post('/wallet/add-money',
     auth,
     [
@@ -96,16 +186,21 @@ router.post('/wallet/add-money',
                 transaction_id: transactionId,
                 user_id: req.user._id,
                 transaction_type: 'credit',
-                category: 'wallet_recharge',
+                transaction_category: 'wallet_recharge',
                 amount: amount,
                 description: `Wallet recharge via ${payment_method}`,
-                payment_method: payment_method,
-                payment_details: {
-                    gateway: 'razorpay',
-                    payment_id: `pay_${Math.random().toString(36).substr(2, 14)}`,
-                    ...payment_details
+                payment_info: {
+                    payment_method: payment_method,
+                    payment_gateway: 'razorpay',
+                    gateway_transaction_id: `pay_${Math.random().toString(36).substr(2, 14)}`,
+                    payment_status: 'pending'
                 },
                 status: 'pending',
+                balance_info: {
+                    opening_balance: 0,
+                    closing_balance: 0
+                },
+                transaction_date: new Date(),
                 created_at: new Date(),
                 updated_at: new Date()
             });
@@ -183,10 +278,12 @@ router.post('/wallet/verify-payment',
 
             if (isSignatureValid) {
                 transaction.status = 'completed';
-                transaction.payment_details.payment_id = razorpay_payment_id;
-                transaction.payment_details.order_id = razorpay_order_id;
-                transaction.payment_details.signature = razorpay_signature;
-                transaction.completed_at = new Date();
+                transaction.payment_info.payment_id = razorpay_payment_id;
+                transaction.payment_info.order_id = razorpay_order_id;
+                transaction.payment_info.signature = razorpay_signature;
+                transaction.payment_info.payment_status = 'completed';
+                transaction.payment_info.payment_date = new Date();
+                transaction.transaction_date = new Date();
                 transaction.updated_at = new Date();
 
                 const user = await User.findById(req.user._id);
@@ -210,7 +307,8 @@ router.post('/wallet/verify-payment',
                 });
             } else {
                 transaction.status = 'failed';
-                transaction.failure_reason = 'Invalid payment signature';
+                transaction.payment_info.payment_status = 'failed';
+                transaction.notes = 'Invalid payment signature';
                 transaction.updated_at = new Date();
                 await transaction.save();
 
@@ -267,22 +365,22 @@ router.get('/transactions',
             }
 
             if (req.query.category && req.query.category !== 'all') {
-                filterQuery.category = req.query.category;
+                filterQuery.transaction_category = req.query.category;
             }
 
             if (req.query.date_from || req.query.date_to) {
-                filterQuery.created_at = {};
+                filterQuery.transaction_date = {};
                 if (req.query.date_from) {
-                    filterQuery.created_at.$gte = new Date(req.query.date_from);
+                    filterQuery.transaction_date.$gte = new Date(req.query.date_from);
                 }
                 if (req.query.date_to) {
-                    filterQuery.created_at.$lte = new Date(req.query.date_to);
+                    filterQuery.transaction_date.$lte = new Date(req.query.date_to);
                 }
             }
 
             const [transactions, totalCount] = await Promise.all([
                 Transaction.find(filterQuery)
-                    .sort({ created_at: -1 })
+                    .sort({ transaction_date: -1 })
                     .skip(skip)
                     .limit(limit)
                     .lean(),
@@ -315,14 +413,14 @@ router.get('/transactions',
                     transactions: transactions.map(txn => ({
                         transaction_id: txn.transaction_id,
                         type: txn.transaction_type,
-                        category: txn.category,
+                        category: txn.transaction_category,
                         amount: txn.amount,
                         description: txn.description,
                         status: txn.status,
-                        payment_method: txn.payment_method,
-                        created_at: txn.created_at,
-                        completed_at: txn.completed_at,
-                        order_id: txn.order_id || null
+                        payment_method: txn.payment_info?.payment_method || null,
+                        created_at: txn.transaction_date || txn.created_at,
+                        completed_at: txn.updated_at,
+                        order_id: txn.related_order_id || null
                     })),
                     pagination: {
                         current_page: page,
@@ -610,13 +708,17 @@ router.post('/deduct-wallet',
             const transaction = new Transaction({
                 transaction_id: transactionId,
                 user_id: req.user._id,
-                order_id: order_id,
+                related_order_id: order_id,
                 transaction_type: 'debit',
-                category: 'shipping_charge',
+                transaction_category: 'shipping_charge',
                 amount: amount,
                 description: description,
                 status: 'completed',
-                completed_at: new Date(),
+                balance_info: {
+                    opening_balance: 0,
+                    closing_balance: 0
+                },
+                transaction_date: new Date(),
                 created_at: new Date(),
                 updated_at: new Date()
             });

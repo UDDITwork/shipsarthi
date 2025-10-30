@@ -32,7 +32,8 @@ const transactionSchema = new mongoose.Schema({
       'fuel_surcharge',
       'service_tax',
       'adjustment',
-      'manual_adjustment'
+      'manual_adjustment',
+      'weight_discrepancy_charge'
     ],
     required: true
   },
@@ -55,6 +56,15 @@ const transactionSchema = new mongoose.Schema({
   },
   related_awb: String,
   reference_number: String,
+  
+  // Order Information (for linking with order details)
+  order_info: {
+    order_id: String,
+    awb_number: String,
+    weight: Number, // Weight in grams
+    zone: String,
+    order_date: Date
+  },
 
   // Payment Information (for credits)
   payment_info: {

@@ -414,6 +414,19 @@ class AdminService {
     return response;
   }
 
+  // Wallet adjustment method (credit or debit)
+  async adjustWallet(clientId: string, amount: number, type: 'credit' | 'debit', description?: string): Promise<{ success: boolean; message: string; data: any }> {
+    const response = await apiService.post<{ success: boolean; message: string; data: any }>(`/admin/wallet-recharge`, {
+      client_id: clientId,
+      amount,
+      type,
+      description
+    }, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
   async getClientWalletBalance(clientId: string): Promise<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }> {
     const response = await apiService.get<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }>(`/admin/client-wallet/${clientId}`, {
       headers: this.getAdminHeaders()

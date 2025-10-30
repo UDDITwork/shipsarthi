@@ -182,15 +182,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  // Listen for wallet recharge notifications
+  // Listen for wallet recharge and deduction notifications
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'wallet_recharge') {
-        console.log('💰 WALLET RECHARGE NOTIFICATION:', notification);
-        // Refresh wallet balance when recharge notification is received
+      if (notification.type === 'wallet_recharge' || notification.type === 'wallet_deduction') {
+        console.log('💰 WALLET ADJUSTMENT NOTIFICATION:', notification);
+        // Refresh wallet balance when wallet adjustment notification is received
         walletService.refreshBalance().then(balance => {
           setWalletBalance(balance);
-          console.log('✅ Wallet balance refreshed after recharge notification:', balance);
+          console.log('✅ Wallet balance refreshed after adjustment:', balance);
         }).catch(error => {
           console.error('Failed to refresh wallet balance:', error);
         });
@@ -218,6 +218,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/ndr', icon: '📦', label: 'NDR' },
     { path: '/tools', icon: '🔧', label: 'Tools' },
     { path: '/billing', icon: '💳', label: 'Billing' },
+    { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies' },
     { path: '/price-list', icon: '💰', label: 'Price List' },
     { path: '/warehouse', icon: '🏢', label: 'Warehouse' },
     { path: '/channel', icon: '🔗', label: 'Channel' },

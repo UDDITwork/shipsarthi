@@ -1,0 +1,500 @@
+/* Billing Container */
+.billing-container {
+  width: 100%;
+  padding: 0;
+}
+
+/* Wallet Summary Cards */
+.wallet-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, #002B59 0%, #21476E 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 43, 89, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 43, 89, 0.25);
+}
+
+.summary-card.current-balance {
+  background: linear-gradient(135deg, #F68723 0%, #FF9F40 100%);
+}
+
+.summary-card-icon {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.summary-card-content {
+  flex: 1;
+}
+
+.summary-card-label {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.summary-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.summary-card-value.green {
+  color: #4CAF50;
+}
+
+/* Wallet Actions Bar */
+.wallet-actions-bar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  justify-content: flex-end;
+}
+
+.download-ledger-btn,
+.recharge-wallet-btn {
+  padding: 12px 24px;
+  border: 2px solid #002B59;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.download-ledger-btn {
+  background-color: #FFFFFF;
+  color: #002B59;
+}
+
+.download-ledger-btn:hover {
+  background-color: #F5F5F5;
+}
+
+.recharge-wallet-btn {
+  background-color: #002B59;
+  color: #FFFFFF;
+}
+
+.recharge-wallet-btn:hover {
+  background-color: #001A3D;
+  border-color: #001A3D;
+}
+
+/* Billing Tabs */
+.billing-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #002B59;
+}
+
+.tab-btn.active {
+  color: #002B59;
+  border-bottom-color: #F68723;
+}
+
+/* Filters Section */
+.filters-section {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #F9F9F9;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #002B59;
+}
+
+.filter-input,
+.filter-select {
+  padding: 10px 15px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #002B59;
+  box-shadow: 0 0 0 3px rgba(0, 43, 89, 0.1);
+}
+
+.date-range-btn {
+  padding: 10px 15px;
+  background-color: #FFFFFF;
+  color: #002B59;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-range-btn:hover {
+  border-color: #002B59;
+  background-color: #F5F5F5;
+}
+
+/* Transactions Table Wrapper */
+.transactions-table-wrapper {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #F68723;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Wallet Transactions Table */
+.wallet-transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1400px;
+}
+
+.wallet-transactions-table thead {
+  background-color: #21B5B5;
+  color: #FFFFFF;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.wallet-transactions-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 2px solid #FFFFFF;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wallet-transactions-table td {
+  padding: 15px 12px;
+  font-size: 13px;
+  color: #333333;
+  border-bottom: 1px solid #E0E0E0;
+  vertical-align: top;
+}
+
+.wallet-transactions-table tbody tr:hover {
+  background-color: #F9F9F9;
+}
+
+.transaction-row {
+  transition: background-color 0.2s ease;
+}
+
+/* Transaction Details Column */
+.transaction-id {
+  font-weight: 700;
+  color: #002B59;
+  margin-bottom: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.transaction-date {
+  font-size: 12px;
+  color: #666666;
+}
+
+/* Account Details Column */
+.account-name {
+  font-weight: 600;
+  color: #002B59;
+  margin-bottom: 4px;
+}
+
+.account-email {
+  font-size: 12px;
+  color: #666666;
+}
+
+/* Order ID Column */
+.order-id-display {
+  font-weight: 600;
+  color: #002B59;
+  text-transform: uppercase;
+}
+
+/* AWB Display Column */
+.awb-display {
+  font-family: 'Courier New', monospace;
+  color: #002B59;
+  font-weight: 600;
+}
+
+/* Weight & Zone Column */
+.weight-display {
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 4px;
+}
+
+.zone-display {
+  font-size: 11px;
+  color: #666666;
+  background-color: #F0F0F0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Description Column */
+.description-display {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333333;
+}
+
+/* Amount Columns */
+.amount {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.amount.credit {
+  color: #4CAF50;
+}
+
+.amount.debit {
+  color: #F44336;
+}
+
+/* No Data Cell */
+.no-data-cell {
+  text-align: center;
+  padding: 60px 20px !important;
+}
+
+.no-transactions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.no-transactions-icon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.no-transactions h3 {
+  margin: 0;
+  font-size: 24px;
+  color: #002B59;
+}
+
+.no-transactions p {
+  margin: 0;
+  font-size: 16px;
+  color: #666666;
+}
+
+/* Pagination Section */
+.pagination-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #F9F9F9;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.pagination-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.per-page-select {
+  padding: 6px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #FFFFFF;
+  cursor: pointer;
+}
+
+.per-page-select:focus {
+  outline: none;
+  border-color: #002B59;
+}
+
+.pagination-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #D1D5DB;
+  background-color: #FFFFFF;
+  color: #002B59;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 40px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #002B59;
+  color: #FFFFFF;
+  border-color: #002B59;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background-color: #002B59;
+  color: #FFFFFF;
+  border-color: #002B59;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .wallet-summary-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .pagination-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .wallet-actions-bar {
+    flex-direction: column;
+  }
+  
+  .download-ledger-btn,
+  .recharge-wallet-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .billing-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+

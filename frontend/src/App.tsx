@@ -15,6 +15,7 @@ import NDR from './pages/NDR';
 import Support from './pages/Support';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
+import WeightDiscrepancies from './pages/WeightDiscrepancies';
 import AddWarehouse from './pages/AddWarehouse';
 import WarehouseManagement from './pages/WarehouseManagement';
 // import Settings from './pages/Settings'; // Replaced with AccountSettings
@@ -37,6 +38,7 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminClients from './pages/AdminClients';
 import AdminWalletRecharge from './pages/AdminWalletRecharge';
+import AdminWeightDiscrepancies from './pages/AdminWeightDiscrepancies';
 import AdminLayout from './components/AdminLayout';
 
 // Protected Route Component
@@ -146,6 +148,14 @@ function App() {
               } 
             />
             <Route 
+              path="/weight-discrepancies" 
+              element={
+                <ProtectedRoute>
+                  <WeightDiscrepancies />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/price-list" 
               element={
                 <ProtectedRoute>
@@ -216,6 +226,14 @@ function App() {
               element={
                 <AdminLayout>
                   <AdminWalletRecharge />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/weight-discrepancies" 
+              element={
+                <AdminLayout>
+                  <AdminWeightDiscrepancies />
                 </AdminLayout>
               } 
             />

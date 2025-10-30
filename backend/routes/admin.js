@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const XLSX = require('xlsx');
 const router = express.Router();
 const User = require('../models/User');
 const Order = require('../models/Order');
@@ -7,8 +9,16 @@ const Package = require('../models/Package');
 const Customer = require('../models/Customer');
 const SupportTicket = require('../models/Support');
 const Transaction = require('../models/Transaction');
+const WeightDiscrepancy = require('../models/WeightDiscrepancy');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 
 // Admin authentication middleware
 const adminAuth = (req, res, next) => {
@@ -1196,12 +1206,12 @@ router.get('/tracking-failures', async (req, res) => {
   }
 });
 
-// @desc    Recharge client wallet
+// @desc    Recharge client wallet or adjust balance
 // @route   POST /api/admin/wallet-recharge
 // @access  Admin
 router.post('/wallet-recharge', async (req, res) => {
   try {
-    const { client_id, amount, description } = req.body;
+    const { client_id, amount, description, type = 'credit' } = req.body;
 
     // Validate input
     if (!client_id || !amount) {
@@ -1218,6 +1228,14 @@ router.post('/wallet-recharge', async (req, res) => {
       });
     }
 
+    // Validate transaction type
+    if (type !== 'credit' && type !== 'debit') {
+      return res.status(400).json({
+        success: false,
+        message: 'Transaction type must be credit or debit'
+      });
+    }
+
     // Find the client
     const client = await User.findById(client_id);
     if (!client) {
@@ -1229,7 +1247,21 @@ router.post('/wallet-recharge', async (req, res) => {
 
     // Get current wallet balance
     const currentBalance = client.wallet_balance || 0;
-    const newBalance = currentBalance + amount;
+    
+    // Calculate new balance based on type
+    let newBalance;
+    if (type === 'credit') {
+      newBalance = currentBalance + amount;
+    } else {
+      // Debit: validate sufficient balance
+      if (amount > currentBalance) {
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient balance. Current balance: ₹${currentBalance}, Requested: ₹${amount}`
+        });
+      }
+      newBalance = currentBalance - amount;
+    }
 
     // Create transaction record
     const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
@@ -1237,10 +1269,10 @@ router.post('/wallet-recharge', async (req, res) => {
     const transaction = new Transaction({
       transaction_id: transactionId,
       user_id: client_id,
-      transaction_type: 'credit',
+      transaction_type: type, // 'credit' or 'debit'
       transaction_category: 'manual_adjustment',
       amount: amount,
-      description: description || `Admin wallet recharge - ₹${amount}`,
+      description: description || `Admin wallet ${type === 'credit' ? 'recharge' : 'deduction'} - ₹${amount}`,
       status: 'completed',
       created_at: new Date(),
       updated_at: new Date(),
@@ -1264,11 +1296,12 @@ router.post('/wallet-recharge', async (req, res) => {
     const updatedClient = await User.findById(client_id).select('wallet_balance email company_name');
     const liveUpdatedBalance = updatedClient.wallet_balance || 0;
 
-    // Log the recharge with live database balance
-    logger.info('Admin wallet recharge completed', {
+    // Log the adjustment with live database balance
+    logger.info(`Admin wallet ${type} completed`, {
       client_id,
       client_email: updatedClient.email,
       amount,
+      type: type,
       old_balance: currentBalance,
       calculated_new_balance: newBalance,
       live_database_balance: liveUpdatedBalance,
@@ -1276,15 +1309,18 @@ router.post('/wallet-recharge', async (req, res) => {
       transaction_id: transactionId
     });
 
-    // Send notification to client about wallet recharge
+    // Send notification to client about wallet adjustment
     try {
       const notification = {
-        type: 'wallet_recharge',
-        title: 'Wallet Recharged',
-        message: `Your wallet has been recharged with ₹${amount}. New balance: ₹${liveUpdatedBalance}`,
+        type: type === 'credit' ? 'wallet_recharge' : 'wallet_deduction',
+        title: type === 'credit' ? 'Wallet Recharged' : 'Wallet Deducted',
+        message: type === 'credit' 
+          ? `Your wallet has been recharged with ₹${amount}. New balance: ₹${liveUpdatedBalance}`
+          : `₹${amount} deducted from your wallet. New balance: ₹${liveUpdatedBalance}`,
         client_id: client_id,
         client_name: updatedClient.company_name,
         amount: amount,
+        transaction_type: type,
         new_balance: liveUpdatedBalance,
         created_at: new Date()
       };
@@ -1299,7 +1335,8 @@ router.post('/wallet-recharge', async (req, res) => {
         balance: liveUpdatedBalance, // Use live database balance, not calculated
         currency: 'INR',
         previous_balance: currentBalance,
-        amount_added: amount,
+        amount: amount,
+        transaction_type: type,
         transaction_id: transactionId,
         timestamp: new Date().toISOString()
       };
@@ -1310,11 +1347,12 @@ router.post('/wallet-recharge', async (req, res) => {
         client_id,
         live_database_balance: liveUpdatedBalance,
         calculated_balance: newBalance,
-        amount_added: amount,
+        amount: amount,
+        type: type,
         balance_match: liveUpdatedBalance === newBalance ? 'MATCH' : 'MISMATCH'
       });
     } catch (notificationError) {
-      logger.warn('Failed to send wallet recharge notification', {
+      logger.warn(`Failed to send wallet ${type} notification`, {
         error: notificationError.message,
         client_id
       });
@@ -1322,12 +1360,13 @@ router.post('/wallet-recharge', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Wallet recharged successfully',
+      message: `Wallet ${type === 'credit' ? 'recharged' : 'deducted'} successfully`,
       data: {
         client_id,
         client_name: updatedClient.company_name,
         client_email: updatedClient.email,
-        amount_added: amount,
+        transaction_type: type,
+        amount: amount,
         previous_balance: currentBalance,
         new_balance: liveUpdatedBalance, // Use live database balance
         transaction_id: transactionId
@@ -1506,6 +1545,398 @@ router.patch('/clients/:clientId/label', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error updating user category',
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// WEIGHT DISCREPANCIES ROUTES
+// ============================================
+
+// @desc    Bulk import weight discrepancies from Excel
+// @route   POST /api/admin/weight-discrepancies/bulk-import
+// @access  Admin
+router.post('/weight-discrepancies/bulk-import', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    const file = req.file;
+    const batchId = `WD${Date.now()}`;
+    
+    console.log('📊 WEIGHT DISCREPANCY IMPORT STARTED:', {
+      fileName: file.originalname,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      batchId,
+      timestamp: new Date().toISOString()
+    });
+
+    // Parse Excel file
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet);
+
+    console.log('📋 EXCEL PARSED:', {
+      sheetName,
+      rowCount: rows.length,
+      columns: Object.keys(rows[0] || {})
+    });
+
+    // Expected columns mapping
+    const columnMapping = {
+      'AWB number': 'awb_number',
+      'Date of raising the weight mismatch': 'discrepancy_date',
+      'Status of AWB': 'awb_status',
+      'Client Declared Weight': 'client_declared_weight',
+      'Delhivery Updated Weight': 'delhivery_updated_weight',
+      'Delhivery Updated chargeable weight - Client Declared chargeable weight': 'weight_discrepancy',
+      'Latest deduction - Initial manifestation cost': 'deduction_amount'
+    };
+
+    const importResults = {
+      total: rows.length,
+      successful: 0,
+      failed: 0,
+      errors: [],
+      details: []
+    };
+
+    // Process each row
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNumber = i + 2; // Excel row number (header is row 1)
+      
+      try {
+        // Extract data from row based on column names
+        const awb_number = String(row['AWB number'] || row['awb_number'] || row['AWB Number'] || '');
+        
+        if (!awb_number) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: 'AWB number is missing'
+          });
+          continue;
+        }
+
+        // Parse and validate AWB (handle scientific notation from Excel)
+        let parsedAWB = awb_number;
+        if (awb_number.includes('E+')) {
+          // Excel scientific notation: 4.48007E+13 -> 44800700000000
+          parsedAWB = parseFloat(awb_number).toFixed(0);
+          // Remove any decimal points if present (handles multiple dots)
+          parsedAWB = parsedAWB.replace(/\./g, '');
+        }
+        // Ensure AWB is exactly 14 digits
+        parsedAWB = String(parsedAWB).trim();
+
+        // Find order by AWB
+        const order = await Order.findOne({ 'delhivery_data.waybill': parsedAWB });
+        
+        if (!order) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: `AWB ${parsedAWB} not found in orders`,
+            awb: parsedAWB
+          });
+          continue;
+        }
+
+        const client_id = order.user_id; // CRITICAL: Link to client
+
+        // Parse discrepancy date
+        const dateStr = row['Date of raising the weight mismatch'] || row['discrepancy_date'] || '';
+        let discrepancy_date = new Date(dateStr);
+        
+        if (isNaN(discrepancy_date.getTime())) {
+          // Handle MM/DD/YYYY HH:MM format
+          const parts = dateStr.split(' ');
+          const dateParts = parts[0] ? parts[0].split('/') : [];
+          
+          if (dateParts.length === 3) {
+            // Fix month and day padding
+            const month = dateParts[0].padStart(2, '0');
+            const day = dateParts[1].padStart(2, '0');
+            const year = dateParts[2];
+            const time = parts[1] || '00:00';
+            
+            discrepancy_date = new Date(`${year}-${month}-${day}T${time}`);
+          } else {
+            // Try alternative formats
+            discrepancy_date = new Date(dateStr.replace(/\//g, '-'));
+          }
+        }
+
+        if (isNaN(discrepancy_date.getTime())) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: 'Invalid discrepancy date format',
+            awb: parsedAWB,
+            date_string: dateStr
+          });
+          continue;
+        }
+
+        // Extract other fields
+        const awb_status = String(row['Status of AWB'] || row['awb_status'] || 'Unknown');
+        const client_declared_weight = parseFloat(row['Client Declared Weight'] || row['client_declared_weight'] || 0);
+        const delhivery_updated_weight = parseFloat(row['Delhivery Updated Weight'] || row['delhivery_updated_weight'] || 0);
+        const weight_discrepancy = parseFloat(row['Delhivery Updated chargeable weight - Client Declared chargeable weight'] || row['weight_discrepancy'] || 0);
+        const deduction_amount = parseFloat(row['Latest deduction - Initial manifestation cost'] || row['deduction_amount'] || 0);
+
+        // Validate weights
+        if (!client_declared_weight || !delhivery_updated_weight) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: 'Invalid weight values',
+            awb: parsedAWB
+          });
+          continue;
+        }
+
+        // Validate that actual weight is MORE than declared weight
+        if (delhivery_updated_weight <= client_declared_weight) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: 'Actual weight must be greater than declared weight',
+            awb: parsedAWB,
+            declared: client_declared_weight,
+            actual: delhivery_updated_weight
+          });
+          continue;
+        }
+
+        // Check if discrepancy already exists
+        const existingDiscrepancy = await WeightDiscrepancy.findOne({ 
+          awb_number: parsedAWB 
+        });
+
+        if (existingDiscrepancy) {
+          importResults.failed++;
+          importResults.errors.push({
+            row: rowNumber,
+            error: 'Discrepancy already exists for this AWB',
+            awb: parsedAWB
+          });
+          continue;
+        }
+
+        // Create weight discrepancy record
+        const weightDiscrepancy = new WeightDiscrepancy({
+          awb_number: parsedAWB,
+          client_id: client_id,
+          order_id: order._id,
+          discrepancy_date: discrepancy_date,
+          awb_status: awb_status,
+          client_declared_weight: client_declared_weight,
+          delhivery_updated_weight: delhivery_updated_weight,
+          weight_discrepancy: weight_discrepancy,
+          deduction_amount: deduction_amount,
+          upload_batch_id: batchId,
+          processed: false
+        });
+
+        await weightDiscrepancy.save();
+
+        // BUSINESS LOGIC: Deduct money ONLY if actual weight > declared weight
+        // Create debit transaction for the client
+        const user = await User.findById(client_id);
+        if (user && deduction_amount > 0) {
+          const openingBalance = user.wallet_balance || 0;
+          const closingBalance = Math.max(0, openingBalance - deduction_amount);
+          
+          // Update wallet balance in database
+          user.wallet_balance = closingBalance;
+          await user.save();
+          
+          console.log('💰 WALLET DEDUCTED:', {
+            client_id: client_id,
+            awb: parsedAWB,
+            opening_balance: openingBalance,
+            deduction: deduction_amount,
+            closing_balance: closingBalance
+          });
+
+          const transaction = new Transaction({
+            transaction_id: `WD${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+            user_id: client_id,
+            transaction_type: 'debit',
+            transaction_category: 'weight_discrepancy_charge',
+            amount: deduction_amount,
+            description: `Weight discrepancy charge for AWB: ${parsedAWB}. Discrepancy: ${weight_discrepancy}g`,
+            related_order_id: order._id,
+            related_awb: parsedAWB,
+            status: 'completed',
+            balance_info: {
+              opening_balance: openingBalance,
+              closing_balance: closingBalance
+            },
+            order_info: {
+              order_id: order.order_id,
+              awb_number: parsedAWB,
+              weight: delhivery_updated_weight,
+              zone: '',
+              order_date: order.order_date
+            },
+            transaction_date: new Date()
+          });
+
+          await transaction.save();
+
+          // Link transaction to weight discrepancy
+          weightDiscrepancy.transaction_id = transaction._id;
+          weightDiscrepancy.processed = true;
+          await weightDiscrepancy.save();
+
+          // Send WebSocket notification to client with wallet update
+          try {
+            const notification = {
+              type: 'weight_discrepancy_charge',
+              title: 'Weight Discrepancy Charge',
+              message: `Weight discrepancy charge of ₹${deduction_amount.toFixed(2)} applied for AWB ${parsedAWB}`,
+              client_id: client_id,
+              awb: parsedAWB,
+              amount: deduction_amount,
+              closing_balance: closingBalance,
+              created_at: new Date()
+            };
+            websocketService.sendNotificationToClient(String(client_id), notification);
+            
+            // Also send wallet balance update for real-time dashboard refresh
+            const walletUpdate = {
+              type: 'wallet_balance_update',
+              balance: closingBalance,
+              currency: 'INR',
+              last_updated: new Date()
+            };
+            websocketService.sendNotificationToClient(String(client_id), walletUpdate);
+            
+            console.log('📡 NOTIFICATIONS SENT:', {
+              client_id: client_id,
+              notification: 'weight_discrepancy_charge',
+              wallet_update: 'wallet_balance_update',
+              closing_balance: closingBalance
+            });
+          } catch (notifError) {
+            console.error('Failed to send notification:', notifError);
+          }
+        }
+
+        importResults.successful++;
+        importResults.details.push({
+          row: rowNumber,
+          awb: parsedAWB,
+          client_id: client_id,
+          client_name: user?.company_name || 'N/A',
+          status: 'Imported successfully'
+        });
+
+        console.log('✅ ROW IMPORTED:', {
+          row: rowNumber,
+          awb: parsedAWB,
+          client_id: client_id,
+          weight_discrepancy,
+          deduction_amount
+        });
+
+      } catch (rowError) {
+        importResults.failed++;
+        importResults.errors.push({
+          row: rowNumber,
+          error: rowError.message,
+          stack: rowError.stack
+        });
+        console.error('❌ ROW IMPORT ERROR:', {
+          row: rowNumber,
+          error: rowError.message
+        });
+      }
+    }
+
+    console.log('📊 IMPORT COMPLETED:', {
+      batchId,
+      total: importResults.total,
+      successful: importResults.successful,
+      failed: importResults.failed
+    });
+
+    res.json({
+      success: true,
+      message: `Import completed: ${importResults.successful} successful, ${importResults.failed} failed`,
+      data: importResults
+    });
+
+  } catch (error) {
+    console.error('❌ BULK IMPORT ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing bulk import',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get all weight discrepancies (Admin)
+// @route   GET /api/admin/weight-discrepancies
+// @access  Admin
+router.get('/weight-discrepancies', async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '', processed = 'all' } = req.query;
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const filterQuery = {};
+
+    // Search filter
+    if (search) {
+      filterQuery.$or = [
+        { awb_number: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Processed filter
+    if (processed !== 'all') {
+      filterQuery.processed = processed === 'true';
+    }
+
+    const [discrepancies, total] = await Promise.all([
+      WeightDiscrepancy.find(filterQuery)
+        .populate('client_id', 'company_name email phone_number')
+        .populate('order_id', 'order_id')
+        .sort({ discrepancy_date: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      WeightDiscrepancy.countDocuments(filterQuery)
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        discrepancies,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get weight discrepancies error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching weight discrepancies',
       error: error.message
     });
   }

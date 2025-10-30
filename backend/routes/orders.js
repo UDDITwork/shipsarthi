@@ -5,6 +5,8 @@ const { auth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const Warehouse = require('../models/Warehouse');
 const Customer = require('../models/Customer');
+const Transaction = require('../models/Transaction');
+const User = require('../models/User');
 const delhiveryService = require('../services/delhiveryService');
 
 const router = express.Router();
@@ -697,6 +699,80 @@ router.post('/', auth, [
               timestamp: new Date().toISOString()
             });
             // Don't fail the order creation if customer creation fails
+          }
+          
+          // Deduct wallet and create transaction AFTER successful order save
+          try {
+            const shippingCharges = order.payment_info.shipping_charges || 0;
+            
+            if (shippingCharges > 0) {
+              console.log('💳 DEDUCTING WALLET FOR ORDER', {
+                orderId: order.order_id,
+                shippingCharges,
+                timestamp: new Date().toISOString()
+              });
+              
+              // Get current wallet balance
+              const user = await User.findById(userId);
+              const openingBalance = user.wallet_balance || 0;
+              
+              if (openingBalance < shippingCharges) {
+                console.error('❌ INSUFFICIENT WALLET BALANCE', {
+                  orderId: order.order_id,
+                  required: shippingCharges,
+                  available: openingBalance,
+                  timestamp: new Date().toISOString()
+                });
+                throw new Error('Insufficient wallet balance');
+              }
+              
+              // Deduct from wallet
+              const closingBalance = openingBalance - shippingCharges;
+              user.wallet_balance = closingBalance;
+              await user.save();
+              
+              // Create transaction record
+              const transaction = new Transaction({
+                transaction_id: `DR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+                user_id: userId,
+                transaction_type: 'debit',
+                transaction_category: 'shipping_charge',
+                amount: shippingCharges,
+                description: `Shipping charges for order ${order.order_id}`,
+                related_order_id: order._id,
+                status: 'completed',
+                transaction_date: new Date(),
+                balance_info: {
+                  opening_balance: openingBalance,
+                  closing_balance: closingBalance
+                },
+                order_info: {
+                  order_id: order.order_id,
+                  awb_number: awbNumber,
+                  weight: order.package_info.weight * 1000, // Convert kg to grams
+                  zone: '', // TODO: Calculate zone from pincode
+                  order_date: order.order_date
+                }
+              });
+              
+              await transaction.save();
+              
+              console.log('✅ WALLET DEDUCTED SUCCESSFULLY', {
+                orderId: order.order_id,
+                transactionId: transaction.transaction_id,
+                amount: shippingCharges,
+                oldBalance: openingBalance,
+                newBalance: closingBalance,
+                timestamp: new Date().toISOString()
+              });
+            }
+          } catch (walletError) {
+            console.error('❌ WALLET DEDUCTION FAILED', {
+              orderId: order.order_id,
+              error: walletError.message,
+              timestamp: new Date().toISOString()
+            });
+            // Don't fail the order creation if wallet deduction fails
           }
           
           console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', awbNumber);

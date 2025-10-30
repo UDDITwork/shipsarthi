@@ -5,10 +5,10 @@ import { notificationService } from '../services/notificationService';
 
 interface Notification {
   _id: string;
-  type: 'new_ticket' | 'ticket_update' | 'message_received';
+  type: 'new_ticket' | 'ticket_update' | 'message_received' | 'wallet_recharge' | 'wallet_deduction';
   title: string;
   message: string;
-  ticket_id: string;
+  ticket_id?: string;
   client_name: string;
   created_at: string;
   is_read: boolean;
@@ -113,6 +113,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
         return <MessageSquare className="w-4 h-4 text-green-500" />;
       case 'wallet_recharge':
         return <span className="text-lg">💰</span>;
+      case 'wallet_deduction':
+        return <span className="text-lg">💸</span>;
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
     }
@@ -128,6 +130,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
         return 'bg-green-50 border-green-200';
       case 'wallet_recharge':
         return 'bg-green-50 border-green-200';
+      case 'wallet_deduction':
+        return 'bg-red-50 border-red-200';
       default:
         return 'bg-gray-50 border-gray-200';
     }

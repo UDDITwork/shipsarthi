@@ -29,6 +29,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/clients', label: 'Clients', icon: '👥' },
     { path: '/admin/wallet-recharge', label: 'Wallet Recharge', icon: '💰' },
+    { path: '/admin/weight-discrepancies', label: 'Weight Discrepancies', icon: '⚖️' },
   ];
 
   const isActivePath = (path: string) => {

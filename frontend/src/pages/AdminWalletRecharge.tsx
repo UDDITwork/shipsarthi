@@ -7,7 +7,7 @@ interface WalletRechargeModalProps {
   client: AdminClient;
   isOpen: boolean;
   onClose: () => void;
-  onRecharge: (clientId: string, amount: number) => Promise<void>;
+  onRecharge: (clientId: string, amount: number, type: 'credit' | 'debit') => Promise<void>;
   onUpdateLabel: (clientId: string, label: string) => Promise<void>;
 }
 
@@ -19,10 +19,19 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
   onUpdateLabel
 }) => {
   const [amount, setAmount] = useState('');
+  const [transactionType, setTransactionType] = useState<'credit' | 'debit'>('credit');
   const [selectedLabel, setSelectedLabel] = useState(client?.user_category || 'Basic User');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Reset form when client changes
+  useEffect(() => {
+    setAmount('');
+    setTransactionType('credit');
+    setError(null);
+    setSuccess(false);
+  }, [client._id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +41,13 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
     }
 
     if (parseFloat(amount) < 1) {
-      setError('Minimum recharge amount is ₹1');
+      setError('Minimum amount is ₹1');
+      return;
+    }
+
+    // For debit, validate sufficient balance
+    if (transactionType === 'debit' && parseFloat(amount) > (client?.wallet_balance || 0)) {
+      setError(`Insufficient balance. Current balance: ₹${client?.wallet_balance || 0}`);
       return;
     }
 
@@ -41,7 +56,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
     setSuccess(false);
 
     try {
-      await onRecharge(client._id, parseFloat(amount));
+      await onRecharge(client._id, parseFloat(amount), transactionType);
       setSuccess(true);
       setAmount('');
       
@@ -51,7 +66,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
         setSuccess(false);
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Failed to recharge wallet');
+      setError(err.message || 'Failed to update wallet');
     } finally {
       setLoading(false);
     }
@@ -68,6 +83,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
 
   const handleClose = () => {
     setAmount('');
+    setTransactionType('credit');
     setError(null);
     setSuccess(false);
     onClose();
@@ -79,7 +95,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Wallet Recharge</h3>
+          <h3>Wallet Adjustment</h3>
           <button className="close-btn" onClick={handleClose}>×</button>
         </div>
         
@@ -92,17 +108,35 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
 
           <form onSubmit={handleSubmit} className="recharge-form">
             <div className="form-group">
-              <label htmlFor="amount">Add Amount (₹)</label>
+              <label htmlFor="transactionType">Transaction Type</label>
+              <select
+                id="transactionType"
+                value={transactionType}
+                onChange={(e) => setTransactionType(e.target.value as 'credit' | 'debit')}
+                className="transaction-type-select"
+              >
+                <option value="credit">Add Money (Credit)</option>
+                <option value="debit">Deduct Money (Debit)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amount">{transactionType === 'credit' ? 'Add' : 'Deduct'} Amount (₹)</label>
               <input
                 type="number"
                 id="amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount to add"
+                placeholder={`Enter amount to ${transactionType === 'credit' ? 'add' : 'deduct'}`}
                 min="1"
                 step="0.01"
                 required
               />
+              {transactionType === 'debit' && (
+                <small className="form-note">
+                  Available balance: ₹{client?.wallet_balance || 0}
+                </small>
+              )}
             </div>
 
             <div className="form-group">
@@ -121,14 +155,15 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
             </div>
 
             {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">✅ Wallet recharged successfully! Balance updated.</div>}
+            {success && <div className="success-message">✅ Wallet updated successfully! Balance updated.</div>}
 
             <div className="form-actions">
               <button type="button" onClick={handleClose} className="cancel-btn">
                 Cancel
               </button>
-              <button type="submit" disabled={loading} className="submit-btn">
-                {loading ? 'Adding...' : 'Add to Wallet'}
+              <button type="submit" disabled={loading} className={`submit-btn ${transactionType === 'debit' ? 'debit-btn' : ''}`}>
+                {loading ? (transactionType === 'credit' ? 'Adding...' : 'Deducting...') : 
+                 transactionType === 'credit' ? 'Add to Wallet' : 'Deduct from Wallet'}
               </button>
             </div>
           </form>
@@ -207,9 +242,9 @@ const AdminWalletRecharge: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleRecharge = async (clientId: string, amount: number): Promise<void> => {
+  const handleRecharge = async (clientId: string, amount: number, type: 'credit' | 'debit'): Promise<void> => {
     try {
-      await adminService.rechargeWallet(clientId, amount);
+      await adminService.adjustWallet(clientId, amount, type);
       
       // Refresh the clients list to show updated balances
       fetchClients();
@@ -221,7 +256,7 @@ const AdminWalletRecharge: React.FC = () => {
         console.log('Could not refresh wallet balance (client may not be logged in)');
       }
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to recharge wallet');
+      throw new Error(err.message || 'Failed to update wallet');
     }
   };
 
