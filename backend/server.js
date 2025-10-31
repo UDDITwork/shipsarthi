@@ -158,18 +158,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static('uploads'));
 app.use('/public', express.static('public'));
 
-// MongoDB Connection
-connectDB()
-.then(() => {
-  logger.info('✅ Connected to MongoDB');
-  console.log('✅ Connected to MongoDB');
-})
-.catch((error) => {
-  logger.error('❌ MongoDB connection error', { error: error.message, stack: error.stack });
-  console.error('❌ MongoDB connection error:', error);
-  process.exit(1);
-});
-
 // Health Check Route
 app.get('/api/health', async (req, res) => {
   const dbHealth = await checkDBHealth();
@@ -343,19 +331,38 @@ const server = http.createServer(app);
 // Initialize WebSocket service
 websocketService.initialize(server);
 
-// Start Server
-server.listen(PORT, () => {
-  logger.info('🚀 Server started', {
-    port: PORT,
-    environment: process.env.NODE_ENV,
-    healthCheck: `http://localhost:${PORT}/api/health`,
-    websocket: `ws://localhost:${PORT}`
-  });
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
-});
+// MongoDB Connection - Must complete before starting server
+async function startServer() {
+  try {
+    // Wait for database connection before proceeding
+    await connectDB();
+    logger.info('✅ Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
+
+    // Start Server only after DB is connected
+    server.listen(PORT, () => {
+      logger.info('🚀 Server started', {
+        port: PORT,
+        environment: process.env.NODE_ENV,
+        healthCheck: `http://localhost:${PORT}/api/health`,
+        websocket: `ws://localhost:${PORT}`,
+        databaseStatus: 'connected'
+      });
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+      console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
+      console.log(`📊 Database: Connected`);
+    });
+  } catch (error) {
+    logger.error('❌ MongoDB connection error', { error: error.message, stack: error.stack });
+    console.error('❌ MongoDB connection error:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server after DB connection
+startServer();
 
 // Graceful Shutdown
 process.on('SIGTERM', () => {

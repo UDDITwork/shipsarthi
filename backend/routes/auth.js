@@ -1,8 +1,10 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
+const { waitForDB } = require('../middleware/dbReady');
 const logger = require('../utils/logger');
 const router = express.Router();
 
@@ -229,9 +231,56 @@ router.post('/login', [
 
     logger.debug('Login credentials received', { email });
 
+    // Check database readiness before querying
+    const dbState = mongoose.connection.readyState;
+    if (dbState !== 1) {
+      logger.warn('Database not ready during login attempt', {
+        email,
+        dbState,
+        ip: req.ip
+      });
+      
+      // Try to wait for DB connection (with timeout)
+      try {
+        await waitForDB(5000); // Wait up to 5 seconds
+        logger.info('Database connection established after wait', { email });
+      } catch (dbError) {
+        logger.error('Database connection timeout during login', {
+          error: dbError.message,
+          email,
+          dbState,
+          ip: req.ip
+        });
+        return res.status(503).json({
+          status: 'error',
+          message: 'Database is not ready. Please try again in a moment.'
+        });
+      }
+    }
+
     // Find user by email or phone
     logger.debug('Searching for user', { email });
-    const user = await User.findByEmailOrPhone(email);
+    let user;
+    try {
+      user = await User.findByEmailOrPhone(email);
+    } catch (dbError) {
+      // Handle database connection errors specifically
+      if (dbError.name === 'DatabaseConnectionError') {
+        logger.error('Database connection error during user lookup', {
+          error: dbError.message,
+          email,
+          dbState: dbError.dbState,
+          originalError: dbError.originalError?.message,
+          ip: req.ip
+        });
+        return res.status(503).json({
+          status: 'error',
+          message: 'Database connection error. Please try again in a moment.'
+        });
+      }
+      // Re-throw other errors to be caught by outer catch block
+      throw dbError;
+    }
     
     if (!user) {
       logger.warn('Login failed - user not found', { 

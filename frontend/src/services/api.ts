@@ -10,7 +10,7 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 10000, // Reduced timeout to 10 seconds
+      timeout: 30000, // Increased timeout to 30 seconds for initial requests and DB cold starts
       headers: {
         'Content-Type': 'application/json',
       },
@@ -77,10 +77,17 @@ class ApiService {
         // Special handling for timeout and connection errors
         if (error.code === 'ECONNABORTED') {
           console.error('⏰ REQUEST TIMEOUT - Backend might be down or slow');
-          errorDetails.message = 'Request timeout - Backend server might be down or slow';
+          errorDetails.message = 'Request timeout - The server is taking longer than expected. Please try again.';
         } else if (!error.response) {
           console.error('🌐 NETWORK ERROR - Cannot connect to backend');
-          errorDetails.message = 'Network error - Cannot connect to backend server';
+          errorDetails.message = 'Network error - Cannot connect to backend server. Please check your connection and try again.';
+        } else if (error.response.status === 503) {
+          // Service Unavailable - usually means DB is not ready
+          const serverMessage = error.response.data?.message || 'Service temporarily unavailable';
+          console.error('🔌 SERVICE UNAVAILABLE - Database may not be ready');
+          errorDetails.message = serverMessage.includes('Database') || serverMessage.includes('database')
+            ? 'Database is initializing. Please wait a moment and try again.'
+            : serverMessage;
         }
         
         if (error.response?.status === 401) {

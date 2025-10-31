@@ -72,7 +72,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      // Handle different types of errors with user-friendly messages
+      let errorMessage = 'Login failed';
+      
+      if (err.response) {
+        // Server responded with an error
+        const status = err.response.status;
+        const serverMessage = err.response.data?.message || '';
+        
+        if (status === 503) {
+          // Service Unavailable - Database not ready
+          errorMessage = serverMessage.includes('Database') || serverMessage.includes('database')
+            ? 'Database is initializing. Please wait a moment and try again.'
+            : serverMessage || 'Service temporarily unavailable. Please try again in a moment.';
+        } else if (status === 401) {
+          errorMessage = serverMessage || 'Invalid email or password';
+        } else if (status === 423) {
+          errorMessage = serverMessage || 'Account is locked. Please try again later.';
+        } else {
+          errorMessage = serverMessage || 'Login failed. Please try again.';
+        }
+      } else if (err.code === 'ECONNABORTED') {
+        // Request timeout
+        errorMessage = 'Request timeout - The server is taking longer than expected. Please try again.';
+      } else if (!err.response) {
+        // Network error
+        errorMessage = 'Cannot connect to server. Please check your internet connection and try again.';
+      } else {
+        errorMessage = err.message || 'Login failed';
+      }
+      
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);

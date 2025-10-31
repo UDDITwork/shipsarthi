@@ -378,9 +378,24 @@ userSchema.methods.resetOTPAttempts = function() {
 };
 
 // Static method to find by email or phone
-userSchema.statics.findByEmailOrPhone = function(identifier) {
+userSchema.statics.findByEmailOrPhone = async function(identifier) {
+  const mongoose = require('mongoose');
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   const phoneRegex = /^[6-9]\d{9}$/;
+  
+  // Check database connection state before querying
+  if (mongoose.connection.readyState !== 1) {
+    const states = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    const error = new Error(`Database is ${states[mongoose.connection.readyState]}`);
+    error.name = 'DatabaseConnectionError';
+    error.dbState = mongoose.connection.readyState;
+    throw error;
+  }
   
   let query = {};
   if (emailRegex.test(identifier)) {
@@ -391,7 +406,22 @@ userSchema.statics.findByEmailOrPhone = function(identifier) {
     return null;
   }
   
-  return this.findOne(query);
+  try {
+    return await this.findOne(query);
+  } catch (error) {
+    // Distinguish between connection errors and other query errors
+    if (error.name === 'MongoNetworkError' || 
+        error.name === 'MongoServerSelectionError' ||
+        error.message.includes('connection') ||
+        error.message.includes('timeout')) {
+      const dbError = new Error('Database connection error');
+      dbError.name = 'DatabaseConnectionError';
+      dbError.originalError = error;
+      throw dbError;
+    }
+    // Re-throw other errors as-is
+    throw error;
+  }
 };
 
 // Transform output
