@@ -111,6 +111,8 @@ const Orders: React.FC = () => {
     try {
       const params = new URLSearchParams();
       if (activeTab !== 'all') params.append('status', activeTab);
+      // Include order type (forward/reverse) in query params
+      if (orderType) params.append('order_type', orderType);
       if (filters.dateFrom) params.append('date_from', filters.dateFrom);
       if (filters.dateTo) params.append('date_to', filters.dateTo);
       if (filters.searchQuery) params.append('search', filters.searchQuery);

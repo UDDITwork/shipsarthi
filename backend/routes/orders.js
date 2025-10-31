@@ -45,6 +45,7 @@ router.get('/', auth, [
     'new', 'ready_to_ship', 'pickup_pending', 'manifested',
     'in_transit', 'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled', 'lost', 'all'
   ]),
+  query('order_type').optional().isIn(['forward', 'reverse']),
   query('payment_mode').optional().isIn(['prepaid', 'cod']),
   query('date_from').optional().isISO8601(),
   query('date_to').optional().isISO8601()
@@ -69,6 +70,11 @@ router.get('/', auth, [
 
     if (req.query.status && req.query.status !== 'all') {
       filterQuery['status'] = req.query.status;
+    }
+
+    // Apply order type filter if provided
+    if (req.query.order_type) {
+      filterQuery['order_type'] = req.query.order_type;
     }
 
     if (req.query.payment_mode) {

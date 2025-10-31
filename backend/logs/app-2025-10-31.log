@@ -87956,3 +87956,3420 @@
 }
 [2025-10-31T15:13:51.370Z] [INFO] [PID:18436] 🛑 SIGINT received, shutting down gracefully
 [2025-10-31T15:13:51.374Z] [INFO] [PID:18436] 🔌 Cleaning up WebSocket service...
+[2025-10-31T15:17:21.970Z] [INFO] [PID:23832] ✅ Tracking service started - will run every 3 hours
+[2025-10-31T15:17:23.260Z] [INFO] [PID:23832] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-10-31T15:17:23.260Z"
+}
+[2025-10-31T15:17:23.954Z] [INFO] [PID:23832] 🔌 WebSocket server initialized
+[2025-10-31T15:17:24.711Z] [INFO] [PID:23832] ✅ Connected to MongoDB
+[2025-10-31T15:17:24.733Z] [INFO] [PID:23832] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-10-31T15:17:24.986Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:24.986Z"
+}
+[2025-10-31T15:17:24.989Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.014Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.014Z"
+}
+[2025-10-31T15:17:25.016Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.027Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.027Z"
+}
+[2025-10-31T15:17:25.030Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.036Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.036Z"
+}
+[2025-10-31T15:17:25.038Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.049Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.049Z"
+}
+[2025-10-31T15:17:25.051Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.055Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845054_g9ykl17r5",
+  "timestamp": "2025-10-31T15:17:25.054Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:17:25.114Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.114Z"
+}
+[2025-10-31T15:17:25.117Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.137Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.137Z"
+}
+[2025-10-31T15:17:25.139Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.143Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845142_dkzhzz28k",
+  "timestamp": "2025-10-31T15:17:25.142Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:17:25.160Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.160Z"
+}
+[2025-10-31T15:17:25.162Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.176Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.175Z"
+}
+[2025-10-31T15:17:25.178Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.181Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845181_gyxkwgqw5",
+  "timestamp": "2025-10-31T15:17:25.181Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:17:25.186Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:17:25.219Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.219Z"
+}
+[2025-10-31T15:17:25.222Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.224Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845224_0nsrt662l",
+  "timestamp": "2025-10-31T15:17:25.224Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:17:25.229Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:17:25.832Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.832Z"
+}
+[2025-10-31T15:17:25.837Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.842Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845841_5mfndjqhw",
+  "timestamp": "2025-10-31T15:17:25.841Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:17:25.943Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:25.943Z"
+}
+[2025-10-31T15:17:25.944Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:25.947Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923845947_xzm8k7tq6",
+  "timestamp": "2025-10-31T15:17:25.947Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:17:25.957Z] [INFO] [PID:23832] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-10-31T15:17:25.957Z"
+}
+[2025-10-31T15:17:25.966Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923845966_z75kgxlbh",
+  "totalClients": 1
+}
+[2025-10-31T15:17:25.969Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923845966_z75kgxlbh",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:17:25.972Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923845966_z75kgxlbh",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:17:28.517Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:28.517Z"
+}
+[2025-10-31T15:17:28.520Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:28.530Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:28.530Z"
+}
+[2025-10-31T15:17:28.533Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:28.536Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923848535_d9u34sbz2",
+  "timestamp": "2025-10-31T15:17:28.536Z",
+  "method": "GET",
+  "url": "/api/orders?status=ready_to_ship&order_type=forward",
+  "originalUrl": "/api/orders?status=ready_to_ship&order_type=forward",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:17:53.961Z] [DEBUG] [PID:23832] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1761923845966_z75kgxlbh"
+}
+[2025-10-31T15:17:54.166Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:54.166Z"
+}
+[2025-10-31T15:17:54.171Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:54.194Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:17:54.194Z"
+}
+[2025-10-31T15:17:54.197Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:17:54.202Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923874200_mt07oxbv6",
+  "timestamp": "2025-10-31T15:17:54.200Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:17:54.205Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:01.217Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:01.217Z"
+}
+[2025-10-31T15:18:01.220Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:01.237Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:01.237Z"
+}
+[2025-10-31T15:18:01.241Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:01.246Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923881245_c91ymvwof",
+  "timestamp": "2025-10-31T15:18:01.245Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:01.254Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:04.860Z] [INFO] [PID:23832] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1761923845966_z75kgxlbh",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-10-31T15:18:05.239Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.239Z"
+}
+[2025-10-31T15:18:05.240Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.252Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.251Z"
+}
+[2025-10-31T15:18:05.254Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.260Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.260Z"
+}
+[2025-10-31T15:18:05.262Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.264Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885263_hdeihbfs4",
+  "timestamp": "2025-10-31T15:18:05.263Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:05.281Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.281Z"
+}
+[2025-10-31T15:18:05.282Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.286Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.286Z"
+}
+[2025-10-31T15:18:05.288Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.292Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.292Z"
+}
+[2025-10-31T15:18:05.295Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.300Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885299_abw7368g9",
+  "timestamp": "2025-10-31T15:18:05.299Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:05.302Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:05.307Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.307Z"
+}
+[2025-10-31T15:18:05.310Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.311Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885311_lx8ndxkwx",
+  "timestamp": "2025-10-31T15:18:05.311Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:05.345Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.345Z"
+}
+[2025-10-31T15:18:05.346Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.348Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885347_gyqro9rwz",
+  "timestamp": "2025-10-31T15:18:05.347Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:05.349Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:05.403Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.403Z"
+}
+[2025-10-31T15:18:05.404Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.406Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885406_e7f6gpxw8",
+  "timestamp": "2025-10-31T15:18:05.406Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:05.413Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:05.413Z"
+}
+[2025-10-31T15:18:05.414Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:05.415Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923885415_mvo24mpf0",
+  "timestamp": "2025-10-31T15:18:05.415Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:05.425Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923885425_bi7usiftb",
+  "totalClients": 1
+}
+[2025-10-31T15:18:05.445Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923885425_bi7usiftb",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:18:05.446Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923885425_bi7usiftb",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:18:12.052Z] [INFO] [PID:23832] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1761923885425_bi7usiftb",
+  "code": 1000,
+  "reason": "Manual disconnect",
+  "totalClients": 0
+}
+[2025-10-31T15:18:12.056Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.056Z"
+}
+[2025-10-31T15:18:12.061Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.069Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.069Z"
+}
+[2025-10-31T15:18:12.071Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.075Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.075Z"
+}
+[2025-10-31T15:18:12.077Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.082Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.082Z"
+}
+[2025-10-31T15:18:12.083Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.090Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.090Z"
+}
+[2025-10-31T15:18:12.092Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.098Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.098Z"
+}
+[2025-10-31T15:18:12.100Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.103Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892102_8z4vani26",
+  "timestamp": "2025-10-31T15:18:12.102Z",
+  "method": "GET",
+  "url": "/api/packages?",
+  "originalUrl": "/api/packages?",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"827-qv08rhdKKiuNIH6r9EcBTPA9nlU\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.122Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.122Z"
+}
+[2025-10-31T15:18:12.124Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.130Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.130Z"
+}
+[2025-10-31T15:18:12.132Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.134Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892134_nc2xxi5p1",
+  "timestamp": "2025-10-31T15:18:12.134Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.144Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.144Z"
+}
+[2025-10-31T15:18:12.145Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.147Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892147_7c45lmwr7",
+  "timestamp": "2025-10-31T15:18:12.147Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.150Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:12.167Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.167Z"
+}
+[2025-10-31T15:18:12.169Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.171Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892171_whl4plwii",
+  "timestamp": "2025-10-31T15:18:12.171Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.173Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:12.219Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.219Z"
+}
+[2025-10-31T15:18:12.221Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.222Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892222_o6fou2emz",
+  "timestamp": "2025-10-31T15:18:12.222Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.237Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923892237_2ymyjn7pz",
+  "totalClients": 1
+}
+[2025-10-31T15:18:12.246Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:12.246Z"
+}
+[2025-10-31T15:18:12.247Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:12.248Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923892248_w0s6bt6ag",
+  "timestamp": "2025-10-31T15:18:12.248Z",
+  "method": "GET",
+  "url": "/api/packages?",
+  "originalUrl": "/api/packages?",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"827-qv08rhdKKiuNIH6r9EcBTPA9nlU\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:12.259Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923892237_2ymyjn7pz",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:18:12.261Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923892237_2ymyjn7pz",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:18:13.320Z] [INFO] [PID:23832] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1761923892237_2ymyjn7pz",
+  "code": 1000,
+  "reason": "Manual disconnect",
+  "totalClients": 0
+}
+[2025-10-31T15:18:13.333Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.333Z"
+}
+[2025-10-31T15:18:13.336Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.342Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.341Z"
+}
+[2025-10-31T15:18:13.343Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.345Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.345Z"
+}
+[2025-10-31T15:18:13.347Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.348Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893348_cfwl1vqah",
+  "timestamp": "2025-10-31T15:18:13.348Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:13.358Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.358Z"
+}
+[2025-10-31T15:18:13.361Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.362Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893362_hnbr12qkh",
+  "timestamp": "2025-10-31T15:18:13.362Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:13.364Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:13.367Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.367Z"
+}
+[2025-10-31T15:18:13.368Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.370Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893370_ovjhyemoa",
+  "timestamp": "2025-10-31T15:18:13.370Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:13.377Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.377Z"
+}
+[2025-10-31T15:18:13.380Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.381Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893381_zh9jnj6s8",
+  "timestamp": "2025-10-31T15:18:13.381Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:13.382Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:13.424Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.424Z"
+}
+[2025-10-31T15:18:13.426Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.427Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893427_w6v1vgdqm",
+  "timestamp": "2025-10-31T15:18:13.427Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:13.442Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923893441_g30nnfoo8",
+  "totalClients": 1
+}
+[2025-10-31T15:18:13.445Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923893441_g30nnfoo8",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:18:13.446Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923893441_g30nnfoo8",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:18:13.470Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:13.470Z"
+}
+[2025-10-31T15:18:13.471Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:13.473Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923893473_l0nx8oaqd",
+  "timestamp": "2025-10-31T15:18:13.473Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:14.415Z] [INFO] [PID:23832] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1761923893441_g30nnfoo8",
+  "code": 1000,
+  "reason": "Manual disconnect",
+  "totalClients": 0
+}
+[2025-10-31T15:18:14.443Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.443Z"
+}
+[2025-10-31T15:18:14.446Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.454Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.454Z"
+}
+[2025-10-31T15:18:14.457Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.467Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.467Z"
+}
+[2025-10-31T15:18:14.470Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.476Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.476Z"
+}
+[2025-10-31T15:18:14.481Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.488Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.488Z"
+}
+[2025-10-31T15:18:14.491Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.496Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.496Z"
+}
+[2025-10-31T15:18:14.498Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.502Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894500_ilzp0u8nd",
+  "timestamp": "2025-10-31T15:18:14.500Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.517Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.517Z"
+}
+[2025-10-31T15:18:14.520Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.523Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894523_gq0w2srba",
+  "timestamp": "2025-10-31T15:18:14.523Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.527Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:14.532Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.532Z"
+}
+[2025-10-31T15:18:14.534Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.539Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.539Z"
+}
+[2025-10-31T15:18:14.542Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.548Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.548Z"
+}
+[2025-10-31T15:18:14.550Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.557Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.557Z"
+}
+[2025-10-31T15:18:14.559Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.565Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.565Z"
+}
+[2025-10-31T15:18:14.568Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.573Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.573Z"
+}
+[2025-10-31T15:18:14.575Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.577Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894577_h05wix4od",
+  "timestamp": "2025-10-31T15:18:14.577Z",
+  "method": "GET",
+  "url": "/api/dashboard/overview",
+  "originalUrl": "/api/dashboard/overview",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.601Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.601Z"
+}
+[2025-10-31T15:18:14.603Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.610Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.610Z"
+}
+[2025-10-31T15:18:14.612Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.617Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.617Z"
+}
+[2025-10-31T15:18:14.619Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.622Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894621_4vqdb3awa",
+  "timestamp": "2025-10-31T15:18:14.621Z",
+  "method": "GET",
+  "url": "/api/dashboard/shipment-status",
+  "originalUrl": "/api/dashboard/shipment-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.637Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.637Z"
+}
+[2025-10-31T15:18:14.640Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.644Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894643_qwetqfbt3",
+  "timestamp": "2025-10-31T15:18:14.643Z",
+  "method": "GET",
+  "url": "/api/dashboard/ndr-status",
+  "originalUrl": "/api/dashboard/ndr-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.660Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.659Z"
+}
+[2025-10-31T15:18:14.662Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.664Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894664_5dkbvvx0k",
+  "timestamp": "2025-10-31T15:18:14.664Z",
+  "method": "GET",
+  "url": "/api/dashboard/cod-status",
+  "originalUrl": "/api/dashboard/cod-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.688Z] [INFO] [PID:23832] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:14.706Z] [DEBUG] [PID:23832] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-10-31T00:00:00+05:30",
+    "yesterday": "2025-10-30T00:00:00+05:30",
+    "last30Days": "2025-10-01T00:00:00+05:30"
+  }
+}
+[2025-10-31T15:18:14.721Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.721Z"
+}
+[2025-10-31T15:18:14.723Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.725Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894724_5t2cj8eoe",
+  "timestamp": "2025-10-31T15:18:14.725Z",
+  "method": "GET",
+  "url": "/api/dashboard/shipment-distribution",
+  "originalUrl": "/api/dashboard/shipment-distribution",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.749Z] [INFO] [PID:23832] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:14.766Z] [INFO] [PID:23832] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:14.781Z] [INFO] [PID:23832] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:14.789Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.789Z"
+}
+[2025-10-31T15:18:14.791Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.796Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894795_fny2m0n8a",
+  "timestamp": "2025-10-31T15:18:14.795Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.800Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:14.819Z] [INFO] [PID:23832] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:14.826Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923894826_xa4k9orkr",
+  "totalClients": 1
+}
+[2025-10-31T15:18:14.835Z] [INFO] [PID:23832] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "85ms",
+  "statusCounts": {
+    "total_orders": 2,
+    "new_orders": 2,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-10-31T15:18:14.845Z] [INFO] [PID:23832] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "79ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-10-31T15:18:14.854Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.854Z"
+}
+[2025-10-31T15:18:14.858Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.861Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894861_spzwa9wnm",
+  "timestamp": "2025-10-31T15:18:14.861Z",
+  "method": "GET",
+  "url": "/api/dashboard/wallet-transactions?limit=5",
+  "originalUrl": "/api/dashboard/wallet-transactions?limit=5",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {
+    "limit": "5"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:14.891Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923894826_xa4k9orkr",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:18:14.894Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923894826_xa4k9orkr",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:18:14.901Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.901Z"
+}
+[2025-10-31T15:18:14.903Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.906Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894905_13gsx4vzq",
+  "timestamp": "2025-10-31T15:18:14.906Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.919Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.919Z"
+}
+[2025-10-31T15:18:14.922Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.925Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894925_ke4dyhe9h",
+  "timestamp": "2025-10-31T15:18:14.925Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:14.928Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:14.934Z] [INFO] [PID:23832] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "115ms",
+  "totalOrders": 2,
+  "distributionCount": 1
+}
+[2025-10-31T15:18:14.950Z] [INFO] [PID:23832] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-10-31T15:18:14.973Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:14.973Z"
+}
+[2025-10-31T15:18:14.975Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:14.978Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923894978_3vx3u24mn",
+  "timestamp": "2025-10-31T15:18:14.978Z",
+  "method": "GET",
+  "url": "/api/dashboard/shipment-status",
+  "originalUrl": "/api/dashboard/shipment-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"85-InvM5Y+g8csBzbDwXqKL1UF8pCo\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.011Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.011Z"
+}
+[2025-10-31T15:18:15.014Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.017Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895016_99jspusvy",
+  "timestamp": "2025-10-31T15:18:15.016Z",
+  "method": "GET",
+  "url": "/api/dashboard/ndr-status",
+  "originalUrl": "/api/dashboard/ndr-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"99-byItJUtZ2JK940xZTH6AZa0/iK0\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.049Z] [INFO] [PID:23832] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "99ms",
+  "transactionCount": 3,
+  "limit": 5
+}
+[2025-10-31T15:18:15.056Z] [INFO] [PID:23832] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "275ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-10-31T15:18:15.076Z] [INFO] [PID:23832] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:15.094Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.093Z"
+}
+[2025-10-31T15:18:15.096Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.098Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895098_9kmyzoc3c",
+  "timestamp": "2025-10-31T15:18:15.098Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.101Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:15.113Z] [INFO] [PID:23832] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:15.120Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.120Z"
+}
+[2025-10-31T15:18:15.123Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.126Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895125_mjj9z27lk",
+  "timestamp": "2025-10-31T15:18:15.126Z",
+  "method": "GET",
+  "url": "/api/dashboard/shipment-distribution",
+  "originalUrl": "/api/dashboard/shipment-distribution",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"7a-E+EIHhyefL8s2PA9peDw2RehaAk\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.140Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.140Z"
+}
+[2025-10-31T15:18:15.142Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.145Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895144_tl1nnex1w",
+  "timestamp": "2025-10-31T15:18:15.145Z",
+  "method": "GET",
+  "url": "/api/dashboard/wallet-transactions?limit=5",
+  "originalUrl": "/api/dashboard/wallet-transactions?limit=5",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"398-HVeLensDs6PaEzFNU082+0WBfuU\""
+  },
+  "query": {
+    "limit": "5"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:15.170Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.170Z"
+}
+[2025-10-31T15:18:15.174Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.177Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895176_0lxyrnb41",
+  "timestamp": "2025-10-31T15:18:15.176Z",
+  "method": "GET",
+  "url": "/api/dashboard/cod-status",
+  "originalUrl": "/api/dashboard/cod-status",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"58-jglMfZfsvMrtWMskEORD7ZF3rHY\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.196Z] [INFO] [PID:23832] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "120ms",
+  "statusCounts": {
+    "total_orders": 2,
+    "new_orders": 2,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-10-31T15:18:15.206Z] [INFO] [PID:23832] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "93ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-10-31T15:18:15.222Z] [INFO] [PID:23832] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:15.239Z] [INFO] [PID:23832] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-10-31T15:18:15.249Z] [INFO] [PID:23832] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "561ms",
+  "metrics": {
+    "todaysOrders": 0,
+    "yesterdaysOrders": 1,
+    "todaysRevenue": 0,
+    "yesterdaysRevenue": 900,
+    "avgShippingCost": 297,
+    "walletBalance": 303
+  }
+}
+[2025-10-31T15:18:15.267Z] [INFO] [PID:23832] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-10-31T15:18:15.280Z] [INFO] [PID:23832] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "58ms",
+  "totalOrders": 2,
+  "distributionCount": 1
+}
+[2025-10-31T15:18:15.286Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:15.286Z"
+}
+[2025-10-31T15:18:15.288Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:15.290Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923895289_p28canevk",
+  "timestamp": "2025-10-31T15:18:15.290Z",
+  "method": "GET",
+  "url": "/api/dashboard/overview",
+  "originalUrl": "/api/dashboard/overview",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"ed-A/X/jNfd4tH6VPz/4TSfgxK64Is\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:15.301Z] [INFO] [PID:23832] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "63ms",
+  "transactionCount": 3,
+  "limit": 5
+}
+[2025-10-31T15:18:15.329Z] [INFO] [PID:23832] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:15.330Z] [DEBUG] [PID:23832] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-10-31T00:00:00+05:30",
+    "yesterday": "2025-10-30T00:00:00+05:30",
+    "last30Days": "2025-10-01T00:00:00+05:30"
+  }
+}
+[2025-10-31T15:18:15.377Z] [INFO] [PID:23832] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "110ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-10-31T15:18:15.530Z] [INFO] [PID:23832] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "201ms",
+  "metrics": {
+    "todaysOrders": 0,
+    "yesterdaysOrders": 1,
+    "todaysRevenue": 0,
+    "yesterdaysRevenue": 900,
+    "avgShippingCost": 297,
+    "walletBalance": 303
+  }
+}
+[2025-10-31T15:18:17.059Z] [INFO] [PID:23832] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1761923894826_xa4k9orkr",
+  "code": 1000,
+  "reason": "Manual disconnect",
+  "totalClients": 0
+}
+[2025-10-31T15:18:17.066Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.066Z"
+}
+[2025-10-31T15:18:17.069Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.072Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897072_pg9ablqr0",
+  "timestamp": "2025-10-31T15:18:17.072Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:17.086Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.086Z"
+}
+[2025-10-31T15:18:17.089Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.092Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897092_qy9a751uq",
+  "timestamp": "2025-10-31T15:18:17.092Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:17.108Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.108Z"
+}
+[2025-10-31T15:18:17.112Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.116Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897115_b5h3p84mp",
+  "timestamp": "2025-10-31T15:18:17.115Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:17.118Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:17.144Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.144Z"
+}
+[2025-10-31T15:18:17.147Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.152Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897152_y1e8sq438",
+  "timestamp": "2025-10-31T15:18:17.152Z",
+  "method": "GET",
+  "url": "/api/user/wallet-balance",
+  "originalUrl": "/api/user/wallet-balance",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:17.159Z] [WARN] [PID:23832] 404 - Route not found | Data: {
+  "url": "/api/user/wallet-balance",
+  "method": "GET",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+}
+[2025-10-31T15:18:17.226Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.226Z"
+}
+[2025-10-31T15:18:17.229Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.233Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897232_et7gyxhiq",
+  "timestamp": "2025-10-31T15:18:17.233Z",
+  "method": "GET",
+  "url": "/api/users/profile",
+  "originalUrl": "/api/users/profile",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "accept": "application/json, text/plain, */*",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"40b-/wfgLQv1ocE+zaKiX2z8TfD2u5s\""
+  },
+  "query": {},
+  "params": {}
+}
+[2025-10-31T15:18:17.244Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:17.244Z"
+}
+[2025-10-31T15:18:17.246Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:17.249Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923897248_ejylvwffs",
+  "timestamp": "2025-10-31T15:18:17.248Z",
+  "method": "GET",
+  "url": "/api/orders?status=new&order_type=forward",
+  "originalUrl": "/api/orders?status=new&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"78-EHmIFxMNGjEnSuQGmZfvr/yId9Q\""
+  },
+  "query": {
+    "status": "new",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:17.265Z] [INFO] [PID:23832] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1761923897265_k21o4wgk7",
+  "totalClients": 1
+}
+[2025-10-31T15:18:17.292Z] [INFO] [PID:23832] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1761923897265_k21o4wgk7",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-10-31T15:18:17.296Z] [INFO] [PID:23832] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1761923897265_k21o4wgk7",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-10-31T15:18:20.560Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:20.560Z"
+}
+[2025-10-31T15:18:20.562Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:20.572Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:20.572Z"
+}
+[2025-10-31T15:18:20.574Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:20.577Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923900576_h1xsivu67",
+  "timestamp": "2025-10-31T15:18:20.576Z",
+  "method": "GET",
+  "url": "/api/orders?status=ready_to_ship&order_type=forward",
+  "originalUrl": "/api/orders?status=ready_to_ship&order_type=forward",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "if-none-match": "W/\"1118-JFjAh4ng6xJUaW2FCmqH+DywIdg\""
+  },
+  "query": {
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:23.951Z] [DEBUG] [PID:23832] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1761923897265_k21o4wgk7"
+}
+[2025-10-31T15:18:23.987Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:23.987Z"
+}
+[2025-10-31T15:18:23.989Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:23.996Z] [INFO] [PID:23832] 🌐 CORS CHECK | Data: {
+  "origin": "http://localhost:3000",
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://shipsarthi.vercel.app",
+    "https://shipsarthi-git-main-udditworks-projects.vercel.app",
+    "https://www.shipsarthi.com",
+    "https://shipsarthi.com"
+  ],
+  "timestamp": "2025-10-31T15:18:23.996Z"
+}
+[2025-10-31T15:18:23.998Z] [INFO] [PID:23832] ✅ CORS ALLOWED | Data: {
+  "origin": "http://localhost:3000"
+}
+[2025-10-31T15:18:24.000Z] [INFO] [PID:23832] 🌐 INCOMING REQUEST | Data: {
+  "requestId": "req_1761923903999_blfrws620",
+  "timestamp": "2025-10-31T15:18:23.999Z",
+  "method": "GET",
+  "url": "/api/orders?status=ready_to_ship&order_type=reverse",
+  "originalUrl": "/api/orders?status=ready_to_ship&order_type=reverse",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+  "origin": "http://localhost:3000",
+  "referer": "http://localhost:3000/",
+  "headers": {
+    "host": "localhost:5000",
+    "connection": "keep-alive",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjNkM2ZlODhiZWVlOTkyZDZlZTFmMiIsImlhdCI6MTc2MTkyMzYwMCwiZXhwIjoxNzYyNTI4NDAwfQ.xMnaBpFmOZ5zWgpjyHGOzx8kn8c33EsB3MlRjNI8Fkg",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "accept": "*/*",
+    "origin": "http://localhost:3000",
+    "sec-fetch-site": "same-site",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "http://localhost:3000/",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9"
+  },
+  "query": {
+    "status": "ready_to_ship",
+    "order_type": "reverse"
+  },
+  "params": {}
+}
+[2025-10-31T15:18:28.482Z] [INFO] [PID:23832] 🛑 SIGINT received, shutting down gracefully
+[2025-10-31T15:18:28.484Z] [INFO] [PID:23832] 🔌 Cleaning up WebSocket service...
