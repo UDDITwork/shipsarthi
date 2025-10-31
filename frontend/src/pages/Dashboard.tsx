@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
-  const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
+  const [walletBalance, setWalletBalance] = useState<WalletBalance>({ balance: 0, currency: 'INR' });
   const [isBalanceUpdating, setIsBalanceUpdating] = useState(false);
   
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -156,8 +156,21 @@ const Dashboard: React.FC = () => {
       setCodStatus(codResponse.data);
       setShipmentDistribution(distributionResponse.data);
       setTransactions(transactionsResponse.data || []);
+      
+      // Update wallet balance from overview response (fallback/primary source)
+      if (dashboardResponse.data.wallet_balance !== undefined) {
+        const balanceFromOverview = {
+          balance: parseFloat(dashboardResponse.data.wallet_balance) || 0,
+          currency: 'INR'
+        };
+        console.log('💰 Wallet balance from overview:', balanceFromOverview);
+        setWalletBalance(balanceFromOverview);
+        // Notify wallet service subscribers
+        walletService.notifyBalanceUpdate(balanceFromOverview);
+      }
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);
+      // Don't clear state on error - keep existing data
     } finally {
       setLoading(false);
     }
@@ -167,18 +180,37 @@ const Dashboard: React.FC = () => {
     // Initial data fetch
     fetchAllDashboardData();
     
+    // Fetch initial wallet balance
+    const fetchInitialWalletBalance = async () => {
+      try {
+        console.log('💰 Fetching initial wallet balance...');
+        const balance = await walletService.getWalletBalance();
+        setWalletBalance(balance);
+        console.log('✅ Initial wallet balance loaded:', balance);
+      } catch (error) {
+        console.error('❌ Error fetching initial wallet balance:', error);
+        // Set to 0.00 if fetch fails
+        setWalletBalance({ balance: 0, currency: 'INR' });
+      }
+    };
+    
+    fetchInitialWalletBalance();
+    
     // Subscribe to wallet balance updates
     const unsubscribeWallet = walletService.subscribe((balance) => {
       console.log('💰 Dashboard wallet balance updated:', balance);
       setWalletBalance(balance);
+      // Trigger animation on update
+      setIsBalanceUpdating(true);
+      setTimeout(() => setIsBalanceUpdating(false), 600);
     });
 
-    // Listen for real-time wallet updates
+    // Listen for real-time wallet updates via WebSocket
     const unsubscribeNotifications = notificationService.subscribe((notification) => {
       if (notification.type === 'wallet_balance_update') {
         console.log('💰 Dashboard received wallet balance update:', notification);
         const updatedBalance = {
-          balance: notification.balance,
+          balance: parseFloat(notification.balance) || 0,
           currency: notification.currency || 'INR'
         };
         setWalletBalance(updatedBalance);
@@ -188,11 +220,19 @@ const Dashboard: React.FC = () => {
         setTimeout(() => setIsBalanceUpdating(false), 600);
       }
     });
+    
+    // Handle WebSocket disconnects gracefully - don't clear state
+    // WebSocket disconnects are normal (code 1001 = going away)
+    // State should persist even if WebSocket disconnects
 
     // Auto-refresh data every 5 minutes
     refreshIntervalRef.current = setInterval(() => {
       console.log('🔄 Auto-refreshing dashboard data...');
       fetchAllDashboardData();
+      // Also refresh wallet balance
+      walletService.getWalletBalance().catch(err => {
+        console.error('❌ Error auto-refreshing wallet balance:', err);
+      });
     }, 5 * 60 * 1000);
 
     return () => {
@@ -342,7 +382,7 @@ const Dashboard: React.FC = () => {
             <div className="wallet-info">
               <div className="wallet-label">Wallet Balance</div>
               <div className={`wallet-amount ${isBalanceUpdating ? 'updating' : ''}`}>
-                ₹{walletBalance?.balance?.toFixed(2) || '0.00'}
+                ₹{(walletBalance?.balance ?? 0).toFixed(2)}
               </div>
             </div>
             <button className="wallet-recharge-btn" onClick={openRechargeModal}>

@@ -14,6 +14,7 @@ interface ShippingCalculationRequest {
   };
   zone: string;
   cod_amount?: number;
+  order_type?: 'forward' | 'rto';
 }
 
 interface ShippingCalculationResult {
@@ -445,7 +446,7 @@ const Tools: React.FC = () => {
     setResult(null);
 
     try {
-      const weight = parseFloat(formData.actualWeight);
+      const weight = parseFloat(formData.actualWeight) * 1000; // Convert kg to grams
       const dimensions = {
         length: parseFloat(formData.dimensions.length) || 0,
         breadth: parseFloat(formData.dimensions.breadth) || 0,
@@ -456,10 +457,11 @@ const Tools: React.FC = () => {
       const codAmount = formData.paymentType === 'cod' ? parseFloat(formData.codValue) || 0 : 0;
 
       const calculationRequest: ShippingCalculationRequest = {
-        weight,
+        weight, // Now in grams
         dimensions,
         zone,
-        cod_amount: codAmount
+        cod_amount: codAmount,
+        order_type: formData.shipmentType as 'forward' | 'rto'
       };
 
       // Use the intelligent rate card calculation
@@ -819,7 +821,7 @@ const Tools: React.FC = () => {
                   <div className="result-details">
                     <div className="result-row">
                       <span className="result-label">Weight:</span>
-                      <span className="result-value">{result.weight} kg</span>
+                      <span className="result-value">{(result.weight / 1000).toFixed(2)} kg</span>
                     </div>
                     <div className="result-row">
                       <span className="result-label">Chargeable Weight:</span>
@@ -829,14 +831,18 @@ const Tools: React.FC = () => {
                       <span className="result-label">Volumetric Weight:</span>
                       <span className="result-value">{result.calculation_result.volumetricWeight.toFixed(2)} kg</span>
                     </div>
-                    <div className="result-row">
-                      <span className="result-label">Forward Charges:</span>
-                      <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
-                    </div>
-                    <div className="result-row">
-                      <span className="result-label">RTO Charges:</span>
-                      <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
-                    </div>
+                    {formData.shipmentType === 'forward' && (
+                      <div className="result-row">
+                        <span className="result-label">Forward Charges:</span>
+                        <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.shipmentType === 'rto' && (
+                      <div className="result-row">
+                        <span className="result-label">RTO Charges:</span>
+                        <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
+                      </div>
+                    )}
                     {result.cod_amount > 0 && (
                       <div className="result-row">
                         <span className="result-label">COD Charges:</span>

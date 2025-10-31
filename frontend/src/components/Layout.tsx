@@ -185,7 +185,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  // Listen for wallet recharge and deduction notifications
+  // Listen for wallet recharge, deduction, and user category update notifications
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
       if (notification.type === 'wallet_recharge' || notification.type === 'wallet_deduction') {
@@ -208,6 +208,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         // Also notify wallet service listeners
         walletService.notifyBalanceUpdate(updatedBalance);
         console.log('✅ Wallet balance updated in real-time:', updatedBalance);
+      } else if (notification.type === 'user_category_updated') {
+        console.log('🏷️ USER CATEGORY UPDATED NOTIFICATION:', notification);
+        // Refresh user profile to get updated category
+        const fetchUpdatedProfile = async () => {
+          try {
+            const response = await userService.getUserProfile();
+            setUserProfile(response.data);
+            console.log('✅ User profile refreshed after category update:', response.data);
+          } catch (error) {
+            console.error('Failed to refresh user profile:', error);
+          }
+        };
+        fetchUpdatedProfile();
       }
     });
 

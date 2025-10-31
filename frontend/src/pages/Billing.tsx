@@ -55,6 +55,33 @@ const Billing: React.FC = () => {
   // Tabs
   const [activeTab, setActiveTab] = useState<'transactions' | 'recharges'>('transactions');
 
+  // Fetch current wallet balance (independent of filters)
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await apiService.get<{
+        success: boolean;
+        data: {
+          available_balance: number;
+          pending_credits: number;
+          pending_debits: number;
+          effective_balance: number;
+          currency: string;
+        }
+      }>('/billing/wallet/balance');
+
+      if ((response as any).success) {
+        const data = (response as any).data;
+        // Use available_balance for Current Balance card
+        setSummary(prev => ({
+          ...prev,
+          current_balance: Number(data.available_balance || 0)
+        }));
+      }
+    } catch (error) {
+      console.error('❌ Error fetching wallet balance:', error);
+    }
+  };
+
   // Fetch wallet transactions
   const fetchTransactions = async () => {
     setLoading(true);
@@ -83,7 +110,13 @@ const Billing: React.FC = () => {
         console.log('✅ WALLET TRANSACTIONS FETCHED:', data);
         
         setTransactions(data.data.transactions || []);
-        setSummary(data.data.summary || { current_balance: 0, total_credits: 0, total_debits: 0 });
+        // Do NOT override current_balance here; only update totals from the query
+        const totals = data.data.summary || { current_balance: 0, total_credits: 0, total_debits: 0 };
+        setSummary(prev => ({
+          ...prev,
+          total_credits: Number(totals.total_credits || 0),
+          total_debits: Number(totals.total_debits || 0)
+        }));
         setTotalPages(data.data.pagination?.total_pages || 1);
         setTotalCount(data.data.pagination?.total_count || 0);
       } else {
@@ -97,17 +130,33 @@ const Billing: React.FC = () => {
   };
 
   useEffect(() => {
+    // Initial fetches
+    fetchWalletBalance();
+    fetchTransactions();
+
+    // Periodic refresh as a safety-net (prevents stale UI if WS drops silently)
+    const interval = setInterval(() => {
+      fetchWalletBalance();
+    }, 60 * 1000); // every 60 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Refresh transactions when filters/page change
     fetchTransactions();
   }, [page, limit, dateFrom, dateTo, transactionType]);
 
-  // Listen for real-time weight discrepancy charge notifications
+  // Listen for real-time wallet updates
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'weight_discrepancy_charge') {
-        console.log('💰 WEIGHT DISCREPANCY CHARGE NOTIFICATION:', notification);
-        // Refresh transactions to show new debit
-        fetchTransactions();
-        console.log('✅ Billing transactions refreshed after weight discrepancy charge');
+      if (notification.type === 'wallet_balance_update' || notification.type === 'weight_discrepancy_charge') {
+        console.log('💰 Wallet-related notification:', notification);
+        fetchWalletBalance();
+        // For charges also refresh transactions
+        if (notification.type === 'weight_discrepancy_charge') {
+          fetchTransactions();
+        }
       }
     });
 
@@ -376,7 +425,7 @@ const Billing: React.FC = () => {
               </button>
               
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
+                let pageNum: number;
                 if (totalPages <= 5) {
                   pageNum = i + 1;
                 } else if (page <= 3) {

@@ -431,7 +431,7 @@ router.post('/regenerate-api-keys', auth, async (req, res) => {
 // @access  Private
 router.get('/wallet-balance', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).select('wallet_balance');
     
     if (!user) {
       return res.status(404).json({
@@ -440,13 +440,15 @@ router.get('/wallet-balance', auth, async (req, res) => {
       });
     }
 
-    // Get wallet balance from user model (assuming it exists)
-    const walletBalance = user.wallet_balance || 0;
+    // Get wallet balance from user model - ensure it's a number
+    const walletBalance = parseFloat(user.wallet_balance) || 0;
+    // Round to 2 decimal places
+    const roundedBalance = Math.round(walletBalance * 100) / 100;
 
     res.json({
       success: true,
       data: {
-        balance: walletBalance,
+        balance: roundedBalance,
         currency: 'INR'
       }
     });
@@ -455,7 +457,8 @@ router.get('/wallet-balance', auth, async (req, res) => {
     console.error('Get wallet balance error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error fetching wallet balance'
+      message: 'Server error fetching wallet balance',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

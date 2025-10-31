@@ -57,6 +57,7 @@ class WebhookQueue {
 
   /**
    * Process queue with retry mechanism
+   * FIXED: Process jobs asynchronously to prevent event loop blocking
    */
   async processQueue() {
     if (this.processing || this.queue.length === 0) {
@@ -65,47 +66,102 @@ class WebhookQueue {
 
     this.processing = true;
 
-    while (this.queue.length > 0) {
-      const job = this.queue.shift();
-      
+    // Process jobs one at a time with delays to prevent blocking
+    const processNext = async () => {
       try {
-        await this.processJob(job);
-        this.stats.processed++;
-      } catch (error) {
-        logger.error('❌ Job processing failed', {
-          jobId: job.id,
-          error: error.message,
-          attempts: job.metadata.attempts
-        });
+        if (this.queue.length === 0) {
+          this.processing = false;
+          return;
+        }
 
-        // Retry with exponential backoff
-        if (job.metadata.attempts < this.maxRetries) {
-          job.metadata.attempts++;
-          job.metadata.lastError = error.message;
-          this.stats.retries++;
+        const job = this.queue.shift();
+        
+        try {
+          // Add timeout to prevent hanging jobs
+          const jobTimeout = 30000; // 30 seconds max per job
+          const jobPromise = this.processJob(job);
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Job processing timeout')), jobTimeout);
+          });
           
-          const delay = this.retryDelay * Math.pow(2, job.metadata.attempts - 1);
-          setTimeout(() => {
-            this.queue.push(job);
-          }, delay);
-
-          logger.info('🔄 Job queued for retry', {
+          await Promise.race([jobPromise, timeoutPromise]);
+          this.stats.processed++;
+          
+          // Yield control back to event loop before processing next job
+          setImmediate(() => processNext());
+        } catch (error) {
+          logger.error('❌ Job processing failed', {
             jobId: job.id,
-            attempt: job.metadata.attempts,
-            delay: `${delay}ms`
-          });
-        } else {
-          this.stats.failed++;
-          logger.error('💀 Job failed after max retries', {
-            jobId: job.id,
+            error: error.message,
             attempts: job.metadata.attempts,
-            error: error.message
+            stack: error.stack
           });
+
+          // Retry with exponential backoff
+          if (job.metadata.attempts < this.maxRetries) {
+            job.metadata.attempts++;
+            job.metadata.lastError = error.message;
+            this.stats.retries++;
+            
+            const delay = this.retryDelay * Math.pow(2, job.metadata.attempts - 1);
+            
+            setTimeout(() => {
+              // Safety check: don't add to queue if it's too large
+              if (this.queue.length < this.maxQueueSize) {
+                this.queue.push(job);
+                // Trigger processing if queue is not being processed
+                if (!this.processing) {
+                  this.processQueue();
+                }
+              } else {
+                logger.error('⚠️ Queue full, dropping retry job', {
+                  jobId: job.id,
+                  queueSize: this.queue.length
+                });
+                this.stats.failed++;
+              }
+            }, delay);
+
+            logger.info('🔄 Job queued for retry', {
+              jobId: job.id,
+              attempt: job.metadata.attempts,
+              delay: `${delay}ms`
+            });
+          } else {
+            this.stats.failed++;
+            logger.error('💀 Job failed after max retries', {
+              jobId: job.id,
+              attempts: job.metadata.attempts,
+              error: error.message
+            });
+          }
+          
+          // Continue processing next job even if current one failed
+          setImmediate(() => processNext());
+        }
+      } catch (error) {
+        // Critical error in processNext itself - prevent infinite loop
+        logger.error('❌ Critical error in queue processor', {
+          error: error.message,
+          stack: error.stack,
+          queueLength: this.queue.length
+        });
+        this.processing = false;
+        
+        // Try to restart processing after a delay if queue still has items
+        if (this.queue.length > 0) {
+          setTimeout(() => {
+            if (!this.processing && this.queue.length > 0) {
+              logger.info('🔄 Restarting queue processing after error');
+              this.processQueue();
+            }
+          }, 5000);
         }
       }
-    }
+    };
 
-    this.processing = false;
+    // Start processing
+    setImmediate(() => processNext());
   }
 
   /**

@@ -213,6 +213,9 @@ export interface UserProfile {
   user_type: string;
   gstin: string;
   joined_date: string;
+  account_status?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   address: {
     full_address: string;
     landmark: string;
@@ -243,6 +246,7 @@ export interface UserProfile {
     api_documentation_version: string;
   };
   walletBalance?: number;
+  wallet_balance?: number;
   initials?: string;
 }
 

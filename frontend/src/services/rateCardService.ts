@@ -370,7 +370,8 @@ export class RateCardService {
     weight: number, // in grams
     dimensions: { length: number; breadth: number; height: number }, // in cm
     zone: string,
-    codAmount?: number
+    codAmount?: number,
+    orderType: 'forward' | 'rto' = 'forward'
   ): {
     forwardCharges: number;
     rtoCharges: number;
@@ -406,7 +407,15 @@ export class RateCardService {
       }
     }
 
-    const totalCharges = forwardCharges + rtoCharges + codCharges;
+    // Calculate total based on order type
+    let totalCharges;
+    if (orderType === 'forward') {
+      totalCharges = forwardCharges + codCharges;
+    } else if (orderType === 'rto') {
+      totalCharges = rtoCharges + codCharges;
+    } else {
+      totalCharges = forwardCharges + codCharges;
+    }
 
     return {
       forwardCharges,

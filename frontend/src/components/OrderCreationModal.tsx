@@ -3,6 +3,8 @@ import './OrderCreationModal.css';
 import { generateOrderId } from '../utils/orderIdGenerator';
 import { environmentConfig } from '../config/environment';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { shippingService, ShippingCalculationRequest } from '../services/shippingService';
 
 interface OrderCreationModalProps {
   isOpen: boolean;
@@ -49,9 +51,13 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   onClose,
   onOrderCreated
 }) => {
+  const { user } = useAuth(); // Get user for category
+  const userCategory = user?.user_category || 'Basic User';
+  
   // Form State
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
@@ -448,6 +454,103 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
       )
     }));
   };
+
+  // Helper function to determine zone from pincodes
+  const determineZone = (pickupPincode: string, deliveryPincode: string): string => {
+    if (!pickupPincode || !deliveryPincode || pickupPincode.length !== 6 || deliveryPincode.length !== 6) {
+      return '';
+    }
+    
+    // Same pincode = Zone A (Local)
+    if (pickupPincode === deliveryPincode) return 'A';
+    
+    const pickupFirstDigit = pickupPincode[0];
+    const deliveryFirstDigit = deliveryPincode[0];
+    
+    // Within 500km = Zone B (Regional)
+    if (pickupFirstDigit === deliveryFirstDigit) return 'B';
+    
+    // Metro to Metro
+    if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C1';
+    if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C2';
+    
+    // Rest of India
+    return 'D1'; // Default zone
+  };
+
+  // Auto-calculate shipping charges when relevant fields change
+  useEffect(() => {
+    const autoCalculateShipping = async () => {
+      // Only calculate if we have minimum required data
+      if (
+        !formData.delivery_address.pincode || formData.delivery_address.pincode.length !== 6 ||
+        !formData.pickup_address.pincode || formData.pickup_address.pincode.length !== 6 ||
+        !formData.package_info.weight || formData.package_info.weight <= 0
+      ) {
+        return;
+      }
+
+      try {
+        setCalculatingShipping(true);
+        
+        const zone = determineZone(formData.pickup_address.pincode, formData.delivery_address.pincode);
+        
+        if (!zone) {
+          return; // Invalid zone, skip calculation
+        }
+
+        const weightInGrams = formData.package_info.weight * 1000; // Convert kg to grams
+        
+        const calculationRequest: ShippingCalculationRequest = {
+          weight: weightInGrams,
+          dimensions: {
+            length: formData.package_info.dimensions.length || 0,
+            breadth: formData.package_info.dimensions.width || 0,
+            height: formData.package_info.dimensions.height || 0
+          },
+          zone: zone,
+          cod_amount: formData.payment_info.payment_mode === 'COD' ? formData.payment_info.cod_amount : 0,
+          order_type: 'forward'
+        };
+
+        const response = await shippingService.calculateShippingCharges(calculationRequest);
+        
+        // Update shipping charges in form data
+        setFormData(prev => ({
+          ...prev,
+          payment_info: {
+            ...prev.payment_info,
+            shipping_charges: response.totalCharges
+          }
+        }));
+        
+        console.log('✅ Auto-calculated shipping charges:', {
+          userCategory,
+          zone,
+          weight: formData.package_info.weight,
+          charges: response.totalCharges
+        });
+        
+      } catch (error) {
+        console.error('Failed to auto-calculate shipping charges:', error);
+        // Don't set shipping charges to 0 on error, keep existing value
+      } finally {
+        setCalculatingShipping(false);
+      }
+    };
+
+    autoCalculateShipping();
+  }, [
+    formData.delivery_address.pincode,
+    formData.pickup_address.pincode,
+    formData.package_info.weight,
+    formData.package_info.dimensions.length,
+    formData.package_info.dimensions.width,
+    formData.package_info.dimensions.height,
+    formData.payment_info.payment_mode,
+    formData.payment_info.cod_amount,
+    userCategory
+  ]);
 
   const calculateTotals = () => {
     const orderValue = formData.products.reduce((sum, product) => 
@@ -1246,18 +1349,22 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Shipping Charges</label>
+                    <label>
+                      Shipping Charges
+                      {calculatingShipping && <span style={{ fontSize: '12px', color: '#666', marginLeft: '8px' }}>(Calculating...)</span>}
+                    </label>
                     <div className="price-input">
                       <span className="currency-symbol">₹</span>
                       <input
                         type="number"
-                        value={formData.payment_info.shipping_charges}
+                        value={formData.payment_info.shipping_charges || 0}
                         onChange={(e) => handleNestedInputChange('payment_info', 'shipping_charges', parseFloat(e.target.value) || 0)}
-                        placeholder="Shipping Charges"
+                        placeholder="Auto-calculated"
                         min="0"
                         step="0.01"
                       />
                     </div>
+                    <small className="form-note">Auto-calculated based on your category: <strong>{userCategory}</strong></small>
                   </div>
                 </div>
 

@@ -1,48 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { userService } from '../services/userService';
+import { userService, type User } from '../services/userService';
 import './AccountSettings.css';
-
-interface User {
-  _id: string;
-  client_id: string;
-  company_name: string;
-  your_name: string;
-  email: string;
-  phone_number: string;
-  user_type: string;
-  gstin: string;
-  joined_date: string;
-  address: {
-    full_address: string;
-    landmark: string;
-    pincode: string;
-    city: string;
-    state: string;
-  };
-  bank_details: {
-    bank_name: string;
-    account_number: string;
-    ifsc_code: string;
-    branch_name: string;
-    account_holder_name: string;
-  };
-  documents: Array<{
-    document_type: string;
-    document_status: string;
-    file_url: string;
-    upload_date: string;
-  }>;
-  kyc_status: {
-    status: string;
-    verified_date?: string;
-  };
-  api_details: {
-    public_key: string;
-    private_key: string;
-    api_documentation_version: string;
-  };
-}
 
 interface EditMode {
   userDetails: boolean;

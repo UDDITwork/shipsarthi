@@ -6,11 +6,29 @@ class WebSocketService {
     this.wss = null;
     this.clients = new Map(); // Maps WebSocket clientId -> WebSocket connection
     this.userClients = new Map(); // Maps MongoDB user_id -> Set of WebSocket clientIds
+    this.pingInterval = null; // Store ping interval for cleanup
   }
 
   initialize(server) {
     try {
-      this.wss = new WebSocket.Server({ server });
+      this.wss = new WebSocket.Server({ 
+        server,
+        clientTracking: true,
+        perMessageDeflate: false // Disable compression for better compatibility
+      });
+      
+      // Set up ping interval to keep connections alive
+      this.pingInterval = setInterval(() => {
+        this.wss.clients.forEach((ws) => {
+          if (ws.readyState === WebSocket.OPEN) {
+            try {
+              ws.ping();
+            } catch (error) {
+              logger.error('Error sending ping:', error);
+            }
+          }
+        });
+      }, 30000); // Send ping every 30 seconds
       
       this.wss.on('connection', (ws, req) => {
         const clientId = this.generateClientId();
@@ -26,6 +44,11 @@ class WebSocketService {
             logger.error('Error parsing WebSocket message:', error);
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
           }
+        });
+        
+        ws.on('pong', () => {
+          // Client responded to ping
+          logger.debug('🔌 WebSocket client pong received', { clientId });
         });
         
         ws.on('close', (code, reason) => {
@@ -160,6 +183,12 @@ class WebSocketService {
   cleanup() {
     logger.info('🔌 Cleaning up WebSocket service...');
     
+    // Clear ping interval
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
+    
     // Close all client connections
     this.clients.forEach((client, clientId) => {
       try {
@@ -173,6 +202,9 @@ class WebSocketService {
     
     // Clear clients map
     this.clients.clear();
+    
+    // Clear user clients map
+    this.userClients.clear();
     
     // Close WebSocket server
     if (this.wss) {

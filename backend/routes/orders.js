@@ -8,8 +8,32 @@ const Customer = require('../models/Customer');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const delhiveryService = require('../services/delhiveryService');
+const websocketService = require('../services/websocketService');
 
 const router = express.Router();
+
+// Helper function to determine zone from pincodes
+function getZoneFromPincode(pickupPincode, deliveryPincode) {
+  if (!pickupPincode || !deliveryPincode || pickupPincode.length !== 6 || deliveryPincode.length !== 6) {
+    return '';
+  }
+  
+  // Same pincode = Zone A (Local)
+  if (pickupPincode === deliveryPincode) return 'A';
+  
+  const pickupFirstDigit = pickupPincode[0];
+  const deliveryFirstDigit = deliveryPincode[0];
+  
+  // Within same first digit = Zone B (Regional)
+  if (pickupFirstDigit === deliveryFirstDigit) return 'B';
+  
+  // Metro to Metro
+  if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C1';
+  if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C2';
+  
+  // Rest of India
+  return 'D1'; // Default zone
+}
 
 // @desc    Get all orders with filters and pagination
 // @route   GET /api/orders
@@ -731,6 +755,12 @@ router.post('/', auth, [
               user.wallet_balance = closingBalance;
               await user.save();
               
+              // Calculate zone from pickup and delivery pincodes
+              const zone = getZoneFromPincode(
+                order.pickup_address.pincode,
+                order.delivery_address.pincode
+              );
+              
               // Create transaction record
               const transaction = new Transaction({
                 transaction_id: `DR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
@@ -750,12 +780,49 @@ router.post('/', auth, [
                   order_id: order.order_id,
                   awb_number: awbNumber,
                   weight: order.package_info.weight * 1000, // Convert kg to grams
-                  zone: '', // TODO: Calculate zone from pincode
+                  zone: zone || 'D1', // Calculate zone from pincode
                   order_date: order.order_date
                 }
               });
               
               await transaction.save();
+              
+              // Send WebSocket notifications for wallet deduction
+              try {
+                // Notification for wallet deduction
+                websocketService.sendNotificationToClient(String(userId), {
+                  type: 'wallet_deduction',
+                  title: 'Wallet Deducted',
+                  message: `₹${shippingCharges} deducted for order ${order.order_id}. New balance: ₹${closingBalance}`,
+                  client_id: userId,
+                  amount: shippingCharges,
+                  transaction_type: 'debit',
+                  new_balance: closingBalance,
+                  order_id: order.order_id,
+                  created_at: new Date()
+                });
+                
+                // Real-time wallet balance update
+                websocketService.sendNotificationToClient(String(userId), {
+                  type: 'wallet_balance_update',
+                  balance: closingBalance,
+                  currency: 'INR',
+                  previous_balance: openingBalance,
+                  amount: shippingCharges,
+                  transaction_id: transaction.transaction_id,
+                  timestamp: new Date().toISOString()
+                });
+                
+                console.log('📡 WALLET NOTIFICATIONS SENT:', {
+                  orderId: order.order_id,
+                  transactionId: transaction.transaction_id,
+                  userId: userId,
+                  amount: shippingCharges,
+                  closing_balance: closingBalance
+                });
+              } catch (notifError) {
+                console.error('Failed to send wallet notifications:', notifError);
+              }
               
               console.log('✅ WALLET DEDUCTED SUCCESSFULLY', {
                 orderId: order.order_id,
@@ -763,6 +830,8 @@ router.post('/', auth, [
                 amount: shippingCharges,
                 oldBalance: openingBalance,
                 newBalance: closingBalance,
+                zone: zone,
+                userCategory: user.user_category,
                 timestamp: new Date().toISOString()
               });
             }

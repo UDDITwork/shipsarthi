@@ -38,20 +38,20 @@ const NEW_USER_RATE_CARD = {
       zones: { A: 6, B: 8, C1: 10, C2: 12, D1: 12, D2: 13, E: 13, F: 14 }
     },
     {
-      condition: "Add. 500 gm till 5kg",
-      zones: { A: 10, B: 17, C1: 23, C2: 28, D1: 30, D2: 32, E: 40, F: 44 }
-    },
-    {
       condition: "Upto 5kgs",
       zones: { A: 135, B: 188, C1: 241, C2: 263, D1: 268, D2: 278, E: 337, F: 375 }
     },
     {
-      condition: "Add. 1 kgs till 10kg",
-      zones: { A: 27, B: 30, C1: 36, C2: 39, D1: 42, D2: 46, E: 55, F: 65 }
+      condition: "Add. 500 gm till 5kg",
+      zones: { A: 10, B: 17, C1: 23, C2: 28, D1: 30, D2: 32, E: 40, F: 44 }
     },
     {
       condition: "Upto 10 kgs",
       zones: { A: 221, B: 277, C1: 354, C2: 387, D1: 396, D2: 411, E: 498, F: 554 }
+    },
+    {
+      condition: "Add. 1 kgs till 10kg",
+      zones: { A: 27, B: 30, C1: 36, C2: 39, D1: 42, D2: 46, E: 55, F: 65 }
     },
     {
       condition: "Add. 1 kgs",
@@ -76,7 +76,7 @@ const NEW_USER_RATE_CARD = {
       zones: { A: 156, B: 217, C1: 277, C2: 302, D1: 309, D2: 321, E: 389, F: 432 }
     },
     {
-      condition: "DTO Add. 1 kgs",
+      condition: "DTO Add. 1 kgs till 10k",
       zones: { A: 33, B: 36, C1: 43, C2: 46, D1: 51, D2: 55, E: 66, F: 78 }
     },
     {
@@ -111,20 +111,20 @@ const BASIC_USER_RATE_CARD = {
       zones: { A: 5, B: 5, C1: 9, C2: 11, D1: 9, D2: 11, E: 12, F: 13 }
     },
     {
-      condition: "Add. 500 gm till 5kg",
-      zones: { A: 9, B: 16, C1: 21, C2: 28, D1: 28, D2: 32, E: 38, F: 42 }
-    },
-    {
       condition: "Upto 5kgs",
       zones: { A: 119, B: 165, C1: 212, C2: 232, D1: 236, D2: 245, E: 297, F: 330 }
     },
     {
-      condition: "Add. 1 kgs till 10kg",
-      zones: { A: 25, B: 28, C1: 33, C2: 36, D1: 38, D2: 42, E: 50, F: 60 }
+      condition: "Add. 500 gm till 5kg",
+      zones: { A: 9, B: 16, C1: 21, C2: 28, D1: 28, D2: 32, E: 38, F: 42 }
     },
     {
       condition: "Upto 10 kgs",
       zones: { A: 195, B: 244, C1: 311, C2: 340, D1: 348, D2: 361, E: 438, F: 487 }
+    },
+    {
+      condition: "Add. 1 kgs till 10kg",
+      zones: { A: 25, B: 28, C1: 33, C2: 36, D1: 38, D2: 42, E: 50, F: 60 }
     },
     {
       condition: "Add. 1 kgs",
@@ -149,7 +149,7 @@ const BASIC_USER_RATE_CARD = {
       zones: { A: 143, B: 199, C1: 254, C2: 277, D1: 283, D2: 294, E: 356, F: 396 }
     },
     {
-      condition: "DTO Add. 1 kgs",
+      condition: "DTO Add. 1 kgs till 10k",
       zones: { A: 30, B: 33, C1: 40, C2: 42, D1: 46, D2: 50, E: 61, F: 71 }
     },
     {
@@ -184,20 +184,20 @@ const ADVANCED_USER_RATE_CARD = {
       zones: { A: 5, B: 5, C1: 9, C2: 10, D1: 9, D2: 10, E: 11, F: 13 }
     },
     {
-      condition: "Add. 500 gm till 5kg",
-      zones: { A: 9, B: 15, C1: 20, C2: 27, D1: 27, D2: 30, E: 37, F: 40 }
-    },
-    {
       condition: "Upto 5kgs",
       zones: { A: 114, B: 158, C1: 202, C2: 221, D1: 225, D2: 234, E: 283, F: 315 }
     },
     {
-      condition: "Add. 1 kgs till 10kg",
-      zones: { A: 24, B: 27, C1: 32, C2: 34, D1: 37, D2: 40, E: 48, F: 57 }
+      condition: "Add. 500 gm till 5kg",
+      zones: { A: 9, B: 15, C1: 20, C2: 27, D1: 27, D2: 30, E: 37, F: 40 }
     },
     {
       condition: "Upto 10 kgs",
       zones: { A: 186, B: 233, C1: 297, C2: 325, D1: 332, D2: 345, E: 418, F: 465 }
+    },
+    {
+      condition: "Add. 1 kgs till 10kg",
+      zones: { A: 24, B: 27, C1: 32, C2: 34, D1: 37, D2: 40, E: 48, F: 57 }
     },
     {
       condition: "Add. 1 kgs",
@@ -222,7 +222,7 @@ const ADVANCED_USER_RATE_CARD = {
       zones: { A: 136, B: 190, C1: 243, C2: 264, D1: 270, D2: 281, E: 340, F: 378 }
     },
     {
-      condition: "DTO Add. 1 kgs",
+      condition: "DTO Add. 1 kgs till 10k",
       zones: { A: 29, B: 32, C1: 38, C2: 40, D1: 44, D2: 48, E: 58, F: 68 }
     },
     {
@@ -257,20 +257,20 @@ const LITE_USER_RATE_CARD = {
       zones: { A: 6, B: 6, C1: 10, C2: 11, D1: 10, D2: 11, E: 12, F: 14 }
     },
     {
-      condition: "Add. 500 gm till 5kg",
-      zones: { A: 10, B: 17, C1: 22, C2: 28, D1: 28, D2: 32, E: 39, F: 44 }
-    },
-    {
       condition: "Upto 5kgs",
       zones: { A: 125, B: 173, C1: 221, C2: 242, D1: 246, D2: 256, E: 310, F: 345 }
     },
     {
-      condition: "Add. 1 kgs till 10kg",
-      zones: { A: 26, B: 29, C1: 35, C2: 37, D1: 40, D2: 44, E: 53, F: 62 }
+      condition: "Add. 500 gm till 5kg",
+      zones: { A: 10, B: 17, C1: 22, C2: 28, D1: 28, D2: 32, E: 39, F: 44 }
     },
     {
       condition: "Upto 10 kgs",
       zones: { A: 203, B: 255, C1: 325, C2: 356, D1: 364, D2: 378, E: 458, F: 509 }
+    },
+    {
+      condition: "Add. 1 kgs till 10kg",
+      zones: { A: 26, B: 29, C1: 35, C2: 37, D1: 40, D2: 44, E: 53, F: 62 }
     },
     {
       condition: "Add. 1 kgs",
@@ -295,7 +295,7 @@ const LITE_USER_RATE_CARD = {
       zones: { A: 149, B: 208, C1: 266, C2: 289, D1: 296, D2: 307, E: 372, F: 414 }
     },
     {
-      condition: "DTO Add. 1 kgs",
+      condition: "DTO Add. 1 kgs till 10k",
       zones: { A: 32, B: 35, C1: 42, C2: 44, D1: 48, D2: 53, E: 64, F: 75 }
     },
     {
@@ -395,35 +395,61 @@ class RateCardService {
     let totalCharges = 0;
     let remainingWeight = weight;
 
-    // Process each weight slab
+    // Process each weight slab - checking in order for exact matches
     for (const slab of rateCard.forwardCharges) {
+      // 0-250 gm: Fixed charge for 0 to 250gm
       if (slab.condition === "0-250 gm" && remainingWeight <= 250) {
         totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "250-500 gm" && remainingWeight > 250 && remainingWeight <= 500) {
+        return totalCharges;
+      }
+      
+      // 250-500 gm: Additional charge for 250-500gm (ADDITIVE on top of base)
+      else if (slab.condition === "250-500 gm" && remainingWeight > 250 && remainingWeight <= 500) {
+        // Find base charge for 0-250gm
+        const baseSlab = rateCard.forwardCharges.find(s => s.condition === "0-250 gm");
+        if (baseSlab) {
+          totalCharges += baseSlab.zones[zoneKey];
+        }
         totalCharges += slab.zones[zoneKey];
-        remainingWeight -= 250;
-      } else if (slab.condition === "Add. 500 gm till 5kg" && remainingWeight > 500 && remainingWeight <= 5000) {
-        const additionalSlabs = Math.ceil((remainingWeight - 500) / 500);
-        totalCharges += additionalSlabs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "Upto 5kgs" && remainingWeight <= 5000) {
+        return totalCharges;
+      }
+      
+      // Upto 5kgs: Fixed charge for any weight up to 5kg
+      else if (slab.condition === "Upto 5kgs" && remainingWeight > 500 && remainingWeight <= 5000) {
         totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "Add. 1 kgs till 10kg" && remainingWeight > 5000 && remainingWeight <= 10000) {
-        const additionalKgs = Math.ceil((remainingWeight - 5000) / 1000);
-        totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "Upto 10 kgs" && remainingWeight <= 10000) {
+        return totalCharges;
+      }
+      
+      // Add. 500 gm till 5kg: NOT USED (covered by "Upto 5kgs")
+      // This slab seems to be for a different pricing model
+      else if (slab.condition === "Add. 500 gm till 5kg") {
+        // Skip this - handled by "Upto 5kgs"
+        continue;
+      }
+      
+      // Upto 10 kgs: Fixed charge for any weight up to 10kg
+      else if (slab.condition === "Upto 10 kgs" && remainingWeight > 5000 && remainingWeight <= 10000) {
         totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "Add. 1 kgs" && remainingWeight > 10000) {
+        return totalCharges;
+      }
+      
+      // Add. 1 kgs till 10kg: NOT USED (covered by "Upto 10 kgs")
+      // This slab seems to be for a different pricing model
+      else if (slab.condition === "Add. 1 kgs till 10kg") {
+        // Skip this - handled by "Upto 10 kgs"
+        continue;
+      }
+      
+      // Add. 1 kgs: Additional charge per kg above 10kg
+      else if (slab.condition === "Add. 1 kgs" && remainingWeight > 10000) {
+        // Find base charge for 10kg
+        const base10kgSlab = rateCard.forwardCharges.find(s => s.condition === "Upto 10 kgs");
+        if (base10kgSlab) {
+          totalCharges += base10kgSlab.zones[zoneKey];
+        }
         const additionalKgs = Math.ceil((remainingWeight - 10000) / 1000);
         totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
+        return totalCharges;
       }
     }
 
@@ -454,7 +480,7 @@ class RateCardService {
         totalCharges += slab.zones[zoneKey];
         remainingWeight = 0;
         break;
-      } else if (slab.condition === "DTO Add. 1 kgs" && remainingWeight > 5000 && remainingWeight <= 10000) {
+      } else if (slab.condition === "DTO Add. 1 kgs till 10k" && remainingWeight > 5000 && remainingWeight <= 10000) {
         const additionalKgs = Math.ceil((remainingWeight - 5000) / 1000);
         totalCharges += additionalKgs * slab.zones[zoneKey];
         remainingWeight = 0;

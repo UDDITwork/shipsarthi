@@ -27,8 +27,9 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
   useEffect(() => {
     fetchNotifications();
     
-    // Connect to WebSocket for real-time notifications
-    notificationService.connect();
+    // NOTE: Don't create a separate WebSocket connection here
+    // The Layout component already manages the WebSocket connection
+    // Just subscribe to the existing connection for notifications
     
     // Subscribe to real-time notifications
     const unsubscribe = notificationService.subscribe((notification) => {
@@ -44,7 +45,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
     return () => {
       clearInterval(interval);
       unsubscribe();
-      notificationService.disconnect();
+      // Don't disconnect - Layout component manages the connection
     };
   }, []); // fetchNotifications is stable, no need to include in deps
 

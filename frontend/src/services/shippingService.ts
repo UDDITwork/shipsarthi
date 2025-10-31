@@ -10,6 +10,7 @@ export interface ShippingCalculationRequest {
   };
   zone: string;
   cod_amount?: number;
+  order_type?: 'forward' | 'rto';
 }
 
 export interface ShippingCalculationResult {

@@ -111,25 +111,57 @@ const AddWarehouse: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<any>({});
+  const [returnAddressSame, setReturnAddressSame] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
+      
+      // Handle "Return Address same as Delivery Address" checkbox
+      if (name === 'return_address_same') {
+        setReturnAddressSame(checked);
+        if (checked) {
+          // Copy delivery address to return address
+          setFormData(prev => ({
+            ...prev,
+            return_address: {
+              full_address: prev.address.full_address,
+              city: prev.address.city,
+              state: prev.address.state,
+              pincode: prev.address.pincode,
+              country: prev.address.country
+            }
+          }));
+        }
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: checked
+        }));
+      }
     } else if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev as any)[parent],
-          [child]: value
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          [parent]: {
+            ...(prev as any)[parent],
+            [child]: value
+          }
+        };
+        
+        // If return address same checkbox is checked and delivery address changed, update return address
+        if (returnAddressSame && parent === 'address') {
+          updated.return_address = {
+            ...updated.return_address,
+            [child]: value
+          };
         }
-      }));
+        
+        return updated;
+      });
     } else {
       setFormData(prev => ({
         ...prev,
@@ -567,7 +599,23 @@ const AddWarehouse: React.FC = () => {
             </div>
           </div>
 
-          {/* Row 4: Return Address */}
+          {/* Row 4: Return Address Same as Delivery Address Checkbox */}
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+                <input
+                  type="checkbox"
+                  name="return_address_same"
+                  checked={returnAddressSame}
+                  onChange={handleChange}
+                  style={{ width: 'auto', margin: 0, cursor: 'pointer' }}
+                />
+                <span>✓ Return Address same as Delivery Address</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Row 5: Return Address */}
           <div className="form-row">
             <div className="form-group full-width">
               <label>Return Address (Required for Delhivery)</label>
@@ -577,13 +625,16 @@ const AddWarehouse: React.FC = () => {
                 placeholder="Enter return address"
                 value={formData.return_address.full_address}
                 onChange={handleChange}
+                disabled={returnAddressSame}
                 className={errors['return_address.full_address'] ? 'error' : ''}
+                style={returnAddressSame ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
               {errors['return_address.full_address'] && <span className="error-msg">{errors['return_address.full_address']}</span>}
+              {returnAddressSame && <span style={{ fontSize: '12px', color: '#666', marginTop: '4px', display: 'block' }}>Return address is automatically filled from delivery address</span>}
             </div>
           </div>
 
-          {/* Row 5: Return Address Details */}
+          {/* Row 6: Return Address Details */}
           <div className="form-row">
             <div className="form-group">
               <label>Return City</label>
@@ -593,7 +644,9 @@ const AddWarehouse: React.FC = () => {
                 placeholder="Return city name"
                 value={formData.return_address.city}
                 onChange={handleChange}
+                disabled={returnAddressSame}
                 className={errors['return_address.city'] ? 'error' : ''}
+                style={returnAddressSame ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
               {errors['return_address.city'] && <span className="error-msg">{errors['return_address.city']}</span>}
             </div>
@@ -606,7 +659,9 @@ const AddWarehouse: React.FC = () => {
                 placeholder="Return state name"
                 value={formData.return_address.state}
                 onChange={handleChange}
+                disabled={returnAddressSame}
                 className={errors['return_address.state'] ? 'error' : ''}
+                style={returnAddressSame ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
               {errors['return_address.state'] && <span className="error-msg">{errors['return_address.state']}</span>}
             </div>
@@ -620,13 +675,15 @@ const AddWarehouse: React.FC = () => {
                 value={formData.return_address.pincode}
                 onChange={handleChange}
                 maxLength={6}
+                disabled={returnAddressSame}
                 className={errors['return_address.pincode'] ? 'error' : ''}
+                style={returnAddressSame ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
               {errors['return_address.pincode'] && <span className="error-msg">{errors['return_address.pincode']}</span>}
             </div>
           </div>
 
-          {/* Row 6: GSTIN, Support Email, Support Phone, Status */}
+          {/* Row 7: GSTIN, Support Email, Support Phone, Status */}
           <div className="form-row">
             <div className="form-group">
               <label>GSTIN</label>
