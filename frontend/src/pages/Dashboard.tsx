@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import RechargeModal from '../components/RechargeModal';
 import { userService, DashboardData } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
 import { notificationService } from '../services/notificationService';
 import { apiService } from '../services/api';
+import { DataCache } from '../utils/dataCache';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import './Dashboard.css';
@@ -54,6 +56,7 @@ interface CODStatus {
 }
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [ndrStatus, setNdrStatus] = useState<any>(null);
@@ -81,12 +84,39 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
-  // Fetch all dashboard data
-  const fetchAllDashboardData = async () => {
+  // Fetch all dashboard data - with cache fallback so app NEVER freezes
+  const fetchAllDashboardData = async (showLoading: boolean = false) => {
+    // Try to load from cache first - show data immediately, no freezing
+    const cachedDashboard = DataCache.get<DashboardData>('dashboard');
+    const cachedNdr = DataCache.get<any>('ndrStatus');
+    const cachedCod = DataCache.get<any>('codStatus');
+    const cachedDistribution = DataCache.get<any>('shipmentDistribution');
+    const cachedTransactions = DataCache.get<any[]>('dashboardTransactions');
+
+    // Show cached data immediately - UI stays responsive
+    if (cachedDashboard) {
+      setDashboardData(cachedDashboard);
+      setNdrStatus(cachedNdr);
+      setCodStatus(cachedCod);
+      setShipmentDistribution(cachedDistribution);
+      setTransactions(cachedTransactions || []);
+      setLoading(false); // Don't block UI with loading state
+    } else if (showLoading) {
+      setLoading(true); // Only show loading on first load if no cache
+    }
+
     try {
-      setLoading(true);
-      
-      // Fetch all data in parallel
+      // Fetch fresh data in background - doesn't block UI
+      // Stagger requests slightly (100ms apart) to avoid rate limiting when multiple requests fire at once
+      const staggerRequest = async (requestFn: () => Promise<any>, delayMs: number): Promise<any> => {
+        if (delayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+        return requestFn();
+      };
+
+      // Start all requests with staggered delays (0ms, 800ms, 1600ms, 2400ms, 3200ms, 4000ms)
+      // Increased delays to prevent hitting rate limits - requests spread over 4 seconds
       const [
         dashboardResponse,
         shipmentResponse,
@@ -95,22 +125,15 @@ const Dashboard: React.FC = () => {
         distributionResponse,
         transactionsResponse
       ] = await Promise.all([
-        apiService.get<{ status: string; data: any }>('/dashboard/overview'),
-        apiService.get<{ status: string; data: any }>('/dashboard/shipment-status'),
-        apiService.get<{ status: string; data: any }>('/dashboard/ndr-status'),
-        apiService.get<{ status: string; data: any }>('/dashboard/cod-status'),
-        apiService.get<{ status: string; data: any }>('/dashboard/shipment-distribution'),
-        apiService.get<{ status: string; data: any[] }>('/dashboard/wallet-transactions?limit=5')
+        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/overview'), 0),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/shipment-status'), 800),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/ndr-status'), 1600),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/cod-status'), 2400),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/shipment-distribution'), 3200),
+        staggerRequest(() => apiService.get<{ status: string; data: any[] }>('/dashboard/wallet-transactions?limit=5'), 4000)
       ]);
 
-      console.log('📊 Dashboard data fetched:', {
-        overview: dashboardResponse.data,
-        shipment: shipmentResponse.data,
-        ndr: ndrResponse.data,
-        cod: codResponse.data
-      });
-
-      // Map the data to match the DashboardData interface
+      // Map the data
       const mappedDashboardData: DashboardData = {
         metrics: {
           todaysOrders: {
@@ -151,50 +174,84 @@ const Dashboard: React.FC = () => {
         }
       };
 
+      // Update state with fresh data
       setDashboardData(mappedDashboardData);
       setNdrStatus(ndrResponse.data);
       setCodStatus(codResponse.data);
       setShipmentDistribution(distributionResponse.data);
       setTransactions(transactionsResponse.data || []);
       
-      // Update wallet balance from overview response (fallback/primary source)
+      // Cache the data for offline/error scenarios
+      DataCache.set('dashboard', mappedDashboardData);
+      DataCache.set('ndrStatus', ndrResponse.data);
+      DataCache.set('codStatus', codResponse.data);
+      DataCache.set('shipmentDistribution', distributionResponse.data);
+      DataCache.set('dashboardTransactions', transactionsResponse.data || []);
+      
+      // Update wallet balance
       if (dashboardResponse.data.wallet_balance !== undefined) {
         const balanceFromOverview = {
           balance: parseFloat(dashboardResponse.data.wallet_balance) || 0,
           currency: 'INR'
         };
-        console.log('💰 Wallet balance from overview:', balanceFromOverview);
         setWalletBalance(balanceFromOverview);
-        // Notify wallet service subscribers
         walletService.notifyBalanceUpdate(balanceFromOverview);
+        DataCache.set('walletBalance', balanceFromOverview);
       }
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);
-      // Don't clear state on error - keep existing data
+      // On error, use stale cache if available - app still works!
+      const staleDashboard = DataCache.getStale<DashboardData>('dashboard');
+      if (staleDashboard && !dashboardData) {
+        setDashboardData(staleDashboard);
+        setNdrStatus(DataCache.getStale('ndrStatus'));
+        setCodStatus(DataCache.getStale('codStatus'));
+        setShipmentDistribution(DataCache.getStale('shipmentDistribution'));
+        setTransactions(DataCache.getStale<any[]>('dashboardTransactions') || []);
+      }
+      // Don't throw - app continues with cached data
     } finally {
-      setLoading(false);
+      setLoading(false); // Always unblock UI
     }
   };
 
   useEffect(() => {
-    // Initial data fetch
-    fetchAllDashboardData();
+    // Try to load wallet balance from cache first (instant display)
+    const cachedBalance = DataCache.get<WalletBalance>('walletBalance');
+    if (cachedBalance) {
+      setWalletBalance(cachedBalance);
+    }
+
+    // Initial data fetch - show cached data immediately if available
+    fetchAllDashboardData(true); // true = show loading only if no cache
     
-    // Fetch initial wallet balance
+    // Fetch fresh wallet balance in background
     const fetchInitialWalletBalance = async () => {
       try {
-        console.log('💰 Fetching initial wallet balance...');
         const balance = await walletService.getWalletBalance();
         setWalletBalance(balance);
-        console.log('✅ Initial wallet balance loaded:', balance);
+        DataCache.set('walletBalance', balance);
       } catch (error) {
-        console.error('❌ Error fetching initial wallet balance:', error);
-        // Set to 0.00 if fetch fails
-        setWalletBalance({ balance: 0, currency: 'INR' });
+        console.error('❌ Error fetching wallet balance:', error);
+        // Use cached balance if fetch fails
+        const staleBalance = DataCache.getStale<WalletBalance>('walletBalance');
+        if (staleBalance) {
+          setWalletBalance(staleBalance);
+        } else {
+          setWalletBalance({ balance: 0, currency: 'INR' });
+        }
       }
     };
     
     fetchInitialWalletBalance();
+
+    // Listen for WebSocket reconnection events to refresh data
+    const handleReconnect = () => {
+      console.log('🔄 Dashboard: WebSocket reconnected, refreshing data...');
+      fetchAllDashboardData(false); // Refresh in background, don't block UI
+      fetchInitialWalletBalance();
+    };
+    window.addEventListener('websocket-reconnected', handleReconnect);
     
     // Subscribe to wallet balance updates
     const unsubscribeWallet = walletService.subscribe((balance) => {
@@ -225,22 +282,37 @@ const Dashboard: React.FC = () => {
     // WebSocket disconnects are normal (code 1001 = going away)
     // State should persist even if WebSocket disconnects
 
-    // Auto-refresh data every 5 minutes
-    refreshIntervalRef.current = setInterval(() => {
-      console.log('🔄 Auto-refreshing dashboard data...');
-      fetchAllDashboardData();
-      // Also refresh wallet balance
+    // Auto-refresh data every 5 minutes (increased from 2 to reduce rate limit hits)
+    // Also set up a longer interval for critical data (every 2 minutes) as fallback
+    const shortInterval = setInterval(() => {
+      // Only refresh wallet balance on longer interval (lightweight)
       walletService.getWalletBalance().catch(err => {
         console.error('❌ Error auto-refreshing wallet balance:', err);
       });
-    }, 5 * 60 * 1000);
+    }, 2 * 60 * 1000); // Every 2 minutes for wallet balance (reduced frequency)
+
+    refreshIntervalRef.current = setInterval(() => {
+      console.log('🔄 Auto-refreshing dashboard data...');
+      fetchAllDashboardData(false); // false = don't show loading, refresh in background
+      // Also refresh wallet balance
+      walletService.getWalletBalance()
+        .then(balance => {
+          setWalletBalance(balance);
+          DataCache.set('walletBalance', balance);
+        })
+        .catch(err => {
+          console.error('❌ Error auto-refreshing wallet balance:', err);
+        });
+    }, 5 * 60 * 1000); // Every 5 minutes for full dashboard refresh (increased to prevent rate limit hits)
 
     return () => {
       unsubscribeWallet();
       unsubscribeNotifications();
+      window.removeEventListener('websocket-reconnected', handleReconnect);
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
       }
+      clearInterval(shortInterval);
     };
   }, []);
 
@@ -256,6 +328,14 @@ const Dashboard: React.FC = () => {
 
   const closeRechargeModal = () => {
     setIsRechargeModalOpen(false);
+  };
+
+  const handleViewAllTransactions = () => {
+    navigate('/billing');
+  };
+
+  const handleViewAllShipments = () => {
+    navigate('/orders?status=all');
   };
 
   // Format date range for display
@@ -346,22 +426,31 @@ const Dashboard: React.FC = () => {
     };
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="dashboard-container">
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Loading dashboard data...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  // Don't block UI with loading screen - show cached data if available
+  // Only show loading spinner if we have NO data at all
+  const hasData = dashboardData !== null || walletBalance.balance > 0;
 
   return (
     <Layout>
       <div className="dashboard-container">
+        {/* Show subtle loading indicator only if no data exists */}
+        {loading && !hasData && (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+          }}>
+            <div className="loading-spinner"></div>
+            <p>Loading dashboard data...</p>
+          </div>
+        )}
+        
         {/* Date Range Display with Real-time Clock */}
         <div className="date-time-display">
           <div className="date-range-display">
@@ -373,6 +462,42 @@ const Dashboard: React.FC = () => {
             <span className="time-text">{formatCurrentTime()}</span>
             <span className="day-text">{getDayOfWeek()}</span>
           </div>
+          <button 
+            className="refresh-dashboard-btn"
+            onClick={() => {
+              console.log('🔄 Manual refresh triggered');
+              
+              // Check if WebSocket is connected, if not, reconnect it
+              const isConnected = notificationService.getConnectionState();
+              if (!isConnected) {
+                console.log('🔌 WebSocket disconnected - reconnecting...');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user._id) {
+                  notificationService.connect(user._id);
+                }
+              }
+              
+              // Refresh data
+              fetchAllDashboardData();
+              walletService.getWalletBalance()
+                .then(balance => setWalletBalance(balance))
+                .catch(err => console.error('Error refreshing wallet:', err));
+            }}
+            title="Refresh Dashboard Data & Reconnect WebSocket"
+            style={{
+              marginLeft: '20px',
+              padding: '8px 16px',
+              backgroundColor: '#F68723',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            🔄 Refresh
+          </button>
         </div>
 
         {/* Wallet Balance Section */}
@@ -564,7 +689,9 @@ const Dashboard: React.FC = () => {
                 <button className="recharge-btn" onClick={openRechargeModal}>
                   💳 Recharge Wallet
                 </button>
-                <button className="view-all-btn">View All</button>
+                <button className="view-all-btn" onClick={handleViewAllTransactions}>
+                  View All
+                </button>
               </div>
             </div>
             <div className="transactions-table-container">
@@ -607,7 +734,9 @@ const Dashboard: React.FC = () => {
           <div className="shipments-chart">
             <div className="section-header-with-action">
               <h2>Shipments Distribution</h2>
-              <button className="view-all-btn">View All</button>
+              <button className="view-all-btn" onClick={handleViewAllShipments}>
+                View All
+              </button>
             </div>
             <div className="chart-container">
               {shipmentDistribution && shipmentDistribution.distribution && shipmentDistribution.distribution.length > 0 ? (

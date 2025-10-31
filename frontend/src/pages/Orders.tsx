@@ -104,6 +104,17 @@ const Orders: React.FC = () => {
     } else {
       console.warn('⚠️ No authentication token found');
     }
+
+    // Listen for WebSocket reconnection events to refresh orders
+    const handleReconnect = () => {
+      console.log('🔄 Orders: WebSocket reconnected, refreshing orders...');
+      fetchOrders();
+    };
+    window.addEventListener('websocket-reconnected', handleReconnect);
+
+    return () => {
+      window.removeEventListener('websocket-reconnected', handleReconnect);
+    };
   }, [activeTab, orderType, filters]);
 
   const fetchOrders = async () => {
@@ -635,6 +646,21 @@ const Orders: React.FC = () => {
           </div>
 
           <div className="top-actions">
+            <button 
+              className="action-btn refresh-btn" 
+              onClick={() => {
+                console.log('🔄 Manual refresh triggered for Orders');
+                fetchOrders();
+              }}
+              title="Refresh Orders"
+              style={{
+                marginRight: '10px',
+                backgroundColor: '#F68723',
+                color: 'white'
+              }}
+            >
+              🔄 Refresh
+            </button>
             <button className="action-btn sync-btn" onClick={handleSyncOrders}>
               Sync Order
             </button>

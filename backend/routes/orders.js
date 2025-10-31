@@ -207,8 +207,28 @@ router.post('/', auth, [
   // Customer Information
   body('customer_info.buyer_name').trim().notEmpty().withMessage('Buyer name is required'),
   body('customer_info.phone').matches(/^[6-9]\d{9}$/).withMessage('Valid phone number is required'),
-  body('customer_info.alternate_phone').optional().matches(/^[6-9]\d{9}$/).withMessage('Valid alternate phone number'),
-  body('customer_info.email').optional().isEmail().withMessage('Valid email is required'),
+  body('customer_info.alternate_phone').optional().custom((value) => {
+    // Allow empty/undefined/null, but if provided, validate format
+    if (!value || value.trim() === '') {
+      return true; // Empty is allowed
+    }
+    if (!/^[6-9]\d{9}$/.test(value)) {
+      throw new Error('Valid alternate phone number is required');
+    }
+    return true;
+  }),
+  body('customer_info.email').optional().custom((value) => {
+    // Allow empty/undefined/null, but if provided, validate email format
+    if (!value || value.trim() === '') {
+      return true; // Empty is allowed
+    }
+    // Basic email validation
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(value)) {
+      throw new Error('Valid email is required');
+    }
+    return true;
+  }),
   body('customer_info.gstin').optional().custom((value) => {
     if (value && value.trim() !== '') {
       const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -446,9 +466,16 @@ router.post('/', auth, [
       customer_info: {
         buyer_name: req.body.customer_info.buyer_name,
         phone: req.body.customer_info.phone,
-        alternate_phone: req.body.customer_info.alternate_phone,
-        email: req.body.customer_info.email,
-        gstin: req.body.customer_info.gstin
+        // Convert empty strings to undefined for optional fields
+        alternate_phone: req.body.customer_info.alternate_phone && req.body.customer_info.alternate_phone.trim() !== '' 
+          ? req.body.customer_info.alternate_phone.trim() 
+          : undefined,
+        email: req.body.customer_info.email && req.body.customer_info.email.trim() !== '' 
+          ? req.body.customer_info.email.trim().toLowerCase() 
+          : undefined,
+        gstin: req.body.customer_info.gstin && req.body.customer_info.gstin.trim() !== '' 
+          ? req.body.customer_info.gstin.trim() 
+          : undefined
       },
       
       delivery_address: {

@@ -189,8 +189,13 @@ class UserService {
 
   // Get user profile (for Layout component)
   async getUserProfile(): Promise<{ data: UserProfile }> {
-    const response = await apiService.get<{ data: UserProfile }>('/users/profile');
-    return response;
+    const response = await apiService.get<{ status: string; data: UserProfile }>('/users/profile');
+    // Backend returns { status: 'success', data: {...} }
+    // apiService.get returns the axios response.data, which is already the unwrapped response
+    if (response.status === 'success' && response.data) {
+      return { data: response.data };
+    }
+    throw new Error('Failed to load user profile');
   }
 
   // Get dashboard data

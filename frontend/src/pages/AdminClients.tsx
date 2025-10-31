@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { adminService, AdminClient, AdminClientsResponse } from '../services/adminService';
 import DocumentViewerModal from '../components/DocumentViewerModal';
-import AdminTicketModal from '../components/AdminTicketModal';
 import NotificationBell from '../components/NotificationBell';
 import './AdminClients.css';
 
 const AdminClients: React.FC = () => {
+  const navigate = useNavigate();
   const [clients, setClients] = useState<AdminClient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +43,6 @@ const AdminClients: React.FC = () => {
   // Document viewer modal state
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<AdminClient | null>(null);
-
-  // Ticket modal state
-  const [ticketModalOpen, setTicketModalOpen] = useState(false);
-  const [selectedClientForTickets, setSelectedClientForTickets] = useState<AdminClient | null>(null);
 
   useEffect(() => {
     // Only fetch data if admin is authenticated
@@ -129,13 +126,8 @@ const AdminClients: React.FC = () => {
   };
 
   const handleViewTickets = (client: AdminClient) => {
-    setSelectedClientForTickets(client);
-    setTicketModalOpen(true);
-  };
-
-  const handleCloseTicketModal = () => {
-    setTicketModalOpen(false);
-    setSelectedClientForTickets(null);
+    // Navigate to the new tickets page instead of opening modal
+    navigate(`/admin/clients/${client._id}/tickets`);
   };
 
   const handleTicketClick = (ticketId: string) => {
@@ -404,18 +396,6 @@ const AdminClients: React.FC = () => {
           clientId={selectedClient._id}
           clientName={selectedClient.company_name}
           onKYCUpdate={handleDocumentModalKYCUpdate}
-        />
-      )}
-
-      {/* Admin Ticket Modal */}
-      {selectedClientForTickets && (
-        <AdminTicketModal
-          isOpen={ticketModalOpen}
-          onClose={handleCloseTicketModal}
-          clientId={selectedClientForTickets._id}
-          clientName={selectedClientForTickets.company_name}
-          clientEmail={selectedClientForTickets.email}
-          clientPhone={selectedClientForTickets.phone_number}
         />
       )}
     </div>

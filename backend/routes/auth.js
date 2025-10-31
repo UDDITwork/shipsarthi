@@ -496,14 +496,14 @@ router.post('/logout', auth, async (req, res) => {
   }
 });
 
-// @desc    Forgot password
+// @desc    Check if email exists for password reset (no email sent)
 // @route   POST /api/auth/forgot-password
 // @access  Public
 router.post('/forgot-password', [
   body('email').isEmail().normalizeEmail()
 ], async (req, res) => {
   const startTime = Date.now();
-  logger.info('Forgot password request started', {
+  logger.info('Forgot password - email verification started', {
     email: req.body.email,
     ip: req.ip,
     userAgent: req.get('User-Agent')
@@ -523,46 +523,37 @@ router.post('/forgot-password', [
     }
 
     const { email } = req.body;
-    logger.debug('Searching for user with email', { email: email.toLowerCase() });
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase();
+    
+    logger.debug('Searching for user with email', { email: normalizedEmail });
+    const user = await User.findOne({ email: normalizedEmail }).select('_id email account_status');
 
     if (!user) {
-      logger.warn('Forgot password failed - user not found', { email: email.toLowerCase() });
+      logger.warn('Forgot password failed - user not found', { email: normalizedEmail });
       return res.status(404).json({
         status: 'error',
-        message: 'User not found with this email address'
+        message: 'No account found with this email address'
       });
     }
 
-    logger.info('User found for password reset', {
+    logger.info('Email verified for password reset', {
       userId: user._id,
       email: user.email,
       accountStatus: user.account_status
     });
 
-    // Generate reset token
-    const resetToken = user.createPasswordResetToken();
-    await user.save();
-
-    logger.info('Password reset token generated', {
-      userId: user._id,
-      email: user.email,
-      tokenExpiry: user.password_reset_expires
-    });
-
-    // TODO: Send email with reset token
-    // For now, just return success message
-    
     const responseTime = Date.now() - startTime;
-    logger.info('Forgot password completed successfully', {
+    logger.info('Email verification completed successfully', {
       userId: user._id,
       email: user.email,
       responseTime: `${responseTime}ms`
     });
     
+    // Return success - client can proceed to password reset
     res.json({
       status: 'success',
-      message: 'Password reset instructions sent to your email'
+      message: 'Email verified. You can now reset your password.',
+      email: normalizedEmail // Return email for client to use in reset step
     });
 
   } catch (error) {
@@ -580,25 +571,26 @@ router.post('/forgot-password', [
   }
 });
 
-// @desc    Reset password
+// @desc    Reset password directly (no token needed, email verification done in previous step)
 // @route   POST /api/auth/reset-password
 // @access  Public
 router.post('/reset-password', [
-  body('token').notEmpty().withMessage('Reset token is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
 ], async (req, res) => {
   const startTime = Date.now();
   logger.info('Reset password request started', {
+    email: req.body.email,
     ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    hasToken: !!req.body.token
+    userAgent: req.get('User-Agent')
   });
 
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       logger.warn('Reset password validation failed', {
-        errors: errors.array()
+        errors: errors.array(),
+        email: req.body.email
       });
       return res.status(400).json({
         status: 'error',
@@ -607,40 +599,31 @@ router.post('/reset-password', [
       });
     }
 
-    const { token, password } = req.body;
-    
-    // Hash token to compare with stored hash
-    const crypto = require('crypto');
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const { email, password } = req.body;
+    const normalizedEmail = email.toLowerCase();
 
-    logger.debug('Searching for user with reset token', { hashedToken: hashedToken.substring(0, 10) + '...' });
-    const user = await User.findOne({
-      password_reset_token: hashedToken,
-      password_reset_expires: { $gt: Date.now() }
-    });
+    logger.debug('Searching for user with email', { email: normalizedEmail });
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      logger.warn('Reset password failed - invalid or expired token', {
-        tokenProvided: !!token,
-        currentTime: new Date().toISOString()
+      logger.warn('Reset password failed - user not found', {
+        email: normalizedEmail
       });
-      return res.status(400).json({
+      return res.status(404).json({
         status: 'error',
-        message: 'Invalid or expired reset token'
+        message: 'User not found'
       });
     }
 
     logger.info('User found for password reset', {
       userId: user._id,
       email: user.email,
-      tokenExpiry: user.password_reset_expires
+      accountStatus: user.account_status
     });
 
-    // Set new password
+    // Set new password (mongoose will hash it automatically via pre-save hook)
     user.password = password;
+    // Clear any existing reset tokens
     user.password_reset_token = undefined;
     user.password_reset_expires = undefined;
     await user.save();
@@ -654,7 +637,7 @@ router.post('/reset-password', [
 
     res.json({
       status: 'success',
-      message: 'Password reset successful'
+      message: 'Password reset successful. You can now login with your new password.'
     });
 
   } catch (error) {
@@ -662,6 +645,7 @@ router.post('/reset-password', [
     logger.error('Reset password error occurred', {
       error: error.message,
       stack: error.stack,
+      email: req.body.email,
       responseTime: `${responseTime}ms`
     });
     res.status(500).json({

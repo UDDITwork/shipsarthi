@@ -574,7 +574,7 @@ router.get('/clients/:id/tickets', async (req, res) => {
 
     // Get tickets with pagination
     const tickets = await SupportTicket.find(filterQuery)
-      .populate('user_id', 'your_name email phone_number company_name')
+      .populate('user_id', 'your_name email phone_number company_name client_id')
       .sort({ created_at: -1 })
       .skip(skip)
       .limit(parseInt(limit))

@@ -135,9 +135,10 @@ const Billing: React.FC = () => {
     fetchTransactions();
 
     // Periodic refresh as a safety-net (prevents stale UI if WS drops silently)
+    // Refresh more frequently (every 30 seconds) to ensure balance stays fresh
     const interval = setInterval(() => {
       fetchWalletBalance();
-    }, 60 * 1000); // every 60 seconds
+    }, 30 * 1000); // every 30 seconds (reduced from 60 for better responsiveness)
 
     return () => clearInterval(interval);
   }, []);

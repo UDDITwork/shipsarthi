@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { userService, type User } from '../services/userService';
+import { DataCache } from '../utils/dataCache';
+import { environmentConfig } from '../config/environment';
 import './AccountSettings.css';
 
 interface EditMode {
@@ -57,22 +59,79 @@ const AccountSettings: React.FC = () => {
     fetchUserData();
   }, []);
 
-  const fetchUserData = async () => {
-    setLoading(true);
-    try {
-      // Debug authentication status
-      const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
-      console.log('🔍 AUTH DEBUG:', {
-        hasToken: !!token,
-        hasUser: !!user,
-        tokenLength: token?.length,
-        userData: user ? JSON.parse(user) : null
+  const fetchUserData = async (retryCount = 0) => {
+    // Load from cache FIRST - instant display, no freezing
+    const cachedUser = DataCache.get<User>('userProfile');
+    if (cachedUser) {
+      setUser(cachedUser);
+      setFormData({
+        company_name: cachedUser.company_name || '',
+        your_name: cachedUser.your_name || '',
+        email: cachedUser.email || '',
+        phone_number: cachedUser.phone_number || '',
+        gstin: cachedUser.gstin || '',
+        address: cachedUser.address || {
+          full_address: '',
+          landmark: '',
+          pincode: '',
+          city: '',
+          state: ''
+        },
+        bank_details: cachedUser.bank_details || {
+          bank_name: '',
+          account_number: '',
+          ifsc_code: '',
+          branch_name: '',
+          account_holder_name: ''
+        }
       });
+      setLoading(false); // Don't block UI if we have cached data
+    } else {
+      // Also try localStorage (AuthContext stores it there)
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser) as User;
+          setUser(parsedUser);
+          setFormData({
+            company_name: parsedUser.company_name || '',
+            your_name: parsedUser.your_name || '',
+            email: parsedUser.email || '',
+            phone_number: parsedUser.phone_number || '',
+            gstin: parsedUser.gstin || '',
+            address: parsedUser.address || {
+              full_address: '',
+              landmark: '',
+              pincode: '',
+              city: '',
+              state: ''
+            },
+            bank_details: parsedUser.bank_details || {
+              bank_name: '',
+              account_number: '',
+              ifsc_code: '',
+              branch_name: '',
+              account_holder_name: ''
+            }
+          });
+          setLoading(false);
+        } catch (e) {
+          // Invalid JSON, continue to API fetch
+        }
+      }
+    }
 
-      // API call to get user data
+    // Only show loading if no cached data
+    if (!cachedUser && !localStorage.getItem('user')) {
+      setLoading(true);
+    }
+
+    try {
+      // Fetch fresh data in background - doesn't block UI if we have cache
       const response = await userService.getProfile();
       console.log('✅ API Response:', response);
+      
+      // Update state with fresh data
       setUser(response);
       setFormData({ 
         company_name: response.company_name || '',
@@ -95,40 +154,58 @@ const AccountSettings: React.FC = () => {
           account_holder_name: ''
         }
       });
+
+      // Cache it for next time
+      DataCache.set('userProfile', response);
+      
     } catch (error: any) {
       console.error('❌ Error fetching user data:', error);
-      
-      // Type-safe error handling
-      const errorDetails = {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        status: error?.response?.status || 'N/A',
-        data: error?.response?.data || 'N/A',
-        url: error?.config?.url || 'N/A',
-        timestamp: new Date().toISOString()
-      };
-      
-      console.error('❌ Error details:', errorDetails);
       
       // Check if it's an authentication error
       if (error?.response?.status === 401) {
         alert('Your session has expired. Please log in again.');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        DataCache.clear('userProfile');
         window.location.href = '/login';
         return;
       }
       
-      // Check if it's a network error
-      if (!error?.response) {
-        alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
-        setUser(null);
+      // On error, use stale cache or localStorage - app continues working!
+      const staleUser = DataCache.getStale<User>('userProfile');
+      if (staleUser && !user) {
+        console.log('📦 Using cached user data due to API error');
+        setUser(staleUser);
+        setFormData({
+          company_name: staleUser.company_name || '',
+          your_name: staleUser.your_name || '',
+          email: staleUser.email || '',
+          phone_number: staleUser.phone_number || '',
+          gstin: staleUser.gstin || '',
+          address: staleUser.address || {
+            full_address: '',
+            landmark: '',
+            pincode: '',
+            city: '',
+            state: ''
+          },
+          bank_details: staleUser.bank_details || {
+            bank_name: '',
+            account_number: '',
+            ifsc_code: '',
+            branch_name: '',
+            account_holder_name: ''
+          }
+        });
+        // Don't show error alert if we have cached data - app works fine
         return;
       }
-      
-      // Show error state instead of dummy data
-      setUser(null);
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load user data. Please check if you are logged in and try again.';
-      alert(errorMessage);
+
+      // Only show error if we truly have no data at all
+      if (!user && !staleUser) {
+        const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load user data. Please check if you are logged in and try again.';
+        alert(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -218,6 +295,12 @@ const AccountSettings: React.FC = () => {
           account_holder_name: ''
         }
       });
+
+      // Cache the updated user data - persists across refreshes
+      DataCache.set('userProfile', response);
+      
+      // Also update localStorage for AuthContext compatibility
+      localStorage.setItem('user', JSON.stringify(response));
       
       alert(`${section} updated successfully!`);
       toggleEditMode(section as keyof EditMode);
@@ -350,12 +433,13 @@ const AccountSettings: React.FC = () => {
     return user.documents.find(doc => doc.document_type === docType);
   };
 
-  // ✅ Fix PDF URLs to use /raw/upload/ instead of /image/upload/
-  const getPdfViewUrl = (cloudinaryUrl: string) => {
-    if (cloudinaryUrl && cloudinaryUrl.includes('/image/upload/')) {
-      return cloudinaryUrl.replace('/image/upload/', '/raw/upload/');
-    }
-    return cloudinaryUrl;
+  // ✅ Generate proper download URL with backend proxy that sets correct headers
+  const getPdfViewUrl = (cloudinaryUrl: string, documentType: string) => {
+    if (!cloudinaryUrl) return '';
+    
+    // Use backend proxy endpoint to ensure proper Content-Type and filename
+    const encodedUrl = encodeURIComponent(cloudinaryUrl);
+    return `${environmentConfig.apiUrl}/users/documents/download?url=${encodedUrl}&documentType=${encodeURIComponent(documentType)}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -419,7 +503,7 @@ const AccountSettings: React.FC = () => {
             <p className="text-gray-600 mb-4">Unable to fetch your account information.</p>
             <div className="space-y-2">
               <button 
-                onClick={fetchUserData}
+                onClick={() => fetchUserData()}
                 className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 mr-2"
               >
                 Retry
@@ -784,7 +868,7 @@ const AccountSettings: React.FC = () => {
                         </label>
                         {docStatus && (
                           <a
-                            href={getPdfViewUrl(docStatus.file_url)}
+                            href={getPdfViewUrl(docStatus.file_url, doc.type)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="view-btn"

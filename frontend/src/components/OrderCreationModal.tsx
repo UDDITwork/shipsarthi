@@ -169,11 +169,30 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
   // Filter warehouses based on search query
   useEffect(() => {
-    const filtered = warehouses.filter(warehouse =>
-      warehouse.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      warehouse.address.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      warehouse.address.state.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) {
+      setFilteredWarehouses(warehouses);
+      return;
+    }
+
+    const filtered = warehouses.filter((warehouse) => {
+      const name = (warehouse.name || '').toLowerCase();
+      const title = ((warehouse as any).title || '').toLowerCase();
+      const city = (warehouse.address?.city || '').toLowerCase();
+      const state = (warehouse.address?.state || '').toLowerCase();
+      const pincode = (warehouse.address?.pincode || '').toLowerCase();
+      const fullAddress = (warehouse.address?.full_address || '').toLowerCase();
+
+      return (
+        name.includes(q) ||
+        title.includes(q) ||
+        city.includes(q) ||
+        state.includes(q) ||
+        pincode.includes(q) ||
+        fullAddress.includes(q)
+      );
+    });
+
     setFilteredWarehouses(filtered);
   }, [warehouses, searchQuery]);
 
@@ -972,7 +991,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Alternative phone</label>
+                    <label>Alternative phone <span className="optional-text">(Optional)</span></label>
                     <div className="phone-input-group">
                       <span className="phone-prefix">+91</span>
                       <input
@@ -984,7 +1003,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     </div>
                   </div>
                   <div className="form-group">
-                    <label>Email ID</label>
+                    <label>Email ID <span className="optional-text">(Optional)</span></label>
                     <input
                       type="email"
                       value={formData.customer_info.email}

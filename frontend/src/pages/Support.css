@@ -315,9 +315,10 @@
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
+    align-items: center; /* Center vertically */
+    z-index: 10000; /* Higher than header (z-index: 1000) */
+    padding: 90px 20px 20px 20px; /* Top padding = header height (70px) + margin (20px) */
+    overflow-y: auto; /* Allow scrolling if modal is taller than viewport */
   }
   
   .modal-content {
@@ -325,10 +326,12 @@
     border-radius: 12px;
     width: 100%;
     max-width: 600px;
-    max-height: 90vh;
+    max-height: calc(100vh - 110px); /* Account for header + padding */
     overflow-y: auto;
     position: relative;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    /* Ensure modal is always below header */
+    margin-top: 0; /* Start after header */
   }
   
   .modal-header {
@@ -339,6 +342,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky; /* Keep header visible when scrolling */
+    top: 0;
+    z-index: 10; /* Above modal content when sticky */
   }
   
   .modal-header h2 {
@@ -593,6 +599,11 @@
   
     .modal-overlay {
       flex-direction: column;
+      padding: 80px 15px 15px 15px; /* Adjusted for mobile */
+    }
+    
+    .modal-content {
+      max-height: calc(100vh - 95px); /* Account for mobile header + padding */
     }
   }
   

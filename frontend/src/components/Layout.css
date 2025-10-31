@@ -1,414 +1,817 @@
+/* ============================================
+   COMPLETE DESIGN SYSTEM IMPLEMENTATION
+   Layout Component - Professional UI
+   ============================================ */
+
 /* Layout Container */
 .layout-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #FFFFFF;
-    overflow: hidden;
-  }
-  
-  /* Header Styles */
-  .layout-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E0E0E0;
-    height: 70px;
-    z-index: 1000;
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .menu-toggle {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-    padding: 5px 10px;
-  }
-  
-  .menu-toggle:hover {
-    background-color: #F5F5F5;
-    border-radius: 5px;
-  }
-  
-  .logo {
-    font-size: 28px;
-    font-weight: 700;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo-ship {
-    color: #F68723;
-  }
-  
-  .logo-sarthi {
-    color: #002B59;
-  }
-  
-  /* Header Center - Search */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #FFFFFF;
+  overflow: hidden;
+}
+
+/* ============================================
+   TOP HEADER BAR
+   ============================================ */
+.layout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70-80px;
+  min-height: 70px;
+  padding: 0 24px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E5E5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #2C4563;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.menu-toggle:hover {
+  background-color: #F3F4F6;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.5px;
+}
+
+.logo-ship {
+  color: #FF8C42;
+}
+
+.logo-sarthi {
+  color: #2C4563;
+}
+
+/* Header Center - Connected Search Bar */
+.header-center {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 30px;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.search-select {
+  padding: 12px 16px;
+  border: none;
+  background-color: #2C4563;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  border-radius: 6px 0 0 6px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+  min-width: 120px;
+  transition: background-color 0.2s ease;
+}
+
+.search-select:hover {
+  background-color: #1E3144;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-left: none;
+  border-right: none;
+  background-color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  min-width: 200px;
+}
+
+.search-input::placeholder {
+  color: #9CA3AF;
+}
+
+.search-button {
+  padding: 0;
+  background-color: #2C4563;
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 6px 6px 0;
+  transition: background-color 0.2s ease;
+}
+
+.search-button:hover {
+  background-color: #1E3144;
+}
+
+/* Header Right */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* WebSocket Status Indicator */
+.ws-status {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 12px;
+}
+
+.ws-status.connected {
+  background-color: #28a745;
+  color: white;
+}
+
+.ws-status.disconnected {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Wallet Section - Connected Display */
+.wallet-section {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.wallet-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2C4563;
+}
+
+.wallet-icon {
+  font-size: 18px;
+  color: #6B7280;
+}
+
+.wallet-balance {
+  font-weight: 600;
+  color: #2C4563;
+}
+
+.refresh-wallet-button,
+.debug-wallet-button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #6B7280;
+  transition: all 0.2s ease;
+  margin-left: 4px;
+}
+
+.refresh-wallet-button:hover,
+.debug-wallet-button:hover {
+  background-color: #F3F4F6;
+  color: #2C4563;
+}
+
+.recharge-button {
+  padding: 12px 16px;
+  background-color: #2C4563;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.recharge-button:hover {
+  background-color: #1E3144;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recharge-button:active {
+  transform: scale(0.98);
+}
+
+.tickets-button {
+  padding: 12px 16px;
+  background-color: #2C4563;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tickets-button:hover {
+  background-color: #1E3144;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tickets-button:active {
+  transform: scale(0.98);
+}
+
+.notification-button {
+  background: none;
+  border: none;
+  color: #2C4563;
+  font-size: 24px;
+  cursor: pointer;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-left: 8px;
+}
+
+.notification-button:hover {
+  background-color: #F3F4F6;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #EF4444;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+}
+
+/* Profile Circle */
+.user-avatar-container {
+  position: relative;
+  margin-left: 12px;
+  display: flex !important;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 50%;
+  background-color: #FF8C42;
+  border: none;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.user-avatar:hover {
+  background-color: #E57A35;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.user-avatar:active {
+  transform: scale(0.95);
+}
+
+.avatar-initials {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-transform: uppercase;
+}
+
+.user-avatar-loading {
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+/* Profile Dropdown Wrapper */
+.profile-dropdown-wrapper {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 2000;
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION - FLOWING ACTIVE STATE
+   ============================================ */
+.layout-body {
+  display: flex;
+  flex: 1;
+  overflow: visible; /* CRITICAL: Changed from hidden to visible to allow tab extension */
+  /* CRITICAL: Zero gap for seamless visual connection */
+  gap: 0;
+  /* Ensure perfect alignment between sidebar and content */
+  align-items: stretch;
+  /* Remove any default spacing that could create separation */
+  margin: 0;
+  padding: 0;
+  position: relative;
+  /* CRITICAL: Set min-height to 0 to allow flex shrinking for proper scrolling */
+  min-height: 0;
+  /* Ensure it takes available height */
+  height: 100%;
+}
+
+.layout-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background-color: #FF8C42;
+  padding: 24px 0;
+  overflow-y: auto;
+  overflow-x: visible !important; /* CRITICAL: Force visible - allow tab to extend beyond */
+  transition: width 0.3s ease, transform 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Ensure active items can extend beyond boundary to merge seamlessly with content */
+  z-index: 1;
+  /* Prevent any clipping - allow smooth flow into content area */
+  clip-path: none;
+  /* Ensure perfect edge alignment */
+  flex-shrink: 0;
+}
+
+.layout-sidebar.closed {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Sidebar Logo Section */
+.sidebar-logo {
+  padding: 0 24px 24px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 16px;
+}
+
+.sidebar-logo-text {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-logo-ship {
+  color: #FF8C42;
+}
+
+.sidebar-logo-sarthi {
+  color: #2C4563;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 12px;
+  /* CRITICAL: Allow active items to extend beyond for seamless merge */
+  overflow: visible !important;
+  position: relative;
+  /* CRITICAL: Nav must have relative positioning for active item absolute positioning */
+  height: auto;
+  min-height: 100%;
+  /* No clipping - let active tab flow into content */
+  clip-path: none;
+  /* Ensure proper stacking - must allow overlap */
+  z-index: auto;
+  /* CRITICAL: Ensure nav container doesn't clip children */
+  contain: none;
+  /* Allow children to extend beyond boundaries */
+  isolation: isolate;
+}
+
+/* Sidebar Item - FLOWING ACTIVE STATE */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 0 0 0 0;
+  position: relative; /* CRITICAL: Relative for absolute active positioning */
+  margin-right: 12px;
+  /* Ensure proper height for absolute positioning calculation */
+  min-height: 56px;
+  height: auto;
+}
+
+/* Inactive State */
+.sidebar-item:not(.active) {
+  background-color: transparent;
+}
+
+.sidebar-item:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ACTIVE STATE - C-SHAPE OPENING TOWARD CONTENT - SEAMLESS MERGE */
+.sidebar-item.active {
+  background-color: #FFFFFF;
+  color: #FF8C42;
+  /* C-Shape: Soft rounded left edge (45px), soft rounded right edge for smooth doorway */
+  border-radius: 45px 8px 8px 45px;
+  /* Top-right and bottom-right have soft rounded corners for smooth merge */
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  /* CRITICAL: Shadow ONLY on left/curved side - NO shadow on right edge */
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08), /* Left side only */
+              0 2px 6px rgba(0, 0, 0, 0.03); /* Subtle bottom */
+  font-weight: 600;
+  /* CRITICAL: Extend beyond sidebar - use negative margins and width calculation */
+  margin-left: -12px;
+  margin-right: -30px !important; /* Extend 30px INTO content area */
+  padding-left: 36px;
+  padding-right: 30px; /* Extra padding for extension area */
+  /* Position relative to allow extension beyond parent */
+  position: relative;
+  /* Extend width to bridge gap completely - ensures overlap */
+  width: calc(100% + 42px) !important; /* 12px left + 30px right */
+  /* CRITICAL: Use transform to extend and force GPU rendering (avoids sub-pixel gaps) */
+  transform: translateX(-12px) translateZ(0);
+  /* Force exact white background match */
+  background-color: #FFFFFF !important;
+  z-index: 1000 !important; /* Very high z-index */
+  /* Smooth transition */
+  transition: all 0.3s ease;
+  /* CRITICAL: Absolutely NO borders, outlines - nothing that creates a line */
+  border: none !important;
+  outline: none !important;
+  /* Maintain flex display */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Ensure it's not clipped */
+  clip-path: none;
+  /* GPU acceleration for smooth rendering */
+  will-change: transform;
+  /* Force layer creation to avoid rendering artifacts */
+  backface-visibility: hidden;
+}
+
+/* REMOVED gradient fade - it was creating a visible line */
+/* The seamless merge happens through pure overlap and matching backgrounds */
+
+.sidebar-icon {
+  font-size: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-label {
+  white-space: nowrap;
+  font-weight: inherit;
+}
+
+/* Main Content */
+.layout-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: visible !important; /* Allow tab overlap - NO clipping */
+  background-color: #FFFFFF;
+  padding: 24px 30px;
+  /* CRITICAL: Start exactly where sidebar ends - ZERO gap */
+  margin-left: 0 !important;
+  /* The white background flows continuously from active sidebar item - unified surface */
+  position: relative;
+  z-index: 1; /* Below active tab (z-index 1000) so tab overlaps seamlessly */
+  /* CRITICAL: No border, no outline, no gap - continuous white surface */
+  border-left: none !important;
+  outline: none !important;
+  /* CRITICAL: Content background MUST be identical to active tab background */
+  background-color: #FFFFFF !important;
+  /* Content padding - tab overlaps into first 30px seamlessly */
+  padding-left: 30px;
+  /* CRITICAL: Remove any box-shadow that could create visual separation */
+  box-shadow: none !important;
+  /* Remove any potential border rendering artifacts */
+  border-image: none;
+  /* Ensure perfect rendering - no sub-pixel gaps */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* CRITICAL: Set min-height to 0 to allow proper flex shrinking and scrolling */
+  min-height: 0;
+  /* Ensure proper height for scrolling */
+  height: 100%;
+}
+
+/* CRITICAL: Create white bridge that merges with active tab */
+.layout-main::before {
+  content: '';
+  position: absolute;
+  left: -35px; /* Extend back into sidebar area to merge with tab */
+  top: 0;
+  width: 35px;
+  height: 100%;
+  background-color: #FFFFFF !important; /* Exact match */
+  z-index: 500; /* Above content wrapper, below active tab */
+  pointer-events: none;
+  /* Ensure smooth connection */
+  border-radius: 0;
+  /* No shadow or border */
+  box-shadow: none;
+  border: none;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  /* CRITICAL: Ensure no left margin/padding that could create visual gap */
+  padding-left: 0;
+  margin-left: 0;
+  /* Position relative to allow active tab overlay */
+  position: relative;
+  z-index: 0;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.layout-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.layout-sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.layout-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.layout-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.layout-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.layout-main::-webkit-scrollbar-track {
+  background: #F5F5F5;
+}
+
+.layout-main::-webkit-scrollbar-thumb {
+  background: #CCCCCC;
+  border-radius: 4px;
+}
+
+.layout-main::-webkit-scrollbar-thumb:hover {
+  background: #999999;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1024px) {
   .header-center {
-    flex: 1;
-    max-width: 500px;
-    margin: 0 30px;
+    max-width: 350px;
+    margin: 0 20px;
   }
-  
-  .search-form {
-    display: flex;
-    align-items: center;
-    background-color: #F5F5F5;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #E0E0E0;
-  }
-  
-  .search-select {
-    padding: 10px 15px;
-    border: none;
-    background-color: #002B59;
-    color: #FFFFFF;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
-  }
-  
-  .search-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: none;
-    background-color: transparent;
-    font-size: 14px;
-    outline: none;
-  }
-  
-  .search-button {
-    padding: 10px 20px;
-    background-color: #002B59;
-    color: #FFFFFF;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-  }
-  
-  .search-button:hover {
-    background-color: #21476E;
-  }
-  
-  /* Header Right */
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .wallet-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 15px;
-    background-color: #F5F5F5;
-    border-radius: 8px;
-    border: 1px solid #E0E0E0;
-  }
-  
-  .wallet-icon {
-    font-size: 18px;
-  }
-  
-  .wallet-balance {
-    font-size: 16px;
-    font-weight: 600;
-    color: #002B59;
-  }
-  
-  .refresh-wallet-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .refresh-wallet-button:hover {
-    background-color: #E0E0E0;
-  }
-  
-  .refresh-wallet-button:active {
-    transform: scale(0.95);
-  }
-  
-  .debug-wallet-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    color: #FF6B35;
-  }
-  
-  .debug-wallet-button:hover {
-    background-color: #FFE0D6;
-  }
-  
-  .debug-wallet-button:active {
-    transform: scale(0.95);
-  }
-  
-  .recharge-button {
-    padding: 8px 20px;
-    background-color: #002B59;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-  }
-  
-  .recharge-button:hover {
-    background-color: #21476E;
-  }
-  
-  .tickets-button {
-    padding: 8px 20px;
-    background-color: #FFFFFF;
-    color: #002B59;
-    border: 2px solid #002B59;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-  
-  .tickets-button:hover {
-    background-color: #002B59;
-    color: #FFFFFF;
-  }
-  
-  .notification-button {
-    padding: 10px;
-    background-color: #F5F5F5;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease;
-  }
-  
-  .notification-button:hover {
-    background-color: #E0E0E0;
-  }
-  
-   .user-avatar-container {
-     position: relative;
-   }
-   
-   .user-avatar {
-     width: 45px;
-     height: 45px;
-     border-radius: 50%;
-     background-color: #F68723;
-     color: #FFFFFF;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-weight: 700;
-     font-size: 16px;
-     cursor: pointer;
-     transition: transform 0.3s ease;
-   }
-   
-   .user-avatar:hover {
-     transform: scale(1.1);
-   }
-   
-   .user-avatar-loading {
-     width: 45px;
-     height: 45px;
-     border-radius: 50%;
-     background-color: #F68723;
-     color: #FFFFFF;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-weight: 700;
-     font-size: 16px;
-     animation: pulse 1.5s ease-in-out infinite;
-   }
-   
-   @keyframes pulse {
-     0% { opacity: 1; }
-     50% { opacity: 0.5; }
-     100% { opacity: 1; }
-   }
-  
-  /* Layout Body */
-  .layout-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-  
-  /* Sidebar Styles */
+
   .layout-sidebar {
     width: 230px;
-    background-color: #F68723;
-    padding: 20px 0;
-    overflow-y: auto;
-    transition: width 0.3s ease, transform 0.3s ease;
-    position: relative;
+    min-width: 230px;
   }
-  
-  .layout-sidebar.closed {
-    width: 0;
-    padding: 0;
-    overflow: hidden;
+
+  .wallet-section {
+    gap: 0;
   }
-  
-  .sidebar-nav {
-    display: flex;
+
+  .wallet-display {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .recharge-button,
+  .tickets-button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-header {
+    padding: 0 16px;
+    height: 65px;
+    min-height: 65px;
+  }
+
+  .header-center {
+    display: none;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .wallet-section {
     flex-direction: column;
-    gap: 5px;
+    gap: 0;
+    border-radius: 6px;
   }
-  
-  .sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 25px;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border-left: 4px solid transparent;
+
+  .wallet-display {
+    border-radius: 6px 6px 0 0;
+    border: 1px solid #E5E5E5;
+    border-bottom: none;
+    padding: 8px 12px;
+    font-size: 14px;
   }
-  
-  .sidebar-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-left: 4px solid #FFFFFF;
+
+  .recharge-button {
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+    width: 100%;
   }
-  
-  .sidebar-item.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-left: 4px solid #FFFFFF;
-    font-weight: 700;
+
+  .tickets-button {
+    font-size: 13px;
+    padding: 10px 12px;
   }
-  
-  .sidebar-icon {
+
+  .notification-button {
+    width: 38px;
+    height: 38px;
     font-size: 20px;
-    min-width: 24px;
   }
-  
-  .sidebar-label {
-    white-space: nowrap;
+
+  .layout-sidebar {
+    position: fixed;
+    left: 0;
+    top: 65px;
+    height: calc(100vh - 65px);
+    z-index: 999;
+    transform: translateX(0);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   }
-  
-  /* Main Content */
+
+  .layout-sidebar.closed {
+    transform: translateX(-100%);
+  }
+
   .layout-main {
-    flex: 1;
-    overflow-y: auto;
-    background-color: #FFFFFF;
-    padding: 20px 30px;
+    padding: 16px;
   }
-  
-  .content-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
+
+  /* Adjust sidebar active state for mobile - maintain C-shape with soft right edges */
+  .sidebar-item.active {
+    border-radius: 35px 6px 6px 35px; /* C-shape: rounded left, soft rounded right */
+    margin-left: -8px;
+    padding-left: 32px;
+    margin-right: -8px; /* Extend to edge for seamless merge */
+    padding-right: 8px;
+    border-top-right-radius: 6px !important; /* Soft rounded corner */
+    border-bottom-right-radius: 6px !important; /* Soft rounded corner */
+    right: -1px; /* Ensure seamless merge on mobile too */
+    width: calc(100% + 1px);
+    /* Shadow only on left/curved side */
+    box-shadow: -2px 0 6px rgba(0, 0, 0, 0.06),
+                0 2px 3px rgba(0, 0, 0, 0.03);
   }
-  
-  /* Scrollbar Styling */
-  .layout-sidebar::-webkit-scrollbar,
-  .layout-main::-webkit-scrollbar {
-    width: 8px;
+}
+
+@media (max-width: 480px) {
+  .layout-header {
+    padding: 0 12px;
   }
-  
-  .layout-sidebar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+
+  .header-left {
+    gap: 12px;
   }
-  
-  .layout-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
+
+  .logo {
+    font-size: 24px;
   }
-  
-  .layout-sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+
+  .wallet-display {
+    font-size: 13px;
+    padding: 6px 10px;
   }
-  
-  .layout-main::-webkit-scrollbar-track {
-    background: #F5F5F5;
+
+  .recharge-button,
+  .tickets-button {
+    padding: 8px 10px;
+    font-size: 13px;
   }
-  
-  .layout-main::-webkit-scrollbar-thumb {
-    background: #CCCCCC;
-    border-radius: 4px;
+
+  .layout-main {
+    padding: 12px;
   }
-  
-  .layout-main::-webkit-scrollbar-thumb:hover {
-    background: #999999;
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  
-  /* Responsive Design */
-  @media (max-width: 1024px) {
-    .header-center {
-      max-width: 300px;
-    }
-  
-    .layout-sidebar {
-      width: 200px;
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  @media (max-width: 768px) {
-    .layout-header {
-      padding: 10px 15px;
-    }
-  
-    .header-center {
-      display: none;
-    }
-  
-    .wallet-section {
-      flex-direction: column;
-      gap: 5px;
-    }
-  
-    .layout-sidebar {
-      position: fixed;
-      left: 0;
-      top: 70px;
-      height: calc(100vh - 70px);
-      z-index: 999;
-      transform: translateX(0);
-    }
-  
-    .layout-sidebar.closed {
-      transform: translateX(-100%);
-    }
-  
-    .layout-main {
-      padding: 15px;
-    }
-  }
+}
+
+.sidebar-item {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+select {
+  transition: all 0.2s ease;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #4FB3D4;
+  outline-offset: 2px;
+}

@@ -25,26 +25,7 @@ if (process.env.NODE_ENV === 'production') {
   console.log('🔒 Trust proxy disabled for development');
 }
 
-// Security Middleware
-app.use(helmet());
-
-// Rate Limiting with proper configuration for proxy
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '15') * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
-  message: {
-    error: 'Too many requests, please try again later'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Trust proxy configuration - this handles IPv4 and IPv6 correctly
-  trustProxy: true
-  // Removed custom keyGenerator - express-rate-limit handles IP extraction automatically
-  // when trustProxy is set, properly handling both IPv4 and IPv6 addresses
-});
-app.use('/api/', limiter);
-
-// CORS Configuration
+// CORS Configuration - MUST come BEFORE helmet() to ensure CORS headers are set
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -56,7 +37,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'https://shipsarthi.com'
 ];
 
-// Enhanced CORS configuration for production
+// CORS middleware - MUST be before helmet
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -92,7 +73,57 @@ app.use(cors({
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
-// Preflight requests are handled by the CORS middleware above
+// Security Middleware - Configure helmet to not interfere with CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false // Disable CSP to avoid conflicts with CORS in development
+}));
+
+// Rate Limiting with proper configuration for proxy
+// Higher limits for development, more restrictive for production
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const isLocalhost = process.env.NODE_ENV !== 'production' && 
+                    (process.env.ALLOWED_ORIGINS?.includes('localhost') || 
+                     !process.env.ALLOWED_ORIGINS); // Default to localhost in dev
+
+// For localhost development, use very high limits to prevent blocking during development
+// For production, use standard limits
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '15') * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || (isLocalhost ? '1000' : isDevelopment ? '500' : '100')),
+  message: {
+    error: 'Too many requests, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Trust proxy configuration - this handles IPv4 and IPv6 correctly
+  trustProxy: true,
+  // Skip successful requests from rate limit counting (only count errors/blocked)
+  skipSuccessfulRequests: false,
+  // Skip failed requests from rate limit counting (only count successful)
+  skipFailedRequests: false
+  // Removed custom keyGenerator - express-rate-limit handles IP extraction automatically
+  // when trustProxy is set, properly handling both IPv4 and IPv6 addresses
+});
+
+if (isLocalhost) {
+  const maxRequests = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000');
+  logger.info('🔓 Rate limiting set to HIGH limits for localhost development', {
+    maxRequests: maxRequests,
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '15') * 60 * 1000
+  });
+}
+
+// Health check should not be rate limited
+const healthCheckLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1000, // Very high limit for health checks
+  skipSuccessfulRequests: true
+});
+
+app.use('/api/health', healthCheckLimiter);
+app.use('/api/', limiter);
 
 // Enhanced Request Logging Middleware
 app.use((req, res, next) => {
@@ -158,7 +189,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static('uploads'));
 app.use('/public', express.static('public'));
 
-// Health Check Route
+// Health Check Route - Must be accessible for CORS debugging
 app.get('/api/health', async (req, res) => {
   const dbHealth = await checkDBHealth();
   res.status(200).json({
@@ -166,7 +197,11 @@ app.get('/api/health', async (req, res) => {
     message: 'Shipsarthi API is running',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    database: dbHealth
+    database: dbHealth,
+    cors: {
+      allowedOrigins: allowedOrigins,
+      currentOrigin: req.get('Origin') || 'none'
+    }
   });
 });
 
@@ -234,6 +269,7 @@ app.use('/', require('./routes/sitemap'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/otp', require('./routes/otp'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/user', require('./routes/user')); // Mount user.js routes at /api/user (singular)
 app.use('/api/customers', require('./routes/customers'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/warehouses', require('./routes/warehouses'));

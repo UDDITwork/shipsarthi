@@ -18,6 +18,7 @@ class WebSocketService {
       });
       
       // Set up ping interval to keep connections alive
+      // Reduced to 15 seconds for more aggressive keep-alive (prevents proxy timeouts)
       this.pingInterval = setInterval(() => {
         this.wss.clients.forEach((ws) => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -28,7 +29,7 @@ class WebSocketService {
             }
           }
         });
-      }, 30000); // Send ping every 30 seconds
+      }, 15000); // Send ping every 15 seconds (reduced from 30s for better keep-alive)
       
       this.wss.on('connection', (ws, req) => {
         const clientId = this.generateClientId();

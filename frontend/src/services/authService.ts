@@ -32,8 +32,8 @@ export const authService = {
     return await apiService.post('/auth/forgot-password', { email });
   },
 
-  async resetPassword(token: string, password: string): Promise<{ status: string; message: string }> {
-    return await apiService.post('/auth/reset-password', { token, password });
+  async resetPassword(email: string, password: string): Promise<{ status: string; message: string }> {
+    return await apiService.post('/auth/reset-password', { email, password });
   },
 
   async verifyEmail(token: string): Promise<{ status: string; message: string }> {

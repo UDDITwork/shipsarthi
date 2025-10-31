@@ -7,7 +7,7 @@ interface WalletRechargeModalProps {
   client: AdminClient;
   isOpen: boolean;
   onClose: () => void;
-  onRecharge: (clientId: string, amount: number, type: 'credit' | 'debit') => Promise<void>;
+  onRecharge: (clientId: string, amount: number, type: 'credit' | 'debit', description?: string) => Promise<void>;
   onUpdateLabel: (clientId: string, label: string) => Promise<void>;
 }
 
@@ -20,6 +20,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
 }) => {
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'credit' | 'debit'>('credit');
+  const [reason, setReason] = useState('');
   const [selectedLabel, setSelectedLabel] = useState(client?.user_category || 'Basic User');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
   useEffect(() => {
     setAmount('');
     setTransactionType('credit');
+    setReason('');
     setError(null);
     setSuccess(false);
   }, [client._id]);
@@ -56,9 +58,10 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
     setSuccess(false);
 
     try {
-      await onRecharge(client._id, parseFloat(amount), transactionType);
+      await onRecharge(client._id, parseFloat(amount), transactionType, reason.trim() || undefined);
       setSuccess(true);
       setAmount('');
+      setReason('');
       
       // Show success message for 2 seconds before closing
       setTimeout(() => {
@@ -84,6 +87,7 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
   const handleClose = () => {
     setAmount('');
     setTransactionType('credit');
+    setReason('');
     setError(null);
     setSuccess(false);
     onClose();
@@ -137,6 +141,26 @@ const WalletRechargeModal: React.FC<WalletRechargeModalProps> = ({
                   Available balance: ₹{client?.wallet_balance || 0}
                 </small>
               )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="reason">
+                Reason/Description 
+                <span className="optional-badge">(Optional)</span>
+              </label>
+              <textarea
+                id="reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={`Enter reason for ${transactionType === 'credit' ? 'credit' : 'debit'} (e.g., "Payment adjustment", "Refund for order XYZ", "Penalty for late payment", etc.)`}
+                rows={3}
+                maxLength={500}
+                className="reason-textarea"
+              />
+              <small className="form-note">
+                This reason will be displayed in the client's wallet transactions and billing history. 
+                {reason.length > 0 && <span className="char-count"> ({reason.length}/500 characters)</span>}
+              </small>
             </div>
 
             <div className="form-group">
@@ -242,9 +266,9 @@ const AdminWalletRecharge: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleRecharge = async (clientId: string, amount: number, type: 'credit' | 'debit'): Promise<void> => {
+  const handleRecharge = async (clientId: string, amount: number, type: 'credit' | 'debit', description?: string): Promise<void> => {
     try {
-      await adminService.adjustWallet(clientId, amount, type);
+      await adminService.adjustWallet(clientId, amount, type, description);
       
       // Refresh the clients list to show updated balances
       fetchClients();

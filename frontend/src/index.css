@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden; /* Prevent body scroll, let layout handle it */
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #f8f9fa;
@@ -13,6 +18,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden; /* Prevent root scroll, let layout handle it */
 }
 
 /* Utility Classes */

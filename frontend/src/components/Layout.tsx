@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ProfileDropdown from './ProfileDropdown';
 import { userService, UserProfile } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
 import { notificationService } from '../services/notificationService';
+import { DataCache } from '../utils/dataCache';
+import ProfileDropdown from './ProfileDropdown';
 import './Layout.css';
 
 interface LayoutProps {
@@ -15,10 +16,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
   const [loading, setLoading] = useState(true);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,27 +75,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate('/support');
   };
 
-  const handleLogout = () => {
-    // Clear auth and redirect to login
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // DO NOT clear remembered_email and remembered_password on logout
-    // These should persist based on user's Remember Me checkbox choice
-    navigate('/login');
-  };
-
   const handleProfileClick = () => {
-    console.log('👤 PROFILE CLICKED:', {
-      isProfileOpen,
-      userProfile: !!userProfile,
-      loading
-    });
     setIsProfileOpen(!isProfileOpen);
   };
 
   const handleProfileClose = () => {
     setIsProfileOpen(false);
   };
+
+  const handleLogout = () => {
+    // Disconnect WebSocket BEFORE clearing auth and redirecting
+    notificationService.disconnect();
+    
+    // Clear auth and redirect to login
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // DO NOT clear remembered_email and remembered_password on logout
+    // These should persist based on user's Remember Me checkbox choice
+    setIsProfileOpen(false);
+    navigate('/login');
+  };
+
 
   // Load user profile and wallet balance on component mount
   useEffect(() => {
@@ -122,64 +124,137 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
 
     const fetchWalletBalance = async () => {
+      // Load from cache first - instant display, no freezing
+      const cached = DataCache.get<WalletBalance>('walletBalance');
+      if (cached) {
+        setWalletBalance(cached);
+        console.log('💰 Wallet balance loaded from cache:', cached);
+      }
+
+      // Fetch fresh data in background - doesn't block UI
       try {
-        const balance = await walletService.getWalletBalance();
+        const balance = await walletService.getWalletBalance(false); // Force fresh fetch
         setWalletBalance(balance);
-        console.log('💰 Initial wallet balance loaded:', balance);
+        console.log('💰 Fresh wallet balance loaded:', balance);
       } catch (error) {
         console.error('❌ ERROR LOADING WALLET BALANCE:', error);
+        // Use stale cache if fresh fetch fails
+        const stale = DataCache.getStale<WalletBalance>('walletBalance');
+        if (stale && !walletBalance) {
+          setWalletBalance(stale);
+        }
       }
     };
+
+    // Listen for WebSocket connection state changes and refresh data when reconnected
+    // CRITICAL: Auto-reconnect WebSocket when disconnected (even for code 1001)
+    const unsubscribeConnection = notificationService.onConnectionChange((connected) => {
+      console.log('🔌 WebSocket connection state changed:', connected);
+      setWsConnected(connected);
+      if (connected) {
+        // When WebSocket reconnects (e.g., after page refresh), refresh critical data
+        console.log('🔄 WebSocket reconnected - refreshing data...');
+        fetchWalletBalance();
+        // Trigger a custom event that pages can listen to
+        window.dispatchEvent(new CustomEvent('websocket-reconnected'));
+      } else {
+        // WebSocket disconnected - AUTO-RECONNECT if we have userId
+        // This fixes the issue where code 1001 disconnects but Layout doesn't reconnect
+        if (userProfile?._id) {
+          console.log('🔌 WebSocket disconnected - auto-reconnecting...');
+          // Wait a bit then reconnect (gives time for network to stabilize)
+          setTimeout(() => {
+            const currentState = notificationService.getConnectionState();
+            if (!currentState) {
+              console.log('🔄 Auto-reconnecting WebSocket after disconnect...');
+              notificationService.connect(userProfile._id);
+            }
+          }, 2000); // 2 second delay to avoid rapid reconnect loops
+        }
+      }
+    });
 
     fetchUserProfile();
     fetchWalletBalance();
     
-    // Cleanup: disconnect WebSocket on unmount
     return () => {
-      notificationService.disconnect();
+      unsubscribeConnection();
     };
   }, [navigate]);
 
-  // Auto-refresh wallet balance every 30 seconds as fallback
+  // Periodic WebSocket health check and auto-reconnect (runs every 5 seconds)
+  useEffect(() => {
+    const healthCheckInterval = setInterval(() => {
+      const isConnected = notificationService.getConnectionState();
+      
+      if (!isConnected && userProfile?._id) {
+        console.log('🔌 Periodic check: WebSocket disconnected, attempting reconnect...');
+        // Check if it's a manual disconnect before reconnecting
+        notificationService.connect(userProfile._id);
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(healthCheckInterval);
+  }, [userProfile?._id]);
+
+  // Auto-refresh wallet balance every 2 minutes as fallback (reduced frequency to prevent rate limits)
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        console.log('🔄 Auto-refreshing wallet balance...');
-        const balance = await walletService.getWalletBalance();
+        // Refresh in background - uses cache if API fails
+        const balance = await walletService.getWalletBalance(false);
         setWalletBalance(balance);
-        console.log('✅ Auto-refresh wallet balance:', balance);
+        DataCache.set('walletBalance', balance);
       } catch (error) {
         console.error('❌ Auto-refresh wallet balance failed:', error);
+        // Keep using current state or cached value - don't clear
       }
-    }, 30000); // 30 seconds
+    }, 2 * 60 * 1000); // 2 minutes (reduced from 30 seconds to prevent rate limit hits)
 
     return () => clearInterval(interval);
   }, []);
 
-  // Refresh wallet balance when page becomes visible (user switches back to tab)
+  // Refresh wallet balance AND reconnect WebSocket when page becomes visible (user switches back to tab)
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (!document.hidden) {
+        console.log('👁️ Tab became visible - checking WebSocket connection...');
+        
+        // CRITICAL: Check and reconnect WebSocket if disconnected
+        const isConnected = notificationService.getConnectionState();
+        if (!isConnected && userProfile?._id) {
+          console.log('🔌 WebSocket disconnected - reconnecting after tab visible...');
+          notificationService.connect(userProfile._id);
+        }
+        
+        // Show cached first, then refresh
+        const cached = DataCache.get<WalletBalance>('walletBalance');
+        if (cached) {
+          setWalletBalance(cached);
+        }
+        
         try {
-          console.log('👁️ Page became visible, refreshing wallet balance...');
-          const balance = await walletService.getWalletBalance();
+          const balance = await walletService.getWalletBalance(false);
           setWalletBalance(balance);
-          console.log('✅ Wallet balance refreshed on visibility change:', balance);
+          DataCache.set('walletBalance', balance);
         } catch (error) {
           console.error('❌ Failed to refresh wallet balance on visibility change:', error);
+          // Keep using cached value - don't clear
         }
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+  }, [userProfile?._id]);
 
-  // Subscribe to wallet balance updates
+  // Subscribe to wallet balance updates - this syncs across all components
   useEffect(() => {
     const unsubscribe = walletService.subscribe((balance) => {
-      console.log('💰 WALLET BALANCE UPDATED:', balance);
+      console.log('💰 Layout: Wallet balance updated via subscription:', balance);
       setWalletBalance(balance);
+      // Ensure it's cached
+      DataCache.set('walletBalance', balance);
     });
 
     return unsubscribe;
@@ -201,13 +276,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         console.log('💰 REAL-TIME WALLET BALANCE UPDATE:', notification);
         // Update wallet balance immediately without API call
         const updatedBalance = {
-          balance: notification.balance,
+          balance: parseFloat(notification.balance) || 0,
           currency: notification.currency || 'INR'
         };
+        // Cache it immediately
+        DataCache.set('walletBalance', updatedBalance);
         setWalletBalance(updatedBalance);
-        // Also notify wallet service listeners
+        // Also notify wallet service listeners (which will also cache it)
         walletService.notifyBalanceUpdate(updatedBalance);
-        console.log('✅ Wallet balance updated in real-time:', updatedBalance);
+        console.log('✅ Wallet balance updated in real-time and cached:', updatedBalance);
       } else if (notification.type === 'user_category_updated') {
         console.log('🏷️ USER CATEGORY UPDATED NOTIFICATION:', notification);
         // Refresh user profile to get updated category
@@ -280,17 +357,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
 
         <div className="header-right">
+           {/* WebSocket Connection Status */}
+           <div style={{
+             display: 'flex',
+             alignItems: 'center',
+             marginRight: '10px',
+             padding: '4px 8px',
+             borderRadius: '4px',
+             backgroundColor: wsConnected ? '#28a745' : '#dc3545',
+             color: 'white',
+             fontSize: '12px',
+             fontWeight: 'bold'
+           }}>
+             {wsConnected ? '🟢' : '🔴'} {wsConnected ? 'Connected' : 'Disconnected'}
+           </div>
+           
            <div className="wallet-section">
-             <span className="wallet-icon">💰</span>
-             <span className="wallet-balance">
-               ₹{walletBalance?.balance?.toFixed(2) || (userProfile as any)?.wallet_balance?.toFixed(2) || '0.00'}
-             </span>
-             <button className="refresh-wallet-button" onClick={handleRefreshWallet} title="Refresh Wallet Balance">
-               🔄
-             </button>
-             <button className="debug-wallet-button" onClick={handleDebugWallet} title="Debug Wallet API">
-               🔍
-             </button>
+             <div className="wallet-display">
+               <span className="wallet-icon">₹</span>
+               <span className="wallet-balance">
+                 {walletBalance?.balance?.toFixed(2) || (userProfile as any)?.wallet_balance?.toFixed(2) || '0.00'}
+               </span>
+               <button className="refresh-wallet-button" onClick={handleRefreshWallet} title="Refresh Wallet Balance">
+                 🔄
+               </button>
+               <button className="debug-wallet-button" onClick={handleDebugWallet} title="Debug Wallet API">
+                 🔍
+               </button>
+             </div>
              <button className="recharge-button" onClick={handleRecharge}>
                Recharge
              </button>
@@ -301,23 +395,45 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <button className="notification-button">
             🔔
           </button>
-           <div className="user-avatar-container">
-             {loading ? (
-               <div className="user-avatar-loading">...</div>
-             ) : (
-               <>
-                 <div className="user-avatar" onClick={handleProfileClick}>
-                   {userProfile?.initials || 'U'}
-                 </div>
-                 {isProfileOpen && userProfile && (
-                   <ProfileDropdown 
-                     user={userProfile} 
-                     onClose={handleProfileClose} 
-                   />
-                 )}
-               </>
-             )}
-           </div>
+          
+          {/* Profile Circle - Always visible */}
+          <div className="user-avatar-container" style={{ display: 'flex', visibility: 'visible', opacity: 1 }}>
+            <button 
+              className="user-avatar" 
+              onClick={userProfile ? handleProfileClick : undefined}
+              title={userProfile ? `${userProfile.company_name || 'Profile'}` : 'Loading...'}
+              disabled={!userProfile && loading}
+              style={{ display: 'flex', visibility: 'visible', opacity: 1 }}
+            >
+              {loading && !userProfile ? (
+                <div className="user-avatar-loading">...</div>
+              ) : (
+                <span className="avatar-initials">
+                  {userProfile?.initials || 
+                   (userProfile?.your_name?.charAt(0).toUpperCase() || 
+                    userProfile?.company_name?.charAt(0).toUpperCase() || 
+                    'U')}
+                </span>
+              )}
+            </button>
+            
+            {/* Profile Dropdown */}
+            {isProfileOpen && userProfile && (
+              <div className="profile-dropdown-wrapper" style={{ display: 'block', visibility: 'visible' }}>
+                <ProfileDropdown 
+                  user={{
+                    ...userProfile,
+                    initials: userProfile.initials || 
+                             (userProfile.your_name?.charAt(0).toUpperCase() || 
+                              userProfile.company_name?.charAt(0).toUpperCase() || 
+                              'U')
+                  }} 
+                  onClose={handleProfileClose}
+                  onLogout={handleLogout}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

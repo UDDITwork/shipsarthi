@@ -7,9 +7,10 @@ import './ProfileDropdown.css';
 interface ProfileDropdownProps {
   user: UserProfile;
   onClose: () => void;
+  onLogout?: () => void;
 }
 
-const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose }) => {
+const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogout }) => {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -48,10 +49,16 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose }) => {
 
   const handleLogout = () => {
     console.log('🚪 LOGOUT CLICKED');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    console.log('✅ LOGOUT COMPLETED - Redirecting to login');
-    navigate('/login');
+    // Use provided logout handler if available (from Layout), otherwise use default
+    if (onLogout) {
+      onLogout();
+    } else {
+      // Default logout behavior
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      console.log('✅ LOGOUT COMPLETED - Redirecting to login');
+      navigate('/login');
+    }
     onClose();
   };
 
@@ -118,22 +125,6 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose }) => {
         <button 
           className="logout-button" 
           onClick={handleLogout}
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            gap: '8px',
-            width: '100%',
-            padding: '8px 16px',
-            backgroundColor: '#FFFFFF',
-            color: '#007BFF',
-            border: '1px solid #007BFF',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: '600',
-            minHeight: '36px'
-          }}
         >
           <span className="logout-icon">🚪</span>
           <span className="logout-text">Logout</span>

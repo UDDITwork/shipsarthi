@@ -1,11 +1,14 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { environmentConfig } from '../config/environment';
+import { requestDeduplicator } from '../utils/requestDeduplicator';
 
 // Use the environment configuration
 const API_BASE_URL = environmentConfig.apiUrl;
 
 class ApiService {
   private api: AxiosInstance;
+  private readonly maxRetries = 3;
+  private readonly retryDelay = 1000; // 1 second base delay
 
   constructor() {
     this.api = axios.create({
@@ -100,28 +103,73 @@ class ApiService {
     );
   }
 
+  // Retry helper with exponential backoff
+  private async retryRequest<T>(
+    requestFn: () => Promise<AxiosResponse<T>>,
+    retries = this.maxRetries
+  ): Promise<AxiosResponse<T>> {
+    try {
+      return await requestFn();
+    } catch (error: any) {
+      // Don't retry on 401 (auth errors) or 4xx client errors (except 429)
+      if (error.response?.status === 401 || 
+          (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429)) {
+        throw error;
+      }
+
+      // CRITICAL: NEVER retry on 429 (rate limit) - retrying makes it exponentially worse!
+      // The rate limit window is 15 minutes, so retrying immediately will just hit the limit again
+      if (error.response?.status === 429) {
+        console.error('🚫 Rate limit exceeded - NOT retrying. Use cached data or wait before making new requests.');
+        // Don't retry at all - fail immediately and let the app use cached data
+        throw error;
+      }
+
+      // Retry on network errors, timeouts, or 5xx server errors (NOT 429)
+      if (retries > 0 && (
+        !error.response || 
+        error.response.status >= 500 || 
+        error.code === 'ECONNABORTED' || 
+        error.code === 'ECONNREFUSED' ||
+        error.code === 'ETIMEDOUT'
+      )) {
+        const delay = this.retryDelay * Math.pow(2, this.maxRetries - retries);
+        console.log(`🔄 Retrying request (${this.maxRetries - retries + 1}/${this.maxRetries}) after ${delay}ms...`);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.retryRequest(requestFn, retries - 1);
+      }
+      
+      throw error;
+    }
+  }
+
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.api.get<T>(url, config);
-    return response.data;
+    // Use deduplicator to prevent duplicate requests
+    const key = `GET:${url}`;
+    return requestDeduplicator.get(key, async () => {
+      const response = await this.retryRequest(() => this.api.get<T>(url, config));
+      return response.data;
+    });
   }
 
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.api.post<T>(url, data, config);
+    const response = await this.retryRequest(() => this.api.post<T>(url, data, config));
     return response.data;
   }
 
   async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.api.put<T>(url, data, config);
+    const response = await this.retryRequest(() => this.api.put<T>(url, data, config));
     return response.data;
   }
 
   async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.api.patch<T>(url, data, config);
+    const response = await this.retryRequest(() => this.api.patch<T>(url, data, config));
     return response.data;
   }
 
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.api.delete<T>(url, config);
+    const response = await this.retryRequest(() => this.api.delete<T>(url, config));
     return response.data;
   }
 

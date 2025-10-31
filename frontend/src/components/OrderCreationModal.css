@@ -164,6 +164,13 @@
     margin-bottom: 8px;
     font-size: 14px;
   }
+
+  .optional-text {
+    font-weight: 400;
+    color: #6c757d;
+    font-size: 12px;
+    font-style: italic;
+  }
   
   .form-group input,
   .form-group select,

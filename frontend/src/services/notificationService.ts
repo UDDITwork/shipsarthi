@@ -6,11 +6,24 @@ class NotificationService {
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
   private listeners: Array<(notification: any) => void> = [];
+  private connectionListeners: Array<(connected: boolean) => void> = [];
   private userId: string | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private isManualDisconnect = false;
+  private isConnecting = false; // Prevent concurrent connection attempts
+  private lastConnectionAttempt = 0;
+  private connectionThrottleMs = 1000; // Throttle connection attempts
+  private isConnected = false; // Track connection state
 
   connect(userId?: string) {
+    // Throttle connection attempts to prevent rapid-fire reconnects
+    const now = Date.now();
+    if (now - this.lastConnectionAttempt < this.connectionThrottleMs) {
+      console.log('🔌 Connection attempt throttled');
+      return;
+    }
+    this.lastConnectionAttempt = now;
+
     // Prevent multiple connections - check all states
     if (this.ws) {
       const state = this.ws.readyState;
@@ -32,9 +45,19 @@ class NotificationService {
         this.ws = null;
       } else {
         // Clean up existing connection
-        this.ws.close();
+        try {
+          this.ws.close();
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
         this.ws = null;
       }
+    }
+
+    // Prevent concurrent connection attempts
+    if (this.isConnecting) {
+      console.log('🔌 Connection attempt already in progress');
+      return;
     }
     
     // Clear any pending reconnect attempts
@@ -44,6 +67,7 @@ class NotificationService {
     }
     
     this.isManualDisconnect = false;
+    this.isConnecting = true;
     
     // Store user ID for reconnection
     if (userId) {
@@ -58,6 +82,11 @@ class NotificationService {
       this.ws.onopen = () => {
         console.log('🔌 WebSocket connected');
         this.reconnectAttempts = 0;
+        this.isConnecting = false;
+        this.isConnected = true;
+        
+        // Notify connection listeners
+        this.connectionListeners.forEach(listener => listener(true));
         
         // Authenticate with user ID if available
         if (this.userId) {
@@ -87,21 +116,34 @@ class NotificationService {
       };
       
       this.ws.onclose = (event) => {
-        // Code 1001 = "Going Away" (normal navigation/refresh) - common and expected
-        // Code 1000 = Normal closure
-        // Code 1005 = No status received (abnormal closure, often browser tab closing)
-        // Code 1006 = Abnormal closure
+        // Enhanced disconnect reason logging
+        const disconnectReasons: { [key: number]: string } = {
+          1000: 'Normal Closure',
+          1001: 'Going Away (tab close/navigation/network switch)',
+          1005: 'No Status Received (abnormal closure)',
+          1006: 'Abnormal Closure (no close frame)',
+          1009: 'Message Too Big',
+          1011: 'Server Error'
+        };
+        
+        const reasonText = disconnectReasons[event.code] || event.reason || 'Unknown';
         
         console.log('🔌 WebSocket disconnected', {
           code: event.code,
-          reason: event.reason,
+          reason: reasonText,
           wasClean: event.wasClean,
           userId: this.userId ? 'present' : 'missing',
-          isManual: this.isManualDisconnect
+          isManual: this.isManualDisconnect,
+          timestamp: new Date().toISOString()
         });
         
-        // Clear the connection reference
+        // Clear the connection reference and connecting flag
         this.ws = null;
+        this.isConnecting = false;
+        this.isConnected = false;
+        
+        // Notify connection listeners
+        this.connectionListeners.forEach(listener => listener(false));
         
         // Don't reconnect if manually disconnected
         if (this.isManualDisconnect) {
@@ -109,39 +151,48 @@ class NotificationService {
           return;
         }
         
-        // Don't reconnect for normal navigation/refresh (code 1001) or normal closure (code 1000)
-        // The page will create a new connection when it loads
-        if (event.code === 1000 || event.code === 1001) {
-          console.log('🔌 Normal disconnect - not auto-reconnecting (page will reconnect on load)');
+        // For code 1000 (normal closure) - don't reconnect, it's intentional
+        if (event.code === 1000) {
+          console.log('🔌 Normal closure - not auto-reconnecting');
           this.reconnectAttempts = 0;
           return;
         }
         
-        // Only reconnect for abnormal closures (1005, 1006) or other errors
-        // And only if we have a userId
-        if (this.userId && (event.code === 1005 || event.code === 1006 || !event.wasClean)) {
-          console.log('🔌 Abnormal disconnect - will attempt to reconnect');
+        // REMOVED: Skip reconnection for code 1001
+        // Code 1001 can happen due to tab suspension, network switches, etc.
+        // We should ALWAYS attempt reconnect if userId exists and it's not manual
+        
+        // For ALL disconnect codes (except 1000 which is intentional), attempt reconnect
+        // This handles code 1001 (tab suspension, network changes) and abnormal closures
+        if (this.userId && !this.isManualDisconnect) {
+          console.log(`🔄 Will attempt reconnect in 3s (code: ${event.code}, reason: ${reasonText})`);
+          
           // Clear any existing timeout
           if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
           }
           
-          // Reconnect after a delay
+          // Reconnect after delay - gives network time to stabilize
           this.reconnectTimeout = setTimeout(() => {
-            // Only reconnect if still no connection and we have userId
-            if (!this.ws && this.userId && !this.isManualDisconnect) {
+            if (!this.ws && !this.isConnecting && this.userId && !this.isManualDisconnect) {
+              console.log(`🔄 Attempting reconnect after disconnect (code: ${event.code})...`);
               this.reconnect();
             }
-          }, this.reconnectInterval);
+          }, 3000); // 3 second delay
+        } else {
+          console.log('🔌 Not reconnecting - no userId or manual disconnect');
         }
       };
       
       this.ws.onerror = (error) => {
         console.error('🔌 WebSocket error:', error);
+        this.isConnecting = false;
+        // Connection will be handled by onclose event
       };
       
     } catch (error) {
       console.error('Error connecting to WebSocket:', error);
+      this.isConnecting = false;
     }
   }
 
@@ -178,6 +229,12 @@ class NotificationService {
     // Don't reconnect if already connected or connecting
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       console.log('🔌 Already connected/connecting - skipping reconnect');
+      return;
+    }
+
+    // Prevent concurrent reconnect attempts
+    if (this.isConnecting) {
+      console.log('🔌 Already attempting to connect - skipping reconnect');
       return;
     }
     
@@ -218,6 +275,27 @@ class NotificationService {
         this.listeners.splice(index, 1);
       }
     };
+  }
+
+  // Subscribe to connection state changes
+  onConnectionChange(listener: (connected: boolean) => void) {
+    this.connectionListeners.push(listener);
+    
+    // Immediately notify of current state
+    listener(this.isConnected);
+    
+    // Return unsubscribe function
+    return () => {
+      const index = this.connectionListeners.indexOf(listener);
+      if (index > -1) {
+        this.connectionListeners.splice(index, 1);
+      }
+    };
+  }
+
+  // Get current connection state
+  getConnectionState(): boolean {
+    return this.isConnected && this.ws?.readyState === WebSocket.OPEN;
   }
 
   send(message: any) {
