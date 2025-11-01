@@ -55,6 +55,145 @@
     font-size: 14px;
     color: #002B59;
     font-weight: 500;
+    position: relative;
+  }
+
+  .date-range-display:hover {
+    background-color: #F5F7FA;
+    cursor: pointer;
+  }
+
+  .calendar-icon {
+    font-size: 18px;
+  }
+
+  .date-text {
+    user-select: none;
+  }
+
+  /* Date Picker Dropdown */
+  .date-picker-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 320px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .date-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #FF8C42;
+    color: #FFFFFF;
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .date-picker-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .close-date-picker {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-date-picker:hover {
+    opacity: 0.8;
+  }
+
+  .date-picker-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .date-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .date-input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2C4563;
+  }
+
+  .date-input-group input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2C4563;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .date-input-group input[type="date"]:focus {
+    outline: none;
+    border-color: #FF8C42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+  }
+
+  .date-picker-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #E5E5E5;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .apply-date-filter-btn,
+  .reset-date-filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .apply-date-filter-btn {
+    background-color: #FF8C42;
+    color: #FFFFFF;
+  }
+
+  .apply-date-filter-btn:hover {
+    background-color: #E57A35;
+  }
+
+  .reset-date-filter-btn {
+    background-color: #FFFFFF;
+    color: #2C4563;
+    border: 1px solid #E5E5E5;
+  }
+
+  .reset-date-filter-btn:hover {
+    background-color: #F5F7FA;
+    border-color: #CCCCCC;
   }
 
   /* Current Time Display */

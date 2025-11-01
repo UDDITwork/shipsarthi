@@ -502,6 +502,18 @@ const AdminClientTickets: React.FC = () => {
                   <p>{selectedTicket.subject || 'No subject'}</p>
                 </div>
 
+                {/* AWB Numbers - Only show if provided */}
+                {selectedTicket.awb_numbers && selectedTicket.awb_numbers.length > 0 && (
+                  <div className="ticket-detail-section">
+                    <h3>AWB Numbers</h3>
+                    <div className="awb-numbers-box">
+                      {selectedTicket.awb_numbers.map((awb: string, index: number) => (
+                        <span key={index} className="awb-badge">{awb}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="ticket-detail-section">
                   <h3>Description</h3>
                   <div className="description-box">

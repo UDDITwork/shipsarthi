@@ -69,7 +69,7 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Admin-Email', 'X-Admin-Password'],
-  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+  exposedHeaders: ['Content-Length', 'Content-Type', 'Content-Disposition', 'Cache-Control', 'X-Foo', 'X-Bar'],
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
@@ -122,7 +122,26 @@ const healthCheckLimiter = rateLimit({
   skipSuccessfulRequests: true
 });
 
+// Separate rate limiter for document uploads - more lenient since uploads are critical operations
+const documentUploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isLocalhost ? 50 : isDevelopment ? 30 : 20, // Higher limits for document uploads
+  message: {
+    error: 'Too many document upload requests. Please wait a few minutes before uploading again.',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: true,
+  skip: (req) => {
+    // Skip rate limiting for health checks even if they hit document endpoints
+    return req.path === '/health';
+  }
+});
+
 app.use('/api/health', healthCheckLimiter);
+// Apply document upload limiter to upload-document endpoint BEFORE general limiter
+app.use('/api/users/upload-document', documentUploadLimiter);
 app.use('/api/', limiter);
 
 // Enhanced Request Logging Middleware

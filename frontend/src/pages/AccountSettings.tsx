@@ -401,12 +401,15 @@ const AccountSettings: React.FC = () => {
     setUploadingDoc(documentType);
 
     try {
+      const uploadStartTime = Date.now();
       console.log('🚀 UPLOADING DOCUMENT:', {
         documentType,
         fileName: file.name,
         fileSize: file.size,
+        fileSizeMB: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
         fileType: file.type,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        uploadStartTime
       });
 
       // API call to upload document (will use Cloudinary in backend)
@@ -415,14 +418,54 @@ const AccountSettings: React.FC = () => {
         document_type: documentType
       });
 
-      console.log('✅ DOCUMENT UPLOAD SUCCESS:', response);
+      const uploadDuration = Date.now() - uploadStartTime;
+      console.log('✅ DOCUMENT UPLOAD SUCCESS:', {
+        response,
+        documentType,
+        fileName: file.name,
+        uploadDuration: `${uploadDuration}ms`,
+        timestamp: new Date().toISOString()
+      });
       alert('Document uploaded successfully!');
       fetchUserData();
 
-    } catch (error) {
-      console.error('Error uploading document:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(`Failed to upload document: ${errorMessage}`);
+    } catch (error: any) {
+      console.error('❌ DOCUMENT UPLOAD ERROR:', {
+        error,
+        errorType: error?.constructor?.name,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        errorMessage: error?.response?.data?.error || error?.response?.data?.message,
+        fullError: error?.response?.data,
+        retryAfter: error?.response?.headers?.['retry-after'],
+        timestamp: new Date().toISOString()
+      });
+      
+      // Handle specific error cases
+      let errorMessage = 'Failed to upload document';
+      
+      if (error?.response?.status === 429) {
+        const retryAfter = error?.response?.headers?.['retry-after'] || '15';
+        errorMessage = `Too many upload requests. Please wait ${retryAfter} minutes before trying again.`;
+        console.warn('⚠️ RATE LIMIT HIT:', {
+          retryAfter,
+          endpoint: '/users/upload-document',
+          documentType,
+          timestamp: new Date().toISOString()
+        });
+      } else if (error?.response?.status === 413) {
+        errorMessage = 'File is too large. Maximum size is 5MB.';
+      } else if (error?.response?.status === 400) {
+        errorMessage = error?.response?.data?.message || error?.response?.data?.error || 'Invalid file format or missing document type.';
+      } else if (error?.response?.data?.message) {
+        errorMessage = error?.response?.data?.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error?.response?.data?.error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     } finally {
       setUploadingDoc(null);
     }
@@ -434,12 +477,104 @@ const AccountSettings: React.FC = () => {
   };
 
   // ✅ Generate proper download URL with backend proxy that sets correct headers
-  const getPdfViewUrl = (cloudinaryUrl: string, documentType: string) => {
-    if (!cloudinaryUrl) return '';
+  const handleViewDocument = async (cloudinaryUrl: string, documentType: string) => {
+    if (!cloudinaryUrl) return;
     
-    // Use backend proxy endpoint to ensure proper Content-Type and filename
-    const encodedUrl = encodeURIComponent(cloudinaryUrl);
-    return `${environmentConfig.apiUrl}/users/documents/download?url=${encodedUrl}&documentType=${encodeURIComponent(documentType)}`;
+    try {
+      const encodedUrl = encodeURIComponent(cloudinaryUrl);
+      // environmentConfig.apiUrl already includes '/api', so use '/users/documents/download' not '/api/users/documents/download'
+      const downloadUrl = `${environmentConfig.apiUrl}/users/documents/download?url=${encodedUrl}&documentType=${encodeURIComponent(documentType)}`;
+      
+      // Fetch the document with authentication token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please log in to view documents');
+        return;
+      }
+      
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert('Access denied. Please log in again.');
+          return;
+        }
+        const errorData = await response.json().catch(() => ({ message: 'Failed to download document' }));
+        alert(errorData.message || 'Failed to download document');
+        return;
+      }
+      
+      // Get the content type and filename from headers
+      const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'document';
+      
+      // Extract filename from Content-Disposition header
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
+        if (filenameMatch && filenameMatch[1]) {
+          // Remove quotes if present
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // Get the actual file content as array buffer to preserve format exactly
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Create blob with explicit MIME type to ensure format preservation
+      // The Content-Type from backend determines the format (PDF, JPEG, PNG, etc.)
+      const blob = new Blob([arrayBuffer], { type: contentType });
+      
+      // Determine if this is a viewable format (PDF, images) or should be downloaded
+      const isViewableFormat = contentType.startsWith('application/pdf') || 
+                               contentType.startsWith('image/');
+      
+      if (isViewableFormat) {
+        // For PDFs and images: create a blob URL and open in new window for viewing
+        const blobUrl = URL.createObjectURL(blob);
+        const newWindow = window.open(blobUrl, '_blank');
+        
+        // Clean up the blob URL after a delay (after the window has loaded)
+        if (newWindow) {
+          // Revoke URL after window closes or after timeout
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+              console.warn('Error revoking blob URL:', e);
+            }
+          }, 60000); // 60 seconds should be enough for viewing
+        } else {
+          // If popup was blocked, fall back to download
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        }
+      } else {
+        // For other formats: force download
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      }
+      
+    } catch (error) {
+      console.error('Error viewing document:', error);
+      alert('Failed to view document. Please try again.');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -867,14 +1002,13 @@ const AccountSettings: React.FC = () => {
                           />
                         </label>
                         {docStatus && (
-                          <a
-                            href={getPdfViewUrl(docStatus.file_url, doc.type)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => handleViewDocument(docStatus.file_url, doc.type)}
                             className="view-btn"
+                            type="button"
                           >
                             View
-                          </a>
+                          </button>
                         )}
                       </td>
                     </tr>

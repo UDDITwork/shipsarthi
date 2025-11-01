@@ -96,16 +96,22 @@ const supportTicketSchema = new mongoose.Schema({
     maxlength: 5000
   },
 
-  // AWB Numbers
-  awb_numbers: [{
-    type: String,
+  // AWB Numbers (optional - only required for shipment-related categories)
+  awb_numbers: {
+    type: [String],
+    default: undefined, // Allow empty array or undefined
     validate: {
       validator: function(v) {
-        return v.length <= 10; // Max 10 AWB numbers
+        // If provided, ensure max 10 AWB numbers
+        if (v && Array.isArray(v)) {
+          return v.length <= 10;
+        }
+        // If undefined or empty, it's valid (not required for all categories)
+        return true;
       },
       message: 'Maximum 10 AWB numbers allowed'
     }
-  }],
+  },
 
   // Related Orders
   related_orders: [{

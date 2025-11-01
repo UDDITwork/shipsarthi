@@ -21,7 +21,9 @@ const documentSchema = new mongoose.Schema({
     default: Date.now
   },
   verification_date: Date,
-  rejection_reason: String
+  rejection_reason: String,
+  mimetype: String,
+  original_filename: String
 });
 
 const userSchema = new mongoose.Schema({

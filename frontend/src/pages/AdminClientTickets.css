@@ -447,14 +447,37 @@
   color: #111827;
 }
 
+.awb-numbers-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.awb-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #FF8C42;
+  color: #FFFFFF;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
 .description-box {
   padding: 16px;
   background: #f9fafb;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   color: #374151;
-  line-height: 1.6;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
 }
 
 .conversation-list {

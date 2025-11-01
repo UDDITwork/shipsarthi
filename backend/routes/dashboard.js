@@ -19,11 +19,25 @@ router.get('/overview', auth, async (req, res) => {
     userId: req.user._id,
     email: req.user.email,
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get('User-Agent'),
+    date_from: req.query.date_from,
+    date_to: req.query.date_to
   });
 
   try {
     const userId = req.user._id;
+    
+    // Get date range from query params or default to last 30 days
+    let startDate, endDate;
+    if (req.query.date_from && req.query.date_to) {
+      startDate = moment(req.query.date_from).startOf('day');
+      endDate = moment(req.query.date_to).endOf('day');
+    } else {
+      // Default to last 30 days
+      endDate = moment().endOf('day');
+      startDate = moment().subtract(30, 'days').startOf('day');
+    }
+    
     const today = moment().startOf('day');
     const yesterday = moment().subtract(1, 'day').startOf('day');
     const last30Days = moment().subtract(30, 'days').startOf('day');
@@ -37,26 +51,37 @@ router.get('/overview', auth, async (req, res) => {
       }
     });
 
-    // Get today's metrics
-    const todaysOrders = await Order.countDocuments({
+    // Build date filter for order_date
+    const orderDateFilter = {
+      $gte: startDate.toDate(),
+      $lte: endDate.toDate()
+    };
+
+    // Get orders in date range
+    const rangeOrders = await Order.countDocuments({
       user_id: userId,
-      order_date: { $gte: today.toDate() }
+      order_date: orderDateFilter
     });
 
-    const yesterdaysOrders = await Order.countDocuments({
+    // Get previous period for comparison (same duration before start date)
+    const periodDuration = endDate.diff(startDate, 'days');
+    const previousStartDate = moment(startDate).subtract(periodDuration + 1, 'days');
+    const previousEndDate = moment(startDate).subtract(1, 'days').endOf('day');
+
+    const previousRangeOrders = await Order.countDocuments({
       user_id: userId,
       order_date: {
-        $gte: yesterday.toDate(),
-        $lt: today.toDate()
+        $gte: previousStartDate.toDate(),
+        $lte: previousEndDate.toDate()
       }
     });
 
-    // Calculate today's revenue
-    const todaysRevenue = await Order.aggregate([
+    // Calculate revenue in date range
+    const rangeRevenue = await Order.aggregate([
       {
         $match: {
           user_id: userId,
-          order_date: { $gte: today.toDate() },
+          order_date: orderDateFilter,
           'status': { $ne: 'cancelled' }
         }
       },
@@ -68,13 +93,13 @@ router.get('/overview', auth, async (req, res) => {
       }
     ]);
 
-    const yesterdaysRevenue = await Order.aggregate([
+    const previousRangeRevenue = await Order.aggregate([
       {
         $match: {
           user_id: userId,
           order_date: {
-            $gte: yesterday.toDate(),
-            $lt: today.toDate()
+            $gte: previousStartDate.toDate(),
+            $lte: previousEndDate.toDate()
           },
           'status': { $ne: 'cancelled' }
         }
@@ -87,12 +112,12 @@ router.get('/overview', auth, async (req, res) => {
       }
     ]);
 
-    // Calculate average shipping cost
+    // Calculate average shipping cost for date range
     const avgShippingCost = await Order.aggregate([
       {
         $match: {
           user_id: userId,
-          order_date: { $gte: last30Days.toDate() },
+          order_date: orderDateFilter,
           'payment_info.shipping_charges': { $gt: 0 }
         }
       },
@@ -109,16 +134,16 @@ router.get('/overview', auth, async (req, res) => {
 
     const responseData = {
       todays_orders: {
-        count: todaysOrders,
-        previous_count: yesterdaysOrders,
-        change_percentage: yesterdaysOrders > 0 ?
-          ((todaysOrders - yesterdaysOrders) / yesterdaysOrders * 100).toFixed(2) : 0
+        count: rangeOrders,
+        previous_count: previousRangeOrders,
+        change_percentage: previousRangeOrders > 0 ?
+          ((rangeOrders - previousRangeOrders) / previousRangeOrders * 100).toFixed(2) : 0
       },
       todays_revenue: {
-        amount: todaysRevenue[0]?.total || 0,
-        previous_amount: yesterdaysRevenue[0]?.total || 0,
-        change_percentage: yesterdaysRevenue[0]?.total > 0 ?
-          (((todaysRevenue[0]?.total || 0) - yesterdaysRevenue[0]?.total) / yesterdaysRevenue[0]?.total * 100).toFixed(2) : 0
+        amount: rangeRevenue[0]?.total || 0,
+        previous_amount: previousRangeRevenue[0]?.total || 0,
+        change_percentage: previousRangeRevenue[0]?.total > 0 ?
+          (((rangeRevenue[0]?.total || 0) - previousRangeRevenue[0]?.total) / previousRangeRevenue[0]?.total * 100).toFixed(2) : 0
       },
       average_shipping_cost: avgShippingCost[0]?.average || 0,
       wallet_balance: user?.wallet_balance || 0
@@ -129,12 +154,14 @@ router.get('/overview', auth, async (req, res) => {
       userId,
       responseTime: `${responseTime}ms`,
       metrics: {
-        todaysOrders,
-        yesterdaysOrders,
-        todaysRevenue: todaysRevenue[0]?.total || 0,
-        yesterdaysRevenue: yesterdaysRevenue[0]?.total || 0,
+        rangeOrders,
+        previousRangeOrders,
+        rangeRevenue: rangeRevenue[0]?.total || 0,
+        previousRangeRevenue: previousRangeRevenue[0]?.total || 0,
         avgShippingCost: avgShippingCost[0]?.average || 0,
-        walletBalance: user?.wallet_balance || 0
+        walletBalance: user?.wallet_balance || 0,
+        dateFrom: startDate.format(),
+        dateTo: endDate.format()
       }
     });
 
@@ -172,8 +199,21 @@ router.get('/shipment-status', auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // Get date range from query params or default to all
+    let dateFilter = {};
+    if (req.query.date_from && req.query.date_to) {
+      const startDate = moment(req.query.date_from).startOf('day');
+      const endDate = moment(req.query.date_to).endOf('day');
+      dateFilter = {
+        order_date: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      };
+    }
+
     const shipmentStats = await Order.aggregate([
-      { $match: { user_id: userId } },
+      { $match: { user_id: userId, ...dateFilter } },
       {
         $group: {
           _id: '$status',
@@ -262,8 +302,21 @@ router.get('/ndr-status', auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // Get date range from query params or default to all
+    let dateFilter = {};
+    if (req.query.date_from && req.query.date_to) {
+      const startDate = moment(req.query.date_from).startOf('day');
+      const endDate = moment(req.query.date_to).endOf('day');
+      dateFilter = {
+        created_at: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      };
+    }
+
     const ndrStats = await NDR.aggregate([
-      { $match: { user_id: userId } },
+      { $match: { user_id: userId, ...dateFilter } },
       {
         $group: {
           _id: '$ndr_status.current_status',
@@ -348,13 +401,27 @@ router.get('/cod-status', auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // Get date range from query params or default to all
+    let dateFilter = {};
+    if (req.query.date_from && req.query.date_to) {
+      const startDate = moment(req.query.date_from).startOf('day');
+      const endDate = moment(req.query.date_to).endOf('day');
+      dateFilter = {
+        order_date: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      };
+    }
+
     // Get total COD amount
     const totalCOD = await Order.aggregate([
       {
         $match: {
           user_id: userId,
           'payment_info.payment_mode': 'cod',
-          'status': 'delivered'
+          'status': 'delivered',
+          ...dateFilter
         }
       },
       {
@@ -379,6 +446,7 @@ router.get('/cod-status', auth, async (req, res) => {
           user_id: userId,
           'payment_info.payment_mode': 'cod',
           'status': 'delivered',
+          ...dateFilter
           // Add condition to check if not yet remitted
         }
       },
@@ -439,10 +507,22 @@ router.get('/wallet-transactions', auth, async (req, res) => {
     const userId = req.user._id;
     const limit = parseInt(req.query.limit) || 10;
 
-    const transactions = await Transaction.find({
+    // Build transaction query with optional date filter
+    const transactionQuery = {
       user_id: userId,
       status: 'completed'
-    })
+    };
+
+    if (req.query.date_from && req.query.date_to) {
+      const startDate = moment(req.query.date_from).startOf('day');
+      const endDate = moment(req.query.date_to).endOf('day');
+      transactionQuery.transaction_date = {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate()
+      };
+    }
+
+    const transactions = await Transaction.find(transactionQuery)
     .sort({ transaction_date: -1 })
     .limit(limit)
     .select('transaction_id transaction_type transaction_category amount description transaction_date balance_info.closing_balance');

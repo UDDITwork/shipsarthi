@@ -58,6 +58,25 @@ interface CODStatus {
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // Date filter state - default to last 30 days
+  const getDefaultDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    return {
+      startDate: startDate.toISOString().split('T')[0], // YYYY-MM-DD format
+      endDate: endDate.toISOString().split('T')[0]
+    };
+  };
+  
+  const defaultRange = getDefaultDateRange();
+  const [dateFilter, setDateFilter] = useState({
+    startDate: defaultRange.startDate,
+    endDate: defaultRange.endDate
+  });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [ndrStatus, setNdrStatus] = useState<any>(null);
   const [codStatus, setCodStatus] = useState<any>(null);
@@ -70,6 +89,7 @@ const Dashboard: React.FC = () => {
   
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const dateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const datePickerRef = useRef<HTMLDivElement>(null);
 
   // Update current date/time every second
   useEffect(() => {
@@ -115,6 +135,9 @@ const Dashboard: React.FC = () => {
         return requestFn();
       };
 
+      // Build date filter query parameters
+      const dateParams = `date_from=${dateFilter.startDate}&date_to=${dateFilter.endDate}`;
+      
       // Start all requests with staggered delays (0ms, 800ms, 1600ms, 2400ms, 3200ms, 4000ms)
       // Increased delays to prevent hitting rate limits - requests spread over 4 seconds
       const [
@@ -125,12 +148,12 @@ const Dashboard: React.FC = () => {
         distributionResponse,
         transactionsResponse
       ] = await Promise.all([
-        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/overview'), 0),
-        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/shipment-status'), 800),
-        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/ndr-status'), 1600),
-        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/cod-status'), 2400),
-        staggerRequest(() => apiService.get<{ status: string; data: any }>('/dashboard/shipment-distribution'), 3200),
-        staggerRequest(() => apiService.get<{ status: string; data: any[] }>('/dashboard/wallet-transactions?limit=5'), 4000)
+        staggerRequest(() => apiService.get<{ status: string; data: any }>(`/dashboard/overview?${dateParams}`), 0),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>(`/dashboard/shipment-status?${dateParams}`), 800),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>(`/dashboard/ndr-status?${dateParams}`), 1600),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>(`/dashboard/cod-status?${dateParams}`), 2400),
+        staggerRequest(() => apiService.get<{ status: string; data: any }>(`/dashboard/shipment-distribution?${dateParams}`), 3200),
+        staggerRequest(() => apiService.get<{ status: string; data: any[] }>(`/dashboard/wallet-transactions?limit=5&${dateParams}`), 4000)
       ]);
 
       // Map the data
@@ -314,7 +337,7 @@ const Dashboard: React.FC = () => {
       }
       clearInterval(shortInterval);
     };
-  }, []);
+  }, [dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
 
   const handleRecharge = (amount: number, promoCode?: string) => {
     console.log('Recharge initiated:', { amount, promoCode });
@@ -338,23 +361,48 @@ const Dashboard: React.FC = () => {
     navigate('/orders?status=all');
   };
 
-  // Format date range for display
+  // Format date range for display (DD-MM-YYYY format)
   const formatDateRange = () => {
-    const month = currentDate.toLocaleString('en-US', { month: '2-digit' });
-    const day = currentDate.toLocaleString('en-US', { day: '2-digit' });
-    const year = currentDate.getFullYear();
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString + 'T00:00:00');
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
     
-    // Show last 30 days range
-    const endDate = `${day}-${month}-${year}`;
-    const startDateObj = new Date(currentDate);
-    startDateObj.setDate(startDateObj.getDate() - 30);
-    const startMonth = startDateObj.toLocaleString('en-US', { month: '2-digit' });
-    const startDay = startDateObj.toLocaleString('en-US', { day: '2-digit' });
-    const startYear = startDateObj.getFullYear();
-    const startDate = `${startDay}-${startMonth}-${startYear}`;
-    
-    return `${startDate} to ${endDate}`;
+    return `${formatDate(dateFilter.startDate)} to ${formatDate(dateFilter.endDate)}`;
   };
+
+  // Handle date filter change
+  const handleDateFilterChange = (startDate: string, endDate: string) => {
+    setDateFilter({ startDate, endDate });
+    setShowDatePicker(false);
+    // Refresh dashboard data with new date range
+    fetchAllDashboardData();
+  };
+
+  // Reset date filter to default (last 30 days)
+  const handleResetDateFilter = () => {
+    const defaultRange = getDefaultDateRange();
+    handleDateFilterChange(defaultRange.startDate, defaultRange.endDate);
+  };
+
+  // Close date picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    if (showDatePicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showDatePicker]);
 
   // Format current time
   const formatCurrentTime = () => {
@@ -453,9 +501,65 @@ const Dashboard: React.FC = () => {
         
         {/* Date Range Display with Real-time Clock */}
         <div className="date-time-display">
-          <div className="date-range-display">
+          <div className="date-range-display" ref={datePickerRef} style={{ position: 'relative' }}>
             <span className="calendar-icon">📅</span>
-            <span className="date-text">{formatDateRange()}</span>
+            <span 
+              className="date-text" 
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              style={{ cursor: 'pointer' }}
+            >
+              {formatDateRange()}
+            </span>
+            
+            {/* Date Picker Dropdown */}
+            {showDatePicker && (
+              <div className="date-picker-dropdown">
+                <div className="date-picker-header">
+                  <h3>Select Date Range</h3>
+                  <button 
+                    className="close-date-picker" 
+                    onClick={() => setShowDatePicker(false)}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="date-picker-body">
+                  <div className="date-input-group">
+                    <label>From Date</label>
+                    <input
+                      type="date"
+                      value={dateFilter.startDate}
+                      max={dateFilter.endDate}
+                      onChange={(e) => setDateFilter({ ...dateFilter, startDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="date-input-group">
+                    <label>To Date</label>
+                    <input
+                      type="date"
+                      value={dateFilter.endDate}
+                      min={dateFilter.startDate}
+                      max={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setDateFilter({ ...dateFilter, endDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="date-picker-footer">
+                  <button 
+                    className="apply-date-filter-btn"
+                    onClick={() => handleDateFilterChange(dateFilter.startDate, dateFilter.endDate)}
+                  >
+                    Apply Filter
+                  </button>
+                  <button 
+                    className="reset-date-filter-btn"
+                    onClick={handleResetDateFilter}
+                  >
+                    Reset (Last 30 Days)
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="current-time-display">
             <span className="clock-icon">🕐</span>

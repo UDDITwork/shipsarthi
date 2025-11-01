@@ -6,6 +6,7 @@ const { auth } = require('../middleware/auth');
 const SupportTicket = require('../models/Support');
 const Order = require('../models/Order');
 const cloudinaryService = require('../services/cloudinaryService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -147,8 +148,33 @@ router.post('/', auth, upload.array('files', 5), [
     'shipment_dispute', 'finance', 'billing_taxation', 'claims',
     'kyc_bank_verification', 'technical_support', 'others'
   ]).withMessage('Valid category is required'),
-  body('awb_numbers').optional().isString(),
-  body('comment').notEmpty().trim().isLength({ max: 500 }).withMessage('Comment is required (max 500 chars)')
+  body('awb_numbers').optional().custom((value, { req }) => {
+    // Categories that require AWB numbers
+    const categoriesRequiringAWB = [
+      'pickup_delivery',
+      'shipment_ndr_rto',
+      'edit_shipment_info',
+      'shipment_dispute',
+      'claims'
+    ];
+    
+    const category = req.body.category;
+    
+    // If category requires AWB, ensure it's provided
+    if (categoriesRequiringAWB.includes(category)) {
+      if (!value || (Array.isArray(value) && value.length === 0) || (typeof value === 'string' && value.trim() === '')) {
+        throw new Error('AWB numbers are required for this category');
+      }
+      
+      // Validate AWB count if array
+      if (Array.isArray(value) && value.length > 10) {
+        throw new Error('Maximum 10 AWB numbers allowed');
+      }
+    }
+    
+    return true;
+  }),
+  body('comment').notEmpty().trim().isLength({ min: 10, max: 5000 }).withMessage('Please provide a detailed description (minimum 10 characters, maximum 5000 characters)')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -162,13 +188,40 @@ router.post('/', auth, upload.array('files', 5), [
     const userId = req.user._id;
     const { category, awb_numbers, comment } = req.body;
 
-    // Parse AWB numbers
-    const awbArray = awb_numbers ? awb_numbers.split(',').map(s => s.trim()).filter(Boolean) : [];
+    // Categories that require AWB numbers
+    const categoriesRequiringAWB = [
+      'pickup_delivery',
+      'shipment_ndr_rto',
+      'edit_shipment_info',
+      'shipment_dispute',
+      'claims'
+    ];
     
-    if (awbArray.length > 10) {
+    const requiresAWB = categoriesRequiringAWB.includes(category);
+    
+    // Parse AWB numbers - handle both array and string formats
+    let awbArray = [];
+    if (awb_numbers) {
+      if (Array.isArray(awb_numbers)) {
+        awbArray = awb_numbers.map(s => String(s).trim()).filter(Boolean);
+      } else if (typeof awb_numbers === 'string') {
+        awbArray = awb_numbers.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      
+      // Validate count
+      if (awbArray.length > 10) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Maximum 10 AWB numbers allowed'
+        });
+      }
+    }
+    
+    // If category requires AWB but none provided, return error
+    if (requiresAWB && awbArray.length === 0) {
       return res.status(400).json({
         status: 'error',
-        message: 'Maximum 10 AWB numbers allowed'
+        message: 'AWB numbers are required for this ticket category'
       });
     }
 
@@ -204,30 +257,43 @@ router.post('/', auth, upload.array('files', 5), [
       }
     }
 
-    // Find related orders by AWB
-    const relatedOrders = await Order.find({
-      user_id: userId,
-      'delhivery_data.waybill': { $in: awbArray }
-    }).select('_id');
+    // Find related orders by AWB (only if AWB numbers provided)
+    let relatedOrders = [];
+    if (awbArray.length > 0) {
+      relatedOrders = await Order.find({
+        user_id: userId,
+        'delhivery_data.waybill': { $in: awbArray }
+      }).select('_id');
+    }
 
-    // Create ticket
-    const ticket = new SupportTicket({
+    // Create ticket data object
+    const ticketData = {
       user_id: userId,
       category,
-      awb_numbers: awbArray,
       subject: `Support Request - ${category}`,
       description: comment,
       attachments,
-      related_orders: relatedOrders.map(o => o._id),
+      related_orders: relatedOrders.length > 0 ? relatedOrders.map(o => o._id) : [], // Empty array if no orders found
       customer_info: {
         name: req.user.your_name,
         email: req.user.email,
         phone: req.user.phone_number,
         company_name: req.user.company_name
       }
-    });
+    };
 
-    // Add initial message to conversation
+    // Only include AWB numbers if provided (not undefined/empty)
+    if (awbArray.length > 0) {
+      ticketData.awb_numbers = awbArray;
+    }
+
+    // Create ticket
+    const ticket = new SupportTicket(ticketData);
+
+    // Save ticket first to generate ticket_id and validate
+    await ticket.save();
+
+    // Add initial message to conversation (addMessage returns a promise that saves)
     await ticket.addMessage('user', req.user.your_name, comment, attachments);
 
     res.status(201).json({
@@ -237,7 +303,12 @@ router.post('/', auth, upload.array('files', 5), [
     });
 
   } catch (error) {
-    console.error('Create ticket error:', error);
+    logger.error('Create ticket error', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user._id,
+      category: req.body.category
+    });
     res.status(500).json({
       status: 'error',
       message: error.message || 'Server error creating ticket'

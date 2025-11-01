@@ -49,7 +49,7 @@ export interface TicketFilters {
 
 export interface CreateTicketData {
   category: string;
-  awb_numbers: string;
+  awb_numbers?: string[] | string; // Optional, can be array or comma-separated string
   comment: string;
   files?: File[];
 }
@@ -107,7 +107,17 @@ class TicketService {
   async createTicket(ticketData: CreateTicketData): Promise<Ticket> {
     const formData = new FormData();
     formData.append('category', ticketData.category);
-    formData.append('awb_numbers', ticketData.awb_numbers);
+    
+    // Only append AWB numbers if provided
+    // Backend expects string (comma-separated) or array, so convert array to comma-separated string
+    if (ticketData.awb_numbers) {
+      if (Array.isArray(ticketData.awb_numbers)) {
+        formData.append('awb_numbers', ticketData.awb_numbers.join(','));
+      } else {
+        formData.append('awb_numbers', ticketData.awb_numbers);
+      }
+    }
+    
     formData.append('subject', `Support Request - ${ticketData.category}`);
     formData.append('description', ticketData.comment);
     

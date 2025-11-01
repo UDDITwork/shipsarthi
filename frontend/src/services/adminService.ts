@@ -72,6 +72,7 @@ export interface AdminTicket {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_at: string;
   updated_at: string;
+  awb_numbers?: string[]; // Optional - only present for shipment-related categories
   user_id: {
     _id: string;
     company_name: string;

@@ -283,15 +283,10 @@
   transform: translateY(-2px);
 }
 
-.view-btn {
-  background-color: #FFFFFF;
-  color: #F68723;
-  border: 2px solid #F68723;
-}
-
 .view-btn:hover {
-  background-color: #F68723;
-  color: #FFFFFF;
+  background-color: #E07612;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(246, 135, 35, 0.3);
 }
 
 /* KYC Status */

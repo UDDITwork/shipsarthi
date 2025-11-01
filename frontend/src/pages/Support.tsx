@@ -88,10 +88,30 @@ const Support: React.FC = () => {
     }
   ];
 
+  // Categories that require AWB numbers
+  const categoriesRequiringAWB = [
+    'pickup_delivery',
+    'shipment_ndr_rto',
+    'edit_shipment_info',
+    'shipment_dispute',
+    'claims'
+  ];
+
+  // Check if current category requires AWB
+  const requiresAWB = selectedCategory && categoriesRequiringAWB.includes(selectedCategory);
+
   useEffect(() => {
     fetchTickets();
     fetchStats();
   }, [activeStatus]);
+
+  // Reset AWB numbers and adjust form when category changes
+  useEffect(() => {
+    // Clear AWB numbers if switching to a category that doesn't require it
+    if (!requiresAWB && awbNumbers.trim()) {
+      setAwbNumbers('');
+    }
+  }, [selectedCategory]); // Only depend on selectedCategory, not requiresAWB to avoid loops
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -150,25 +170,47 @@ const Support: React.FC = () => {
     }
 
     if (!comment.trim()) {
-      alert('Please enter a comment');
+      alert('Please enter a detailed description of your query');
       return;
     }
 
-    const awbArray = awbNumbers.split(',').map(s => s.trim()).filter(Boolean);
-    if (awbArray.length > 10) {
-      alert('Maximum 10 AWB numbers allowed');
-      return;
+    // Only validate AWB if category requires it
+    if (requiresAWB) {
+      if (!awbNumbers.trim()) {
+        alert('Please enter at least one AWB number for this category');
+        return;
+      }
+      
+      const awbArray = awbNumbers.split(',').map(s => s.trim()).filter(Boolean);
+      if (awbArray.length === 0) {
+        alert('Please enter at least one valid AWB number');
+        return;
+      }
+      if (awbArray.length > 10) {
+        alert('Maximum 10 AWB numbers allowed');
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
-      const response = await ticketService.createTicket({
+      // Only include AWB numbers if category requires it and they're provided
+      const ticketData: any = {
         category: selectedCategory,
-        awb_numbers: awbNumbers,
-        comment: comment,
+        comment: comment.trim(),
         files: selectedFiles
-      });
+      };
+      
+      // Only add AWB numbers if category requires them
+      if (requiresAWB && awbNumbers.trim()) {
+        const awbArray = awbNumbers.split(',').map(s => s.trim()).filter(Boolean);
+        if (awbArray.length > 0) {
+          ticketData.awb_numbers = awbArray; // Send as array
+        }
+      }
+      
+      const response = await ticketService.createTicket(ticketData);
       
       alert('Ticket created successfully!');
       setShowCreateModal(false);
@@ -176,9 +218,14 @@ const Support: React.FC = () => {
       fetchTickets();
       fetchStats();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating ticket:', error);
-      alert('Failed to create ticket');
+      // Show specific error message if available
+      const errorMessage = error.response?.data?.message || 
+                          (Array.isArray(error.response?.data?.errors) && error.response.data.errors[0]?.msg) ||
+                          error.message || 
+                          'Failed to create ticket. Please try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -337,10 +384,19 @@ const Support: React.FC = () => {
               <form className="ticket-form" onSubmit={handleSubmit}>
                 {/* Category Selection */}
                 <div className="form-group">
-                  <label>Select Category</label>
+                  <label>
+                    Select Category <span style={{ color: '#FF0000' }}>*</span>
+                  </label>
                   <select
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      // Reset AWB numbers when category changes to one that doesn't require it
+                      const newRequiresAWB = e.target.value && categoriesRequiringAWB.includes(e.target.value);
+                      if (!newRequiresAWB) {
+                        setAwbNumbers(''); // Clear AWB if category doesn't require it
+                      }
+                    }}
                     required
                   >
                     <option value="">Select Category</option>
@@ -359,30 +415,46 @@ const Support: React.FC = () => {
                   </div>
                 )}
 
-                {/* AWB Numbers */}
-                <div className="form-group">
-                  <label>AWB Numbers (Separated with Comma)</label>
-                  <input
-                    type="text"
-                    placeholder="Enter awb numbers"
-                    value={awbNumbers}
-                    onChange={(e) => setAwbNumbers(e.target.value)}
-                  />
-                  <small>Only 10 AWB numbers can be uploaded at a time</small>
-                </div>
+                {/* AWB Numbers - Only show for categories that require it */}
+                {requiresAWB && (
+                  <div className="form-group">
+                    <label>
+                      AWB Numbers (Separated with Comma) <span style={{ color: '#FF0000' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter AWB numbers (e.g., AWB123456, AWB789012)"
+                      value={awbNumbers}
+                      onChange={(e) => setAwbNumbers(e.target.value)}
+                      required={requiresAWB}
+                    />
+                    <small>Only 10 AWB numbers can be entered at a time. Separate multiple AWB numbers with commas.</small>
+                  </div>
+                )}
 
-                {/* Comment */}
+                {/* Comment/Description */}
                 <div className="form-group">
-                  <label>Comment</label>
+                  <label>
+                    Description <span style={{ color: '#FF0000' }}>*</span>
+                  </label>
                   <textarea
-                    placeholder="Enter 6 digit pincode&#10;Enter 6 digit pincode&#10;Enter 6 digit pincode"
+                    placeholder={
+                      requiresAWB 
+                        ? "Enter detailed description of your query regarding the shipment(s). Include any specific issues, dates, or relevant details..."
+                        : "Please provide a detailed description of your query, issue, or request. Include all relevant information such as dates, amounts, reference numbers, or any other details that will help us assist you better..."
+                    }
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    maxLength={500}
-                    rows={5}
+                    maxLength={5000}
+                    rows={6}
                     required
+                    style={{ minHeight: '120px' }}
                   />
-                  <small>Maximum 500 characters</small>
+                  <small>
+                    {comment.length}/5000 characters. 
+                    {!requiresAWB && ' For queries without AWB numbers, please include all relevant details, dates, amounts, or reference numbers.'}
+                    {requiresAWB && ' Please describe the issue with the shipment(s) in detail.'}
+                  </small>
                 </div>
 
                 {/* File Attachment */}

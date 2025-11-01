@@ -309,7 +309,9 @@ router.post('/upload-document', auth, upload.single('file'), [
       document_type: document_type,
       document_status: 'uploaded',
       file_url: uploadResult.url,
-      upload_date: new Date()
+      upload_date: new Date(),
+      mimetype: req.file.mimetype,
+      original_filename: req.file.originalname
     });
 
     await user.save();
@@ -477,11 +479,38 @@ router.get('/documents/download', auth, async (req, res) => {
       });
     }
 
+    // Use stored MIME type from database
+    let mimeType = document.mimetype || 'application/octet-stream';
+    let extension = '.bin';
+    
+    // Determine extension from stored MIME type
+    const mimeToExt = {
+      'image/jpeg': '.jpg',
+      'image/jpg': '.jpg',
+      'image/png': '.png',
+      'image/gif': '.gif',
+      'application/pdf': '.pdf'
+    };
+    
+    extension = mimeToExt[mimeType] || extension;
+    
+    // Generate filename with correct extension
+    const documentTypeNames = {
+      'gst_certificate': 'GST_Certificate',
+      'photo_selfie': 'Photo_Selfie',
+      'pan_card': 'PAN_Card',
+      'aadhaar_card': 'Aadhaar_Card'
+    };
+    const filename = `${documentTypeNames[documentType] || 'document'}${extension}`;
+
     logger.info('✅ Document ownership verified', {
       requestId,
       userId,
       documentType,
-      documentId: document._id || 'unknown'
+      documentId: document._id || 'unknown',
+      storedMimeType: mimeType,
+      extension,
+      filename
     });
 
     // Fetch file from Cloudinary URL
@@ -519,43 +548,6 @@ router.get('/documents/download', auth, async (req, res) => {
     }
 
     const client = fileUrl.protocol === 'https:' ? https : http;
-
-    // Determine file extension and MIME type from URL or document type
-    let extension = '.jpg';
-    let mimeType = 'image/jpeg';
-    
-    // Try to extract extension from URL
-    const urlPath = fileUrl.pathname || '';
-    if (urlPath.includes('.pdf')) {
-      extension = '.pdf';
-      mimeType = 'application/pdf';
-    } else if (urlPath.includes('.png')) {
-      extension = '.png';
-      mimeType = 'image/png';
-    } else if (urlPath.includes('.jpg') || urlPath.includes('.jpeg')) {
-      extension = '.jpg';
-      mimeType = 'image/jpeg';
-    } else {
-      // Default based on document type
-      if (documentType === 'gst_certificate' || documentType === 'pan_card' || documentType === 'aadhaar_card') {
-        // These could be PDF or image, default to PDF
-        extension = '.pdf';
-        mimeType = 'application/pdf';
-      } else {
-        // photo_selfie is typically an image
-        extension = '.jpg';
-        mimeType = 'image/jpeg';
-      }
-    }
-
-    // Generate filename
-    const documentTypeNames = {
-      'gst_certificate': 'GST_Certificate',
-      'photo_selfie': 'Photo_Selfie',
-      'pan_card': 'PAN_Card',
-      'aadhaar_card': 'Aadhaar_Card'
-    };
-    const filename = `${documentTypeNames[documentType] || 'document'}${extension}`;
 
     // Track if response has been sent to prevent double-send errors
     let responseSent = false;
@@ -655,51 +647,42 @@ router.get('/documents/download', auth, async (req, res) => {
         return;
       }
 
-      // Try to get MIME type from Cloudinary response header first (more accurate)
+      // Use Cloudinary MIME type only as fallback if not stored in database
       const cloudinaryContentType = fileResponse.headers['content-type'];
-      if (cloudinaryContentType) {
-        mimeType = cloudinaryContentType.split(';')[0].trim(); // Remove charset if present
-        
-        logger.debug('📄 Content-Type detected from Cloudinary', {
+      if (cloudinaryContentType && !document.mimetype) {
+        mimeType = cloudinaryContentType.split(';')[0].trim();
+        logger.debug('📄 Content-Type from Cloudinary (fallback)', {
           requestId,
           userId,
           originalContentType: cloudinaryContentType,
           parsedMimeType: mimeType
         });
         
-        // Determine extension from MIME type
+        // Update extension if needed
         const mimeToExt = {
           'image/jpeg': '.jpg',
           'image/jpg': '.jpg',
           'image/png': '.png',
           'image/gif': '.gif',
-          'application/pdf': '.pdf',
-          'application/octet-stream': extension // Keep default if unknown
+          'application/pdf': '.pdf'
         };
         
         if (mimeToExt[mimeType]) {
           extension = mimeToExt[mimeType];
-          logger.debug('📎 Extension determined from MIME type', {
-            requestId,
-            mimeType,
-            extension
-          });
+          const documentTypeNames = {
+            'gst_certificate': 'GST_Certificate',
+            'photo_selfie': 'Photo_Selfie',
+            'pan_card': 'PAN_Card',
+            'aadhaar_card': 'Aadhaar_Card'
+          };
+          filename = `${documentTypeNames[documentType] || 'document'}${extension}`;
         }
       }
-
-      // Update filename with correct extension
-      const documentTypeNames = {
-        'gst_certificate': 'GST_Certificate',
-        'photo_selfie': 'Photo_Selfie',
-        'pan_card': 'PAN_Card',
-        'aadhaar_card': 'Aadhaar_Card'
-      };
-      const finalFilename = `${documentTypeNames[documentType] || 'document'}${extension}`;
 
       logger.info('📤 Setting download headers', {
         requestId,
         userId,
-        filename: finalFilename,
+        filename,
         contentType: mimeType,
         contentLength: fileResponse.headers['content-length']
       });
@@ -707,7 +690,7 @@ router.get('/documents/download', auth, async (req, res) => {
       try {
         // Set proper headers
         res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Disposition', `attachment; filename="${finalFilename}"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Cache-Control', 'private, max-age=3600');
         responseSent = true;
 
@@ -732,7 +715,7 @@ router.get('/documents/download', auth, async (req, res) => {
             requestId,
             userId,
             documentType,
-            filename: finalFilename,
+            filename,
             totalDuration: `${totalDuration}ms`,
             contentLength: fileResponse.headers['content-length']
           });
