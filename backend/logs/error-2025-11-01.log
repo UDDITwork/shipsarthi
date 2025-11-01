@@ -1,0 +1,8 @@
+[2025-11-01T05:45:00.419Z] [ERROR] [PID:15856] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641"
+}
+[2025-11-01T05:55:33.136Z] [ERROR] [PID:15856] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641"
+}

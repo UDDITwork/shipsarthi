@@ -9,6 +9,7 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const delhiveryService = require('../services/delhiveryService');
 const websocketService = require('../services/websocketService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -1409,6 +1410,134 @@ router.get('/:id/label', auth, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error generating label'
+    });
+  }
+});
+
+// @desc    Request pickup for an order
+// @route   POST /api/orders/:id/request-pickup
+// @access  Private
+router.post('/:id/request-pickup', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const orderId = req.params.id;
+
+    // Find order
+    const order = await Order.findOne({
+      _id: orderId,
+      user_id: userId
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    // Validate order status
+    if (order.status !== 'ready_to_ship') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Order must be in ready_to_ship status to request pickup'
+      });
+    }
+
+    // Validate AWB exists
+    if (!order.delhivery_data?.waybill) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'AWB number is required for pickup request'
+      });
+    }
+
+    // Extract warehouse details from pickup_address
+    if (!order.pickup_address || !order.pickup_address.name) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Pickup location is not configured for this order'
+      });
+    }
+
+    // Calculate pickup date (tomorrow)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const pickupDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const pickupTime = '11:00:00';
+
+    logger.info('🚚 Requesting pickup from Delhivery', {
+      orderId: order.order_id,
+      waybill: order.delhivery_data.waybill,
+      pickupLocation: order.pickup_address.name,
+      pickupDate,
+      pickupTime
+    });
+
+    // Call Delhivery Pickup API
+    const pickupResult = await delhiveryService.schedulePickup({
+      pickup_time: pickupTime,
+      pickup_date: pickupDate,
+      pickup_location: order.pickup_address.name,
+      expected_package_count: 1
+    });
+
+    if (!pickupResult.success) {
+      logger.error('❌ Pickup request failed', {
+        orderId: order.order_id,
+        waybill: order.delhivery_data.waybill,
+        error: pickupResult.error
+      });
+
+      return res.status(500).json({
+        status: 'error',
+        message: pickupResult.error || 'Failed to request pickup from Delhivery'
+      });
+    }
+
+    // Update order status and pickup information
+    order.status = 'pickups_manifests';
+    order.delhivery_data.pickup_request_status = 'scheduled';
+    order.delhivery_data.pickup_request_date = new Date(pickupDate);
+    order.delhivery_data.pickup_request_time = pickupTime;
+
+    if (pickupResult.pickup_id) {
+      order.delhivery_data.pickup_request_id = pickupResult.pickup_id;
+    }
+
+    await order.save();
+
+    logger.info('✅ Pickup requested successfully', {
+      orderId: order.order_id,
+      waybill: order.delhivery_data.waybill,
+      pickupRequestId: order.delhivery_data.pickup_request_id,
+      pickupDate,
+      pickupTime
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Pickup requested successfully',
+      data: {
+        order_id: order.order_id,
+        status: order.status,
+        pickup_request_id: order.delhivery_data.pickup_request_id,
+        pickup_date: pickupDate,
+        pickup_time: pickupTime,
+        pickup_status: order.delhivery_data.pickup_request_status
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Request pickup error', {
+      orderId: req.params.id,
+      userId: req.user._id,
+      error: error.message,
+      stack: error.stack
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error requesting pickup'
     });
   }
 });

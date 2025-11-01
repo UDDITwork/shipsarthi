@@ -711,11 +711,48 @@ class DelhiveryService {
      */
     async schedulePickup(pickupData) {
         try {
-            const response = await this.client.post('/fm/request/new/', {
+            // Use production URL directly as specified
+            const productionURL = 'https://track.delhivery.com';
+            const pickupURL = `${productionURL}/fm/request/new/`;
+            
+            logger.info('🚚 Scheduling pickup from Delhivery', {
+                pickupURL,
+                pickupLocation: pickupData.pickup_location,
+                pickupDate: pickupData.pickup_date,
+                pickupTime: pickupData.pickup_time,
+                apiKeyLength: this.apiKey?.length || 0
+            });
+
+            // Validate API key
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for pickup request');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+
+            const response = await axios.post(pickupURL, {
                 pickup_time: pickupData.pickup_time,
                 pickup_date: pickupData.pickup_date,
                 pickup_location: pickupData.pickup_location,
                 expected_package_count: pickupData.expected_package_count || 1
+            }, {
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            logger.info('✅ Pickup scheduled successfully', {
+                status: response.status,
+                pickupId: response.data?.pickup_id,
+                responseData: response.data
             });
 
             return {
@@ -726,7 +763,9 @@ class DelhiveryService {
             };
         } catch (error) {
             logger.error('❌ Pickup scheduling failed', {
-                error: error.response?.data || error.message
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                pickupLocation: pickupData.pickup_location
             });
 
             return {

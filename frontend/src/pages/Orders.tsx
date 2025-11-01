@@ -90,6 +90,10 @@ const Orders: React.FC = () => {
   const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [viewOrderModal, setViewOrderModal] = useState<{open: boolean, order: Order | null}>({
+    open: false,
+    order: null
+  });
 
   // Fetch Orders on component mount and when filters change
   useEffect(() => {
@@ -264,6 +268,35 @@ const Orders: React.FC = () => {
 
   const handleAddOrder = () => {
     setIsAddOrderModalOpen(true);
+  };
+
+  const handleRequestPickup = async (orderId: string, orderNumber: string) => {
+    if (!window.confirm(`Request pickup for order ${orderNumber}?`)) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderId}/request-pickup`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`✅ Pickup requested successfully!\n\nPickup ID: ${data.data.pickup_request_id}\nScheduled: ${data.data.pickup_date} at ${data.data.pickup_time}`);
+        fetchOrders(); // Refresh list
+      } else {
+        const error = await response.json();
+        alert(`❌ Failed: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Pickup request error:', error);
+      alert('Failed to request pickup');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOrderCreated = (order: any) => {
@@ -516,8 +549,10 @@ const Orders: React.FC = () => {
 
   // Action button handlers
   const handleViewOrder = (orderId: string) => {
-    // Navigate to order details page or open modal
-    navigate(`/orders/${orderId}`);
+    const order = orders.find(o => o._id === orderId);
+    if (order) {
+      setViewOrderModal({ open: true, order });
+    }
   };
 
   const handleEditOrder = (orderId: string) => {
@@ -623,6 +658,95 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Order Details Modal Component
+  const OrderDetailsModal = ({ open, order, onClose }: { open: boolean, order: Order | null, onClose: () => void }) => {
+    if (!open || !order) return null;
+
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="order-details-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Order Details - {order.orderId}</h2>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            {/* Order Information */}
+            <section className="details-section">
+              <h3>📦 Order Information</h3>
+              <div className="details-grid">
+                <div className="detail-item"><strong>Order ID:</strong> {order.orderId}</div>
+                <div className="detail-item"><strong>Reference ID:</strong> {order.referenceId || 'N/A'}</div>
+                <div className="detail-item"><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</div>
+                <div className="detail-item"><strong>Status:</strong> <span className={`status-badge ${order.status}`}>{order.status}</span></div>
+                <div className="detail-item"><strong>AWB Number:</strong> {order.awb || 'Not Generated'}</div>
+              </div>
+            </section>
+
+            {/* Customer Information */}
+            <section className="details-section">
+              <h3>👤 Customer Information</h3>
+              <div className="details-grid">
+                <div className="detail-item"><strong>Name:</strong> {order.customerName}</div>
+                <div className="detail-item"><strong>Phone:</strong> {order.customerPhone}</div>
+                <div className="detail-item"><strong>Address:</strong> {order.customerAddress}</div>
+                <div className="detail-item"><strong>City:</strong> {order.city}, {order.state}</div>
+                <div className="detail-item"><strong>Pincode:</strong> {order.pin}</div>
+              </div>
+            </section>
+
+            {/* Product Information */}
+            <section className="details-section">
+              <h3>🛍️ Product Information</h3>
+              <div className="details-grid">
+                <div className="detail-item"><strong>Product:</strong> {order.productName}</div>
+                <div className="detail-item"><strong>Quantity:</strong> {order.quantity}</div>
+                <div className="detail-item"><strong>Weight:</strong> {order.weight}g</div>
+                {order.length && (
+                  <div className="detail-item"><strong>Dimensions:</strong> {order.length} × {order.width} × {order.height} cm</div>
+                )}
+              </div>
+            </section>
+
+            {/* Payment Information */}
+            <section className="details-section">
+              <h3>💳 Payment Information</h3>
+              <div className="details-grid">
+                <div className="detail-item"><strong>Payment Mode:</strong> <span className={`payment-mode ${order.paymentMode?.toLowerCase()}`}>{order.paymentMode}</span></div>
+                <div className="detail-item"><strong>Total Amount:</strong> ₹{order.totalAmount}</div>
+                {order.codAmount && <div className="detail-item"><strong>COD Amount:</strong> ₹{order.codAmount}</div>}
+              </div>
+            </section>
+
+            {/* Pickup Information */}
+            <section className="details-section">
+              <h3>🏢 Warehouse/Pickup Information</h3>
+              <div className="details-grid">
+                <div className="detail-item"><strong>Warehouse:</strong> {order.warehouse}</div>
+                <div className="detail-item"><strong>Pickup Location:</strong> {order.pickupLocation}</div>
+                {order.pickupRequestStatus && (
+                  <>
+                    <div className="detail-item"><strong>Pickup Status:</strong> <span className={`status-badge ${order.pickupRequestStatus}`}>{order.pickupRequestStatus}</span></div>
+                    {order.pickupRequestDate && (
+                      <div className="detail-item"><strong>Pickup Date:</strong> {new Date(order.pickupRequestDate).toLocaleDateString()}</div>
+                    )}
+                    {order.pickupRequestTime && (
+                      <div className="detail-item"><strong>Pickup Time:</strong> {order.pickupRequestTime}</div>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <div className="modal-footer">
+            <button className="btn-secondary" onClick={onClose}>Close</button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1086,43 +1210,31 @@ const Orders: React.FC = () => {
                     <td>{order.warehouse}</td>
                     <td>
                       <div className="action-buttons">
-                        {order.awb && (
+                        {order.awb && order.status === 'ready_to_ship' && (
                           <button 
-                            className="action-btn assign-courier-btn" 
-                            title="Assign Courier"
-                            onClick={() => handleAssignCourier(order.orderId)}
+                            className="action-btn request-pickup-btn"
+                            title="Request Pickup"
+                            onClick={() => handleRequestPickup(order._id, order.orderId)}
                           >
-                            🚚 Assign Courier
+                            Request Pickup
                           </button>
                         )}
                         <button 
                           className="action-icon-btn view-btn" 
-                          title="View Order Details"
-                          onClick={() => handleViewOrder(order.orderId)}
-                        >
-                          👁️
-                        </button>
+                          onClick={() => handleViewOrder(order._id)}
+                        ></button>
                         <button 
                           className="action-icon-btn edit-btn" 
-                          title="Edit Order"
                           onClick={() => handleEditOrder(order.orderId)}
-                        >
-                          ✏️
-                        </button>
+                        ></button>
                         <button 
                           className="action-icon-btn track-btn" 
-                          title="Track Package"
                           onClick={() => handleTrackOrder(order.orderId, order.awb)}
-                        >
-                          📍
-                        </button>
+                        ></button>
                         <button 
                           className="action-icon-btn print-btn" 
-                          title="Print Shipping Label"
                           onClick={() => handlePrintLabel(order.orderId, order.awb)}
-                        >
-                          🖨️
-                        </button>
+                        ></button>
                       </div>
                     </td>
                   </tr>
@@ -1250,6 +1362,13 @@ const Orders: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Order Details Modal */}
+        <OrderDetailsModal 
+          open={viewOrderModal.open} 
+          order={viewOrderModal.order} 
+          onClose={() => setViewOrderModal({ open: false, order: null })}
+        />
 
         {/* Notifications Dropdown */}
         {isNotificationsOpen && (
