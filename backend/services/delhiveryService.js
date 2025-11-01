@@ -1334,6 +1334,123 @@ class DelhiveryService {
     }
 
     /**
+     * Update warehouse in Delhivery
+     * @param {Object} warehouseData - Warehouse update data (name is mandatory for identification, pin is mandatory, phone and address are optional)
+     * @returns {Promise} Update response
+     */
+    async updateWarehouse(warehouseData) {
+        try {
+            logger.info('✏️ Updating warehouse in Delhivery', {
+                name: warehouseData.name,
+                pincode: warehouseData.pin,
+                hasPhone: !!warehouseData.phone,
+                hasAddress: !!warehouseData.address,
+                endpoint: 'https://track.delhivery.com/api/backend/clientwarehouse/edit/'
+            });
+
+            // Validate API key
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for warehouse update');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+
+            // Validate required fields
+            if (!warehouseData.name) {
+                throw new Error('Warehouse name is required for update (used for identification)');
+            }
+            if (!warehouseData.pin) {
+                throw new Error('Pincode is required for warehouse update');
+            }
+
+            // Prepare update payload (only include provided fields)
+            const updatePayload = {
+                name: warehouseData.name,  // Mandatory: used to identify the warehouse
+                pin: warehouseData.pin      // Mandatory: pincode must be provided
+            };
+
+            // Add optional fields if provided
+            if (warehouseData.phone) {
+                updatePayload.phone = warehouseData.phone;
+            }
+            if (warehouseData.address) {
+                updatePayload.address = warehouseData.address;
+            }
+
+            // API Endpoint: https://track.delhivery.com/api/backend/clientwarehouse/edit/
+            const updateURL = 'https://track.delhivery.com/api/backend/clientwarehouse/edit/';
+            
+            const response = await axios.post(updateURL, updatePayload, {
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            // Validate response
+            const isSuccess = response.status >= 200 && response.status < 300;
+            const hasValidData = response.data && (
+                response.data.data || 
+                response.data.success === true || 
+                response.data.status === 'success' ||
+                response.data.message?.toLowerCase().includes('success') ||
+                response.data.message?.toLowerCase().includes('updated')
+            );
+
+            logger.info('✅ Warehouse update response received', {
+                name: warehouseData.name,
+                responseStatus: response.status,
+                responseData: response.data,
+                isSuccess,
+                hasValidData,
+                finalSuccess: isSuccess && hasValidData
+            });
+
+            if (isSuccess && hasValidData) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: 'Warehouse updated successfully in Delhivery',
+                    delhivery_response: response.data
+                };
+            } else {
+                logger.warn('⚠️ Delhivery API returned success status but invalid data', {
+                    name: warehouseData.name,
+                    status: response.status,
+                    data: response.data
+                });
+                
+                return {
+                    success: false,
+                    error: 'Delhivery API returned invalid response data',
+                    response_data: response.data
+                };
+            }
+
+        } catch (error) {
+            logger.error('❌ Warehouse update failed', {
+                name: warehouseData.name,
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                errorDetails: error.response?.data
+            });
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Failed to update warehouse in Delhivery'
+            };
+        }
+    }
+
+    /**
      * Validate API Key
      * @returns {boolean} Validation status
      */

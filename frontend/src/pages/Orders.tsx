@@ -1210,7 +1210,11 @@ const Orders: React.FC = () => {
                     <td>{order.warehouse}</td>
                     <td>
                       <div className="action-buttons">
-                        {order.awb && order.status === 'ready_to_ship' && (
+                        {order.awb && 
+                         activeTab !== 'pickups_manifests' &&
+                         order.status === 'ready_to_ship' && 
+                         !order.pickupRequestId &&
+                         (!order.pickupRequestStatus || order.pickupRequestStatus === 'pending') && (
                           <button 
                             className="action-btn request-pickup-btn"
                             title="Request Pickup"

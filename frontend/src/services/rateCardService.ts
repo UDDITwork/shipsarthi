@@ -431,39 +431,109 @@ export class RateCardService {
     const zoneKey = this.getZoneKey(zone);
     if (!zoneKey) return 0;
 
-    let totalCharges = 0;
-    let remainingWeight = weight;
+    // Find all required slabs
+    const baseSlab = rateCard.forwardCharges.find(s => s.condition === "0-250 gm");
+    const slab250_500 = rateCard.forwardCharges.find(s => s.condition === "250-500 gm");
+    const slabAdd500gm = rateCard.forwardCharges.find(s => s.condition === "Add. 500 gm till 5kg");
+    const slabUpto5kg = rateCard.forwardCharges.find(s => s.condition === "Upto 5kgs");
+    const slabAdd1kgTill10 = rateCard.forwardCharges.find(s => s.condition === "Add. 1 kgs till 10kg");
+    const slabUpto10kg = rateCard.forwardCharges.find(s => s.condition === "Upto 10 kgs");
+    const slabAdd1kg = rateCard.forwardCharges.find(s => s.condition === "Add. 1 kgs");
 
-    // Process each weight slab
-    for (const slab of rateCard.forwardCharges) {
-      if (slab.condition === "0-250 gm" && remainingWeight <= 250) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "250-500 gm" && remainingWeight > 250 && remainingWeight <= 500) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight -= 250;
-      } else if (slab.condition === "Add. 500 gm till 5kg" && remainingWeight > 500 && remainingWeight <= 5000) {
-        const additionalSlabs = Math.ceil((remainingWeight - 500) / 500);
-        totalCharges += additionalSlabs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "Upto 5kgs" && remainingWeight <= 5000) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "Add. 1 kgs till 10kg" && remainingWeight > 5000 && remainingWeight <= 10000) {
-        const additionalKgs = Math.ceil((remainingWeight - 5000) / 1000);
-        totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "Upto 10 kgs" && remainingWeight <= 10000) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "Add. 1 kgs" && remainingWeight > 10000) {
-        const additionalKgs = Math.ceil((remainingWeight - 10000) / 1000);
-        totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
+    if (!baseSlab) return 0;
+
+    let totalCharges = 0;
+    const weightInGrams = weight;
+
+    // 1. First 250 grams (0-250 gm) - Base charge
+    if (weightInGrams <= 250) {
+      totalCharges = baseSlab.zones[zoneKey];
+      return totalCharges;
+    }
+
+    // 2. Next 250 grams (250-500 gm) - Additive on top of base
+    if (weightInGrams > 250 && weightInGrams <= 500) {
+      totalCharges = baseSlab.zones[zoneKey]; // Base charge
+      if (slab250_500) {
+        totalCharges += slab250_500.zones[zoneKey]; // Add 250-500gm charge
       }
+      return totalCharges;
+    }
+
+    // 3. Additional 500 gm increments till 5kg (500gm to 5kg)
+    if (weightInGrams > 500 && weightInGrams <= 5000) {
+      // Start with base + 250-500gm charge
+      totalCharges = baseSlab.zones[zoneKey];
+      if (slab250_500) {
+        totalCharges += slab250_500.zones[zoneKey];
+      }
+      
+      // Calculate how many 500gm increments beyond 500gm
+      const weightBeyond500 = weightInGrams - 500;
+      const increments500gm = Math.ceil(weightBeyond500 / 500);
+      
+      if (slabAdd500gm) {
+        totalCharges += increments500gm * slabAdd500gm.zones[zoneKey];
+      }
+      
+      return totalCharges;
+    }
+
+    // 4. Weight is exactly 5kg or we use cumulative checkpoint
+    if (weightInGrams === 5000 && slabUpto5kg) {
+      return slabUpto5kg.zones[zoneKey];
+    }
+
+    // 5. Additional 1 kg increments from 5kg to 10kg (5kg to 10kg)
+    if (weightInGrams > 5000 && weightInGrams <= 10000) {
+      // Use "Upto 5kgs" as base
+      if (!slabUpto5kg) return 0;
+      totalCharges = slabUpto5kg.zones[zoneKey];
+      
+      // Calculate full kgs from 5kg to current weight
+      const weightBeyond5kg = weightInGrams - 5000;
+      const fullKgs = Math.floor(weightBeyond5kg / 1000);
+      const remainingGrams = weightBeyond5kg % 1000;
+      
+      // Add per-kg charges for full kgs
+      if (slabAdd1kgTill10 && fullKgs > 0) {
+        totalCharges += fullKgs * slabAdd1kgTill10.zones[zoneKey];
+      }
+      
+      // If there's remaining weight (less than 1kg), charge for 500gm increment if > 500gm
+      if (remainingGrams > 0) {
+        // If remaining > 500gm, charge one more 500gm increment
+        if (remainingGrams > 500 && slabAdd500gm) {
+          totalCharges += slabAdd500gm.zones[zoneKey];
+        } else if (remainingGrams > 0 && slabAdd500gm) {
+          // For <= 500gm remaining, still charge one 500gm increment (round up)
+          totalCharges += slabAdd500gm.zones[zoneKey];
+        }
+      }
+      
+      return totalCharges;
+    }
+
+    // 6. Weight is exactly 10kg - use cumulative checkpoint
+    if (weightInGrams === 10000 && slabUpto10kg) {
+      return slabUpto10kg.zones[zoneKey];
+    }
+
+    // 7. Additional 1 kg increments beyond 10kg
+    if (weightInGrams > 10000) {
+      // Use "Upto 10 kgs" as base
+      if (!slabUpto10kg) return 0;
+      totalCharges = slabUpto10kg.zones[zoneKey];
+      
+      // Calculate kgs beyond 10kg
+      const weightBeyond10kg = weightInGrams - 10000;
+      const additionalKgs = Math.ceil(weightBeyond10kg / 1000); // Round up to nearest kg
+      
+      if (slabAdd1kg) {
+        totalCharges += additionalKgs * slabAdd1kg.zones[zoneKey];
+      }
+      
+      return totalCharges;
     }
 
     return totalCharges;
@@ -473,39 +543,109 @@ export class RateCardService {
     const zoneKey = this.getZoneKey(zone);
     if (!zoneKey) return 0;
 
-    let totalCharges = 0;
-    let remainingWeight = weight;
+    // Find all required RTO slabs
+    const baseSlab = rateCard.rtoCharges.find(s => s.condition === "DTO 0-250 gm");
+    const slab250_500 = rateCard.rtoCharges.find(s => s.condition === "DTO 250-500 gm");
+    const slabAdd500gm = rateCard.rtoCharges.find(s => s.condition === "DTO Add. 500 gm till 5kg");
+    const slabUpto5kg = rateCard.rtoCharges.find(s => s.condition === "DTO Upto 5kgs");
+    const slabAdd1kgTill10 = rateCard.rtoCharges.find(s => s.condition === "DTO Add. 1 kgs till 10k");
+    const slabUpto10kg = rateCard.rtoCharges.find(s => s.condition === "DTO Upto 10 kgs");
+    const slabAdd1kg = rateCard.rtoCharges.find(s => s.condition === "DTO Add. 1 kgs");
 
-    // Process each RTO weight slab
-    for (const slab of rateCard.rtoCharges) {
-      if (slab.condition === "DTO 0-250 gm" && remainingWeight <= 250) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "DTO 250-500 gm" && remainingWeight > 250 && remainingWeight <= 500) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight -= 250;
-      } else if (slab.condition === "DTO Add. 500 gm till 5kg" && remainingWeight > 500 && remainingWeight <= 5000) {
-        const additionalSlabs = Math.ceil((remainingWeight - 500) / 500);
-        totalCharges += additionalSlabs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "DTO Upto 5kgs" && remainingWeight <= 5000) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "DTO Add. 1 kgs" && remainingWeight > 5000 && remainingWeight <= 10000) {
-        const additionalKgs = Math.ceil((remainingWeight - 5000) / 1000);
-        totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
-      } else if (slab.condition === "DTO Upto 10 kgs" && remainingWeight <= 10000) {
-        totalCharges += slab.zones[zoneKey];
-        remainingWeight = 0;
-        break;
-      } else if (slab.condition === "DTO Add. 1 kgs" && remainingWeight > 10000) {
-        const additionalKgs = Math.ceil((remainingWeight - 10000) / 1000);
-        totalCharges += additionalKgs * slab.zones[zoneKey];
-        remainingWeight = 0;
+    if (!baseSlab) return 0;
+
+    let totalCharges = 0;
+    const weightInGrams = weight;
+
+    // 1. First 250 grams (DTO 0-250 gm) - Base charge
+    if (weightInGrams <= 250) {
+      totalCharges = baseSlab.zones[zoneKey];
+      return totalCharges;
+    }
+
+    // 2. Next 250 grams (DTO 250-500 gm) - Additive on top of base
+    if (weightInGrams > 250 && weightInGrams <= 500) {
+      totalCharges = baseSlab.zones[zoneKey]; // Base charge
+      if (slab250_500) {
+        totalCharges += slab250_500.zones[zoneKey]; // Add 250-500gm charge
       }
+      return totalCharges;
+    }
+
+    // 3. Additional 500 gm increments till 5kg (500gm to 5kg)
+    if (weightInGrams > 500 && weightInGrams <= 5000) {
+      // Start with base + 250-500gm charge
+      totalCharges = baseSlab.zones[zoneKey];
+      if (slab250_500) {
+        totalCharges += slab250_500.zones[zoneKey];
+      }
+      
+      // Calculate how many 500gm increments beyond 500gm
+      const weightBeyond500 = weightInGrams - 500;
+      const increments500gm = Math.ceil(weightBeyond500 / 500);
+      
+      if (slabAdd500gm) {
+        totalCharges += increments500gm * slabAdd500gm.zones[zoneKey];
+      }
+      
+      return totalCharges;
+    }
+
+    // 4. Weight is exactly 5kg - use cumulative checkpoint
+    if (weightInGrams === 5000 && slabUpto5kg) {
+      return slabUpto5kg.zones[zoneKey];
+    }
+
+    // 5. Additional 1 kg increments from 5kg to 10kg (5kg to 10kg)
+    if (weightInGrams > 5000 && weightInGrams <= 10000) {
+      // Use "DTO Upto 5kgs" as base
+      if (!slabUpto5kg) return 0;
+      totalCharges = slabUpto5kg.zones[zoneKey];
+      
+      // Calculate full kgs from 5kg to current weight
+      const weightBeyond5kg = weightInGrams - 5000;
+      const fullKgs = Math.floor(weightBeyond5kg / 1000);
+      const remainingGrams = weightBeyond5kg % 1000;
+      
+      // Add per-kg charges for full kgs
+      if (slabAdd1kgTill10 && fullKgs > 0) {
+        totalCharges += fullKgs * slabAdd1kgTill10.zones[zoneKey];
+      }
+      
+      // If there's remaining weight (less than 1kg), charge for 500gm increment if applicable
+      if (remainingGrams > 0) {
+        // If remaining > 500gm, charge one more 500gm increment
+        if (remainingGrams > 500 && slabAdd500gm) {
+          totalCharges += slabAdd500gm.zones[zoneKey];
+        } else if (remainingGrams > 0 && slabAdd500gm) {
+          // For <= 500gm remaining, still charge one 500gm increment (round up)
+          totalCharges += slabAdd500gm.zones[zoneKey];
+        }
+      }
+      
+      return totalCharges;
+    }
+
+    // 6. Weight is exactly 10kg - use cumulative checkpoint
+    if (weightInGrams === 10000 && slabUpto10kg) {
+      return slabUpto10kg.zones[zoneKey];
+    }
+
+    // 7. Additional 1 kg increments beyond 10kg
+    if (weightInGrams > 10000) {
+      // Use "DTO Upto 10 kgs" as base
+      if (!slabUpto10kg) return 0;
+      totalCharges = slabUpto10kg.zones[zoneKey];
+      
+      // Calculate kgs beyond 10kg
+      const weightBeyond10kg = weightInGrams - 10000;
+      const additionalKgs = Math.ceil(weightBeyond10kg / 1000); // Round up to nearest kg
+      
+      if (slabAdd1kg) {
+        totalCharges += additionalKgs * slabAdd1kg.zones[zoneKey];
+      }
+      
+      return totalCharges;
     }
 
     return totalCharges;

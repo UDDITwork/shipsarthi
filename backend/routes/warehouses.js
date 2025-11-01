@@ -518,6 +518,8 @@ router.put('/:id', auth, [
   body('is_default').optional().isBoolean(),
   body('notes').optional().trim()
 ], async (req, res) => {
+  const requestId = req.requestId || `warehouse_update_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -540,22 +542,148 @@ router.put('/:id', auth, [
       });
     }
 
-    // Update fields
-    Object.keys(req.body).forEach(key => {
-      if (req.body[key] !== undefined) {
-        warehouse[key] = req.body[key];
+    // Check if warehouse is registered with Delhivery
+    if (!warehouse.delhivery_registered) {
+      logger.warn('⚠️ Attempting to update warehouse not registered with Delhivery', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name
+      });
+      
+      return res.status(400).json({
+        status: 'error',
+        message: 'Warehouse must be registered with Delhivery before it can be updated'
+      });
+    }
+
+    // Prepare update data for Delhivery API
+    // Only update fields that are being changed and are supported by Delhivery API
+    const delhiveryUpdateData = {
+      name: warehouse.name,  // Mandatory: warehouse name (cannot be changed, used for identification)
+      pin: req.body.address?.pincode || warehouse.address.pincode  // Mandatory: pincode
+    };
+
+    // Add optional fields if they're being updated
+    if (req.body.contact_person?.phone) {
+      delhiveryUpdateData.phone = req.body.contact_person.phone;
+    } else if (warehouse.contact_person?.phone) {
+      delhiveryUpdateData.phone = warehouse.contact_person.phone;
+    }
+
+    if (req.body.address?.full_address) {
+      delhiveryUpdateData.address = req.body.address.full_address;
+    } else if (warehouse.address?.full_address) {
+      delhiveryUpdateData.address = warehouse.address.full_address;
+    }
+
+    logger.info('🚀 Attempting Delhivery warehouse update', {
+      requestId,
+      warehouseId: warehouse._id,
+      warehouseName: warehouse.name,
+      delhiveryUpdateData: {
+        name: delhiveryUpdateData.name,
+        pin: delhiveryUpdateData.pin,
+        hasPhone: !!delhiveryUpdateData.phone,
+        hasAddress: !!delhiveryUpdateData.address
       }
     });
 
-    await warehouse.save();
+    // Update warehouse in Delhivery FIRST
+    const delhiveryResult = await delhiveryService.updateWarehouse(delhiveryUpdateData);
 
-    res.json({
-      status: 'success',
-      message: 'Warehouse updated successfully',
-      data: warehouse
-    });
+    if (delhiveryResult.success) {
+      // Delhivery update successful - now update database
+      logger.info('✅ Delhivery warehouse update successful, updating database', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name
+      });
+
+      // Update database fields (merge nested objects properly)
+      if (req.body.contact_person) {
+        if (!warehouse.contact_person) warehouse.contact_person = {};
+        Object.keys(req.body.contact_person).forEach(key => {
+          if (req.body.contact_person[key] !== undefined) {
+            warehouse.contact_person[key] = req.body.contact_person[key];
+          }
+        });
+      }
+
+      if (req.body.address) {
+        if (!warehouse.address) warehouse.address = {};
+        Object.keys(req.body.address).forEach(key => {
+          if (req.body.address[key] !== undefined) {
+            warehouse.address[key] = req.body.address[key];
+          }
+        });
+      }
+
+      if (req.body.return_address) {
+        if (!warehouse.return_address) warehouse.return_address = {};
+        Object.keys(req.body.return_address).forEach(key => {
+          if (req.body.return_address[key] !== undefined) {
+            warehouse.return_address[key] = req.body.return_address[key];
+          }
+        });
+      }
+
+      // Update other fields
+      const fieldsToUpdate = ['title', 'registered_name', 'gstin', 'support_contact', 'is_active', 'is_default', 'notes'];
+      fieldsToUpdate.forEach(field => {
+        if (req.body[field] !== undefined) {
+          warehouse[field] = req.body[field];
+        }
+      });
+
+      // Store Delhivery response
+      if (delhiveryResult.delhivery_response) {
+        warehouse.delhivery_response = delhiveryResult.delhivery_response;
+      }
+
+      await warehouse.save();
+
+      logger.info('✅ Warehouse updated successfully in database', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name
+      });
+
+      res.json({
+        status: 'success',
+        message: 'Warehouse updated successfully in Delhivery and database',
+        data: {
+          warehouse,
+          delhivery_response: delhiveryResult.delhivery_response
+        }
+      });
+    } else {
+      // Delhivery update failed
+      logger.error('❌ Delhivery warehouse update failed', {
+        requestId,
+        warehouseId: warehouse._id,
+        warehouseName: warehouse.name,
+        delhiveryError: delhiveryResult.error
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: 'Failed to update warehouse in Delhivery. Database not updated.',
+        error: {
+          delhivery_error: delhiveryResult.error,
+          note: 'Database is only updated after successful Delhivery update'
+        }
+      });
+    }
 
   } catch (error) {
+    logger.error('❌ Warehouse update error', {
+      requestId,
+      warehouseId: req.params.id,
+      userId: req.user._id,
+      error: error.message,
+      errorStack: error.stack
+    });
+
     console.error('Update warehouse error:', error);
     res.status(500).json({
       status: 'error',
