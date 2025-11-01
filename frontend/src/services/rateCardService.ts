@@ -460,8 +460,9 @@ export class RateCardService {
       return totalCharges;
     }
 
-    // 3. Additional 500 gm increments till 5kg (500gm to 5kg)
-    if (weightInGrams > 500 && weightInGrams <= 5000) {
+    // 3. Additional 500 gm increments till 5kg (500gm to 4999gm)
+    // Note: Exactly 5000gm is handled by checkpoint below
+    if (weightInGrams > 500 && weightInGrams < 5000) {
       // Start with base + 250-500gm charge
       totalCharges = baseSlab.zones[zoneKey];
       if (slab250_500) {
@@ -479,36 +480,27 @@ export class RateCardService {
       return totalCharges;
     }
 
-    // 4. Weight is exactly 5kg or we use cumulative checkpoint
+    // 4. Weight is exactly 5kg - use cumulative checkpoint
     if (weightInGrams === 5000 && slabUpto5kg) {
       return slabUpto5kg.zones[zoneKey];
     }
 
-    // 5. Additional 1 kg increments from 5kg to 10kg (5kg to 10kg)
-    if (weightInGrams > 5000 && weightInGrams <= 10000) {
+    // 5. Additional 1 kg increments from 5kg to 10kg (5001gm to 9999gm)
+    // Note: Exactly 10000gm is handled by checkpoint below
+    if (weightInGrams > 5000 && weightInGrams < 10000) {
       // Use "Upto 5kgs" as base
       if (!slabUpto5kg) return 0;
       totalCharges = slabUpto5kg.zones[zoneKey];
       
-      // Calculate full kgs from 5kg to current weight
+      // Calculate weight beyond 5kg
       const weightBeyond5kg = weightInGrams - 5000;
-      const fullKgs = Math.floor(weightBeyond5kg / 1000);
-      const remainingGrams = weightBeyond5kg % 1000;
+      // Any remaining grams (<1kg) are charged as a full kg increment
+      // So we round up to the nearest kg
+      const additionalKgs = Math.ceil(weightBeyond5kg / 1000);
       
-      // Add per-kg charges for full kgs
-      if (slabAdd1kgTill10 && fullKgs > 0) {
-        totalCharges += fullKgs * slabAdd1kgTill10.zones[zoneKey];
-      }
-      
-      // If there's remaining weight (less than 1kg), charge for 500gm increment if > 500gm
-      if (remainingGrams > 0) {
-        // If remaining > 500gm, charge one more 500gm increment
-        if (remainingGrams > 500 && slabAdd500gm) {
-          totalCharges += slabAdd500gm.zones[zoneKey];
-        } else if (remainingGrams > 0 && slabAdd500gm) {
-          // For <= 500gm remaining, still charge one 500gm increment (round up)
-          totalCharges += slabAdd500gm.zones[zoneKey];
-        }
+      // Add per-kg charges (including partial kgs charged as full kg)
+      if (slabAdd1kgTill10 && additionalKgs > 0) {
+        totalCharges += additionalKgs * slabAdd1kgTill10.zones[zoneKey];
       }
       
       return totalCharges;
@@ -572,8 +564,9 @@ export class RateCardService {
       return totalCharges;
     }
 
-    // 3. Additional 500 gm increments till 5kg (500gm to 5kg)
-    if (weightInGrams > 500 && weightInGrams <= 5000) {
+    // 3. Additional 500 gm increments till 5kg (500gm to 4999gm)
+    // Note: Exactly 5000gm is handled by checkpoint below
+    if (weightInGrams > 500 && weightInGrams < 5000) {
       // Start with base + 250-500gm charge
       totalCharges = baseSlab.zones[zoneKey];
       if (slab250_500) {
@@ -596,31 +589,22 @@ export class RateCardService {
       return slabUpto5kg.zones[zoneKey];
     }
 
-    // 5. Additional 1 kg increments from 5kg to 10kg (5kg to 10kg)
-    if (weightInGrams > 5000 && weightInGrams <= 10000) {
+    // 5. Additional 1 kg increments from 5kg to 10kg (5001gm to 9999gm)
+    // Note: Exactly 10000gm is handled by checkpoint below
+    if (weightInGrams > 5000 && weightInGrams < 10000) {
       // Use "DTO Upto 5kgs" as base
       if (!slabUpto5kg) return 0;
       totalCharges = slabUpto5kg.zones[zoneKey];
       
-      // Calculate full kgs from 5kg to current weight
+      // Calculate weight beyond 5kg
       const weightBeyond5kg = weightInGrams - 5000;
-      const fullKgs = Math.floor(weightBeyond5kg / 1000);
-      const remainingGrams = weightBeyond5kg % 1000;
+      // Any remaining grams (<1kg) are charged as a full kg increment
+      // So we round up to the nearest kg
+      const additionalKgs = Math.ceil(weightBeyond5kg / 1000);
       
-      // Add per-kg charges for full kgs
-      if (slabAdd1kgTill10 && fullKgs > 0) {
-        totalCharges += fullKgs * slabAdd1kgTill10.zones[zoneKey];
-      }
-      
-      // If there's remaining weight (less than 1kg), charge for 500gm increment if applicable
-      if (remainingGrams > 0) {
-        // If remaining > 500gm, charge one more 500gm increment
-        if (remainingGrams > 500 && slabAdd500gm) {
-          totalCharges += slabAdd500gm.zones[zoneKey];
-        } else if (remainingGrams > 0 && slabAdd500gm) {
-          // For <= 500gm remaining, still charge one 500gm increment (round up)
-          totalCharges += slabAdd500gm.zones[zoneKey];
-        }
+      // Add per-kg charges (including partial kgs charged as full kg)
+      if (slabAdd1kgTill10 && additionalKgs > 0) {
+        totalCharges += additionalKgs * slabAdd1kgTill10.zones[zoneKey];
       }
       
       return totalCharges;

@@ -1365,25 +1365,26 @@ class DelhiveryService {
             if (!warehouseData.name) {
                 throw new Error('Warehouse name is required for update (used for identification)');
             }
-            if (!warehouseData.pin) {
-                throw new Error('Pincode is required for warehouse update');
-            }
+            // Note: Per Delhivery API, only name, phone, and address are supported fields
 
-            // Prepare update payload (only include provided fields)
+            // Prepare update payload per Delhivery API
+            // Only phone and address can be updated (name is for identification only)
             const updatePayload = {
-                name: warehouseData.name,  // Mandatory: used to identify the warehouse
-                pin: warehouseData.pin      // Mandatory: pincode must be provided
+                name: warehouseData.name  // Mandatory: used to identify the warehouse
             };
 
-            // Add optional fields if provided
+            // Add phone if provided (required or optional based on API)
             if (warehouseData.phone) {
                 updatePayload.phone = warehouseData.phone;
             }
+            
+            // Add address if provided (format: "Address, City, State - Pincode")
             if (warehouseData.address) {
                 updatePayload.address = warehouseData.address;
             }
 
             // API Endpoint: https://track.delhivery.com/api/backend/clientwarehouse/edit/
+            // Using production URL
             const updateURL = 'https://track.delhivery.com/api/backend/clientwarehouse/edit/';
             
             const response = await axios.post(updateURL, updatePayload, {
@@ -1556,12 +1557,45 @@ class DelhiveryService {
                 });
 
                 // Use the correct Delhivery tracking endpoint
-                const response = await this.client.get('/v1/packages/json/', {
-                params: {
-                    waybill: waybill,
-                    ref_ids: refIds
+                // API Format: GET /v1/packages/json/?waybill=waybill_num&ref_ids=order_id
+                // Ensure we're using the correct base URL
+                const baseDomain = this.apiURL.includes('staging') 
+                    ? 'https://staging-express.delhivery.com'
+                    : 'https://track.delhivery.com';
+                
+                const trackingURL = `${baseDomain}/api/v1/packages/json/`;
+                
+                // Build params - waybill is mandatory, ref_ids is optional
+                const params = {
+                    waybill: waybill || ''
+                };
+                
+                // Add ref_ids if provided (order_id) - only if not empty
+                if (refIds && refIds.trim() && refIds.trim() !== '') {
+                    params.ref_ids = refIds.trim();
                 }
-            });
+                
+                // Ensure API key is available for the request
+                let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+                if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                    throw new Error('Delhivery API Key not configured');
+                }
+                
+                logger.info('🔍 Calling Delhivery Tracking API', {
+                    url: trackingURL,
+                    params: { waybill: params.waybill, hasRefIds: !!params.ref_ids },
+                    baseDomain
+                });
+                
+                const response = await axios.get(trackingURL, {
+                    params: params,
+                    headers: {
+                        'Authorization': `Token ${apiKeyToUse}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    timeout: 30000
+                });
 
                 // Check if response is HTML (error page) instead of JSON
                 if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
@@ -1708,6 +1742,110 @@ class DelhiveryService {
      */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Generate Shipping Label (Packing Slip)
+     * NOTE: Delhivery packing_slip API returns JSON only, not PDF URLs
+     * @param {string} waybill - Waybill/AWB number
+     * @param {Object} options - Options for label generation
+     * @param {boolean} options.pdf - DEPRECATED: Always returns JSON (frontend must render to PDF)
+     * @param {string} options.pdf_size - DEPRECATED: Not supported by Delhivery API
+     * @returns {Promise} Shipping label response with JSON data
+     */
+    async generateShippingLabel(waybill, options = {}) {
+        try {
+            logger.info('🏷️ Generating shipping label', {
+                waybill,
+                note: 'Delhivery returns JSON only, no PDF URL'
+            });
+
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for label generation');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+
+            if (!waybill) {
+                throw new Error('Waybill number is required for label generation');
+            }
+
+            // Use production URL directly
+            const productionURL = 'https://track.delhivery.com';
+            const labelURL = `${productionURL}/api/p/packing_slip`;
+
+            // Build query parameters - only wbns is required
+            const params = {
+                wbns: waybill
+            };
+
+            logger.info('📄 Calling Delhivery packing_slip API', {
+                waybill,
+                url: labelURL,
+                params,
+                note: 'This API returns JSON data only'
+            });
+
+            const response = await axios.get(labelURL, {
+                params: params,
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                responseType: 'json',
+                timeout: 30000
+            });
+
+            const isSuccess = response.status >= 200 && response.status < 300;
+
+            logger.info('✅ Shipping label JSON received from Delhivery', {
+                waybill,
+                responseStatus: response.status,
+                hasData: !!response.data,
+                dataType: typeof response.data,
+                responseKeys: response.data ? Object.keys(response.data) : []
+            });
+
+            if (isSuccess) {
+                // Delhivery packing_slip API returns JSON data only
+                // The frontend will need to convert this to PDF
+                return {
+                    success: true,
+                    data: response.data,
+                    json_data: response.data,
+                    message: 'Shipping label JSON data received from Delhivery',
+                    note: 'Frontend must render JSON to PDF'
+                };
+            } else {
+                logger.warn('⚠️ Delhivery API returned non-success status', {
+                    waybill,
+                    status: response.status,
+                    data: response.data
+                });
+                
+                return {
+                    success: false,
+                    error: 'Delhivery API returned invalid response',
+                    response_data: response.data
+                };
+            }
+
+        } catch (error) {
+            logger.error('❌ Shipping label generation failed', {
+                waybill,
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                errorDetails: error.response?.data,
+                errorMessage: error.message,
+                errorCode: error.code
+            });
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Failed to generate shipping label'
+            };
+        }
     }
 
     /**

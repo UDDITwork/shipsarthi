@@ -141,6 +141,15 @@ class WarehouseService {
     return (response as any).data.warehouses;
   }
 
+  // Get single warehouse by ID
+  async getWarehouse(warehouseId: string): Promise<Warehouse> {
+    const response = await apiService.get<{ 
+      status: string;
+      data: Warehouse;
+    }>(`/warehouses/${warehouseId}`);
+    return response.data;
+  }
+
   // Get warehouses for dropdown (active warehouses only)
   async getWarehousesForDropdown(): Promise<Array<{
     _id: string;
@@ -170,8 +179,25 @@ class WarehouseService {
 
   // Update warehouse
   async updateWarehouse(warehouseId: string, warehouseData: Partial<CreateWarehouseData>): Promise<Warehouse> {
-    const response = await apiService.put<{ data: Warehouse }>(`/warehouses/${warehouseId}`, warehouseData);
-    return response.data;
+    const response = await apiService.put<{ 
+      status: string;
+      message: string;
+      data: { 
+        warehouse: Warehouse; 
+        delhivery_response?: any;
+      };
+    }>(`/warehouses/${warehouseId}`, warehouseData);
+    
+    // Handle different response structures
+    // Backend returns: { status, message, data: { warehouse, delhivery_response } }
+    if (response.data && (response.data as any).data && (response.data as any).data.warehouse) {
+      return (response.data as any).data.warehouse;
+    } else if (response.data && (response.data as any).warehouse) {
+      return (response.data as any).warehouse;
+    } else if ((response as any).data) {
+      return (response as any).data;
+    }
+    return response as any;
   }
 
   // Delete warehouse

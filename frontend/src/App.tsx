@@ -183,6 +183,22 @@ function App() {
               } 
             />
             <Route 
+              path="/warehouses/edit/:id" 
+              element={
+                <ProtectedRoute>
+                  <AddWarehouse />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit-warehouse/:id" 
+              element={
+                <ProtectedRoute>
+                  <AddWarehouse />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/channel" 
               element={
                 <ProtectedRoute>

@@ -557,23 +557,44 @@ router.put('/:id', auth, [
     }
 
     // Prepare update data for Delhivery API
-    // Only update fields that are being changed and are supported by Delhivery API
+    // Per Delhivery API: Only phone and address can be updated
+    // Warehouse name cannot be updated and is used for identification
     const delhiveryUpdateData = {
-      name: warehouse.name,  // Mandatory: warehouse name (cannot be changed, used for identification)
-      pin: req.body.address?.pincode || warehouse.address.pincode  // Mandatory: pincode
+      name: warehouse.name  // Mandatory: warehouse name (cannot be changed, used for identification)
     };
 
-    // Add optional fields if they're being updated
+    // Phone update (if provided)
     if (req.body.contact_person?.phone) {
       delhiveryUpdateData.phone = req.body.contact_person.phone;
     } else if (warehouse.contact_person?.phone) {
+      // Use existing phone if not updating
       delhiveryUpdateData.phone = warehouse.contact_person.phone;
     }
 
-    if (req.body.address?.full_address) {
-      delhiveryUpdateData.address = req.body.address.full_address;
-    } else if (warehouse.address?.full_address) {
-      delhiveryUpdateData.address = warehouse.address.full_address;
+    // Address update - format as combined string per Delhivery API format
+    // Format: "Address Line, City, State - Pincode"
+    let addressString = '';
+    if (req.body.address) {
+      const addr = req.body.address;
+      const parts = [];
+      if (addr.full_address) parts.push(addr.full_address);
+      if (addr.city) parts.push(addr.city);
+      if (addr.state) parts.push(addr.state);
+      if (addr.pincode) parts.push(`- ${addr.pincode}`);
+      addressString = parts.join(', ');
+    } else {
+      // Use existing address if not updating
+      const addr = warehouse.address;
+      const parts = [];
+      if (addr.full_address) parts.push(addr.full_address);
+      if (addr.city) parts.push(addr.city);
+      if (addr.state) parts.push(addr.state);
+      if (addr.pincode) parts.push(`- ${addr.pincode}`);
+      addressString = parts.join(', ');
+    }
+    
+    if (addressString) {
+      delhiveryUpdateData.address = addressString;
     }
 
     logger.info('🚀 Attempting Delhivery warehouse update', {
@@ -582,7 +603,6 @@ router.put('/:id', auth, [
       warehouseName: warehouse.name,
       delhiveryUpdateData: {
         name: delhiveryUpdateData.name,
-        pin: delhiveryUpdateData.pin,
         hasPhone: !!delhiveryUpdateData.phone,
         hasAddress: !!delhiveryUpdateData.address
       }

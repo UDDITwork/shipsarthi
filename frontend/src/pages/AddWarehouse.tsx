@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { warehouseService } from '../services/warehouseService';
+import { warehouseService, Warehouse } from '../services/warehouseService';
 import './AddWarehouse.css';
 
 interface CreateWarehouseData {
@@ -74,7 +74,10 @@ interface WarehouseFormData {
 
 const AddWarehouse: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = !!id;
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(isEditMode);
 
   const [formData, setFormData] = useState<WarehouseFormData>({
     name: '',
@@ -112,6 +115,70 @@ const AddWarehouse: React.FC = () => {
 
   const [errors, setErrors] = useState<any>({});
   const [returnAddressSame, setReturnAddressSame] = useState(false);
+
+  // Load warehouse data in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      const loadWarehouseData = async () => {
+        try {
+          setLoadingData(true);
+          const warehouse = await warehouseService.getWarehouse(id);
+          
+          setFormData({
+            name: warehouse.name || '',
+            title: warehouse.title || '',
+            contact_person: {
+              name: warehouse.contact_person?.name || '',
+              phone: warehouse.contact_person?.phone || '',
+              alternative_phone: warehouse.contact_person?.alternative_phone || '',
+              email: warehouse.contact_person?.email || ''
+            },
+            address: {
+              full_address: warehouse.address?.full_address || '',
+              landmark: warehouse.address?.landmark || '',
+              city: warehouse.address?.city || '',
+              state: warehouse.address?.state || '',
+              pincode: warehouse.address?.pincode || '',
+              country: warehouse.address?.country || 'India'
+            },
+            return_address: {
+              full_address: warehouse.return_address?.full_address || warehouse.address?.full_address || '',
+              city: warehouse.return_address?.city || warehouse.address?.city || '',
+              state: warehouse.return_address?.state || warehouse.address?.state || '',
+              pincode: warehouse.return_address?.pincode || warehouse.address?.pincode || '',
+              country: warehouse.return_address?.country || warehouse.address?.country || 'India'
+            },
+            gstin: warehouse.gstin || '',
+            support_contact: {
+              email: warehouse.support_contact?.email || '',
+              phone: warehouse.support_contact?.phone || ''
+            },
+            is_default: warehouse.is_default || false,
+            is_active: warehouse.is_active !== false,
+            notes: warehouse.notes || ''
+          });
+          
+          // Check if return address is same as delivery address
+          if (warehouse.return_address && warehouse.address) {
+            const sameAddress = 
+              warehouse.return_address.full_address === warehouse.address.full_address &&
+              warehouse.return_address.city === warehouse.address.city &&
+              warehouse.return_address.state === warehouse.address.state &&
+              warehouse.return_address.pincode === warehouse.address.pincode;
+            setReturnAddressSame(sameAddress);
+          }
+        } catch (error: any) {
+          console.error('Error loading warehouse:', error);
+          alert(`Failed to load warehouse: ${error.message || 'Unknown error'}`);
+          navigate('/warehouse');
+        } finally {
+          setLoadingData(false);
+        }
+      };
+      
+      loadWarehouseData();
+    }
+  }, [isEditMode, id, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -313,16 +380,32 @@ const AddWarehouse: React.FC = () => {
         }
       });
 
-      // API call to create warehouse
-      const response = await warehouseService.createWarehouse(apiData);
+      // API call - create or update based on mode
+      let response: Warehouse;
+      if (isEditMode && id) {
+        // Update existing warehouse
+        response = await warehouseService.updateWarehouse(id, apiData);
+        
+        console.log('✅ WAREHOUSE UPDATED SUCCESSFULLY:', {
+          timestamp: new Date().toISOString(),
+          warehouseId: response._id,
+          warehouseName: response.name || response.title
+        });
+        
+        alert(`Warehouse "${response.title || response.name}" updated successfully!`);
+      } else {
+        // Create new warehouse
+        response = await warehouseService.createWarehouse(apiData);
+        
+        console.log('✅ WAREHOUSE CREATED SUCCESSFULLY:', {
+          timestamp: new Date().toISOString(),
+          warehouseId: response._id,
+          warehouseName: response.name || response.title
+        });
+        
+        alert(`Warehouse "${response.title || response.name}" created successfully!`);
+      }
       
-      console.log('✅ WAREHOUSE CREATED SUCCESSFULLY:', {
-        timestamp: new Date().toISOString(),
-        warehouseId: response._id,
-        warehouseName: response.name || response.title
-      });
-      
-      alert(`Warehouse "${response.title || response.name}" created successfully!`);
       navigate('/warehouse');
       
     } catch (error: any) {
@@ -408,7 +491,7 @@ const AddWarehouse: React.FC = () => {
         <div className="warehouse-header">
           <div className="header-left">
             <button className="back-btn" onClick={handleDismiss}>
-              ← Add warehouse
+              ← {isEditMode ? 'Edit warehouse' : 'Add warehouse'}
             </button>
           </div>
           <div className="header-right">
@@ -418,14 +501,22 @@ const AddWarehouse: React.FC = () => {
             <button 
               className="save-btn" 
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || loadingData}
             >
-              💾 Save
+              💾 {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </div>
 
+        {/* Loading state */}
+        {loadingData && (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>Loading warehouse data...</p>
+          </div>
+        )}
+
         {/* Form */}
+        {!loadingData && (
         <form className="warehouse-form" onSubmit={handleSubmit}>
           {/* Row 1: Title, Name, Phone, Alternative Phone, Email */}
           <div className="form-row">
@@ -443,16 +534,19 @@ const AddWarehouse: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>Warehouse Name</label>
+              <label>Warehouse Name {isEditMode && <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(Cannot be changed)</span>}</label>
               <input
                 type="text"
                 name="name"
                 placeholder="Enter warehouse name"
                 value={formData.name}
                 onChange={handleChange}
-                className={errors.name ? 'error' : ''}
+                disabled={isEditMode}
+                className={`${errors.name ? 'error' : ''} ${isEditMode ? 'disabled' : ''}`}
+                style={isEditMode ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
               {errors.name && <span className="error-msg">{errors.name}</span>}
+              {isEditMode && <span style={{ fontSize: '12px', color: '#666', marginTop: '4px', display: 'block' }}>Warehouse name is used for identification and cannot be updated</span>}
             </div>
 
             <div className="form-group">
@@ -745,6 +839,7 @@ const AddWarehouse: React.FC = () => {
             </div>
           </div>
         </form>
+        )}
       </div>
     </Layout>
   );

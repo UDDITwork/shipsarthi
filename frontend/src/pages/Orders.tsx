@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
+import TrackingModal from '../components/TrackingModal';
 import { environmentConfig } from '../config/environment';
 import './Orders.css';
 
@@ -93,6 +94,10 @@ const Orders: React.FC = () => {
   const [viewOrderModal, setViewOrderModal] = useState<{open: boolean, order: Order | null}>({
     open: false,
     order: null
+  });
+  const [trackingModal, setTrackingModal] = useState<{open: boolean, awb: string | null}>({
+    open: false,
+    awb: null
   });
 
   // Fetch Orders on component mount and when filters change
@@ -561,61 +566,75 @@ const Orders: React.FC = () => {
   };
 
   const handleTrackOrder = (orderId: string, awb?: string) => {
-    if (awb) {
-      // Open tracking in new tab with AWB
-      window.open(`https://www.delhivery.com/track/package/${awb}`, '_blank');
-    } else {
-      // Show tracking modal or navigate to tracking page
+    if (!awb) {
       alert('AWB number not available for tracking');
+      return;
     }
+    
+    // Open tracking modal with AWB number
+    setTrackingModal({ open: true, awb: awb });
   };
 
-  const handlePrintLabel = (orderId: string, awb?: string) => {
-    if (awb) {
-      // Generate and print shipping label
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        const labelHTML = `
-          <html>
-            <head>
-              <title>Shipping Label - ${orderId}</title>
-              <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .label { border: 2px solid #000; padding: 20px; max-width: 400px; }
-                .header { text-align: center; font-weight: bold; margin-bottom: 20px; }
-                .field { margin: 10px 0; }
-                .field-label { font-weight: bold; }
-                .barcode { text-align: center; font-family: monospace; font-size: 16px; margin: 20px 0; }
-              </style>
-            </head>
-            <body>
-              <div class="label">
-                <div class="header">SHIPPING LABEL</div>
-                <div class="field">
-                  <span class="field-label">Order ID:</span> ${orderId}
-                </div>
-                <div class="field">
-                  <span class="field-label">AWB:</span> ${awb}
-                </div>
-                <div class="field">
-                  <span class="field-label">Date:</span> ${new Date().toLocaleDateString()}
-                </div>
-                <div class="barcode">
-                  ||| ${awb} |||
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                  <button onclick="window.print()">Print Label</button>
-                </div>
-              </div>
-            </body>
-          </html>
-        `;
-        printWindow.document.write(labelHTML);
-        printWindow.document.close();
-        printWindow.print();
-      }
-    } else {
+  const handlePrintLabel = async (orderId: string, orderDbId?: string, awb?: string) => {
+    if (!awb) {
       alert('AWB number not available for printing label');
+      return;
+    }
+
+    if (!orderDbId) {
+      alert('Order ID not available');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const apiUrl = environmentConfig.apiUrl;
+      const token = localStorage.getItem('token');
+
+      // Fetch HTML with authentication token
+      const response = await fetch(`${apiUrl}/orders/${orderDbId}/label?format=html`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate label');
+      }
+
+      // Get HTML content
+      const htmlContent = await response.text();
+
+      // Create a blob from HTML
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Open blob URL in new window
+      const printWindow = window.open(blobUrl, '_blank');
+      
+      if (printWindow) {
+        printWindow.onload = () => {
+          // Clean up blob URL after window loads
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+          }, 1000);
+        };
+        
+        alert('✅ Shipping label opened in new window. Print dialog will open automatically.');
+      } else {
+        URL.revokeObjectURL(blobUrl);
+        throw new Error('Popup blocked. Please allow popups for this site to print labels.');
+      }
+
+    } catch (error: any) {
+      console.error('Print label error:', error);
+      alert(`❌ Failed to generate shipping label: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1237,7 +1256,7 @@ const Orders: React.FC = () => {
                         ></button>
                         <button 
                           className="action-icon-btn print-btn" 
-                          onClick={() => handlePrintLabel(order.orderId, order.awb)}
+                          onClick={() => handlePrintLabel(order.orderId, order._id, order.awb)}
                         ></button>
                       </div>
                     </td>
@@ -1415,6 +1434,13 @@ const Orders: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Tracking Modal */}
+      <TrackingModal
+        isOpen={trackingModal.open}
+        onClose={() => setTrackingModal({ open: false, awb: null })}
+        awb={trackingModal.awb || ''}
+      />
     </Layout>
   );
 };

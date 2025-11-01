@@ -9,6 +9,7 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const delhiveryService = require('../services/delhiveryService');
 const websocketService = require('../services/websocketService');
+const labelRenderer = require('../services/labelRenderer');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -130,6 +131,69 @@ router.get('/', auth, [
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching orders'
+    });
+  }
+});
+
+// @desc    Track order by AWB number (MUST come before /:id route to avoid route conflict)
+// @route   GET /api/orders/track/:awb
+// @access  Private
+router.get('/track/:awb', auth, async (req, res) => {
+  try {
+    const { awb } = req.params;
+    
+    if (!awb) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'AWB number is required'
+      });
+    }
+
+    logger.info('📦 Tracking shipment', {
+      awb,
+      userId: req.user._id
+    });
+
+    // Track shipment with Delhivery API using AWB number
+    const trackingResult = await delhiveryService.trackShipment(awb);
+
+    if (trackingResult.success) {
+      logger.info('✅ Tracking data retrieved', {
+        awb,
+        hasData: !!trackingResult.data
+      });
+
+      return res.json({
+        status: 'success',
+        message: 'Tracking data retrieved successfully',
+        data: {
+          waybill: awb,
+          tracking_data: trackingResult.data
+        }
+      });
+    } else {
+      logger.error('❌ Tracking failed', {
+        awb,
+        error: trackingResult.error
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: trackingResult.error || 'Failed to fetch tracking information'
+      });
+    }
+
+  } catch (error) {
+    logger.error('❌ Track order error', {
+      awb: req.params.awb,
+      userId: req.user._id,
+      error: error.message,
+      errorStack: error.stack
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error tracking shipment'
     });
   }
 });
@@ -1306,7 +1370,7 @@ router.get('/statistics/overview', auth, async (req, res) => {
   }
 });
 
-// @desc    Track order by AWB or Order ID
+// @desc    Track order by AWB or Order ID (Public)
 // @route   GET /api/orders/track/:identifier
 // @access  Public
 router.get('/track/:identifier', async (req, res) => {
@@ -1349,6 +1413,7 @@ router.get('/track/:identifier', async (req, res) => {
   }
 });
 
+
 // @desc    Generate shipping label
 // @route   GET /api/orders/:id/label
 // @access  Private
@@ -1357,7 +1422,7 @@ router.get('/:id/label', auth, async (req, res) => {
     const order = await Order.findOne({
       _id: req.params.id,
       user_id: req.user._id
-    }).populate('pickup_info.warehouse_id');
+    });
 
     if (!order) {
       return res.status(404).json({
@@ -1366,46 +1431,98 @@ router.get('/:id/label', auth, async (req, res) => {
       });
     }
 
-    if (!order.shipping_info.awb_number) {
+    // Get waybill from delhivery_data.waybill or shipping_info.awb_number
+    const waybill = order.delhivery_data?.waybill || order.shipping_info?.awb_number;
+    
+    if (!waybill) {
       return res.status(400).json({
         status: 'error',
-        message: 'AWB number not assigned yet'
+        message: 'AWB/Waybill number not assigned yet. Please generate AWB first.'
       });
     }
 
-    // Generate label data
-    const labelData = {
-      awb_number: order.shipping_info.awb_number,
-      order_id: order.order_id,
-      sender: {
-        name: order.pickup_info.warehouse_id.name,
-        address: order.pickup_info.warehouse_id.address.full_address,
-        city: order.pickup_info.warehouse_id.address.city,
-        pincode: order.pickup_info.warehouse_id.address.pincode,
-        phone: order.pickup_info.warehouse_id.contact_info.phone
-      },
-      receiver: {
-        name: order.customer_info.buyer_name,
-        address: order.delivery_address.full_address,
-        city: order.delivery_address.city,
-        pincode: order.delivery_address.pincode,
-        phone: order.customer_info.phone
-      },
-      package_info: {
-        weight: order.package_info.weight,
-        dimensions: order.package_info.dimensions
-      },
-      payment_mode: order.payment_info.payment_mode,
-      cod_amount: order.payment_info.cod_amount || 0,
-      service_type: order.shipping_info.service_type
-    };
+    // Get query parameters for label generation
+    const pdf = req.query.pdf !== 'false'; // Default to true (PDF)
+    const pdf_size = req.query.pdf_size || 'A4'; // Default to A4
 
-    res.json({
+    logger.info('🏷️ Generating shipping label via Delhivery API', {
+      requestId: req.requestId,
+      orderId: order._id,
+      waybill,
+      pdf,
+      pdf_size
+    });
+
+    // Call Delhivery API to generate shipping label
+    // NOTE: Delhivery packing_slip API always returns JSON, never PDF URL
+    const labelResult = await delhiveryService.generateShippingLabel(waybill);
+
+    if (!labelResult.success) {
+      logger.error('❌ Shipping label generation failed', {
+        requestId: req.requestId,
+        orderId: order._id,
+        waybill,
+        error: labelResult.error
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: labelResult.error || 'Failed to generate shipping label from Delhivery',
+        error: labelResult.error
+      });
+    }
+
+    logger.info('✅ Shipping label JSON received from Delhivery', {
+      requestId: req.requestId,
+      orderId: order._id,
+      waybill,
+      hasJsonData: !!labelResult.json_data
+    });
+
+    // Check if HTML format is requested
+    if (req.query.format === 'html') {
+      try {
+        // Convert JSON to HTML label, pass waybill as fallback
+        const html = labelRenderer.generateLabelHTML(labelResult.json_data, waybill, order);
+        
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(html);
+      } catch (error) {
+        logger.error('❌ Error generating HTML label', {
+          requestId: req.requestId,
+          orderId: order._id,
+          error: error.message
+        });
+        
+        return res.status(500).json({
+          status: 'error',
+          message: 'Failed to generate HTML label',
+          error: error.message
+        });
+      }
+    }
+
+    // Otherwise, return JSON data for frontend rendering
+    return res.json({
       status: 'success',
-      data: labelData
+      message: 'Shipping label data generated successfully',
+      data: {
+        json_data: labelResult.json_data,
+        waybill: waybill,
+        order_id: order.order_id,
+        label_type: 'json',
+        html_url: `${req.protocol}://${req.get('host')}/api/orders/${order._id}/label?format=html`
+      }
     });
 
   } catch (error) {
+    logger.error('❌ Generate label error', {
+      requestId: req.requestId,
+      orderId: req.params.id,
+      userId: req.user._id,
+      error: error.message,
+      errorStack: error.stack
+    });
     console.error('Generate label error:', error);
     res.status(500).json({
       status: 'error',
