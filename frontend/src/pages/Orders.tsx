@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
 import TrackingModal from '../components/TrackingModal';
+import { orderService, Order } from '../services/orderService';
+import { DataCache } from '../utils/dataCache';
 import { environmentConfig } from '../config/environment';
 import './Orders.css';
 
@@ -12,38 +14,7 @@ type OrderStatus = 'new' | 'ready_to_ship' | 'pickups_manifests' | 'in_transit' 
 
 type OrderType = 'forward' | 'reverse';
 
-interface Order {
-  _id: string;
-  orderId: string;
-  referenceId: string;
-  orderDate: Date;
-  customerName: string;
-  customerPhone: string;
-  customerAddress: string;
-  pin: string;
-  city: string;
-  state: string;
-  productName: string;
-  quantity: number;
-  weight: number;
-  length?: number;
-  width?: number;
-  height?: number;
-  paymentMode: 'COD' | 'Prepaid' | 'Pickup' | 'REPL';
-  codAmount?: number;
-  totalAmount: number;
-  warehouse: string;
-  pickupLocation: string;
-  status: OrderStatus;
-  awb?: string;
-  trackingUrl?: string;
-  pickupRequestId?: string;
-  pickupRequestStatus?: 'pending' | 'scheduled' | 'in_transit' | 'completed' | 'failed';
-  pickupRequestDate?: Date;
-  pickupRequestTime?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Order interface is now imported from orderService
 
 interface OrderFilters {
   dateFrom: string;
@@ -102,116 +73,89 @@ const Orders: React.FC = () => {
 
   // Fetch Orders on component mount and when filters change
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    console.log('🔐 AUTH CHECK:', {
-      hasToken: !!token,
-      token: token ? 'Present' : 'Missing'
-    });
+    fetchOrders();
     
-    if (token) {
-      fetchOrders();
-    } else {
-      console.warn('⚠️ No authentication token found');
-    }
-
-    // Listen for WebSocket reconnection events to refresh orders
-    const handleReconnect = () => {
-      console.log('🔄 Orders: WebSocket reconnected, refreshing orders...');
-      fetchOrders();
-    };
-    window.addEventListener('websocket-reconnected', handleReconnect);
-
+    // Set up periodic refresh (every 30 seconds) to keep data fresh from MongoDB
+    // This ensures data stays stable and doesn't disappear
+    const refreshInterval = setInterval(() => {
+      // Refresh in background without blocking UI
+      const orderFilters: any = {};
+      if (activeTab !== 'all') orderFilters.status = activeTab;
+      if (orderType) orderFilters.order_type = orderType;
+      if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
+      if (filters.dateTo) orderFilters.date_to = filters.dateTo;
+      if (filters.searchQuery) orderFilters.search = filters.searchQuery;
+      if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+      
+      // Silent refresh from MongoDB - updates cache and state if data changes
+      orderService.getOrders(orderFilters, false).then(fetchedOrders => {
+        if (fetchedOrders && fetchedOrders.length >= 0) {
+          setOrders(fetchedOrders);
+          console.log(`🔄 Background refresh: ${fetchedOrders.length} orders from MongoDB`);
+        }
+      }).catch(err => {
+        console.warn('Background refresh failed, keeping current data:', err);
+        // Keep existing orders on screen - don't clear them
+      });
+    }, 30000); // 30 seconds
+    
     return () => {
-      window.removeEventListener('websocket-reconnected', handleReconnect);
+      clearInterval(refreshInterval);
     };
   }, [activeTab, orderType, filters]);
 
   const fetchOrders = async () => {
-    setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (activeTab !== 'all') params.append('status', activeTab);
-      // Include order type (forward/reverse) in query params
-      if (orderType) params.append('order_type', orderType);
-      if (filters.dateFrom) params.append('date_from', filters.dateFrom);
-      if (filters.dateTo) params.append('date_to', filters.dateTo);
-      if (filters.searchQuery) params.append('search', filters.searchQuery);
-      if (filters.paymentMode) params.append('payment_mode', filters.paymentMode);
-
-      const apiUrl = `${environmentConfig.apiUrl}/orders?${params}`;
-      const token = localStorage.getItem('token');
+      // Try to load from cache first for instant display
+      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(filters)}`;
+      const cachedOrders = DataCache.get<Order[]>(cacheKey);
       
-      console.log('🔍 FETCHING ORDERS:', {
-        apiUrl,
-        token: token ? 'Token present' : 'No token',
-        activeTab,
-        filters
-      });
-
-      const response = await fetch(apiUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log('📡 API RESPONSE:', {
-        status: response.status,
-        ok: response.ok,
-        statusText: response.statusText
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📊 ORDERS DATA:', data);
-        console.log('📋 ORDERS ARRAY:', data.data?.orders);
-        console.log('📊 ORDERS COUNT:', data.data?.orders?.length || 0);
-        
-        // Transform backend data to frontend format
-        const transformedOrders = (data.data.orders || []).map((order: any) => ({
-          _id: order._id,
-          orderId: order.order_id,
-          referenceId: order.reference_id || '',
-          orderDate: order.order_date,
-          customerName: order.customer_info?.buyer_name || '',
-          customerPhone: order.customer_info?.phone || '',
-          customerAddress: order.delivery_address?.full_address || '',
-          pin: order.delivery_address?.pincode || '',
-          city: order.delivery_address?.city || '',
-          state: order.delivery_address?.state || '',
-          productName: order.products?.[0]?.product_name || '',
-          quantity: order.products?.[0]?.quantity || 0,
-          weight: order.package_info?.weight || 0,
-          length: order.package_info?.dimensions?.length,
-          width: order.package_info?.dimensions?.width,
-          height: order.package_info?.dimensions?.height,
-          paymentMode: order.payment_info?.payment_mode || '',
-          codAmount: order.payment_info?.cod_amount || 0,
-          totalAmount: order.payment_info?.total_amount || 0,
-          warehouse: order.pickup_address?.name || '',
-          pickupLocation: order.pickup_address?.full_address || '',
-          status: order.status,
-          awb: order.delhivery_data?.waybill || '',
-          trackingUrl: order.delhivery_data?.tracking_url || '',
-          pickupRequestId: order.delhivery_data?.pickup_request_id || '',
-          pickupRequestStatus: order.delhivery_data?.pickup_request_status || 'pending',
-          pickupRequestDate: order.delhivery_data?.pickup_request_date,
-          pickupRequestTime: order.delhivery_data?.pickup_request_time || '',
-          createdAt: order.createdAt,
-          updatedAt: order.updatedAt
-        }));
-        
-        console.log('🔄 TRANSFORMED ORDERS:', transformedOrders);
-        setOrders(transformedOrders);
+      if (cachedOrders && cachedOrders.length > 0) {
+        console.log(`📦 Showing cached orders (${cachedOrders.length} orders)`);
+        setOrders(cachedOrders);
+        setLoading(false); // Don't block UI with loading
       } else {
-        const errorText = await response.text();
-        console.error('❌ API ERROR:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
+        setLoading(true); // Only show loading if no cache
       }
-    } catch (error) {
-      console.error('❌ FETCH ERROR:', error);
+
+      // Build filters object
+      const orderFilters: any = {};
+      if (activeTab !== 'all') orderFilters.status = activeTab;
+      if (orderType) orderFilters.order_type = orderType;
+      if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
+      if (filters.dateTo) orderFilters.date_to = filters.dateTo;
+      if (filters.searchQuery) orderFilters.search = filters.searchQuery;
+      if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+
+      console.log('📡 Fetching orders from MongoDB...', { filters: orderFilters });
+
+      // Fetch from MongoDB using orderService (with caching built-in)
+      const fetchedOrders = await orderService.getOrders(orderFilters, true);
+
+      if (fetchedOrders && fetchedOrders.length > 0) {
+        console.log(`✅ Orders loaded (${fetchedOrders.length} orders)`);
+        setOrders(fetchedOrders);
+      } else if (!cachedOrders) {
+        // No orders and no cache - show empty state
+        console.log('📭 No orders found');
+        setOrders([]);
+      }
+      // If we have cached orders, keep showing them even if fetch returns empty
+
+    } catch (error: any) {
+      console.error('❌ Error fetching orders:', error);
+      
+      // Try to use stale cache if available
+      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(filters)}`;
+      const staleOrders = DataCache.getStale<Order[]>(cacheKey);
+      
+      if (staleOrders && staleOrders.length > 0) {
+        console.log(`⚠️ Using stale cached orders due to error (${staleOrders.length} orders)`);
+        setOrders(staleOrders);
+      } else if (orders.length === 0) {
+        // Only show error if we don't have any orders to display
+        console.warn('⚠️ No orders available (cache or API)');
+      }
     } finally {
       setLoading(false);
     }
@@ -247,7 +191,7 @@ const Orders: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch(`${environmentConfig.apiUrl}/orders/bulk-import`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/orders/bulk-import`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -258,6 +202,8 @@ const Orders: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         alert(`Successfully imported ${data.importedCount} orders!`);
+        // Clear cache and refresh from MongoDB
+        orderService.clearCache();
         fetchOrders(); // Refresh orders list
         setIsBulkImportModalOpen(false);
       } else {
@@ -280,7 +226,7 @@ const Orders: React.FC = () => {
     
     try {
       setLoading(true);
-      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderId}/request-pickup`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/orders/${orderId}/request-pickup`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -291,6 +237,8 @@ const Orders: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         alert(`✅ Pickup requested successfully!\n\nPickup ID: ${data.data.pickup_request_id}\nScheduled: ${data.data.pickup_date} at ${data.data.pickup_time}`);
+        // Clear cache and refresh from MongoDB
+        orderService.clearCache();
         fetchOrders(); // Refresh list
       } else {
         const error = await response.json();
@@ -306,51 +254,21 @@ const Orders: React.FC = () => {
 
   const handleOrderCreated = (order: any) => {
     console.log('🎉 ORDER CREATED CALLBACK:', order);
-    // Transform the order to match our frontend format
-    const transformedOrder = {
-      _id: order._id,
-      orderId: order.order_id,
-      referenceId: order.reference_id || '',
-      orderDate: order.order_date,
-      customerName: order.customer_info?.buyer_name || '',
-      customerPhone: order.customer_info?.phone || '',
-      customerAddress: order.delivery_address?.full_address || '',
-      pin: order.delivery_address?.pincode || '',
-      city: order.delivery_address?.city || '',
-      state: order.delivery_address?.state || '',
-      productName: order.products?.[0]?.product_name || '',
-      quantity: order.products?.[0]?.quantity || 0,
-      weight: order.package_info?.weight || 0,
-      length: order.package_info?.dimensions?.length,
-      width: order.package_info?.dimensions?.width,
-      height: order.package_info?.dimensions?.height,
-      paymentMode: order.payment_info?.payment_mode || '',
-      codAmount: order.payment_info?.cod_amount || 0,
-      totalAmount: order.payment_info?.total_amount || 0,
-      warehouse: order.pickup_address?.name || '',
-      pickupLocation: order.pickup_address?.full_address || '',
-      status: order.status,
-      awb: order.awb || order.delhivery_data?.waybill || '',
-      trackingUrl: order.delhivery_data?.tracking_url || '',
-      pickupRequestId: order.delhivery_data?.pickup_request_id || '',
-      pickupRequestStatus: order.delhivery_data?.pickup_request_status || 'pending',
-      pickupRequestDate: order.delhivery_data?.pickup_request_date,
-      pickupRequestTime: order.delhivery_data?.pickup_request_time || '',
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt
-    };
     
-    // Add the new order to the list
-    setOrders(prev => {
-      const newOrders = [transformedOrder, ...prev];
-      console.log('🔄 UPDATING ORDERS STATE:', {
-        previous: prev.length,
-        new: newOrders.length,
-        newOrder: transformedOrder,
-        awb: transformedOrder.awb
-      });
-      return newOrders;
-    });
+    // Clear cache so fresh data is fetched
+    orderService.clearCache();
+    
+    // Refresh orders from MongoDB to get latest data
+    const orderFilters: any = {};
+    if (activeTab !== 'all') orderFilters.status = activeTab;
+    if (orderType) orderFilters.order_type = orderType;
+    if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
+    if (filters.dateTo) orderFilters.date_to = filters.dateTo;
+    if (filters.searchQuery) orderFilters.search = filters.searchQuery;
+    if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+    
+    // Refresh orders from MongoDB
+    fetchOrders();
   };
 
   const handleAssignCourier = (orderId: string) => {
@@ -793,6 +711,8 @@ const Orders: React.FC = () => {
               className="action-btn refresh-btn" 
               onClick={() => {
                 console.log('🔄 Manual refresh triggered for Orders');
+                // Clear cache and refresh from MongoDB
+                orderService.clearCache();
                 fetchOrders();
               }}
               title="Refresh Orders"

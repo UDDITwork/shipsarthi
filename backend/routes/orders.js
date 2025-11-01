@@ -44,7 +44,7 @@ router.get('/', auth, [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('status').optional().isIn([
-    'new', 'ready_to_ship', 'pickup_pending', 'manifested',
+    'new', 'ready_to_ship', 'pickup_pending', 'manifested', 'pickups_manifests',
     'in_transit', 'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled', 'lost', 'all'
   ]),
   query('order_type').optional().isIn(['forward', 'reverse']),
@@ -64,7 +64,9 @@ router.get('/', auth, [
 
     const userId = req.user._id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    // Increased default limit to 1000 to fetch all orders (no pagination by default)
+    // This ensures all orders are visible and data doesn't disappear
+    const limit = parseInt(req.query.limit) || 1000;
     const skip = (page - 1) * limit;
 
     // Build filter query
@@ -104,24 +106,31 @@ router.get('/', auth, [
       }
     }
 
-    // Get orders with pagination
+    // Get orders from MongoDB - ALWAYS fetch all orders for the user
+    // This ensures data stability and prevents orders from disappearing
     const orders = await Order.find(filterQuery)
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+      .lean(); // Remove skip/limit to get all orders
 
-    const totalOrders = await Order.countDocuments(filterQuery);
+    const totalOrders = orders.length;
+
+    logger.info('📦 Orders fetched from MongoDB', {
+      userId: userId.toString(),
+      totalOrders,
+      filteredCount: orders.length,
+      filters: filterQuery,
+      timestamp: new Date().toISOString()
+    });
 
     res.json({
       status: 'success',
       data: {
         orders,
         pagination: {
-          current_page: page,
-          total_pages: Math.ceil(totalOrders / limit),
+          current_page: 1,
+          total_pages: 1,
           total_orders: totalOrders,
-          per_page: limit
+          per_page: totalOrders
         }
       }
     });
@@ -1194,7 +1203,7 @@ router.delete('/:id', auth, async (req, res) => {
 // @access  Private
 router.patch('/:id/status', auth, [
   body('status').isIn([
-    'new', 'ready_to_ship', 'pickup_pending', 'manifested',
+    'new', 'ready_to_ship', 'pickup_pending', 'manifested', 'pickups_manifests',
     'in_transit', 'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled'
   ]).withMessage('Valid status is required'),
   body('remarks').optional().trim(),
