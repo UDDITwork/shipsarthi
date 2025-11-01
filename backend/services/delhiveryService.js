@@ -756,7 +756,7 @@ class DelhiveryService {
             });
 
             return {
-                success: response.status === 200,
+                success: response.status === 200 || response.status === 201,
                 pickup_id: response.data?.pickup_id,
                 message: response.data?.message || 'Pickup scheduled successfully',
                 data: response.data
