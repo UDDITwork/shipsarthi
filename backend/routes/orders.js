@@ -1303,23 +1303,11 @@ router.post('/:id/generate-awb', auth, async (req, res) => {
     // Call Delhivery API to create shipment
     const delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
 
-    if (!delhiveryResult.success) {
-      logger.error('❌ AWB generation failed', {
-        orderId: order.order_id,
-        error: delhiveryResult.error
-      });
-
-      return res.status(400).json({
-        status: 'error',
-        message: 'Failed to generate AWB from Delhivery',
-        error: delhiveryResult.error
-      });
-    }
-
-    // Extract AWB number from response
+    // Extract AWB number from response - check success OR if waybill exists
     let awbNumber = null;
     let packageData = null;
 
+    // Always try to extract AWB, even if success is false (Delhivery may still generate it)
     if (delhiveryResult.packages && Array.isArray(delhiveryResult.packages) && delhiveryResult.packages.length > 0) {
       packageData = delhiveryResult.packages[0];
       awbNumber = packageData.waybill || packageData.AWB || packageData.wb || null;
@@ -1330,7 +1318,37 @@ router.post('/:id/generate-awb', auth, async (req, res) => {
       packageData = packageData || { waybill: awbNumber, status: 'Success' };
     }
 
-    if (!awbNumber) {
+    // If we have AWB, proceed (even if success was false)
+    if (awbNumber) {
+      // Log warning if there was an error flag but we still got AWB
+      if (delhiveryResult.warning) {
+        logger.warn('⚠️ AWB generated despite Delhivery warning', {
+          orderId: order.order_id,
+          awbNumber: awbNumber,
+          warning: delhiveryResult.warning
+        });
+      }
+    } else if (!delhiveryResult.success) {
+      // Only fail if no AWB AND success is false
+      logger.error('❌ AWB generation failed - no AWB in response', {
+        orderId: order.order_id,
+        error: delhiveryResult.error,
+        hasPackages: !!delhiveryResult.packages,
+        hasWaybill: !!delhiveryResult.waybill
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: delhiveryResult.error || 'Failed to generate AWB from Delhivery',
+        error: delhiveryResult.error
+      });
+    } else {
+      // No AWB found even though success was true (shouldn't happen, but handle gracefully)
+      logger.error('❌ AWB generation reported success but no AWB found', {
+        orderId: order.order_id,
+        delhiveryResult: delhiveryResult
+      });
+
       return res.status(400).json({
         status: 'error',
         message: 'AWB number not found in Delhivery response'
@@ -1911,7 +1929,14 @@ router.post('/:id/request-pickup', auth, async (req, res) => {
         error: pickupResult.error
       });
 
-      return res.status(500).json({
+      // Use 400 for client errors (like wallet balance), 500 for server errors
+      const isClientError = pickupResult.error && (
+        pickupResult.error.includes('wallet balance') ||
+        pickupResult.error.includes('insufficient balance') ||
+        pickupResult.error.includes('less than')
+      );
+      
+      return res.status(isClientError ? 400 : 500).json({
         status: 'error',
         message: pickupResult.error || 'Failed to request pickup from Delhivery'
       });

@@ -181,46 +181,88 @@ class DelhiveryService {
             // Log the full response for debugging
             logger.info('📦 Delhivery API Response', {
                 orderId: orderData.order_id,
-                responseData: JSON.stringify(response.data),
+                responseDataType: typeof response.data,
+                responseData: typeof response.data === 'string' ? response.data : JSON.stringify(response.data),
                 responseStatus: response.status,
-                responseKeys: Object.keys(response.data || {})
+                responseKeys: typeof response.data === 'object' ? Object.keys(response.data || {}) : 'N/A (string)'
             });
 
             // Parse Delhivery API response - they can send in ANY format
+            // Sometimes response.data might be a JSON string that needs parsing
+            let responseData = response.data;
+            if (typeof responseData === 'string') {
+                try {
+                    responseData = JSON.parse(responseData);
+                    logger.info('📦 Parsed response.data from string to object');
+                } catch (parseError) {
+                    logger.error('❌ Failed to parse response.data as JSON', {
+                        error: parseError.message,
+                        dataType: typeof responseData,
+                        dataSample: responseData.substring(0, 200)
+                    });
+                    // Continue with original response.data if parsing fails
+                }
+            }
+
             let awbNumber = null;
             let packages = [];
             let isSuccess = false;
+            let hasError = false;
+            let errorMessage = null;
 
             // Strategy: Extract AWB from EVERY possible location in response
-            // 1. Check for explicit error flag first (based on actual API test)
-            if (response.data.error === true || response.data.success === false) {
-                const errorMsg = response.data.rmk || response.data.message || 'Unknown error';
-                logger.error('❌ Delhivery API returned error', {
+            // IMPORTANT: Even if success=false, Delhivery may still generate a waybill
+            // So we extract AWB first, then check for errors
+            
+            // 1. Check for error flag (but don't throw yet - extract AWB first)
+            if (responseData.error === true || responseData.success === false) {
+                hasError = true;
+                errorMessage = responseData.rmk || responseData.message || 'Unknown error';
+                logger.warn('⚠️ Delhivery API returned error flag (checking for AWB anyway)', {
                     orderId: orderData.order_id,
-                    error: errorMsg,
-                    responseData: response.data,
-                    errorType: 'API_ERROR'
+                    error: errorMessage,
+                    responseData: responseData,
+                    errorType: 'API_ERROR',
+                    checkingForWaybill: true
                 });
-                throw new Error(errorMsg);
             }
 
-            // 2. Extract AWB from various possible locations (based on actual API test)
-            if (response.data.packages && Array.isArray(response.data.packages) && response.data.packages.length > 0) {
-                packages = response.data.packages;
+            // 2. Extract AWB from various possible locations FIRST (even if error flag is set)
+            if (responseData.packages && Array.isArray(responseData.packages) && responseData.packages.length > 0) {
+                packages = responseData.packages;
                 
                 // Check if package has waybill (not empty string)
+                // IMPORTANT: Extract waybill even if package status is "Fail"
                 const firstPackage = packages[0];
                 if (firstPackage.waybill && firstPackage.waybill.trim() !== '') {
                     awbNumber = firstPackage.waybill;
-                    isSuccess = true;
-                    logger.info('✅ AWB found in packages[0].waybill', { 
-                        awbNumber, 
-                        packageCount: packages.length,
-                        packageStatus: firstPackage.status,
-                        packageRefnum: firstPackage.refnum,
-                        serviceable: firstPackage.serviceable,
-                        sortCode: firstPackage.sort_code
-                    });
+                    
+                    // Check if package status indicates failure
+                    if (firstPackage.status === 'Fail' || hasError) {
+                        logger.warn('⚠️ AWB generated but package marked as Failed', { 
+                            awbNumber, 
+                            packageCount: packages.length,
+                            packageStatus: firstPackage.status,
+                            packageRefnum: firstPackage.refnum,
+                            serviceable: firstPackage.serviceable,
+                            sortCode: firstPackage.sort_code,
+                            remarks: firstPackage.remarks,
+                            hasError: hasError,
+                            errorMessage: errorMessage
+                        });
+                        // Still proceed with AWB even if status is Fail
+                        isSuccess = true;
+                    } else {
+                        isSuccess = true;
+                        logger.info('✅ AWB found in packages[0].waybill', { 
+                            awbNumber, 
+                            packageCount: packages.length,
+                            packageStatus: firstPackage.status,
+                            packageRefnum: firstPackage.refnum,
+                            serviceable: firstPackage.serviceable,
+                            sortCode: firstPackage.sort_code
+                        });
+                    }
                 } else {
                     // Package exists but waybill is empty (failed package)
                     logger.warn('⚠️ Package created but waybill is empty', {
@@ -229,41 +271,41 @@ class DelhiveryService {
                         packageRefnum: firstPackage.refnum
                     });
                 }
-            } else if (response.data.pkgs && Array.isArray(response.data.pkgs) && response.data.pkgs.length > 0) {
-                packages = response.data.pkgs;
+            } else if (responseData.pkgs && Array.isArray(responseData.pkgs) && responseData.pkgs.length > 0) {
+                packages = responseData.pkgs;
                 awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
                 if (awbNumber) {
                     isSuccess = true;
                     logger.info('✅ AWB found in pkgs array', { awbNumber });
                 }
-            } else if (response.data.waybill) {
-                awbNumber = response.data.waybill;
+            } else if (responseData.waybill) {
+                awbNumber = responseData.waybill;
                 packages = [{
-                    waybill: response.data.waybill,
-                    status: response.data.status || 'Success',
-                    refnum: response.data.refnum || orderData.order_id,
-                    label_url: response.data.label_url,
-                    expected_delivery_date: response.data.expected_delivery_date
+                    waybill: responseData.waybill,
+                    status: responseData.status || 'Success',
+                    refnum: responseData.refnum || orderData.order_id,
+                    label_url: responseData.label_url,
+                    expected_delivery_date: responseData.expected_delivery_date
                 }];
                 isSuccess = true;
                 logger.info('✅ AWB found in waybill field', { awbNumber });
-            } else if (response.data.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
-                packages = response.data.items;
+            } else if (responseData.items && Array.isArray(responseData.items) && responseData.items.length > 0) {
+                packages = responseData.items;
                 awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
                 if (awbNumber) {
                     isSuccess = true;
                     logger.info('✅ AWB found in items array', { awbNumber });
                 }
-            } else if (Array.isArray(response.data) && response.data.length > 0) {
-                packages = response.data;
+            } else if (Array.isArray(responseData) && responseData.length > 0) {
+                packages = responseData;
                 awbNumber = packages[0].waybill || packages[0].AWB || packages[0].wb || null;
                 if (awbNumber) {
                     isSuccess = true;
                     logger.info('✅ AWB found in root array', { awbNumber });
                 }
-            } else if (response.data.upload_wbn) {
+            } else if (responseData.upload_wbn) {
                 // upload_wbn is not the waybill, it's an upload reference
-                logger.info('📤 Upload WBN found (not waybill)', { uploadWbn: response.data.upload_wbn });
+                logger.info('📤 Upload WBN found (not waybill)', { uploadWbn: responseData.upload_wbn });
             }
 
             // 3. If no AWB found in response, check if we sent a pre-fetched waybill
@@ -275,46 +317,73 @@ class DelhiveryService {
 
             // 4. If still no AWB, it's a failure
             if (!awbNumber) {
+                // If we had an error AND no waybill, throw the error
+                if (hasError && errorMessage) {
+                    logger.error('❌ No AWB number found AND Delhivery returned error', {
+                        orderId: orderData.order_id,
+                        error: errorMessage,
+                        responseKeys: typeof responseData === 'object' ? Object.keys(responseData || {}) : 'N/A',
+                        responseSample: typeof responseData === 'string' ? responseData.substring(0, 200) : JSON.stringify(responseData).substring(0, 200),
+                        sentWaybill: orderData.waybill || 'none'
+                    });
+                    throw new Error(errorMessage || 'Delhivery API did not return AWB number. Please check API response.');
+                } else {
                 logger.error('❌ No AWB number found in ANY field', {
                     orderId: orderData.order_id,
-                    responseKeys: Object.keys(response.data || {}),
-                    responseSample: JSON.stringify(response.data).substring(0, 200),
+                    responseKeys: typeof responseData === 'object' ? Object.keys(responseData || {}) : 'N/A',
+                    responseSample: typeof responseData === 'string' ? responseData.substring(0, 200) : JSON.stringify(responseData).substring(0, 200),
                     sentWaybill: orderData.waybill || 'none'
                 });
-                throw new Error('Delhivery API did not return AWB number. Please check API response.');
+                    throw new Error('Delhivery API did not return AWB number. Please check API response.');
+                }
             }
 
-            // Mark as success
+            // 5. If we got an AWB but there was an error flag, log warning but proceed
+            if (hasError && errorMessage && awbNumber) {
+                logger.warn('⚠️ AWB generated successfully despite error flag', {
+                    orderId: orderData.order_id,
+                    awbNumber: awbNumber,
+                    errorMessage: errorMessage,
+                    proceedingWithAWB: true
+                });
+            }
+
+            // Mark as success if we have AWB (even if error flag was set)
             isSuccess = true;
 
-            // Success - return response
-            logger.info('✅ Shipment created successfully', {
-                orderId: orderData.order_id,
-                awbNumber: awbNumber,
-                packagesCount: packages.length,
-                responseStructure: Object.keys(response.data)
-            });
+            // Success - return response (even if error flag was set, if we have AWB, it's a success)
+            if (awbNumber) {
+                logger.info('✅ Shipment created successfully (AWB extracted)', {
+                    orderId: orderData.order_id,
+                    awbNumber: awbNumber,
+                    packagesCount: packages.length,
+                    responseStructure: typeof responseData === 'object' ? Object.keys(responseData) : 'N/A',
+                    hadErrorFlag: hasError,
+                    errorMessage: errorMessage
+                });
 
-            return {
-                success: true,
-                waybill: awbNumber,
-                tracking_id: awbNumber,
-                label_url: packages[0]?.label_url || packages[0]?.label || null,
-                expected_delivery: packages[0]?.expected_delivery_date || null,
-                packages: packages.length > 0 ? packages : [{
+                return {
+                    success: true,
                     waybill: awbNumber,
-                    status: 'Success',
-                    refnum: orderData.order_id
-                }],
-                upload_wbn: response.data.upload_wbn || null,
-                // Additional fields from actual API response
-                serviceable: packages[0]?.serviceable || false,
-                sort_code: packages[0]?.sort_code || null,
-                payment_mode: packages[0]?.payment || null,
-                cod_amount: packages[0]?.cod_amount || 0,
-                remarks: packages[0]?.remarks || [],
-                data: response.data
-            };
+                    tracking_id: awbNumber,
+                    label_url: packages[0]?.label_url || packages[0]?.label || null,
+                    expected_delivery: packages[0]?.expected_delivery_date || null,
+                    packages: packages.length > 0 ? packages : [{
+                        waybill: awbNumber,
+                        status: 'Success',
+                        refnum: orderData.order_id
+                    }],
+                    upload_wbn: responseData.upload_wbn || null,
+                    // Additional fields from actual API response
+                    serviceable: packages[0]?.serviceable || false,
+                    sort_code: packages[0]?.sort_code || null,
+                    payment_mode: packages[0]?.payment || null,
+                    cod_amount: packages[0]?.cod_amount || 0,
+                    remarks: packages[0]?.remarks || [],
+                    data: responseData,
+                    warning: hasError ? errorMessage : null  // Include warning if error flag was set
+                };
+            }
         } catch (error) {
             logger.error('❌ Delhivery createShipment error', {
                 orderId: orderData.order_id,
@@ -762,15 +831,67 @@ class DelhiveryService {
                 data: response.data
             };
         } catch (error) {
+            // Extract error message from Delhivery response
+            // Delhivery can return errors in different formats:
+            // 1. { prepaid: "Client wallet balance is -27.76 which is less than 500.0" }
+            // 2. { error: { prepaid: "..." } }
+            // 3. { message: "Error message" }
+            // 4. { error: "Error message" }
+            let errorMessage = 'Failed to schedule pickup';
+            
+            // Log full error structure for debugging
+            logger.warn('⚠️ Pickup API error structure', {
+                hasResponse: !!error.response,
+                hasResponseData: !!error.response?.data,
+                responseData: error.response?.data,
+                responseStatus: error.response?.status,
+                errorMessage: error.message,
+                errorKeys: error.response?.data ? Object.keys(error.response.data) : []
+            });
+            
+            if (error.response?.data) {
+                const errorData = error.response.data;
+                
+                // Handle nested error object: { error: { prepaid: "..." } }
+                if (errorData.error && typeof errorData.error === 'object') {
+                    if (errorData.error.prepaid) {
+                        errorMessage = errorData.error.prepaid;
+                    } else if (errorData.error.message) {
+                        errorMessage = errorData.error.message;
+                    } else {
+                        errorMessage = JSON.stringify(errorData.error);
+                    }
+                }
+                // Check for prepaid wallet balance error (direct)
+                else if (errorData.prepaid) {
+                    errorMessage = errorData.prepaid;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.error) {
+                    errorMessage = typeof errorData.error === 'string' ? errorData.error : JSON.stringify(errorData.error);
+                } else if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else if (errorData.rmk) {
+                    errorMessage = errorData.rmk;
+                } else {
+                    // Try to extract any error message from the response
+                    errorMessage = JSON.stringify(errorData);
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
             logger.error('❌ Pickup scheduling failed', {
-                error: error.response?.data || error.message,
+                error: errorMessage,
                 status: error.response?.status,
-                pickupLocation: pickupData.pickup_location
+                errorData: error.response?.data,
+                pickupLocation: pickupData.pickup_location,
+                extractedMessage: errorMessage
             });
 
             return {
                 success: false,
-                error: error.response?.data?.message || error.message || 'Failed to schedule pickup'
+                error: errorMessage
             };
         }
     }
@@ -782,9 +903,11 @@ class DelhiveryService {
      */
     async getWaybill(count = 1) {
         try {
-            // Fetch WayBill API format:
-            // GET /waybill/api/bulk/json/?token={API_KEY}&count={count}
-            // IMPORTANT: Token is sent as QUERY PARAM, not Authorization header!
+            // Fetch WayBill API format as per Delhivery API Documentation:
+            // GET https://track.delhivery.com/waybill/api/bulk/json/?count=count
+            // params: {token: 'xxxxxxxxxxxxxxxx', count: '1'}
+            // headers: {Accept: 'application/json'}
+            
             // Validate API key before making request - check both instance and process.env
             let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
             
@@ -815,25 +938,32 @@ class DelhiveryService {
                 apiKeyLength: this.apiKey?.length || 0
             });
             
-            // Fetch WayBill API needs different approach - token in params, not header
-            // Use production URL directly: https://track.delhivery.com/waybill/api/bulk/json/
+            // Use production URL as per API documentation
+            // URL: https://track.delhivery.com/waybill/api/bulk/json/?count=count
             const baseDomain = this.apiURL.includes('staging') 
                 ? 'https://staging-express.delhivery.com'
                 : 'https://track.delhivery.com';
             const waybillURL = `${baseDomain}/waybill/api/bulk/json/`;
             
-            logger.info('📋 Waybill API Request', {
+            logger.info('📋 Waybill API Request (Following API Doc Format)', {
                 waybillURL: waybillURL,
+                method: 'GET',
                 usingStaging: this.apiURL.includes('staging'),
                 tokenParam: apiKeyToUse ? `${apiKeyToUse.substring(0, 10)}...` : 'MISSING',
+                count: String(count),
                 apiKeyFromInstance: !!this.apiKey,
                 apiKeyFromEnv: !!process.env.DELHIVERY_API_KEY
             });
             
-            const response = await axios.get(waybillURL, {
+            // Follow exact API documentation format:
+            // params: {token: 'xxxxxxxxxxxxxxxx', count: '1'}
+            // headers: {Accept: 'application/json'}
+            const response = await axios.request({
+                method: 'GET',
+                url: waybillURL,
                 params: {
                     token: apiKeyToUse,  // Token as query parameter
-                    count: count
+                    count: String(count)  // Count as string as per API doc
                 },
                 headers: {
                     'Accept': 'application/json'

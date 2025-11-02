@@ -226,7 +226,8 @@ const Orders: React.FC = () => {
     
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/orders/${orderId}/request-pickup`, {
+      // Use environmentConfig.apiUrl which already includes /api
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderId}/request-pickup`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -241,12 +242,31 @@ const Orders: React.FC = () => {
         orderService.clearCache();
         fetchOrders(); // Refresh list
       } else {
-        const error = await response.json();
-        alert(`❌ Failed: ${error.message}`);
+        let errorMessage = 'Failed to request pickup from Delhivery';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || error.error || JSON.stringify(error);
+        } catch (parseError) {
+          // If JSON parsing fails, use response text
+          const text = await response.text();
+          errorMessage = text || `Request failed with status ${response.status}`;
+        }
+        
+        // Show detailed error message to user
+        alert(`❌ Pickup Request Failed\n\n${errorMessage}\n\nNote: This error is from your Delhivery account wallet balance, not your application wallet.`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Pickup request error:', error);
-      alert('Failed to request pickup');
+      
+      // Extract error message from various possible sources
+      let errorMessage = 'Failed to request pickup';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(`❌ Pickup Request Failed\n\n${errorMessage}\n\nNote: This error is from your Delhivery account wallet balance, not your application wallet.`);
     } finally {
       setLoading(false);
     }

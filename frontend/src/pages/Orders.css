@@ -112,7 +112,8 @@
     align-items: center;
   }
   
-  .action-btn {
+  /* Legacy action-btn - overridden by table action buttons below */
+  .top-actions .action-btn {
     padding: 12px 24px;
     border: 2px solid #E0E0E0;
     border-radius: 0px !important;
@@ -922,28 +923,37 @@
     padding: 8px 4px;
   }
 
-  .action-btn {
+  /* Action buttons in orders table */
+  .orders-table .action-btn,
+  table .action-btn,
+  .action-buttons .action-btn {
     background-color: white;
-    border: 0.5px solid #F68723;
+    border: 0.5px solid #E0E0E0;
     color: #000000;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
-    min-width: 120px;
+    width: auto;
+    min-width: auto;
     text-align: center;
+    display: inline-block;
   }
 
-  .action-btn:hover {
-    background-color: #FFF5E6;
-    border-color: #E67700;
+  .orders-table .action-btn:hover,
+  table .action-btn:hover,
+  .action-buttons .action-btn:hover {
+    background-color: #F5F5F5;
+    border-color: #CCCCCC;
     transform: translateY(-1px);
   }
 
-  .action-btn:active {
+  .orders-table .action-btn:active,
+  table .action-btn:active,
+  .action-buttons .action-btn:active {
     transform: translateY(0);
   }
 
@@ -952,21 +962,34 @@
     font-weight: 600;
   }
 
-  .action-icon-btn {
-    background-color: white;
-    border: 0.5px solid #F68723;
-    color: #000000;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 80px;
+  .generate-awb-btn {
+    font-weight: 600;
   }
 
-  .action-icon-btn:hover {
-    background-color: #FFF5E6;
-    border-color: #E67700;
+  /* Action icon buttons in orders table */
+  .orders-table .action-icon-btn,
+  table .action-icon-btn,
+  .action-buttons .action-icon-btn {
+    background-color: white;
+    border: 0.5px solid #E0E0E0;
+    color: #000000;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: auto;
+    min-width: auto;
+    text-align: center;
+    display: inline-block;
+  }
+
+  .orders-table .action-icon-btn:hover,
+  table .action-icon-btn:hover,
+  .action-buttons .action-icon-btn:hover {
+    background-color: #F5F5F5;
+    border-color: #CCCCCC;
   }
   
   /* Button Labels (replace emojis) */
@@ -1034,10 +1057,24 @@
       gap: 25px;
     }
     
-    .action-btn {
-      padding: 14px 28px;
-      font-size: 15px;
-      border-radius: 0px !important;
+    .orders-table .action-btn,
+    table .action-btn,
+    .action-buttons .action-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
+    }
+    
+    .orders-table .action-icon-btn,
+    table .action-icon-btn,
+    .action-buttons .action-icon-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
     }
   }
   
@@ -1077,10 +1114,24 @@
       justify-content: flex-start;
     }
     
-    .action-btn {
-      padding: 10px 20px;
+    .orders-table .action-btn,
+    table .action-btn,
+    .action-buttons .action-btn {
+      padding: 6px 12px;
       font-size: 13px;
-      border-radius: 0px !important;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
+    }
+    
+    .orders-table .action-icon-btn,
+    table .action-icon-btn,
+    .action-buttons .action-icon-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
     }
   }
   
@@ -1091,9 +1142,19 @@
       width: 100%;
     }
     
-    .action-btn {
-      width: 100%;
+    .orders-table .action-btn,
+    table .action-btn,
+    .action-buttons .action-btn {
+      width: auto;
+      min-width: auto;
       justify-content: center;
+    }
+    
+    .orders-table .action-icon-btn,
+    table .action-icon-btn,
+    .action-buttons .action-icon-btn {
+      width: auto;
+      min-width: auto;
     }
   }
   
@@ -1102,9 +1163,24 @@
       padding: 10px;
     }
   
-    .action-btn {
-      padding: 8px 15px;
+    .orders-table .action-btn,
+    table .action-btn,
+    .action-buttons .action-btn {
+      padding: 6px 12px;
       font-size: 13px;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
+    }
+    
+    .orders-table .action-icon-btn,
+    table .action-icon-btn,
+    .action-buttons .action-icon-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 8px;
+      width: auto;
+      min-width: auto;
     }
   
     .tab-btn {

@@ -1,0 +1,200 @@
+[2025-11-02T03:12:55.581Z] [ERROR] [PID:2512] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL5388205715659901250",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "BAR/ARD",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710001002",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762051486659543"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T03:12:55.584Z] [ERROR] [PID:2512] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:12:55.587Z] [ERROR] [PID:2512] ❌ AWB generation failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:18:24.396Z] [ERROR] [PID:2512] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL18141086603622237546",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "BAR/ARD",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710001013",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762051486659543"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T03:18:24.405Z] [ERROR] [PID:2512] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:18:24.410Z] [ERROR] [PID:2512] ❌ AWB generation failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:19:58.609Z] [ERROR] [PID:2512] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL86544370997872592",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "BAR/ARD",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710001024",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762051486659543"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T03:19:58.613Z] [ERROR] [PID:2512] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:19:58.619Z] [ERROR] [PID:2512] ❌ AWB generation failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:23:58.381Z] [ERROR] [PID:2512] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL2840658843068089615",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "BAR/ARD",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710001035",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762051486659543"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T03:23:58.386Z] [ERROR] [PID:2512] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T03:23:58.388Z] [ERROR] [PID:2512] ❌ AWB generation failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T05:36:09.288Z] [ERROR] [PID:23080] ❌ Pickup scheduling failed | Data: {
+  "error": {
+    "prepaid": "Client wallet balance is -27.76 which is less than 500.0"
+  },
+  "status": 400,
+  "pickupLocation": "UDDIT WAREHOUSE 1761511069016"
+}
+[2025-11-02T05:36:09.295Z] [ERROR] [PID:23080] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "error": "Request failed with status code 400"
+}
+[2025-11-02T05:37:04.884Z] [ERROR] [PID:23080] ❌ Pickup scheduling failed | Data: {
+  "error": {
+    "prepaid": "Client wallet balance is -27.76 which is less than 500.0"
+  },
+  "status": 400,
+  "pickupLocation": "UDDIT WAREHOUSE 1761511069016"
+}
+[2025-11-02T05:37:04.886Z] [ERROR] [PID:23080] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "error": "Request failed with status code 400"
+}
+[2025-11-02T06:45:00.874Z] [ERROR] [PID:23080] ❌ Pickup scheduling failed | Data: {
+  "error": {
+    "prepaid": "Client wallet balance is -27.76 which is less than 500.0"
+  },
+  "status": 400,
+  "pickupLocation": "UDDIT WAREHOUSE 1761511069016"
+}
+[2025-11-02T06:45:00.878Z] [ERROR] [PID:23080] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "error": "Request failed with status code 400"
+}
