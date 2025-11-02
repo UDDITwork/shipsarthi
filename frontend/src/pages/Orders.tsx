@@ -493,6 +493,46 @@ const Orders: React.FC = () => {
     setTrackingModal({ open: true, awb: awb });
   };
 
+  const handleGenerateAWB = async (orderId: string, orderDbId: string) => {
+    if (!orderDbId) {
+      alert('Order ID not available');
+      return;
+    }
+
+    if (!window.confirm('Generate AWB number for this order? The order will move to "Ready to Ship" tab.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderDbId}/generate-awb`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        alert(`✅ AWB generated successfully!\n\nAWB Number: ${data.data.awb_number}\n\nOrder moved to "Ready to Ship" tab.`);
+        // Clear cache and refresh orders
+        orderService.clearCache();
+        fetchOrders();
+      } else {
+        throw new Error(data.message || 'Failed to generate AWB');
+      }
+    } catch (error: any) {
+      console.error('Generate AWB error:', error);
+      alert(`❌ Failed to generate AWB: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePrintLabel = async (orderId: string, orderDbId?: string, awb?: string) => {
     if (!awb) {
       alert('AWB number not available for printing label');
@@ -1149,6 +1189,18 @@ const Orders: React.FC = () => {
                     <td>{order.warehouse}</td>
                     <td>
                       <div className="action-buttons">
+                        {/* Generate AWB button - only for NEW status orders without AWB */}
+                        {order.status === 'new' && !order.awb && (
+                          <button 
+                            className="action-btn generate-awb-btn"
+                            title="Generate AWB Number"
+                            onClick={() => handleGenerateAWB(order.orderId, order._id)}
+                          >
+                            Generate AWB Number
+                          </button>
+                        )}
+                        
+                        {/* Request Pickup button - only for ready_to_ship status */}
                         {order.awb && 
                          activeTab !== 'pickups_manifests' &&
                          order.status === 'ready_to_ship' && 
@@ -1162,22 +1214,36 @@ const Orders: React.FC = () => {
                             Request Pickup
                           </button>
                         )}
+                        
+                        {/* View button - always visible */}
                         <button 
                           className="action-icon-btn view-btn" 
                           onClick={() => handleViewOrder(order._id)}
                         ></button>
-                        <button 
-                          className="action-icon-btn edit-btn" 
-                          onClick={() => handleEditOrder(order.orderId)}
-                        ></button>
-                        <button 
-                          className="action-icon-btn track-btn" 
-                          onClick={() => handleTrackOrder(order.orderId, order.awb)}
-                        ></button>
-                        <button 
-                          className="action-icon-btn print-btn" 
-                          onClick={() => handlePrintLabel(order.orderId, order._id, order.awb)}
-                        ></button>
+                        
+                        {/* Edit button - only visible for NEW status orders (without AWB) */}
+                        {order.status === 'new' && !order.awb && (
+                          <button 
+                            className="action-icon-btn edit-btn" 
+                            onClick={() => handleEditOrder(order.orderId)}
+                          ></button>
+                        )}
+                        
+                        {/* Track button - only visible if AWB exists */}
+                        {order.awb && (
+                          <button 
+                            className="action-icon-btn track-btn" 
+                            onClick={() => handleTrackOrder(order.orderId, order.awb)}
+                          ></button>
+                        )}
+                        
+                        {/* Print button - only visible if AWB exists */}
+                        {order.awb && (
+                          <button 
+                            className="action-icon-btn print-btn" 
+                            onClick={() => handlePrintLabel(order.orderId, order._id, order.awb)}
+                          ></button>
+                        )}
                       </div>
                     </td>
                   </tr>

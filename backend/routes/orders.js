@@ -614,15 +614,31 @@ router.post('/', auth, [
     // Create order object but DON'T save to database yet
     const order = new Order(orderData);
     
+    // Check if AWB generation is requested
+    // If generate_awb is explicitly false (boolean) or 'false' (string), don't generate AWB
+    // Otherwise, default to true (generate AWB) for backward compatibility
+    const generateAWBFlag = req.body.generate_awb;
+    
+    // Explicit check: only generate AWB if flag is NOT explicitly false
+    const generateAWB = generateAWBFlag !== false && generateAWBFlag !== 'false' && generateAWBFlag !== 0 && generateAWBFlag !== '0';
+    
     console.log('📋 ORDER PREPARED (NOT SAVED YET)', {
       orderId: order.order_id,
+      generateAWB: generateAWB,
+      generate_awb_received: req.body.generate_awb,
+      generate_awb_type: typeof req.body.generate_awb,
+      will_call_delhivery: generateAWB,
       timestamp: new Date().toISOString()
     });
 
-    // Create shipment with Delhivery API FIRST
     let delhiveryResult = null;
-    try {
-      // STEP 1: Fetch waybill from Delhivery BEFORE creating shipment
+    
+    // Only call Delhivery API if generate_awb is explicitly true or not provided (for backward compatibility)
+    if (generateAWB) {
+      console.log('🔄 CALLING DELHIVERY API (AWB generation requested)');
+      // Create shipment with Delhivery API FIRST
+      try {
+        // STEP 1: Fetch waybill from Delhivery BEFORE creating shipment
       console.log('📋 FETCHING WAYBILL FROM DELHIVERY', {
         orderId: order.order_id,
         timestamp: new Date().toISOString()
@@ -1012,6 +1028,71 @@ router.post('/', auth, [
         }
       });
     }
+    } else {
+      // If generate_awb is false, just save order without calling Delhivery API
+      console.log('⏭️ SKIPPING DELHIVERY API (AWB generation NOT requested)', {
+        orderId: order.order_id,
+        generate_awb_flag: req.body.generate_awb
+      });
+      console.log('💾 SAVING ORDER WITHOUT AWB GENERATION', {
+        orderId: order.order_id,
+        status: 'new',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Set status to 'new' since no AWB is generated
+      order.status = 'new';
+      
+      // Save order to database
+      await order.save();
+      
+      console.log('✅ ORDER SAVED TO DATABASE (NO AWB)', {
+        orderId: order.order_id,
+        status: order.status,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Create or update customer record AFTER successful order save
+      try {
+        const Customer = require('../models/Customer');
+        const customerData = {
+          name: order.customer_info.buyer_name,
+          phone: order.customer_info.phone,
+          alternate_phone: order.customer_info.alternate_phone,
+          email: order.customer_info.email,
+          gstin: order.customer_info.gstin,
+          address: {
+            address_line_1: order.delivery_address.address_line_1,
+            address_line_2: order.delivery_address.address_line_2,
+            full_address: order.delivery_address.full_address,
+            landmark: order.delivery_address.landmark,
+            city: order.delivery_address.city,
+            state: order.delivery_address.state,
+            pincode: order.delivery_address.pincode,
+            country: order.delivery_address.country,
+            address_type: order.delivery_address.address_type
+          },
+          channel: 'order_creation'
+        };
+
+        const customer = await Customer.findOrCreate(userId, customerData);
+        await customer.updateOrderStats(order.payment_info.total_amount);
+        
+        console.log('👤 CUSTOMER CREATED/UPDATED AFTER ORDER SAVE (NO AWB)', {
+          orderId: order.order_id,
+          customerId: customer._id,
+          customerName: customer.name,
+          timestamp: new Date().toISOString()
+        });
+      } catch (customerError) {
+        console.error('❌ CUSTOMER CREATION FAILED (NO AWB)', {
+          orderId: order.order_id,
+          error: customerError.message,
+          timestamp: new Date().toISOString()
+        });
+        // Don't fail the order creation if customer creation fails
+      }
+    }
 
     // Save package template if requested
     if (req.body.package_info.save_dimensions) {
@@ -1049,18 +1130,32 @@ router.post('/', auth, [
     
     const awbNumber = order.delhivery_data?.waybill || delhiveryResult?.waybill || null;
     
-    // Only reach here if Delhivery API succeeded and order was saved
-    console.log('🎉 ORDER AND SHIPMENT CREATION COMPLETED', {
-      orderId: order.order_id,
-      awb: order.delhivery_data?.waybill || 'N/A',
-      status: order.status,
-      delhiverySuccess: delhiveryResult?.success || false,
-      timestamp: new Date().toISOString()
-    });
+    // Log completion based on whether AWB was generated
+    if (generateAWB) {
+      console.log('🎉 ORDER AND SHIPMENT CREATION COMPLETED', {
+        orderId: order.order_id,
+        awb: order.delhivery_data?.waybill || 'N/A',
+        status: order.status,
+        delhiverySuccess: delhiveryResult?.success || false,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log('🎉 ORDER SAVED SUCCESSFULLY (NO AWB)', {
+        orderId: order.order_id,
+        status: order.status,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const message = generateAWB && awbNumber 
+      ? 'Order and shipment created successfully' 
+      : generateAWB 
+        ? 'Order created, AWB generation in progress'
+        : 'Order saved successfully';
 
     res.status(201).json({
       status: 'success',
-      message: 'Order and shipment created successfully',
+      message: message,
       data: {
         order: order,
         awb_number: order.delhivery_data?.waybill || null,
@@ -1087,6 +1182,208 @@ router.post('/', auth, [
     res.status(500).json({
       status: 'error',
       message: 'Server error creating order'
+    });
+  }
+});
+
+// @desc    Generate AWB for an existing order in NEW status
+// @route   POST /api/orders/:id/generate-awb
+// @access  Private
+router.post('/:id/generate-awb', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const orderId = req.params.id;
+
+    // Find order
+    const order = await Order.findOne({
+      _id: orderId,
+      user_id: userId
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    // Validate order status - must be 'new' to generate AWB
+    if (order.status !== 'new') {
+      return res.status(400).json({
+        status: 'error',
+        message: `Order must be in 'new' status to generate AWB. Current status: ${order.status}`
+      });
+    }
+
+    // Check if AWB already exists
+    if (order.delhivery_data?.waybill) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'AWB number already exists for this order',
+        awb: order.delhivery_data.waybill
+      });
+    }
+
+    logger.info('🚀 Generating AWB for existing order', {
+      orderId: order.order_id,
+      userId: userId.toString()
+    });
+
+    // Get warehouse/pickup address
+    let pickupAddress = {};
+    if (order.pickup_address) {
+      pickupAddress = {
+        name: order.pickup_address.name || 'SHIPSARTHI C2C',
+        full_address: order.pickup_address.full_address,
+        city: order.pickup_address.city,
+        state: order.pickup_address.state,
+        pincode: order.pickup_address.pincode,
+        phone: order.pickup_address.phone,
+        country: order.pickup_address.country || 'India'
+      };
+    }
+
+    // Prepare order data for Delhivery API
+    const orderDataForDelhivery = {
+      order_id: order.order_id,
+      customer_info: {
+        buyer_name: order.customer_info.buyer_name,
+        phone: order.customer_info.phone,
+        email: order.customer_info.email || ''
+      },
+      delivery_address: {
+        full_address: order.delivery_address.full_address,
+        pincode: order.delivery_address.pincode,
+        city: order.delivery_address.city,
+        state: order.delivery_address.state,
+        country: order.delivery_address.country || 'India',
+        address_type: order.delivery_address.address_type || 'home'
+      },
+      pickup_address: pickupAddress,
+      products: order.products.map(p => ({
+        product_name: p.product_name,
+        quantity: p.quantity,
+        hsn_code: p.hsn_code || '',
+        unit_price: p.unit_price || 0
+      })),
+      package_info: {
+        weight: order.package_info.weight,
+        dimensions: {
+          width: order.package_info.dimensions.width,
+          height: order.package_info.dimensions.height,
+          length: order.package_info.dimensions.length || order.package_info.dimensions.width
+        }
+      },
+      payment_info: {
+        payment_mode: order.payment_info.payment_mode,
+        cod_amount: order.payment_info.cod_amount || 0,
+        order_value: order.payment_info.order_value || order.payment_info.total_amount || 0
+      },
+      seller_info: {
+        name: order.seller_info?.name || 'SHIPSARTHI',
+        gst_number: order.seller_info?.gst_number || ''
+      },
+      invoice_number: order.invoice_number || `INV${order.order_id}`,
+      shipping_mode: order.shipping_mode || 'Surface',
+      address_type: order.delivery_address.address_type || 'home'
+    };
+
+    // Try to fetch waybill first
+    const waybillResult = await delhiveryService.getWaybill(1);
+    let preFetchedWaybill = null;
+    
+    if (waybillResult.success && waybillResult.waybills && waybillResult.waybills.length > 0) {
+      preFetchedWaybill = waybillResult.waybills[0];
+    }
+    
+    if (preFetchedWaybill) {
+      orderDataForDelhivery.waybill = preFetchedWaybill;
+    }
+
+    // Call Delhivery API to create shipment
+    const delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
+
+    if (!delhiveryResult.success) {
+      logger.error('❌ AWB generation failed', {
+        orderId: order.order_id,
+        error: delhiveryResult.error
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: 'Failed to generate AWB from Delhivery',
+        error: delhiveryResult.error
+      });
+    }
+
+    // Extract AWB number from response
+    let awbNumber = null;
+    let packageData = null;
+
+    if (delhiveryResult.packages && Array.isArray(delhiveryResult.packages) && delhiveryResult.packages.length > 0) {
+      packageData = delhiveryResult.packages[0];
+      awbNumber = packageData.waybill || packageData.AWB || packageData.wb || null;
+    }
+    
+    if (!awbNumber && delhiveryResult.waybill) {
+      awbNumber = delhiveryResult.waybill;
+      packageData = packageData || { waybill: awbNumber, status: 'Success' };
+    }
+
+    if (!awbNumber) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'AWB number not found in Delhivery response'
+      });
+    }
+
+    // Update order with AWB and status
+    order.delhivery_data = {
+      waybill: awbNumber,
+      package_id: packageData?.refnum || order.order_id,
+      upload_wbn: delhiveryResult.upload_wbn || null,
+      status: packageData?.status || 'Success',
+      serviceable: packageData?.serviceable,
+      sort_code: packageData?.sort_code,
+      remarks: packageData?.remarks || [],
+      cod_amount: packageData?.cod_amount || 0,
+      payment: packageData?.payment,
+      label_url: delhiveryResult.label_url || packageData?.label_url || null,
+      expected_delivery_date: delhiveryResult.expected_delivery || packageData?.expected_delivery_date || null
+    };
+
+    // Update status to ready_to_ship
+    order.status = 'ready_to_ship';
+    
+    await order.save();
+
+    logger.info('✅ AWB generated successfully', {
+      orderId: order.order_id,
+      awb: awbNumber,
+      newStatus: order.status
+    });
+
+    res.json({
+      status: 'success',
+      message: 'AWB generated successfully',
+      data: {
+        order_id: order.order_id,
+        awb_number: awbNumber,
+        status: order.status,
+        shipment_info: order.delhivery_data
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Generate AWB error', {
+      orderId: req.params.id,
+      userId: req.user._id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error generating AWB'
     });
   }
 });

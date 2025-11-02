@@ -593,8 +593,19 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     calculateTotals();
   }, [formData.products, formData.payment_info.shipping_charges]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle Save button (no AWB generation)
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    await handleOrderSubmission(false); // generate_awb = false
+  };
+
+  // Handle Save & Assign Order button (with AWB generation)
+  const handleSaveAndAssign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleOrderSubmission(true); // generate_awb = true
+  };
+
+  const handleOrderSubmission = async (generateAWB: boolean) => {
     setLoading(true);
 
     // Validate required fields before sending
@@ -751,6 +762,19 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         order_id: orderId
       };
 
+      // Add generate_awb flag to order data
+      const requestData = {
+        ...orderData,
+        generate_awb: generateAWB
+      };
+
+      console.log('🚀 FRONTEND: Sending order with generate_awb flag', {
+        generate_awb: generateAWB,
+        generate_awb_type: typeof generateAWB,
+        will_call_delhivery: generateAWB,
+        timestamp: new Date().toISOString()
+      });
+
       // Use the environment configuration for API URL
       const response = await fetch(`${environmentConfig.apiUrl}/orders`, {
         method: 'POST',
@@ -758,7 +782,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify(requestData)
       });
 
       console.log('📡 FRONTEND: Response received', {
@@ -777,11 +801,14 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         });
         
         // Show success message with order details
-        const awbDisplay = data.data.awb_number 
-          ? `✅ AWB Number: ${data.data.awb_number}` 
-          : '⚠️ AWB: Will be assigned (Delhivery processing)';
-        
-        const successMessage = `Order created successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n${awbDisplay}\n📊 Status: ${data.data.order.status}\n\n${data.data.shipment_info?.label_url ? `📄 Label URL: ${data.data.shipment_info.label_url}` : ''}`;
+        let successMessage = '';
+        if (generateAWB && data.data.awb_number) {
+          successMessage = `Order created and AWB assigned successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n✅ AWB Number: ${data.data.awb_number}\n📊 Status: ${data.data.order.status}\n\nOrder appears in "Ready to Ship" tab.`;
+        } else if (generateAWB) {
+          successMessage = `Order created and AWB generation initiated!\n\n📦 Order ID: ${data.data.order.order_id}\n⚠️ AWB: Processing...\n📊 Status: ${data.data.order.status}\n\nOrder appears in "Ready to Ship" tab.`;
+        } else {
+          successMessage = `Order saved successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n📊 Status: ${data.data.order.status}\n\nOrder appears in "NEW" tab. You can generate AWB later.`;
+        }
         alert(successMessage);
         
         // Transform order data to include AWB for parent component
@@ -952,7 +979,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
             </div>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form>
             {/* Step 1: Buyer/Receiver Details */}
             {currentStep === 1 && (
               <div className="form-section">
@@ -1737,9 +1764,26 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     Next →
                   </button>
                 ) : (
-                  <button type="submit" className="btn btn-success" disabled={loading}>
-                    {loading ? 'Creating Order...' : 'Save & Assign Order'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      type="button" 
+                      onClick={handleSave} 
+                      className="btn btn-secondary" 
+                      disabled={loading}
+                      style={{ flex: 1 }}
+                    >
+                      {loading ? 'Saving...' : 'Save'}
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={handleSaveAndAssign} 
+                      className="btn btn-success" 
+                      disabled={loading}
+                      style={{ flex: 1 }}
+                    >
+                      {loading ? 'Creating Order...' : 'Save & Assign Order'}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

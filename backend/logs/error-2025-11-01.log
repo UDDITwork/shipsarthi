@@ -6,3 +6,114 @@
   "orderId": "ORD1761857376594943",
   "waybill": "44800710000641"
 }
+[2025-11-02T01:04:01.143Z] [ERROR] [PID:31264] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL14983983261443506657",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "AHM/CHN",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710000976",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762044831118838"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T01:04:01.174Z] [ERROR] [PID:31264] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T01:06:49.742Z] [ERROR] [PID:31264] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL6432768858260262191",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "AHM/CHN",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710000980",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762044831118838"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T01:06:49.744Z] [ERROR] [PID:31264] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
+[2025-11-02T01:07:00.490Z] [ERROR] [PID:31264] ❌ Delhivery API returned error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+  "responseData": {
+    "cash_pickups_count": 0,
+    "package_count": 1,
+    "upload_wbn": "UPL11170461327392197632",
+    "replacement_count": 0,
+    "rmk": "An internal Error has occurred, Please get in touch with client.support@delhivery.com",
+    "pickups_count": 0,
+    "packages": [
+      {
+        "status": "Fail",
+        "client": "SHIPSARTHI C2C",
+        "sort_code": "AHM/CHN",
+        "remarks": [
+          "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+        ],
+        "waybill": "44800710000991",
+        "cod_amount": 0,
+        "payment": "Pre-paid",
+        "serviceable": true,
+        "refnum": "ORD1762044831118838"
+      }
+    ],
+    "cash_pickups": 0,
+    "cod_count": 0,
+    "success": false,
+    "prepaid_count": 0,
+    "cod_amount": 0
+  },
+  "errorType": "API_ERROR"
+}
+[2025-11-02T01:07:00.493Z] [ERROR] [PID:31264] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1762044831118838",
+  "error": "An internal Error has occurred, Please get in touch with client.support@delhivery.com"
+}
