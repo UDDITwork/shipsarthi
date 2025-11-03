@@ -14,28 +14,8 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
-// Helper function to determine zone from pincodes
-function getZoneFromPincode(pickupPincode, deliveryPincode) {
-  if (!pickupPincode || !deliveryPincode || pickupPincode.length !== 6 || deliveryPincode.length !== 6) {
-    return '';
-  }
-  
-  // Same pincode = Zone A (Local)
-  if (pickupPincode === deliveryPincode) return 'A';
-  
-  const pickupFirstDigit = pickupPincode[0];
-  const deliveryFirstDigit = deliveryPincode[0];
-  
-  // Within same first digit = Zone B (Regional)
-  if (pickupFirstDigit === deliveryFirstDigit) return 'B';
-  
-  // Metro to Metro
-  if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C1';
-  if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C2';
-  
-  // Rest of India
-  return 'D1'; // Default zone
-}
+// NOTE: Zone calculation removed - now using Delhivery API to get zone
+// Zone is fetched from Delhivery invoice/charges API response
 
 // @desc    Get all orders with filters and pagination
 // @route   GET /api/orders
@@ -878,11 +858,31 @@ router.post('/', auth, [
               user.wallet_balance = closingBalance;
               await user.save();
               
-              // Calculate zone from pickup and delivery pincodes
-              const zone = getZoneFromPincode(
+              // Get zone from Delhivery API
+              // Calculate chargeable weight (in grams)
+              const volumetricWeight = (order.package_info.dimensions.length * 
+                                        order.package_info.dimensions.width * 
+                                        order.package_info.dimensions.height) / 5000;
+              const chargeableWeightGrams = Math.max(order.package_info.weight * 1000, volumetricWeight * 1000);
+              
+              // Get zone from Delhivery API
+              const zoneResult = await delhiveryService.getZoneFromDelhivery(
                 order.pickup_address.pincode,
-                order.delivery_address.pincode
+                order.delivery_address.pincode,
+                chargeableWeightGrams,
+                order.shipping_mode === 'Express' ? 'E' : 'S', // Billing mode
+                'Delivered', // Shipment status
+                order.payment_info.payment_mode === 'COD' ? 'COD' : 'Pre-paid' // Payment type
               );
+              
+              const zone = zoneResult.success ? zoneResult.zone : null;
+              
+              logger.info('🌍 Zone retrieved from Delhivery for transaction', {
+                orderId: order.order_id,
+                zone: zone,
+                zoneResultSuccess: zoneResult.success,
+                chargeableWeightGrams: chargeableWeightGrams
+              });
               
               // Create transaction record
               const transaction = new Transaction({
@@ -903,7 +903,7 @@ router.post('/', auth, [
                   order_id: order.order_id,
                   awb_number: awbNumber,
                   weight: order.package_info.weight * 1000, // Convert kg to grams
-                  zone: zone || 'D1', // Calculate zone from pincode
+                  zone: zone || null, // Zone from Delhivery API
                   order_date: order.order_date
                 }
               });
@@ -1755,10 +1755,26 @@ router.get('/:id/label', auth, async (req, res) => {
       });
     }
 
-    // Get waybill from delhivery_data.waybill or shipping_info.awb_number
-    const waybill = order.delhivery_data?.waybill || order.shipping_info?.awb_number;
+    // Get waybill from multiple possible locations
+    const waybill = order.delhivery_data?.waybill || 
+                    order.shipping_info?.awb_number || 
+                    order.awb ||
+                    order.waybill;
     
     if (!waybill) {
+      logger.error('❌ Waybill not found in order', {
+        requestId: req.requestId,
+        orderId: order._id,
+        orderFields: {
+          hasDelhiveryData: !!order.delhivery_data,
+          delhiveryWaybill: order.delhivery_data?.waybill,
+          hasShippingInfo: !!order.shipping_info,
+          shippingAWB: order.shipping_info?.awb_number,
+          directAWB: order.awb,
+          directWaybill: order.waybill
+        }
+      });
+      
       return res.status(400).json({
         status: 'error',
         message: 'AWB/Waybill number not assigned yet. Please generate AWB first.'
@@ -1900,18 +1916,59 @@ router.post('/:id/request-pickup', auth, async (req, res) => {
       });
     }
 
-    // Calculate pickup date (tomorrow)
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const pickupDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
-    const pickupTime = '11:00:00';
+    // Get pickup date and time from request body, or use defaults
+    let pickupDate = req.body.pickup_date;
+    let pickupTime = req.body.pickup_time;
+    const expectedPackageCount = req.body.expected_package_count || 1;
+
+    // Validate pickup_date format (YYYY-MM-DD)
+    if (pickupDate) {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(pickupDate)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid pickup_date format. Expected YYYY-MM-DD'
+        });
+      }
+      
+      // Ensure date is not in the past
+      const selectedDate = new Date(pickupDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Pickup date cannot be in the past'
+        });
+      }
+    } else {
+      // Default to tomorrow if not provided
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      pickupDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
+    }
+
+    // Validate pickup_time format (HH:mm:ss)
+    if (pickupTime) {
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+      if (!timeRegex.test(pickupTime)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid pickup_time format. Expected HH:mm:ss (e.g., 11:00:00)'
+        });
+      }
+    } else {
+      // Default to 11:00:00 if not provided
+      pickupTime = '11:00:00';
+    }
 
     logger.info('🚚 Requesting pickup from Delhivery', {
       orderId: order.order_id,
       waybill: order.delhivery_data.waybill,
       pickupLocation: order.pickup_address.name,
       pickupDate,
-      pickupTime
+      pickupTime,
+      expectedPackageCount
     });
 
     // Call Delhivery Pickup API
@@ -1919,7 +1976,7 @@ router.post('/:id/request-pickup', auth, async (req, res) => {
       pickup_time: pickupTime,
       pickup_date: pickupDate,
       pickup_location: order.pickup_address.name,
-      expected_package_count: 1
+      expected_package_count: expectedPackageCount
     });
 
     if (!pickupResult.success) {

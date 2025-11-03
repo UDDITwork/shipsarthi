@@ -1,0 +1,83 @@
+GOOGLE CLOUD CONSOLE SETUP CHECKLIST
+=====================================
+
+Your Client ID: 389896580103-cpa3n271cqsvrmrtl8rphpmidmrh2ase.apps.googleusercontent.com
+
+STEP 1: GOOGLE CLOUD CONSOLE
+----------------------------
+1. Go to: https://console.cloud.google.com/apis/credentials
+2. Find your OAuth 2.0 Client ID: 389896580103-...
+3. Click EDIT
+
+STEP 2: AUTHORIZED JAVASCRIPT ORIGINS (CRITICAL)
+-----------------------------------------------
+Add these URLs:
+- http://localhost:3000
+- http://localhost:3001
+- http://127.0.0.1:3000
+- http://127.0.0.1:3001
+- https://shipsarthi.vercel.app
+- https://www.shipsarthi.com
+
+STEP 3: AUTHORIZED REDIRECT URIS (IMPORTANT)
+--------------------------------------------
+Add these URLs:
+- http://localhost:3000
+- https://shipsarthi.vercel.app
+- https://www.shipsarthi.com
+
+STEP 4: OAUTH CONSENT SCREEN
+----------------------------
+1. Go to: https://console.cloud.google.com/apis/credentials/consent
+2. Make sure OAuth consent screen is CONFIGURED
+3. If in Testing mode, add test users
+4. For production, publish the app
+
+STEP 5: ENABLE APIS
+-------------------
+1. Go to: https://console.cloud.google.com/apis/library
+2. Search and ENABLE these APIs:
+   - Google Identity Toolkit API (REQUIRED)
+   - Google+ API (if still available)
+
+STEP 6: VERIFY SETTINGS
+-----------------------
+1. Application type should be: Web application
+2. Name: Shipsarthi (or your app name)
+3. Client ID: Must match .env files
+4. Client Secret: Must match .env files
+
+STEP 7: TEST
+------------
+1. Clear browser cache
+2. Restart backend: npm start
+3. Restart frontend: npm start
+4. Go to http://localhost:3000/login
+5. Click "Sign in with Google"
+6. Should see Google popup
+
+COMMON ISSUES:
+--------------
+❌ Popup blocked by browser
+   → Allow popups for localhost
+
+❌ "Error 400: redirect_uri_mismatch"
+   → Check Authorized JavaScript Origins
+
+❌ "This app isn't verified"
+   → Configure OAuth consent screen properly
+
+❌ "Access blocked"
+   → Add your email as test user in OAuth consent screen
+
+❌ No popup appears
+   → Check browser console for errors
+   → Verify GOOGLE_CLIENT_ID in frontend .env
+
+✅ SUCCESS INDICATORS:
+- Google popup appears
+- Can select Google account
+- Token received
+- Redirected to dashboard
+- User logged in successfully
+

@@ -17,10 +17,11 @@ interface RegisterResponse {
 }
 
 export const authService = {
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(email: string, password: string, rememberMe: boolean = false): Promise<LoginResponse> {
     return await apiService.post<LoginResponse>('/auth/login', {
       email,
-      password
+      password,
+      remember_me: rememberMe
     });
   },
 

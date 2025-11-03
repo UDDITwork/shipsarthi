@@ -734,7 +734,8 @@ class DelhiveryService {
                     deliveryPincode,
                     freightCharge: rateData.freight_charge,
                     codCharge: rateData.cod_charges,
-                    deliveryDays: rateData.expected_delivery_days
+                    deliveryDays: rateData.expected_delivery_days,
+                    zone: rateData.zone
                 });
 
                 return {
@@ -743,6 +744,7 @@ class DelhiveryService {
                     cod_charge: parseFloat(rateData.cod_charges || 0),
                     total_charge: parseFloat(rateData.total_amount || 0),
                     expected_delivery_days: parseInt(rateData.expected_delivery_days || 3),
+                    zone: rateData.zone || null, // Extract zone from Delhivery response
                     currency: 'INR'
                 };
             } else {
@@ -769,6 +771,148 @@ class DelhiveryService {
             return {
                 success: false,
                 error: error.response?.data?.message || error.message || 'Failed to get rates'
+            };
+        }
+    }
+
+    /**
+     * Get Zone from Delhivery API
+     * Uses invoice/charges API to get zone for given parameters
+     * @param {string} pickupPincode - Origin pincode
+     * @param {string} deliveryPincode - Destination pincode
+     * @param {number} chargeableWeight - Chargeable weight in grams
+     * @param {string} shippingMode - Billing mode: 'E' (Express) or 'S' (Surface), default: 'S'
+     * @param {string} shipmentStatus - Status: 'Delivered', 'RTO', 'DTO', default: 'Delivered'
+     * @param {string} paymentType - Payment type: 'Pre-paid' or 'COD', default: 'Pre-paid'
+     * @returns {Promise} Zone information from Delhivery
+     */
+    async getZoneFromDelhivery(pickupPincode, deliveryPincode, chargeableWeight, shippingMode = 'S', shipmentStatus = 'Delivered', paymentType = 'Pre-paid') {
+        try {
+            // Use production URL directly
+            const productionURL = 'https://track.delhivery.com';
+            const chargesURL = `${productionURL}/api/kinko/v1/invoice/charges/.json`;
+            
+            // Ensure chargeableWeight is in grams (if passed in kg, convert)
+            const weightInGrams = chargeableWeight < 1000 ? chargeableWeight * 1000 : chargeableWeight;
+            
+            const params = {
+                md: shippingMode, // Billing Mode: E (Express) or S (Surface)
+                ss: shipmentStatus, // Status: Delivered, RTO, DTO
+                d_pin: deliveryPincode, // Destination pincode
+                o_pin: pickupPincode, // Origin pincode
+                cgm: Math.round(weightInGrams), // Chargeable weight in grams (must be integer)
+                pt: paymentType // Payment Type: Pre-paid or COD
+            };
+
+            logger.info('🌍 Getting zone from Delhivery invoice/charges API', {
+                pickupPincode,
+                deliveryPincode,
+                chargeableWeight: weightInGrams,
+                shippingMode,
+                shipmentStatus,
+                paymentType,
+                url: chargesURL,
+                params
+            });
+
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for zone retrieval');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+
+            const response = await axios.get(chargesURL, {
+                params: params,
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            logger.info('📦 Delhivery zone API response received', {
+                pickupPincode,
+                deliveryPincode,
+                status: response.status,
+                responseKeys: response.data && Array.isArray(response.data) && response.data[0] ? Object.keys(response.data[0]) : [],
+                hasData: !!response.data
+            });
+
+            // Check if response is HTML (error page) instead of JSON
+            if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+                logger.error('❌ Zone API returned HTML error page', {
+                    pickupPincode,
+                    deliveryPincode,
+                    responsePreview: response.data.substring(0, 200)
+                });
+                
+                return {
+                    success: false,
+                    error: 'Delhivery API returned error page',
+                    zone: null
+                };
+            }
+
+            // Extract zone from response
+            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+                const chargeData = response.data[0];
+                const zone = chargeData.zone || null;
+                
+                logger.info('✅ Zone extracted from Delhivery response', {
+                    pickupPincode,
+                    deliveryPincode,
+                    zone: zone,
+                    fullResponse: chargeData
+                });
+
+                return {
+                    success: true,
+                    zone: zone,
+                    data: chargeData // Return full response for reference
+                };
+            } else if (response.data && response.data.zone) {
+                // Handle case where response is object with zone directly
+                const zone = response.data.zone;
+                
+                logger.info('✅ Zone extracted from Delhivery response (object format)', {
+                    pickupPincode,
+                    deliveryPincode,
+                    zone: zone
+                });
+
+                return {
+                    success: true,
+                    zone: zone,
+                    data: response.data
+                };
+            } else {
+                logger.warn('⚠️ No zone information found in Delhivery response', {
+                    pickupPincode,
+                    deliveryPincode,
+                    responseData: response.data,
+                    responseType: typeof response.data
+                });
+
+                return {
+                    success: false,
+                    error: 'No zone information found in Delhivery response',
+                    zone: null
+                };
+            }
+        } catch (error) {
+            logger.error('❌ Zone retrieval failed', {
+                pickupPincode,
+                deliveryPincode,
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                url: error.config?.url
+            });
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Failed to get zone from Delhivery',
+                zone: null
             };
         }
     }
@@ -1905,12 +2049,19 @@ class DelhiveryService {
             const labelURL = `${productionURL}/api/p/packing_slip`;
 
             // Build query parameters - only wbns is required
+            // Ensure waybill is a string and trim any whitespace
+            const cleanWaybill = String(waybill).trim();
+            
+            if (!cleanWaybill || cleanWaybill.length === 0) {
+                throw new Error('Waybill number is empty or invalid');
+            }
+
             const params = {
-                wbns: waybill
+                wbns: cleanWaybill
             };
 
             logger.info('📄 Calling Delhivery packing_slip API', {
-                waybill,
+                waybill: cleanWaybill,
                 url: labelURL,
                 params,
                 note: 'This API returns JSON data only'
@@ -1924,20 +2075,70 @@ class DelhiveryService {
                     'Accept': 'application/json'
                 },
                 responseType: 'json',
-                timeout: 30000
+                timeout: 30000,
+                validateStatus: function (status) {
+                    // Accept any status code so we can handle errors properly
+                    return status >= 200 && status < 500;
+                }
             });
 
-            const isSuccess = response.status >= 200 && response.status < 300;
-
-            logger.info('✅ Shipping label JSON received from Delhivery', {
-                waybill,
+            logger.info('📄 Delhivery API Response', {
+                waybill: cleanWaybill,
                 responseStatus: response.status,
                 hasData: !!response.data,
                 dataType: typeof response.data,
-                responseKeys: response.data ? Object.keys(response.data) : []
+                responseKeys: response.data ? Object.keys(response.data) : [],
+                responseData: response.data
             });
 
-            if (isSuccess) {
+            // Check if response indicates an error from Delhivery
+            if (response.status >= 400) {
+                const errorMessage = response.data?.message || 
+                                   response.data?.error || 
+                                   response.data?.Message ||
+                                   `Delhivery API returned status ${response.status}`;
+                
+                logger.error('❌ Delhivery API error response', {
+                    waybill: cleanWaybill,
+                    status: response.status,
+                    error: errorMessage,
+                    responseData: response.data
+                });
+                
+                return {
+                    success: false,
+                    error: errorMessage,
+                    response_data: response.data
+                };
+            }
+
+            // Check if response.data indicates an error
+            if (response.data && typeof response.data === 'object') {
+                // Delhivery sometimes returns errors in the data object
+                if (response.data.remarks && Array.isArray(response.data.remarks) && response.data.remarks.length > 0) {
+                    const errorRemarks = response.data.remarks.filter(r => 
+                        r && (r.toLowerCase().includes('error') || 
+                             r.toLowerCase().includes('failed') ||
+                             r.toLowerCase().includes('invalid'))
+                    );
+                    
+                    if (errorRemarks.length > 0) {
+                        logger.error('❌ Delhivery API error in remarks', {
+                            waybill: cleanWaybill,
+                            remarks: response.data.remarks
+                        });
+                        
+                        return {
+                            success: false,
+                            error: errorRemarks.join('; ') || 'Delhivery API returned error remarks',
+                            response_data: response.data
+                        };
+                    }
+                }
+            }
+
+            // Success case - return the data
+            if (response.status >= 200 && response.status < 300) {
                 // Delhivery packing_slip API returns JSON data only
                 // The frontend will need to convert this to PDF
                 return {
@@ -1947,34 +2148,68 @@ class DelhiveryService {
                     message: 'Shipping label JSON data received from Delhivery',
                     note: 'Frontend must render JSON to PDF'
                 };
-            } else {
-                logger.warn('⚠️ Delhivery API returned non-success status', {
-                    waybill,
-                    status: response.status,
-                    data: response.data
-                });
+            }
+
+            // Fallback for unexpected status codes
+            logger.warn('⚠️ Delhivery API returned unexpected status', {
+                waybill: cleanWaybill,
+                status: response.status,
+                data: response.data
+            });
+            
+            return {
+                success: false,
+                error: `Delhivery API returned unexpected status: ${response.status}`,
+                response_data: response.data
+            };
+
+        } catch (error) {
+            // Enhanced error logging
+            const errorDetails = {
+                waybill,
+                errorMessage: error.message,
+                errorCode: error.code
+            };
+
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                errorDetails.status = error.response.status;
+                errorDetails.responseData = error.response.data;
+                errorDetails.responseHeaders = error.response.headers;
+                
+                // Try to extract meaningful error message
+                const errorMessage = error.response.data?.message || 
+                                   error.response.data?.error || 
+                                   error.response.data?.Message ||
+                                   error.response.data?.remarks?.[0] ||
+                                   `Delhivery API error (${error.response.status})`;
+                
+                logger.error('❌ Shipping label generation failed - API error', errorDetails);
                 
                 return {
                     success: false,
-                    error: 'Delhivery API returned invalid response',
-                    response_data: response.data
+                    error: errorMessage,
+                    status: error.response.status,
+                    response_data: error.response.data
+                };
+            } else if (error.request) {
+                // The request was made but no response was received
+                logger.error('❌ Shipping label generation failed - No response', errorDetails);
+                
+                return {
+                    success: false,
+                    error: 'No response from Delhivery API. Please check your network connection and try again.'
+                };
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                logger.error('❌ Shipping label generation failed - Request setup error', errorDetails);
+                
+                return {
+                    success: false,
+                    error: error.message || 'Failed to generate shipping label'
                 };
             }
-
-        } catch (error) {
-            logger.error('❌ Shipping label generation failed', {
-                waybill,
-                error: error.response?.data || error.message,
-                status: error.response?.status,
-                errorDetails: error.response?.data,
-                errorMessage: error.message,
-                errorCode: error.code
-            });
-
-            return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to generate shipping label'
-            };
         }
     }
 

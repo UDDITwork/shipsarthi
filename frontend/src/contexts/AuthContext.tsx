@@ -59,18 +59,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // WebSocket connection is handled in Layout.tsx to avoid duplicate connections
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await authService.login(email, password);
+      const response = await authService.login(email, password, rememberMe);
       
       setUser(response.user);
       setToken(response.token);
       
+      // Store token and user data
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
+      
+      // If remember me is enabled, token will have longer expiration (30d instead of 7d)
+      // The backend handles this automatically
+      
+      return response;
     } catch (err: any) {
       // Handle different types of errors with user-friendly messages
       let errorMessage = 'Login failed';

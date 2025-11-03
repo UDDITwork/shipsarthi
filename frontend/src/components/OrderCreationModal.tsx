@@ -475,26 +475,13 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   };
 
   // Helper function to determine zone from pincodes
+  // NOTE: Zone calculation removed - zone is now fetched from Delhivery API
+  // This function is kept for backward compatibility but should not be used
+  // Zone will be determined by Delhivery API response
   const determineZone = (pickupPincode: string, deliveryPincode: string): string => {
-    if (!pickupPincode || !deliveryPincode || pickupPincode.length !== 6 || deliveryPincode.length !== 6) {
-      return '';
-    }
-    
-    // Same pincode = Zone A (Local)
-    if (pickupPincode === deliveryPincode) return 'A';
-    
-    const pickupFirstDigit = pickupPincode[0];
-    const deliveryFirstDigit = deliveryPincode[0];
-    
-    // Within 500km = Zone B (Regional)
-    if (pickupFirstDigit === deliveryFirstDigit) return 'B';
-    
-    // Metro to Metro
-    if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C1';
-    if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C2';
-    
-    // Rest of India
-    return 'D1'; // Default zone
+    // This function is deprecated - zone should come from Delhivery API
+    // Returning empty string so that zone calculation happens via API
+    return '';
   };
 
   // Auto-calculate shipping charges when relevant fields change

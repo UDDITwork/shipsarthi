@@ -426,6 +426,11 @@ userSchema.statics.findByEmailOrPhone = async function(identifier) {
   }
 };
 
+// Additional indexes for faster login queries
+// Note: email already has unique index (from unique: true), phone_number index exists at line 243
+// Compound index for faster findByEmailOrPhone queries (sparse allows null values)
+userSchema.index({ email: 1, phone_number: 1 }, { sparse: true, name: 'email_phone_lookup' });
+
 // Transform output
 userSchema.set('toJSON', {
   transform: function(doc, ret, options) {

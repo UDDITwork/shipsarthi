@@ -42,27 +42,17 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
-      logger.info('🌐 CORS - Request with no origin (allowed)', { origin: null });
       return callback(null, true);
     }
     
-    // Log all incoming origins for debugging
-    logger.info('🌐 CORS CHECK', {
-      origin,
-      allowedOrigins,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Check if origin is in allowed list
+    // Check if origin is in allowed list (optimized - no logging in production)
     if (allowedOrigins.indexOf(origin) !== -1) {
-      logger.info('✅ CORS ALLOWED', { origin });
       callback(null, true);
     } else {
-      logger.error('❌ CORS BLOCKED', { 
-        origin,
-        allowedOrigins,
-        timestamp: new Date().toISOString()
-      });
+      // Only log blocked requests in development
+      if (process.env.NODE_ENV === 'development') {
+        logger.warn('CORS blocked', { origin });
+      }
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -144,27 +134,22 @@ app.use('/api/health', healthCheckLimiter);
 app.use('/api/users/upload-document', documentUploadLimiter);
 app.use('/api/', limiter);
 
-// Enhanced Request Logging Middleware
+// Optimized Request Logging Middleware - Only log essential info for performance
 app.use((req, res, next) => {
   const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   req.requestId = requestId;
   
-  logger.info('🌐 INCOMING REQUEST', {
-    requestId,
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    url: req.url,
-    originalUrl: req.originalUrl,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    origin: req.get('Origin'),
-    referer: req.get('Referer'),
-    contentType: req.get('Content-Type'),
-    headers: req.headers,
-    body: req.method === 'POST' || req.method === 'PUT' ? req.body : undefined,
-    query: req.query,
-    params: req.params
-  });
+  // Skip detailed logging for health checks and static files to improve performance
+  if (req.url !== '/api/health' && !req.url.startsWith('/uploads') && !req.url.startsWith('/public')) {
+    // Only log minimal info - reduce overhead
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Request', {
+        method: req.method,
+        url: req.url,
+        ip: req.ip
+      });
+    }
+  }
   
   next();
 });

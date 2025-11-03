@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
 import TrackingModal from '../components/TrackingModal';
+import PickupRequestModal from '../components/PickupRequestModal';
 import { orderService, Order } from '../services/orderService';
 import { DataCache } from '../utils/dataCache';
 import { environmentConfig } from '../config/environment';
@@ -69,6 +70,17 @@ const Orders: React.FC = () => {
   const [trackingModal, setTrackingModal] = useState<{open: boolean, awb: string | null}>({
     open: false,
     awb: null
+  });
+  const [pickupModal, setPickupModal] = useState<{
+    open: boolean;
+    orderId: string | null;
+    orderNumber: string | null;
+    warehouseName: string | null;
+  }>({
+    open: false,
+    orderId: null,
+    orderNumber: null,
+    warehouseName: null
   });
 
   // Fetch Orders on component mount and when filters change
@@ -221,23 +233,43 @@ const Orders: React.FC = () => {
     setIsAddOrderModalOpen(true);
   };
 
-  const handleRequestPickup = async (orderId: string, orderNumber: string) => {
-    if (!window.confirm(`Request pickup for order ${orderNumber}?`)) return;
-    
+  const handleRequestPickup = (orderId: string, orderNumber: string, warehouseName?: string) => {
+    // Open the pickup modal instead of directly making the request
+    setPickupModal({
+      open: true,
+      orderId,
+      orderNumber,
+      warehouseName: warehouseName || null
+    });
+  };
+
+  const handleConfirmPickup = async (pickupDate: string, pickupTime: string, packageCount: number) => {
+    if (!pickupModal.orderId) return;
+
     try {
       setLoading(true);
+      
       // Use environmentConfig.apiUrl which already includes /api
-      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderId}/request-pickup`, {
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/${pickupModal.orderId}/request-pickup`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          pickup_date: pickupDate,
+          pickup_time: pickupTime,
+          expected_package_count: packageCount
+        })
       });
 
       if (response.ok) {
         const data = await response.json();
-        alert(`✅ Pickup requested successfully!\n\nPickup ID: ${data.data.pickup_request_id}\nScheduled: ${data.data.pickup_date} at ${data.data.pickup_time}`);
+        alert(`✅ Pickup requested successfully!\n\nPickup ID: ${data.data.pickup_request_id || 'N/A'}\nScheduled: ${data.data.pickup_date} at ${data.data.pickup_time}`);
+        
+        // Close modal
+        setPickupModal({ open: false, orderId: null, orderNumber: null, warehouseName: null });
+        
         // Clear cache and refresh from MongoDB
         orderService.clearCache();
         fetchOrders(); // Refresh list
@@ -1229,7 +1261,7 @@ const Orders: React.FC = () => {
                           <button 
                             className="action-btn request-pickup-btn"
                             title="Request Pickup"
-                            onClick={() => handleRequestPickup(order._id, order.orderId)}
+                            onClick={() => handleRequestPickup(order._id, order.orderId, order.pickup_address?.name)}
                           >
                             Request Pickup
                           </button>
@@ -1446,6 +1478,17 @@ const Orders: React.FC = () => {
         isOpen={trackingModal.open}
         onClose={() => setTrackingModal({ open: false, awb: null })}
         awb={trackingModal.awb || ''}
+      />
+
+      {/* Pickup Request Modal */}
+      <PickupRequestModal
+        isOpen={pickupModal.open}
+        onClose={() => setPickupModal({ open: false, orderId: null, orderNumber: null, warehouseName: null })}
+        onConfirm={handleConfirmPickup}
+        orderId={pickupModal.orderId || ''}
+        orderNumber={pickupModal.orderNumber || ''}
+        warehouseName={pickupModal.warehouseName || undefined}
+        loading={loading}
       />
     </Layout>
   );

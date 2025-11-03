@@ -30,28 +30,28 @@ const Login: React.FC = () => {
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormData>();
 
-  // Load saved credentials on component mount
+  // Load saved email on component mount (secure - no password storage)
   useEffect(() => {
     const savedEmail = localStorage.getItem('remembered_email');
-    const savedPassword = localStorage.getItem('remembered_password');
-    if (savedEmail && savedPassword) {
+    const savedRememberMe = localStorage.getItem('remember_me') === 'true';
+    if (savedEmail && savedRememberMe) {
       setValue('email', savedEmail);
-      setValue('password', savedPassword);
       setValue('remember_me', true);
     }
   }, [setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data.email, data.password);
+      const response = await login(data.email, data.password, data.remember_me);
       
-      // Handle Remember Me functionality
+      // Handle Remember Me functionality - SECURE: Only store email, not password
       if (data.remember_me) {
         localStorage.setItem('remembered_email', data.email);
-        localStorage.setItem('remembered_password', data.password);
+        localStorage.setItem('remember_me', 'true');
+        // Token is already stored in localStorage by AuthContext
       } else {
         localStorage.removeItem('remembered_email');
-        localStorage.removeItem('remembered_password');
+        localStorage.removeItem('remember_me');
       }
       
       navigate('/dashboard');

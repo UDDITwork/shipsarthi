@@ -1,0 +1,251 @@
+.pickup-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pickup-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pickup-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.pickup-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #002B59;
+}
+
+.pickup-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.pickup-modal-close:hover {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.pickup-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pickup-modal-body {
+  padding: 24px;
+}
+
+.pickup-order-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.pickup-order-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.pickup-order-info strong {
+  color: #002B59;
+  margin-right: 8px;
+}
+
+.pickup-form-group {
+  margin-bottom: 20px;
+}
+
+.pickup-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.pickup-form-group .required {
+  color: #e74c3c;
+  margin-left: 4px;
+}
+
+.pickup-form-group .time-hint {
+  font-weight: normal;
+  color: #666;
+  margin-left: 8px;
+}
+
+.pickup-form-group input[type="date"],
+.pickup-form-group input[type="text"],
+.pickup-form-group input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.pickup-form-group input[type="date"]:focus,
+.pickup-form-group input[type="text"]:focus,
+.pickup-form-group input[type="number"]:focus {
+  outline: none;
+  border-color: #F68723;
+  box-shadow: 0 0 0 3px rgba(246, 135, 35, 0.1);
+}
+
+.pickup-form-group input.error {
+  border-color: #e74c3c;
+}
+
+.pickup-form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  display: block;
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.time-examples {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.pickup-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.pickup-btn-cancel,
+.pickup-btn-submit {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.pickup-btn-cancel {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.pickup-btn-cancel:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.pickup-btn-submit {
+  background-color: #F68723;
+  color: white;
+}
+
+.pickup-btn-submit:hover:not(:disabled) {
+  background-color: #E07612;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(246, 135, 35, 0.3);
+}
+
+.pickup-btn-cancel:disabled,
+.pickup-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .pickup-modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .pickup-modal-header {
+    padding: 16px 20px;
+  }
+
+  .pickup-modal-header h3 {
+    font-size: 18px;
+  }
+
+  .pickup-modal-body {
+    padding: 20px;
+  }
+
+  .pickup-modal-footer {
+    flex-direction: column;
+  }
+
+  .pickup-btn-cancel,
+  .pickup-btn-submit {
+    width: 100%;
+  }
+}
+

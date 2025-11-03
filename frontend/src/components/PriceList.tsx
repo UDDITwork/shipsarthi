@@ -76,10 +76,8 @@ const PriceList: React.FC<PriceListProps> = ({ userCategory }) => {
                   <th>Slab Condition</th>
                   <th>Zone A</th>
                   <th>Zone B</th>
-                  <th>Zone C1</th>
-                  <th>Zone C2</th>
-                  <th>Zone D1</th>
-                  <th>Zone D2</th>
+                  <th>Zone C</th>
+                  <th>Zone D</th>
                   <th>Zone E</th>
                   <th>Zone F</th>
                 </tr>
@@ -90,10 +88,8 @@ const PriceList: React.FC<PriceListProps> = ({ userCategory }) => {
                     <td>{slab.condition}</td>
                     <td>₹{slab.zones.A}</td>
                     <td>₹{slab.zones.B}</td>
-                    <td>₹{slab.zones.C1}</td>
-                    <td>₹{slab.zones.C2}</td>
-                    <td>₹{slab.zones.D1}</td>
-                    <td>₹{slab.zones.D2}</td>
+                    <td>₹{slab.zones.C}</td>
+                    <td>₹{slab.zones.D}</td>
                     <td>₹{slab.zones.E}</td>
                     <td>₹{slab.zones.F}</td>
                   </tr>
@@ -113,10 +109,8 @@ const PriceList: React.FC<PriceListProps> = ({ userCategory }) => {
                   <th>DTO Slab Condition</th>
                   <th>Zone A</th>
                   <th>Zone B</th>
-                  <th>Zone C1</th>
-                  <th>Zone C2</th>
-                  <th>Zone D1</th>
-                  <th>Zone D2</th>
+                  <th>Zone C</th>
+                  <th>Zone D</th>
                   <th>Zone E</th>
                   <th>Zone F</th>
                 </tr>
@@ -127,10 +121,8 @@ const PriceList: React.FC<PriceListProps> = ({ userCategory }) => {
                     <td>{slab.condition}</td>
                     <td>₹{slab.zones.A}</td>
                     <td>₹{slab.zones.B}</td>
-                    <td>₹{slab.zones.C1}</td>
-                    <td>₹{slab.zones.C2}</td>
-                    <td>₹{slab.zones.D1}</td>
-                    <td>₹{slab.zones.D2}</td>
+                    <td>₹{slab.zones.C}</td>
+                    <td>₹{slab.zones.D}</td>
                     <td>₹{slab.zones.E}</td>
                     <td>₹{slab.zones.F}</td>
                   </tr>

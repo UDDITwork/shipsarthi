@@ -1,6 +1,15 @@
 import { apiService } from './api';
 import { DataCache } from '../utils/dataCache';
 
+export interface PickupAddress {
+  name?: string;
+  full_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  phone?: string;
+}
+
 export interface Order {
   _id: string;
   orderId: string;
@@ -23,6 +32,7 @@ export interface Order {
   totalAmount: number;
   warehouse: string;
   pickupLocation: string;
+  pickup_address?: PickupAddress;
   status: string;
   awb?: string;
   trackingUrl?: string;
@@ -122,6 +132,14 @@ class OrderService {
           totalAmount: order.payment_info?.total_amount || 0,
           warehouse: order.pickup_address?.name || order.pickup_info?.warehouse_id?.name || '',
           pickupLocation: order.pickup_address?.full_address || order.pickup_info?.warehouse_id?.address?.full_address || '',
+          pickup_address: order.pickup_address ? {
+            name: order.pickup_address.name,
+            full_address: order.pickup_address.full_address,
+            city: order.pickup_address.city,
+            state: order.pickup_address.state,
+            pincode: order.pickup_address.pincode,
+            phone: order.pickup_address.phone
+          } : undefined,
           status: order.status,
           awb: order.delhivery_data?.waybill || order.shipping_info?.awb_number || '',
           trackingUrl: order.delhivery_data?.tracking_url || '',
@@ -188,6 +206,14 @@ class OrderService {
           totalAmount: order.payment_info?.total_amount || 0,
           warehouse: order.pickup_address?.name || order.pickup_info?.warehouse_id?.name || '',
           pickupLocation: order.pickup_address?.full_address || order.pickup_info?.warehouse_id?.address?.full_address || '',
+          pickup_address: order.pickup_address ? {
+            name: order.pickup_address.name,
+            full_address: order.pickup_address.full_address,
+            city: order.pickup_address.city,
+            state: order.pickup_address.state,
+            pincode: order.pickup_address.pincode,
+            phone: order.pickup_address.phone
+          } : undefined,
           status: order.status,
           awb: order.delhivery_data?.waybill || order.shipping_info?.awb_number || '',
           trackingUrl: order.delhivery_data?.tracking_url || '',

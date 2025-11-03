@@ -6,12 +6,6 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
-      console.warn('⚠️ AUTH: No token provided', {
-        url: req.url,
-        method: req.method,
-        ip: req.ip,
-        timestamp: new Date().toISOString()
-      });
       return res.status(401).json({
         status: 'error',
         message: 'Access denied. No token provided.'
@@ -20,14 +14,10 @@ const auth = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
+      // Optimize: Only select necessary fields, exclude password and heavy fields
+      const user = await User.findById(decoded.id).select('-password -documents -__v');
       
       if (!user) {
-        console.warn('⚠️ AUTH: User not found', {
-          decodedId: decoded.id,
-          url: req.url,
-          timestamp: new Date().toISOString()
-        });
         return res.status(401).json({
           status: 'error',
           message: 'Token is not valid'
@@ -35,48 +25,28 @@ const auth = async (req, res, next) => {
       }
 
       if (user.account_status === 'suspended') {
-        console.warn('⚠️ AUTH: Account suspended', {
-          userId: user._id,
-          email: user.email,
-          url: req.url,
-          timestamp: new Date().toISOString()
-        });
         return res.status(403).json({
           status: 'error',
           message: 'Account has been suspended'
         });
       }
 
-      // Add user ID to request for better debugging
+      // Add user ID to request
       req.user = user;
       req.userId = user._id || user.id;
       
-      console.log('✅ AUTH: User authenticated', {
-        userId: user._id,
-        email: user.email,
-        url: req.url,
-        timestamp: new Date().toISOString()
-      });
-      
       next();
     } catch (err) {
-      console.warn('⚠️ AUTH: Token verification failed', {
-        error: err.message,
-        url: req.url,
-        timestamp: new Date().toISOString()
-      });
       return res.status(401).json({
         status: 'error',
         message: 'Token is not valid'
       });
     }
   } catch (error) {
-    console.error('❌ AUTH: Middleware error', {
-      error: error.message,
-      stack: error.stack,
-      url: req.url,
-      timestamp: new Date().toISOString()
-    });
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('AUTH middleware error:', error.message);
+    }
     res.status(500).json({
       status: 'error',
       message: 'Server error'

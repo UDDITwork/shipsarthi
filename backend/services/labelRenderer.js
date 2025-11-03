@@ -23,25 +23,90 @@ class LabelRenderer {
       });
       
       // Parse the packages array from Delhivery response
-      const packages = labelData.packages || labelData.packagesData || labelData.waybills || labelData.data || [];
+      // Delhivery can return data in different formats:
+      // 1. { packages: [...] } - array format
+      // 2. { [waybill]: {...} } - object format with waybill as key
+      // 3. Direct object with package data
       
-      if (packages.length === 0) {
-        logger.error('❌ No packages found in response structure');
-        logger.error('Available keys:', Object.keys(labelData));
-        throw new Error('No package data found in label response');
+      let packages = [];
+      let pkg = null;
+      
+      // Try array format first
+      if (Array.isArray(labelData)) {
+        packages = labelData;
+      } else if (labelData.packages && Array.isArray(labelData.packages)) {
+        packages = labelData.packages;
+      } else if (labelData.packagesData && Array.isArray(labelData.packagesData)) {
+        packages = labelData.packagesData;
+      } else if (labelData.waybills && Array.isArray(labelData.waybills)) {
+        packages = labelData.waybills;
+      } else if (labelData.data && Array.isArray(labelData.data)) {
+        packages = labelData.data;
+      } else if (typeof labelData === 'object' && !Array.isArray(labelData)) {
+        // Try object format where waybill is the key
+        const keys = Object.keys(labelData);
+        if (keys.length > 0) {
+          // Check if keys look like waybill numbers (long numeric strings)
+          const waybillKey = keys.find(k => /^\d{10,}$/.test(k));
+          if (waybillKey) {
+            pkg = labelData[waybillKey];
+          } else {
+            // Use first key's value
+            pkg = labelData[keys[0]];
+          }
+        }
+        
+        // If still no package, try to use labelData itself as the package
+        if (!pkg && labelData.Wbn) {
+          pkg = labelData;
+        }
       }
-
-      const pkg = packages[0]; // Get first package
+      
+      // If we have packages array, get first one
+      if (packages.length > 0 && !pkg) {
+        pkg = packages[0];
+      }
+      
+      // If still no package data, try to construct from available data
+      if (!pkg) {
+        logger.warn('⚠️ No package array found, attempting to use labelData directly', {
+          labelDataKeys: Object.keys(labelData),
+          labelDataType: typeof labelData
+        });
+        
+        // Try using labelData as package if it has required fields
+        if (labelData && typeof labelData === 'object' && (labelData.Wbn || labelData.waybill || waybill)) {
+          pkg = labelData;
+        } else {
+          throw new Error('No package data found in label response. Available keys: ' + Object.keys(labelData).join(', '));
+        }
+      }
       
       // Log package structure
       logger.info('📦 Package keys:', Object.keys(pkg));
       
-      // Extract barcode image (base64)
-      const barcodeImage = pkg.Barcode || pkg.barcode || '';
-      const delhiveryLogo = pkg['Delhivery logo'] || pkg.logo || '';
+      // Extract barcode image (base64 or URL)
+      const barcodeImage = pkg.Barcode || 
+                          pkg.barcode || 
+                          pkg.barcode_image ||
+                          pkg.barcodeImage ||
+                          '';
+      
+      const delhiveryLogo = pkg['Delhivery logo'] || 
+                           pkg.logo || 
+                           pkg.delhiveryLogo ||
+                           pkg.delhivery_logo ||
+                           '';
       
       // Get AWB with all possible field names
-      const awb = pkg.Wbn || pkg.waybill || pkg.Waybill || pkg.AWB || pkg.wbn || waybill || 'N/A';
+      const awb = pkg.Wbn || 
+                 pkg.waybill || 
+                 pkg.Waybill || 
+                 pkg.AWB || 
+                 pkg.wbn || 
+                 pkg.waybill_number ||
+                 waybill || 
+                 'N/A';
       
       logger.info('📦 Package data extracted', {
         hasBarcode: !!barcodeImage,

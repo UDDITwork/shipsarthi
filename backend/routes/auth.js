@@ -9,9 +9,11 @@ const logger = require('../utils/logger');
 const router = express.Router();
 
 // Generate JWT Token
-const generateToken = (userId) => {
+const generateToken = (userId, rememberMe = false) => {
+  // If remember me is enabled, use longer expiration (30 days), otherwise use default (7 days)
+  const expiresIn = rememberMe ? '30d' : (process.env.JWT_EXPIRE || '7d');
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
+    expiresIn
   });
 };
 
@@ -204,22 +206,15 @@ router.post('/register', [
 // @access  Public
 router.post('/login', [
   body('email').trim().notEmpty().withMessage('Email or phone is required'),
-  body('password').notEmpty().withMessage('Password is required')
+  body('password').notEmpty().withMessage('Password is required'),
+  body('remember_me').optional().isBoolean()
 ], async (req, res) => {
   const startTime = Date.now();
-  logger.info('Login attempt started', {
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    email: req.body.email
-  });
+  const { email, password, remember_me } = req.body;
 
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      logger.warn('Login validation failed', {
-        errors: errors.array(),
-        email: req.body.email
-      });
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -227,30 +222,12 @@ router.post('/login', [
       });
     }
 
-    const { email, password } = req.body;
-
-    logger.debug('Login credentials received', { email });
-
-    // Check database readiness before querying
+    // Quick DB check - skip wait if already connected
     const dbState = mongoose.connection.readyState;
     if (dbState !== 1) {
-      logger.warn('Database not ready during login attempt', {
-        email,
-        dbState,
-        ip: req.ip
-      });
-      
-      // Try to wait for DB connection (with timeout)
       try {
-        await waitForDB(5000); // Wait up to 5 seconds
-        logger.info('Database connection established after wait', { email });
+        await waitForDB(2000); // Reduced timeout to 2 seconds
       } catch (dbError) {
-        logger.error('Database connection timeout during login', {
-          error: dbError.message,
-          email,
-          dbState,
-          ip: req.ip
-        });
         return res.status(503).json({
           status: 'error',
           message: 'Database is not ready. Please try again in a moment.'
@@ -258,61 +235,31 @@ router.post('/login', [
       }
     }
 
-    // Find user by email or phone
-    logger.debug('Searching for user', { email });
+    // Find user by email or phone - optimized query with select to exclude password
     let user;
     try {
-      user = await User.findByEmailOrPhone(email);
+      user = await User.findByEmailOrPhone(email).select('+password'); // Explicitly select password for comparison
     } catch (dbError) {
-      // Handle database connection errors specifically
       if (dbError.name === 'DatabaseConnectionError') {
-        logger.error('Database connection error during user lookup', {
-          error: dbError.message,
-          email,
-          dbState: dbError.dbState,
-          originalError: dbError.originalError?.message,
-          ip: req.ip
-        });
         return res.status(503).json({
           status: 'error',
           message: 'Database connection error. Please try again in a moment.'
         });
       }
-      // Re-throw other errors to be caught by outer catch block
       throw dbError;
     }
     
     if (!user) {
-      logger.warn('Login failed - user not found', { 
-        email,
-        searchType: email.includes('@') ? 'email' : 'phone'
-      });
+      // Don't reveal if user exists or not for security
       return res.status(401).json({
         status: 'error',
         message: 'Invalid credentials'
       });
     }
 
-    logger.debug('User found for login attempt', {
-      userId: user._id,
-      email: user.email,
-      accountStatus: user.account_status,
-      emailVerified: user.email_verified,
-      phoneVerified: user.phone_verified,
-      otpVerified: user.otp_verified
-    });
-
-    // OTP verification check removed - users can login without phone verification
-
-
     // Check if account is locked
     if (user.locked_until && user.locked_until > Date.now()) {
       const lockTimeRemaining = Math.ceil((user.locked_until - Date.now()) / (1000 * 60));
-      logger.warn('Login failed - account locked', {
-        userId: user._id,
-        email: user.email,
-        lockTimeRemaining
-      });
       return res.status(423).json({
         status: 'error',
         message: `Account is locked. Try again in ${lockTimeRemaining} minutes.`
@@ -320,39 +267,14 @@ router.post('/login', [
     }
 
     // Verify password
-    logger.debug('Verifying password', { userId: user._id });
     const isPasswordValid = await user.comparePassword(password);
     
-    logger.debug('Password verification completed', {
-      userId: user._id,
-      isValid: isPasswordValid
-    });
-    
     if (!isPasswordValid) {
-      // Increment login attempts
+      // Increment login attempts and save in one operation
       user.login_attempts += 1;
-      
-      logger.warn('Login failed - invalid password', {
-        userId: user._id,
-        email: user.email,
-        loginAttempts: user.login_attempts
-      });
       
       if (user.login_attempts >= 5) {
         user.locked_until = Date.now() + 30 * 60 * 1000; // Lock for 30 minutes
-        await user.save();
-        
-        logger.error('Account locked due to too many failed attempts', {
-          userId: user._id,
-          email: user.email,
-          loginAttempts: user.login_attempts,
-          lockedUntil: user.locked_until
-        });
-        
-        return res.status(423).json({
-          status: 'error',
-          message: 'Too many failed attempts. Account locked for 30 minutes.'
-        });
       }
       
       await user.save();
@@ -363,37 +285,31 @@ router.post('/login', [
       });
     }
 
-    // Reset login attempts on successful login
+    // Reset login attempts and update last_login in single save operation
     user.login_attempts = 0;
     user.locked_until = undefined;
     user.last_login = Date.now();
     await user.save();
 
-    logger.info('Password verified successfully', { 
-      userId: user._id,
-      loginAttemptsReset: true,
-      lastLogin: new Date(user.last_login).toISOString()
-    });
-
-    // Generate token
-    const token = generateToken(user._id);
-    logger.debug('JWT token generated', { 
-      userId: user._id,
-      tokenExpiry: process.env.JWT_EXPIRE || '7d'
-    });
+    // Generate token with remember_me support
+    const token = generateToken(user._id, remember_me);
 
     const responseTime = Date.now() - startTime;
-    logger.info('Login completed successfully', {
-      userId: user._id,
-      email: user.email,
-      company_name: user.company_name,
-      responseTime: `${responseTime}ms`
-    });
+    if (responseTime > 500) { // Only log slow requests
+      logger.info('Login completed', {
+        userId: user._id,
+        email: user.email,
+        responseTime: `${responseTime}ms`,
+        rememberMe: remember_me
+      });
+    }
 
     res.json({
       status: 'success',
       message: 'Login successful',
       token,
+      remember_me: remember_me || false,
+      token_expires_in: remember_me ? '30d' : (process.env.JWT_EXPIRE || '7d'),
       user: {
         _id: user._id,
         email: user.email,

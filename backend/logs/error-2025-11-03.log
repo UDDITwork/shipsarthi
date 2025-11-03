@@ -1,0 +1,40 @@
+[2025-11-03T02:45:25.412Z] [ERROR] [PID:36088] WebSocket server error: | Data: {
+  "code": "EADDRINUSE",
+  "errno": -4091,
+  "syscall": "listen",
+  "address": "::",
+  "port": 5000
+}
+[2025-11-03T17:56:03.945Z] [ERROR] [PID:2560] ❌ No packages found in response structure
+[2025-11-03T17:56:03.946Z] [ERROR] [PID:2560] Available keys: | Data: [
+  "packages",
+  "packages_found"
+]
+[2025-11-03T17:56:03.948Z] [ERROR] [PID:2560] ❌ Error generating label HTML | Data: {}
+[2025-11-03T17:56:03.950Z] [ERROR] [PID:2560] ❌ Error generating HTML label | Data: {
+  "requestId": "req_1762192563720_kd44jpbrq",
+  "orderId": "6906c66cb6a805484c9abb1d",
+  "error": "No package data found in label response"
+}
+[2025-11-03T17:56:11.046Z] [ERROR] [PID:2560] ❌ No packages found in response structure
+[2025-11-03T17:56:11.048Z] [ERROR] [PID:2560] Available keys: | Data: [
+  "packages",
+  "packages_found"
+]
+[2025-11-03T17:56:11.050Z] [ERROR] [PID:2560] ❌ Error generating label HTML | Data: {}
+[2025-11-03T17:56:11.051Z] [ERROR] [PID:2560] ❌ Error generating HTML label | Data: {
+  "requestId": "req_1762192570845_0h6jocn2z",
+  "orderId": "6906c66cb6a805484c9abb1d",
+  "error": "No package data found in label response"
+}
+[2025-11-03T18:04:50.930Z] [ERROR] [PID:2560] ❌ No packages found in response structure
+[2025-11-03T18:04:50.933Z] [ERROR] [PID:2560] Available keys: | Data: [
+  "packages",
+  "packages_found"
+]
+[2025-11-03T18:04:50.936Z] [ERROR] [PID:2560] ❌ Error generating label HTML | Data: {}
+[2025-11-03T18:04:50.939Z] [ERROR] [PID:2560] ❌ Error generating HTML label | Data: {
+  "requestId": "req_1762193090683_zocylu1br",
+  "orderId": "6906c66cb6a805484c9abb1d",
+  "error": "No package data found in label response"
+}

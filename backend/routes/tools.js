@@ -3,47 +3,12 @@ const { body, validationResult, query } = require('express-validator');
 const { auth } = require('../middleware/auth');
 const delhiveryService = require('../services/delhiveryService');
 const Order = require('../models/Order');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
-// Zone mapping function (simplified - in production, use proper zone mapping service)
-function getZoneFromPincode(pickupPincode, deliveryPincode) {
-    // This is a simplified zone mapping
-    // In production, you should use a proper zone mapping service
-    const pickupState = getStateFromPincode(pickupPincode);
-    const deliveryState = getStateFromPincode(deliveryPincode);
-    
-    // Zone mapping logic (simplified)
-    if (pickupState === deliveryState) {
-        return 'A'; // Same state
-    } else if (isNeighboringState(pickupState, deliveryState)) {
-        return 'B'; // Neighboring state
-    } else {
-        return 'C1'; // Default for other cases
-    }
-}
-
-function getStateFromPincode(pincode) {
-    // Simplified state mapping based on pincode ranges
-    const pincodeNum = parseInt(pincode);
-    if (pincodeNum >= 110000 && pincodeNum <= 119999) return 'Delhi';
-    if (pincodeNum >= 400000 && pincodeNum <= 499999) return 'Maharashtra';
-    if (pincodeNum >= 500000 && pincodeNum <= 599999) return 'Telangana';
-    if (pincodeNum >= 600000 && pincodeNum <= 699999) return 'Tamil Nadu';
-    if (pincodeNum >= 700000 && pincodeNum <= 799999) return 'West Bengal';
-    return 'Other';
-}
-
-function isNeighboringState(state1, state2) {
-    const neighboringStates = {
-        'Delhi': ['Haryana', 'Uttar Pradesh'],
-        'Maharashtra': ['Gujarat', 'Madhya Pradesh', 'Karnataka'],
-        'Telangana': ['Andhra Pradesh', 'Maharashtra', 'Karnataka'],
-        'Tamil Nadu': ['Kerala', 'Karnataka', 'Andhra Pradesh'],
-        'West Bengal': ['Odisha', 'Jharkhand', 'Bihar']
-    };
-    return neighboringStates[state1]?.includes(state2) || false;
-}
+// NOTE: Zone calculation functions removed - now using Delhivery API to get zone
+// Zone is fetched from Delhivery invoice/charges API response
 
 // Get pincode information
 router.get('/pincode-info/:pincode', async (req, res) => {
@@ -177,16 +142,48 @@ router.post('/rate-calculator',
 
             const volumetricWeight = (length * width * height) / 5000;
             const chargeableWeight = Math.max(weight, volumetricWeight);
+            const chargeableWeightGrams = chargeableWeight * 1000; // Convert to grams for Delhivery API
 
-            // CORRECT LOGIC: Use Rate Card Service instead of Delhivery API for accurate calculations
+            // Get zone from Delhivery API instead of calculating
+            const shippingMode = 'S'; // Surface (change to 'E' for Express if needed)
+            const shipmentStatus = 'Delivered'; // Status: Delivered, RTO, DTO
+            const paymentType = cod_amount > 0 ? 'COD' : 'Pre-paid';
             
-            // Get zone from pincode (simplified - in production, use proper zone mapping)
-            const zone = getZoneFromPincode(pickup_pincode, delivery_pincode);
+            const zoneResult = await delhiveryService.getZoneFromDelhivery(
+                pickup_pincode,
+                delivery_pincode,
+                chargeableWeightGrams,
+                shippingMode,
+                shipmentStatus,
+                paymentType
+            );
             
-            // Calculate using rate card with forward order type
+            if (!zoneResult.success || !zoneResult.zone) {
+                logger.error('❌ Failed to get zone from Delhivery', {
+                    pickup_pincode,
+                    delivery_pincode,
+                    error: zoneResult.error
+                });
+                return res.status(400).json({
+                    success: false,
+                    message: zoneResult.error || 'Failed to get zone information from Delhivery',
+                    error: zoneResult.error
+                });
+            }
+            
+            const zone = zoneResult.zone;
+            
+            logger.info('🌍 Zone retrieved from Delhivery for rate calculation', {
+                pickup_pincode,
+                delivery_pincode,
+                zone: zone,
+                chargeableWeightGrams: chargeableWeightGrams
+            });
+            
+            // Calculate using rate card with zone from Delhivery
             const rateResult = RateCardService.calculateShippingCharges(
                 userCategory,
-                chargeableWeight,
+                chargeableWeight, // Pass in kg (service expects grams but we'll handle conversion)
                 { length, breadth: width, height },
                 zone,
                 cod_amount || 0,

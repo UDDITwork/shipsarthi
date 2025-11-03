@@ -41,10 +41,8 @@ export interface RateCard {
     zones: {
       A: number;
       B: number;
-      C1: number;
-      C2: number;
-      D1: number;
-      D2: number;
+      C: number;
+      D: number;
       E: number;
       F: number;
     };
@@ -54,10 +52,8 @@ export interface RateCard {
     zones: {
       A: number;
       B: number;
-      C1: number;
-      C2: number;
-      D1: number;
-      D2: number;
+      C: number;
+      D: number;
       E: number;
       F: number;
     };

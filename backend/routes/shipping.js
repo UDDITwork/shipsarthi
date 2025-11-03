@@ -553,7 +553,7 @@ router.post('/calculate-rate-card',
         body('dimensions.length').isFloat({ min: 0.1 }).withMessage('Valid length is required'),
         body('dimensions.breadth').isFloat({ min: 0.1 }).withMessage('Valid breadth is required'),
         body('dimensions.height').isFloat({ min: 0.1 }).withMessage('Valid height is required'),
-        body('zone').isIn(['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F']).withMessage('Valid zone is required'),
+        body('zone').isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Valid zone is required (C1, D1 removed - use C, D instead)'),
         body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive'),
         body('order_type').optional().isIn(['forward', 'rto']).withMessage('Order type must be "forward" or "rto"')
     ],
