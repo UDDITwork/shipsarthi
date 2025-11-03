@@ -1,12 +1,5 @@
 import { apiService } from './api';
-import { User, RegisterData } from '../types';
-
-interface LoginResponse {
-  status: string;
-  message: string;
-  token: string;
-  user: User;
-}
+import { User, RegisterData, LoginResponse } from '../types';
 
 interface RegisterResponse {
   status: string;

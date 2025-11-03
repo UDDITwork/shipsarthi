@@ -162,10 +162,19 @@ export interface DashboardMetrics {
   next_cod_available: number;
 }
 
+export interface LoginResponse {
+  status: string;
+  message: string;
+  token: string;
+  user: User;
+  remember_me?: boolean;
+  token_expires_in?: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<LoginResponse>;
   register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
   refreshUser: () => Promise<void>;
