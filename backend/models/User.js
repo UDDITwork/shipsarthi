@@ -228,6 +228,12 @@ const userSchema = new mongoose.Schema({
   },
   otp_locked_until: Date,
 
+  // Profile Photo
+  avatar_url: {
+    type: String,
+    default: null
+  },
+
   // Timestamps
   created_at: {
     type: Date,
@@ -380,12 +386,13 @@ userSchema.methods.resetOTPAttempts = function() {
 };
 
 // Static method to find by email or phone
-userSchema.statics.findByEmailOrPhone = async function(identifier) {
+// Returns a Mongoose query object (not executed) so that methods like .select() can be chained
+userSchema.statics.findByEmailOrPhone = function(identifier) {
   const mongoose = require('mongoose');
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   const phoneRegex = /^[6-9]\d{9}$/;
   
-  // Check database connection state before querying
+  // Check database connection state before building query
   if (mongoose.connection.readyState !== 1) {
     const states = {
       0: 'disconnected',
@@ -405,25 +412,12 @@ userSchema.statics.findByEmailOrPhone = async function(identifier) {
   } else if (phoneRegex.test(identifier)) {
     query = { phone_number: identifier };
   } else {
-    return null;
+    // Return a query that will return null when executed
+    return this.findOne({ _id: null });
   }
   
-  try {
-    return await this.findOne(query);
-  } catch (error) {
-    // Distinguish between connection errors and other query errors
-    if (error.name === 'MongoNetworkError' || 
-        error.name === 'MongoServerSelectionError' ||
-        error.message.includes('connection') ||
-        error.message.includes('timeout')) {
-      const dbError = new Error('Database connection error');
-      dbError.name = 'DatabaseConnectionError';
-      dbError.originalError = error;
-      throw dbError;
-    }
-    // Re-throw other errors as-is
-    throw error;
-  }
+  // Return the query object without executing it
+  return this.findOne(query);
 };
 
 // Additional indexes for faster login queries

@@ -329,6 +329,8 @@ const Tools: React.FC = () => {
   const [validatingPincode, setValidatingPincode] = useState<{pickup: boolean, delivery: boolean}>({pickup: false, delivery: false});
 
   // Get user category for rate card selection
+  // This value comes directly from MongoDB via AuthContext
+  // When admin assigns a label, MongoDB is updated and WebSocket notification triggers refresh
   const userCategory = user?.user_category || 'Basic User';
 
   // Force refresh user data if there's a mismatch
@@ -519,14 +521,10 @@ const Tools: React.FC = () => {
             <div className="header-text">
               <h1>Shipping Tools</h1>
               <p>Calculate shipping rates based on your user category: <strong>{userCategory}</strong></p>
+              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px', fontStyle: 'italic' }}>
+                Your category updates automatically when assigned by admin
+              </p>
             </div>
-            <button 
-              className="refresh-btn"
-              onClick={refreshUser}
-              title="Refresh user data"
-            >
-              🔄 Refresh
-            </button>
           </div>
         </div>
 

@@ -38,3 +38,39 @@
   "orderId": "6906c66cb6a805484c9abb1d",
   "error": "No package data found in label response"
 }
+[2025-11-04T03:11:57.455Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "3ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:11:58.493Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "2ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:12:00.527Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:12:04.559Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}

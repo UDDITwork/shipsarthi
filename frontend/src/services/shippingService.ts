@@ -8,7 +8,11 @@ export interface ShippingCalculationRequest {
     breadth: number;
     height: number;
   };
-  zone: string;
+  zone?: string; // Optional - if not provided, use pincodes to get zone from Delhivery
+  pickup_pincode?: string; // Required if zone not provided
+  delivery_pincode?: string; // Required if zone not provided
+  shipping_mode?: 'Surface' | 'Express' | 'S' | 'E'; // For zone calculation
+  payment_mode?: 'Prepaid' | 'COD' | 'Pre-paid'; // For zone calculation
   cod_amount?: number;
   order_type?: 'forward' | 'rto';
 }
@@ -73,6 +77,7 @@ export interface RateCard {
 class ShippingService {
 
   // Calculate shipping charges using rate card system
+  // If zone is not provided, backend will get it from Delhivery API using pincodes
   async calculateShippingCharges(request: ShippingCalculationRequest): Promise<{
     forwardCharges: number;
     rtoCharges: number;
@@ -80,6 +85,7 @@ class ShippingService {
     totalCharges: number;
     volumetricWeight: number;
     chargeableWeight: number;
+    zone?: string; // Zone used (either provided or fetched from Delhivery)
   }> {
     try {
       const response = await apiService.post<{ success: boolean; data: {
@@ -89,6 +95,7 @@ class ShippingService {
         totalCharges: number;
         volumetricWeight: number;
         chargeableWeight: number;
+        zone?: string; // Zone used in calculation
       } }>('/shipping/calculate-rate-card', request);
       return response.data;
     } catch (error: any) {

@@ -341,11 +341,13 @@ class RateCardService {
       throw new Error(`Rate card not found for user category: ${userCategory}`);
     }
 
-    // Calculate volumetric weight (LxBxH/5000)
-    const volumetricWeight = (dimensions.length * dimensions.breadth * dimensions.height) / 5000;
+    // Calculate volumetric weight (LxBxH/5000) in kg, then convert to grams
+    // Dimensions are in cm, so result is in kg
+    const volumetricWeightKg = (dimensions.length * dimensions.breadth * dimensions.height) / 5000;
+    const volumetricWeightGrams = volumetricWeightKg * 1000; // Convert to grams
     
-    // Use higher of actual weight or volumetric weight
-    const chargeableWeight = Math.max(weight, volumetricWeight);
+    // Use higher of actual weight (in grams) or volumetric weight (in grams)
+    const chargeableWeight = Math.max(weight, volumetricWeightGrams);
 
     // Calculate forward charges
     const forwardCharges = this.calculateForwardCharges(rateCard, chargeableWeight, zone);
@@ -380,8 +382,8 @@ class RateCardService {
       rtoCharges,
       codCharges,
       totalCharges,
-      volumetricWeight,
-      chargeableWeight,
+      volumetricWeight: volumetricWeightKg, // Return in kg for display
+      chargeableWeight: chargeableWeight / 1000, // Return in kg for display (converted from grams)
       orderType: orderType
     };
   }

@@ -291,8 +291,33 @@ router.post('/login', [
     user.last_login = Date.now();
     await user.save();
 
+    // Validate JWT_SECRET exists before generating token
+    if (!process.env.JWT_SECRET) {
+      logger.error('JWT_SECRET is not configured', {
+        userId: user._id,
+        email: user.email
+      });
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error. Please contact support.'
+      });
+    }
+
     // Generate token with remember_me support
-    const token = generateToken(user._id, remember_me);
+    let token;
+    try {
+      token = generateToken(user._id, remember_me);
+    } catch (tokenError) {
+      logger.error('Token generation failed', {
+        error: tokenError.message,
+        userId: user._id,
+        email: user.email
+      });
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server error generating authentication token'
+      });
+    }
 
     const responseTime = Date.now() - startTime;
     if (responseTime > 500) { // Only log slow requests
@@ -327,15 +352,43 @@ router.post('/login', [
 
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    logger.error('Login error occurred', {
+    
+    // Enhanced error logging
+    const errorDetails = {
       error: error.message,
+      errorName: error.name,
       stack: error.stack,
       email: req.body.email,
-      responseTime: `${responseTime}ms`
-    });
+      responseTime: `${responseTime}ms`,
+      dbState: mongoose.connection.readyState,
+      hasJWTSecret: !!process.env.JWT_SECRET,
+      errorCode: error.code
+    };
+    
+    // Log error with full details
+    if (logger && typeof logger.error === 'function') {
+      logger.error('Login error occurred', errorDetails);
+    } else {
+      // Fallback to console if logger fails
+      console.error('Login error occurred:', errorDetails);
+    }
+    
+    // Return more specific error messages for debugging
+    let errorMessage = 'Server error during login';
+    if (error.name === 'JsonWebTokenError' || error.message.includes('JWT_SECRET')) {
+      errorMessage = 'Server configuration error. Please contact support.';
+    } else if (error.name === 'MongoError' || error.message.includes('database')) {
+      errorMessage = 'Database connection error. Please try again in a moment.';
+    }
+    
     res.status(500).json({
       status: 'error',
-      message: 'Server error during login'
+      message: errorMessage,
+      // Only include error details in development
+      ...(process.env.NODE_ENV === 'development' && { 
+        error: error.message,
+        errorName: error.name 
+      })
     });
   }
 });

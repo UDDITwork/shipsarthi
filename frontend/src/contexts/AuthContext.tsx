@@ -22,9 +22,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshUser = async () => {
+  const refreshUser = async (authToken?: string) => {
     try {
-      if (!token) return;
+      // Use provided token or fall back to state token
+      const tokenToUse = authToken || token;
+      if (!tokenToUse) return;
       
       const response = await authService.getCurrentUser();
       const updatedUser = response.user;
@@ -32,7 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
-      console.log('🔄 User data refreshed:', {
+      console.log('🔄 User data refreshed from MongoDB:', {
         user_category: updatedUser.user_category,
         company_name: updatedUser.company_name
       });
@@ -42,20 +44,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
-      try {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken) {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        
+        // Load from localStorage for instant display
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (err) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        }
+        
+        // Fetch fresh data from MongoDB (source of truth) on mount
+        // This ensures we have the latest user_category if admin assigned it
+        try {
+          await refreshUser(storedToken);
+        } catch (err) {
+          console.error('Failed to fetch fresh user data on mount:', err);
+        }
       }
-    }
-    setLoading(false);
-  }, []);
+      
+      setLoading(false);
+    };
+    
+    initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // WebSocket connection is handled in Layout.tsx to avoid duplicate connections
 

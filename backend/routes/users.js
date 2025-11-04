@@ -23,6 +23,20 @@ const upload = multer({
   }
 });
 
+// Configure multer for avatar uploads (JPEG/PNG only)
+const avatarUpload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG and PNG images are allowed for profile photos'));
+    }
+  }
+});
+
 // Get user profile data
 router.get('/profile', auth, async (req, res) => {
   try {
@@ -59,7 +73,8 @@ router.get('/profile', auth, async (req, res) => {
       documents: user.documents,
       api_details: user.api_details,
       email_verified: user.email_verified,
-      phone_verified: user.phone_verified
+      phone_verified: user.phone_verified,
+      avatar_url: user.avatar_url
     };
 
     res.json({
@@ -1021,6 +1036,95 @@ router.post('/submit-kyc', auth, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error submitting KYC'
+    });
+  }
+});
+
+// @desc    Update user avatar
+// @route   POST /api/users/avatar
+// @access  Private
+router.post('/avatar', auth, avatarUpload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'No avatar file uploaded'
+      });
+    }
+
+    // Validate file type (JPEG/PNG only)
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Only JPEG and PNG images are allowed for profile photos'
+      });
+    }
+
+    // Upload to Cloudinary
+    const resourceType = cloudinaryService.getResourceType(req.file.mimetype);
+    const uploadResult = await cloudinaryService.uploadFile(req.file.buffer, {
+      folder: 'shipsarthi/avatars',
+      resource_type: resourceType,
+      mimetype: req.file.mimetype
+    });
+
+    if (!uploadResult.success) {
+      logger.error('❌ Cloudinary upload failed', { uploadResult });
+      return res.status(500).json({
+        status: 'error',
+        message: 'Failed to upload avatar to cloud storage'
+      });
+    }
+
+    // Update user avatar
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    // Delete old avatar from Cloudinary if exists
+    if (user.avatar_url) {
+      try {
+        const oldPublicId = user.avatar_url.split('/').pop().split('.')[0];
+        const oldFolder = 'shipsarthi/avatars';
+        await cloudinaryService.deleteFile(`${oldFolder}/${oldPublicId}`, 'image');
+      } catch (deleteError) {
+        logger.warn('⚠️ Failed to delete old avatar', { error: deleteError.message });
+        // Continue even if deletion fails
+      }
+    }
+
+    user.avatar_url = uploadResult.url;
+    await user.save();
+
+    logger.info('✅ Avatar updated successfully', {
+      userId,
+      avatarUrl: uploadResult.url
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Avatar updated successfully',
+      data: {
+        avatar_url: uploadResult.url
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Update avatar error', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?._id || req.user?.id
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error updating avatar'
     });
   }
 });

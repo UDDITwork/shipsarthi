@@ -22642,3 +22642,868 @@
 }
 [2025-11-03T19:37:36.285Z] [INFO] [PID:4472] 🛑 SIGINT received, shutting down gracefully
 [2025-11-03T19:37:36.291Z] [INFO] [PID:4472] 🔌 Cleaning up WebSocket service...
+[2025-11-03T20:32:31.693Z] [INFO] [PID:30692] ✅ Tracking service started - will run every 3 hours
+[2025-11-03T20:32:32.218Z] [INFO] [PID:30692] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-03T20:32:32.218Z"
+}
+[2025-11-03T20:32:32.458Z] [INFO] [PID:30692] 🔌 WebSocket server initialized
+[2025-11-03T20:32:33.271Z] [INFO] [PID:30692] ✅ Connected to MongoDB
+[2025-11-03T20:32:33.278Z] [INFO] [PID:30692] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-03T20:32:33.888Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:33.888Z"
+}
+[2025-11-03T20:32:34.039Z] [INFO] [PID:30692] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc",
+  "totalClients": 1
+}
+[2025-11-03T20:32:34.056Z] [INFO] [PID:30692] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-03T20:32:34.064Z] [INFO] [PID:30692] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-03T20:32:34.278Z] [INFO] [PID:30692] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-03T20:32:34.278Z"
+}
+[2025-11-03T20:32:38.167Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:38.167Z"
+}
+[2025-11-03T20:32:39.591Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 3,
+  "filteredCount": 3,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:39.591Z"
+}
+[2025-11-03T20:32:47.480Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:32:53.474Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:53.474Z"
+}
+[2025-11-03T20:32:55.158Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:55.158Z"
+}
+[2025-11-03T20:32:56.442Z] [INFO] [PID:30692] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "date_from": "2025-10-04",
+  "date_to": "2025-11-03"
+}
+[2025-11-03T20:32:56.457Z] [DEBUG] [PID:30692] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-11-04T00:00:00+05:30",
+    "yesterday": "2025-11-03T00:00:00+05:30",
+    "last30Days": "2025-10-05T00:00:00+05:30"
+  }
+}
+[2025-11-03T20:32:56.660Z] [INFO] [PID:30692] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "218ms",
+  "metrics": {
+    "rangeOrders": 3,
+    "previousRangeOrders": 0,
+    "rangeRevenue": 2700,
+    "previousRangeRevenue": 0,
+    "avgShippingCost": 313.5,
+    "walletBalance": 303,
+    "dateFrom": "2025-10-04T00:00:00+05:30",
+    "dateTo": "2025-11-03T23:59:59+05:30"
+  }
+}
+[2025-11-03T20:32:57.232Z] [INFO] [PID:30692] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-03T20:32:57.271Z] [INFO] [PID:30692] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "39ms",
+  "statusCounts": {
+    "total_orders": 3,
+    "new_orders": 0,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-03T20:32:58.037Z] [INFO] [PID:30692] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-03T20:32:58.075Z] [INFO] [PID:30692] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "38ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-03T20:32:58.079Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:32:58.079Z"
+}
+[2025-11-03T20:32:58.833Z] [INFO] [PID:30692] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-03T20:32:58.930Z] [INFO] [PID:30692] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "97ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-03T20:32:59.631Z] [INFO] [PID:30692] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-03T20:32:59.660Z] [INFO] [PID:30692] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "29ms",
+  "totalOrders": 3,
+  "distributionCount": 1
+}
+[2025-11-03T20:33:00.418Z] [INFO] [PID:30692] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::ffff:127.0.0.1",
+  "limit": "5"
+}
+[2025-11-03T20:33:00.450Z] [INFO] [PID:30692] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "32ms",
+  "transactionCount": 3,
+  "limit": 5
+}
+[2025-11-03T20:33:02.484Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:33:17.485Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:33:28.080Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:33:28.080Z"
+}
+[2025-11-03T20:33:32.496Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:33:47.510Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:33:58.080Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:33:58.080Z"
+}
+[2025-11-03T20:34:02.516Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:34:17.519Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:34:28.079Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:34:28.079Z"
+}
+[2025-11-03T20:34:32.523Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:34:47.535Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:34:58.091Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:34:58.091Z"
+}
+[2025-11-03T20:35:02.543Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:35:17.553Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:35:28.085Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:35:28.085Z"
+}
+[2025-11-03T20:35:32.554Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:35:47.567Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:35:58.087Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:35:58.087Z"
+}
+[2025-11-03T20:36:02.570Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:36:17.572Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:36:28.840Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:36:28.840Z"
+}
+[2025-11-03T20:36:32.574Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:36:47.580Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:36:58.850Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:36:58.850Z"
+}
+[2025-11-03T20:37:02.594Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:37:17.601Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:37:28.849Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:37:28.849Z"
+}
+[2025-11-03T20:37:32.617Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:37:47.625Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:38:02.639Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:38:17.653Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:38:29.850Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:38:29.850Z"
+}
+[2025-11-03T20:38:32.659Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:38:47.661Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:38:58.831Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:38:58.831Z"
+}
+[2025-11-03T20:39:02.667Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:39:17.672Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:39:28.866Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:39:28.866Z"
+}
+[2025-11-03T20:39:32.685Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:39:47.687Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:39:58.878Z] [INFO] [PID:30692] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-03T20:39:58.878Z"
+}
+[2025-11-03T20:40:02.704Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:40:17.705Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:40:32.716Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:40:47.723Z] [DEBUG] [PID:30692] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc"
+}
+[2025-11-03T20:40:55.648Z] [INFO] [PID:30692] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1762201954039_sfki4fgoc",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-03T21:30:00.042Z] [INFO] [PID:30692] 🔄 Starting scheduled shipment tracking...
+[2025-11-03T21:30:00.336Z] [INFO] [PID:30692] 🔍 Found 6 orders to track
+[2025-11-03T21:30:00.338Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:00.340Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:00.342Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000361",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:00.597Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-03T21:30:00.598Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:01.615Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-03T21:30:01.616Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:01.616Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000416",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:01.701Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-03T21:30:01.702Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-03T21:30:02.710Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:02.711Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:02.712Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000641",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:02.796Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-03T21:30:02.797Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:03.802Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:03.803Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:03.804Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001046",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:03.886Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-03T21:30:03.887Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:04.900Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:04.901Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:04.904Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001083",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:04.992Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-03T21:30:04.993Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:06.026Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:06.073Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-03T21:30:06.115Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001120",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-03T21:30:06.215Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-03T21:30:06.217Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-03T21:30:07.235Z] [INFO] [PID:30692] ✅ Completed scheduled shipment tracking
+[2025-11-04T00:30:00.038Z] [INFO] [PID:30692] 🔄 Starting scheduled shipment tracking...
+[2025-11-04T00:30:00.082Z] [INFO] [PID:30692] 🔍 Found 6 orders to track
+[2025-11-04T00:30:00.083Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:00.084Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:00.085Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000361",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:00.311Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-04T00:30:00.312Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:01.318Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-04T00:30:01.322Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:01.324Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000416",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:01.403Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-04T00:30:01.405Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-04T00:30:02.422Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:02.423Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:02.424Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000641",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:02.507Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-04T00:30:02.509Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:03.520Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:03.522Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:03.524Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001046",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:03.604Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-04T00:30:03.607Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:04.620Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:04.622Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:04.624Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001083",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:04.702Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-04T00:30:04.704Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:05.716Z] [INFO] [PID:30692] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:05.718Z] [INFO] [PID:30692] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-04T00:30:05.720Z] [INFO] [PID:30692] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001120",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-04T00:30:05.814Z] [INFO] [PID:30692] ✅ Tracking successful | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-04T00:30:05.816Z] [INFO] [PID:30692] 📊 No status change needed | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-04T00:30:06.828Z] [INFO] [PID:30692] ✅ Completed scheduled shipment tracking
+[2025-11-04T03:11:57.455Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "3ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:11:58.493Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "2ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:12:00.527Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:12:04.559Z] [ERROR] [PID:30692] Login error occurred | Data: {
+  "error": "User.findByEmailOrPhone(...).select is not a function",
+  "errorName": "TypeError",
+  "stack": "TypeError: User.findByEmailOrPhone(...).select is not a function\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\auth.js:241:51\n    at Layer.handleRequest (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at middleware (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1ms",
+  "dbState": 1,
+  "hasJWTSecret": true
+}
+[2025-11-04T03:18:23.517Z] [INFO] [PID:30692] 🛑 SIGINT received, shutting down gracefully
+[2025-11-04T03:18:23.523Z] [INFO] [PID:30692] 🔌 Cleaning up WebSocket service...

@@ -928,7 +928,7 @@
   table .action-btn,
   .action-buttons .action-btn {
     background-color: white;
-    border: 0.5px solid #E0E0E0;
+    border: 2px solid #000000;
     color: #000000;
     padding: 6px 12px;
     border-radius: 8px;
@@ -947,7 +947,7 @@
   table .action-btn:hover,
   .action-buttons .action-btn:hover {
     background-color: #F5F5F5;
-    border-color: #CCCCCC;
+    border-color: #000000;
     transform: translateY(-1px);
   }
 
@@ -966,12 +966,19 @@
     font-weight: 600;
   }
 
+  .cancel-shipment-btn {
+    font-weight: 600;
+    background-color: white !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+  }
+
   /* Action icon buttons in orders table */
   .orders-table .action-icon-btn,
   table .action-icon-btn,
   .action-buttons .action-icon-btn {
     background-color: white;
-    border: 0.5px solid #E0E0E0;
+    border: 2px solid #000000;
     color: #000000;
     padding: 6px 12px;
     border-radius: 8px;
@@ -989,7 +996,7 @@
   table .action-icon-btn:hover,
   .action-buttons .action-icon-btn:hover {
     background-color: #F5F5F5;
-    border-color: #CCCCCC;
+    border-color: #000000;
   }
   
   /* Button Labels (replace emojis) */

@@ -54,6 +54,10 @@ const AccountSettings: React.FC = () => {
 
   // Document upload state
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
+  
+  // Avatar upload state
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchUserData();
@@ -577,6 +581,53 @@ const AccountSettings: React.FC = () => {
     }
   };
 
+  const handleAvatarClick = () => {
+    avatarInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (JPEG/PNG only)
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG and PNG images are allowed for profile photos');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const response = await userService.updateAvatar(file);
+      
+      // Update user state with new avatar URL
+      if (user) {
+        const updatedUser = { ...user, avatar_url: response.avatar_url };
+        setUser(updatedUser);
+        DataCache.set('userProfile', updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+
+      alert('Profile photo updated successfully!');
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to upload profile photo';
+      alert(errorMessage);
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = ''; // Reset input
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'uploaded':
@@ -667,9 +718,36 @@ const AccountSettings: React.FC = () => {
         <div className="profile-header">
           <div className="profile-avatar">
             <div className="avatar-circle">
-              {user?.your_name?.charAt(0).toUpperCase() || 'U'}
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt="Profile" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    borderRadius: '50%', 
+                    objectFit: 'cover' 
+                  }} 
+                />
+              ) : (
+                user?.your_name?.charAt(0).toUpperCase() || 'U'
+              )}
             </div>
-            <button className="edit-avatar-btn">✏️</button>
+            <button 
+              className="edit-avatar-btn" 
+              onClick={handleAvatarClick}
+              disabled={uploadingAvatar}
+              title="Edit profile photo"
+            >
+              {uploadingAvatar ? '⏳' : '✏️'}
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/jpg"
+              onChange={handleAvatarChange}
+              style={{ display: 'none' }}
+            />
           </div>
           <div className="profile-info">
             <h2>{user?.company_name || 'Loading...'}</h2>

@@ -10,6 +10,7 @@ export interface User {
   user_type: string;
   gstin: string;
   joined_date: string;
+  avatar_url?: string;
   address: {
     full_address: string;
     landmark: string;
@@ -145,8 +146,16 @@ class UserService {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const response = await apiService.post<{ message: string; avatar_url: string }>('/users/avatar', formData);
-    return response;
+    const response = await apiService.post<{ status: string; message: string; data?: { avatar_url: string } }>('/users/avatar', formData);
+    
+    // Verify response has data property
+    if (response.status === 'success' && response.data?.avatar_url) {
+      return {
+        message: response.message,
+        avatar_url: response.data.avatar_url
+      };
+    }
+    throw new Error(response.message || 'Failed to update avatar');
   }
 
   // Get API documentation
@@ -218,6 +227,7 @@ export interface UserProfile {
   user_type: string;
   gstin: string;
   joined_date: string;
+  avatar_url?: string;
   account_status?: string;
   email_verified?: boolean;
   phone_verified?: boolean;

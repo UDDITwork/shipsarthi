@@ -546,6 +546,7 @@ router.post('/calculate-cost',
 );
 
 // Calculate shipping cost based on rate card system
+// Accepts either: (zone) OR (pickup_pincode + delivery_pincode) to get zone from Delhivery
 router.post('/calculate-rate-card',
     auth,
     [
@@ -553,7 +554,11 @@ router.post('/calculate-rate-card',
         body('dimensions.length').isFloat({ min: 0.1 }).withMessage('Valid length is required'),
         body('dimensions.breadth').isFloat({ min: 0.1 }).withMessage('Valid breadth is required'),
         body('dimensions.height').isFloat({ min: 0.1 }).withMessage('Valid height is required'),
-        body('zone').isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Valid zone is required (C1, D1 removed - use C, D instead)'),
+        body('zone').optional().isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Valid zone is required (C1, D1 removed - use C, D instead)'),
+        body('pickup_pincode').optional().isLength({ min: 6, max: 6 }).withMessage('Pickup pincode must be 6 digits'),
+        body('delivery_pincode').optional().isLength({ min: 6, max: 6 }).withMessage('Delivery pincode must be 6 digits'),
+        body('shipping_mode').optional().isIn(['Surface', 'Express', 'S', 'E']).withMessage('Shipping mode must be Surface/Express or S/E'),
+        body('payment_mode').optional().isIn(['Prepaid', 'COD', 'Pre-paid']).withMessage('Payment mode must be Prepaid or COD'),
         body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive'),
         body('order_type').optional().isIn(['forward', 'rto']).withMessage('Order type must be "forward" or "rto"')
     ],
@@ -568,8 +573,9 @@ router.post('/calculate-rate-card',
                 });
             }
 
-            const { weight, dimensions, zone, cod_amount, order_type = 'forward' } = req.body;
+            const { weight, dimensions, zone, pickup_pincode, delivery_pincode, shipping_mode, payment_mode, cod_amount, order_type = 'forward' } = req.body;
             const userCategory = req.user.user_category || 'Basic User';
+            const logger = require('../utils/logger');
 
             // SECURITY: Validate user category exists and is valid
             const RateCardService = require('../services/rateCardService');
@@ -603,12 +609,70 @@ router.post('/calculate-rate-card',
                 });
             }
 
+            // Determine zone: either provided directly OR get from Delhivery API using pincodes
+            let finalZone = zone;
+            if (!finalZone) {
+                // Zone not provided - get from Delhivery API using pincodes
+                if (!pickup_pincode || !delivery_pincode) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Either zone OR (pickup_pincode + delivery_pincode) must be provided'
+                    });
+                }
+
+                // Calculate chargeable weight (in grams) for zone API call
+                // NOTE: Frontend sends weight in GRAMS, so no conversion needed
+                // Volumetric weight calculation: (LxBxH)/5000 gives kg, then convert to grams
+                const volumetricWeightKg = (dimensions.length * dimensions.breadth * dimensions.height) / 5000;
+                const volumetricWeightGrams = volumetricWeightKg * 1000; // Convert kg to grams
+                // weight is already in grams from frontend, so use directly
+                const chargeableWeightGrams = Math.max(weight, volumetricWeightGrams);
+
+                // Determine shipping mode for Delhivery API
+                const shippingModeForDelhivery = shipping_mode === 'Express' || shipping_mode === 'E' ? 'E' : 'S';
+                const paymentTypeForDelhivery = payment_mode === 'COD' ? 'COD' : 'Pre-paid';
+
+                // Get zone from Delhivery API
+                const zoneResult = await delhiveryService.getZoneFromDelhivery(
+                    pickup_pincode,
+                    delivery_pincode,
+                    chargeableWeightGrams,
+                    shippingModeForDelhivery,
+                    'Delivered',
+                    paymentTypeForDelhivery
+                );
+
+                if (!zoneResult.success || !zoneResult.zone) {
+                    logger.error('❌ Failed to get zone from Delhivery for rate calculation', {
+                        pickup_pincode,
+                        delivery_pincode,
+                        error: zoneResult.error
+                    });
+                    return res.status(400).json({
+                        success: false,
+                        message: zoneResult.error || 'Failed to get zone information from Delhivery',
+                        error: zoneResult.error
+                    });
+                }
+
+                finalZone = zoneResult.zone;
+                logger.info('🌍 Zone retrieved from Delhivery for rate calculation', {
+                    pickup_pincode,
+                    delivery_pincode,
+                    zone: finalZone,
+                    chargeableWeightGrams: chargeableWeightGrams
+                });
+            }
+
             // Calculate shipping charges with correct order type
+            // NOTE: RateCardService expects weight in GRAMS (as per service implementation)
+            // Frontend sends weight in grams, so we pass it directly
+            // The service will recalculate volumetric weight internally and use chargeable weight
             const result = RateCardService.calculateShippingCharges(
                 userCategory,
-                weight,
+                weight, // Already in grams from frontend
                 dimensions,
-                zone,
+                finalZone,
                 cod_amount || 0,
                 order_type
             );
@@ -618,9 +682,10 @@ router.post('/calculate-rate-card',
                 user_id: req.user._id,
                 user_category: userCategory,
                 weight: weight,
-                zone: zone,
+                zone: finalZone,
                 cod_amount: cod_amount || 0,
                 total_charges: result.totalCharges,
+                zone_source: zone ? 'provided' : 'delhivery_api',
                 timestamp: new Date().toISOString()
             });
 
@@ -629,6 +694,7 @@ router.post('/calculate-rate-card',
                 message: 'Shipping charges calculated successfully',
                 data: {
                     ...result,
+                    zone: finalZone, // Include zone in response
                     user_category: userCategory,
                     rate_card_applied: rateCard.userCategory
                 }

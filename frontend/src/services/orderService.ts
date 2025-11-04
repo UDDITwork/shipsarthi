@@ -40,6 +40,15 @@ export interface Order {
   pickupRequestStatus?: 'pending' | 'scheduled' | 'in_transit' | 'completed' | 'failed';
   pickupRequestDate?: Date;
   pickupRequestTime?: string;
+  delhivery_data?: {
+    waybill?: string;
+    cancellation_status?: string;
+    cancellation_date?: Date | string;
+    status_type?: string;
+    pickup_request_id?: string;
+    pickup_request_status?: string;
+    [key: string]: any;
+  };
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -147,6 +156,15 @@ class OrderService {
           pickupRequestStatus: order.delhivery_data?.pickup_request_status || 'pending',
           pickupRequestDate: order.delhivery_data?.pickup_request_date,
           pickupRequestTime: order.delhivery_data?.pickup_request_time || '',
+          delhivery_data: order.delhivery_data ? {
+            waybill: order.delhivery_data.waybill,
+            cancellation_status: order.delhivery_data.cancellation_status,
+            cancellation_date: order.delhivery_data.cancellation_date,
+            status_type: order.delhivery_data.status_type,
+            pickup_request_id: order.delhivery_data.pickup_request_id,
+            pickup_request_status: order.delhivery_data.pickup_request_status,
+            ...order.delhivery_data
+          } : undefined,
           createdAt: order.createdAt,
           updatedAt: order.updatedAt
         }));
@@ -221,6 +239,15 @@ class OrderService {
           pickupRequestStatus: order.delhivery_data?.pickup_request_status || 'pending',
           pickupRequestDate: order.delhivery_data?.pickup_request_date,
           pickupRequestTime: order.delhivery_data?.pickup_request_time || '',
+          delhivery_data: order.delhivery_data ? {
+            waybill: order.delhivery_data.waybill,
+            cancellation_status: order.delhivery_data.cancellation_status,
+            cancellation_date: order.delhivery_data.cancellation_date,
+            status_type: order.delhivery_data.status_type,
+            pickup_request_id: order.delhivery_data.pickup_request_id,
+            pickup_request_status: order.delhivery_data.pickup_request_status,
+            ...order.delhivery_data
+          } : undefined,
           createdAt: order.createdAt,
           updatedAt: order.updatedAt
         };

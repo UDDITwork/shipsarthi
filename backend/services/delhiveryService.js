@@ -516,31 +516,104 @@ class DelhiveryService {
 
     /**
      * Cancel Shipment
-     * @param {string} waybill - Waybill number
+     * @param {string} waybill - Waybill number (AWB) of the shipment
      * @returns {Promise} Cancellation response
      */
     async cancelShipment(waybill) {
         try {
-            logger.info('🚫 Cancelling shipment', { waybill });
+            // Use production URL directly as specified
+            const productionURL = 'https://track.delhivery.com';
+            const cancelURL = `${productionURL}/api/p/edit`;
+            
+            logger.info('🚫 Cancelling shipment', {
+                waybill,
+                url: cancelURL,
+                apiKeyLength: this.apiKey?.length || 0
+            });
 
-            const response = await this.client.post('/backend/clientwarehouse/editorders/', {
-                waybill: waybill,
-                cancellation: true
+            // Validate API key
+            let apiKeyToUse = this.apiKey || process.env.DELHIVERY_API_KEY;
+            if (!apiKeyToUse || apiKeyToUse === 'your-delhivery-api-key') {
+                logger.error('❌ Delhivery API Key not configured for cancellation');
+                throw new Error('Delhivery API Key not configured. Please set DELHIVERY_API_KEY in environment variables.');
+            }
+
+            // Use runtime API key if instance doesn't have it
+            if (!this.apiKey && process.env.DELHIVERY_API_KEY) {
+                this.apiKey = process.env.DELHIVERY_API_KEY;
+                logger.info('✅ API Key loaded from process.env at runtime');
+            }
+
+            // EXACT FORMAT AS PER DELHIVERY API DOCUMENTATION:
+            // POST https://track.delhivery.com/api/p/edit
+            // Body: { waybill: 'AWB_NUMBER', cancellation: 'true' }
+            // Both parameters must be strings
+            const response = await axios.post(cancelURL, {
+                waybill: String(waybill), // Ensure waybill is a string
+                cancellation: 'true'     // Must be string 'true', not boolean
+            }, {
+                headers: {
+                    'Authorization': `Token ${apiKeyToUse}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            });
+
+            logger.info('✅ Shipment cancelled successfully', {
+                waybill,
+                status: response.status,
+                responseData: response.data
             });
 
             return {
-                success: response.status === 200,
-                message: response.data?.rmk || 'Shipment cancelled successfully'
+                success: response.status === 200 || response.status === 201,
+                message: response.data?.rmk || response.data?.message || 'Shipment cancelled successfully',
+                data: response.data
             };
         } catch (error) {
-            logger.error('❌ Cancellation failed', {
+            // Extract error message from Delhivery response
+            let errorMessage = 'Failed to cancel shipment';
+            
+            logger.warn('⚠️ Cancel shipment API error structure', {
+                hasResponse: !!error.response,
+                hasResponseData: !!error.response?.data,
+                responseData: error.response?.data,
+                responseStatus: error.response?.status,
+                errorMessage: error.message,
+                errorKeys: error.response?.data ? Object.keys(error.response.data) : []
+            });
+            
+            if (error.response?.data) {
+                const errorData = error.response.data;
+                
+                // Handle different error formats from Delhivery
+                if (errorData.rmk) {
+                    errorMessage = errorData.rmk;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.error) {
+                    errorMessage = typeof errorData.error === 'string' ? errorData.error : JSON.stringify(errorData.error);
+                } else if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else {
+                    errorMessage = JSON.stringify(errorData);
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            logger.error('❌ Shipment cancellation failed', {
                 waybill,
-                error: error.response?.data || error.message
+                error: errorMessage,
+                status: error.response?.status,
+                errorData: error.response?.data,
+                extractedMessage: errorMessage
             });
 
             return {
                 success: false,
-                error: error.response?.data?.rmk || error.message || 'Failed to cancel shipment'
+                error: errorMessage
             };
         }
     }

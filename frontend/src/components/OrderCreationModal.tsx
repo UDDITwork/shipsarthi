@@ -485,6 +485,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   };
 
   // Auto-calculate shipping charges when relevant fields change
+  // Uses Delhivery API to get zone, then calculates from our rate card
   useEffect(() => {
     const autoCalculateShipping = async () => {
       // Only calculate if we have minimum required data
@@ -499,22 +500,31 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
       try {
         setCalculatingShipping(true);
         
-        const zone = determineZone(formData.pickup_address.pincode, formData.delivery_address.pincode);
-        
-        if (!zone) {
-          return; // Invalid zone, skip calculation
-        }
-
         const weightInGrams = formData.package_info.weight * 1000; // Convert kg to grams
         
+        // Validate dimensions before API call
+        if (
+          !formData.package_info.dimensions.length || formData.package_info.dimensions.length <= 0 ||
+          !formData.package_info.dimensions.width || formData.package_info.dimensions.width <= 0 ||
+          !formData.package_info.dimensions.height || formData.package_info.dimensions.height <= 0
+        ) {
+          console.warn('⚠️ Invalid dimensions, skipping shipping calculation');
+          return;
+        }
+        
+        // Call backend API with pincodes - backend will get zone from Delhivery API
         const calculationRequest: ShippingCalculationRequest = {
-          weight: weightInGrams,
+          weight: weightInGrams, // Weight in grams
           dimensions: {
-            length: formData.package_info.dimensions.length || 0,
-            breadth: formData.package_info.dimensions.width || 0,
-            height: formData.package_info.dimensions.height || 0
+            length: formData.package_info.dimensions.length,
+            breadth: formData.package_info.dimensions.width,
+            height: formData.package_info.dimensions.height
           },
-          zone: zone,
+          // Don't provide zone - let backend get it from Delhivery API using pincodes
+          pickup_pincode: formData.pickup_address.pincode,
+          delivery_pincode: formData.delivery_address.pincode,
+          shipping_mode: (formData.shipping_mode || 'Surface') as 'Surface' | 'Express' | 'S' | 'E',
+          payment_mode: formData.payment_info.payment_mode as 'Prepaid' | 'COD' | 'Pre-paid',
           cod_amount: formData.payment_info.payment_mode === 'COD' ? formData.payment_info.cod_amount : 0,
           order_type: 'forward'
         };
@@ -530,9 +540,11 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           }
         }));
         
-        console.log('✅ Auto-calculated shipping charges:', {
+        console.log('✅ Auto-calculated shipping charges (zone from Delhivery API):', {
           userCategory,
-          zone,
+          zone: response.zone || 'unknown',
+          pickup_pincode: formData.pickup_address.pincode,
+          delivery_pincode: formData.delivery_address.pincode,
           weight: formData.package_info.weight,
           charges: response.totalCharges
         });
@@ -555,6 +567,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     formData.package_info.dimensions.height,
     formData.payment_info.payment_mode,
     formData.payment_info.cod_amount,
+    formData.shipping_mode,
     userCategory
   ]);
 
@@ -778,24 +791,43 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         timestamp: new Date().toISOString()
       });
 
+      if (!response.ok) {
+        // Handle error response
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
+        const errorMessage = errorData.message || errorData.error || `Failed to create order (${response.status})`;
+        console.error('❌ FRONTEND: Order creation failed', {
+          status: response.status,
+          error: errorMessage,
+          errorData: errorData,
+          timestamp: new Date().toISOString()
+        });
+        alert(`❌ Order creation failed:\n\n${errorMessage}\n\nPlease check the form and try again.`);
+        setLoading(false);
+        return;
+      }
+
       if (response.ok) {
         const data = await response.json();
         console.log('✅ FRONTEND: Order created successfully', {
           order: data.data.order,
           awb: data.data.awb_number,
           shipment_info: data.data.shipment_info,
+          auto_pickup: data.data.auto_pickup,
           timestamp: new Date().toISOString()
         });
         
         // Show success message with order details
         let successMessage = '';
+        const orderStatus = data.data.order?.status || 'new';
+        
         if (generateAWB && data.data.awb_number) {
-          successMessage = `Order created and AWB assigned successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n✅ AWB Number: ${data.data.awb_number}\n📊 Status: ${data.data.order.status}\n\nOrder appears in "Ready to Ship" tab.`;
+          successMessage = `Order created and AWB assigned successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n✅ AWB Number: ${data.data.awb_number}\n📊 Status: ${orderStatus}\n\nOrder appears in "Ready to Ship" tab. You can request pickup from there.`;
         } else if (generateAWB) {
-          successMessage = `Order created and AWB generation initiated!\n\n📦 Order ID: ${data.data.order.order_id}\n⚠️ AWB: Processing...\n📊 Status: ${data.data.order.status}\n\nOrder appears in "Ready to Ship" tab.`;
+          successMessage = `Order created and AWB generation initiated!\n\n📦 Order ID: ${data.data.order.order_id}\n⚠️ AWB: Processing...\n📊 Status: ${orderStatus}\n\nOrder appears in "Ready to Ship" tab.`;
         } else {
-          successMessage = `Order saved successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n📊 Status: ${data.data.order.status}\n\nOrder appears in "NEW" tab. You can generate AWB later.`;
+          successMessage = `Order saved successfully!\n\n📦 Order ID: ${data.data.order.order_id}\n📊 Status: ${orderStatus}\n\nOrder appears in "NEW" tab. You can generate AWB later.`;
         }
+        
         alert(successMessage);
         
         // Transform order data to include AWB for parent component

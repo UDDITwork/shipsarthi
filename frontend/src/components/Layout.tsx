@@ -4,6 +4,7 @@ import { userService, UserProfile } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
 import { notificationService } from '../services/notificationService';
 import { DataCache } from '../utils/dataCache';
+import { useAuth } from '../contexts/AuthContext';
 import ProfileDropdown from './ProfileDropdown';
 import './Layout.css';
 
@@ -14,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -287,12 +289,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         console.log('✅ Wallet balance updated in real-time and cached:', updatedBalance);
       } else if (notification.type === 'user_category_updated') {
         console.log('🏷️ USER CATEGORY UPDATED NOTIFICATION:', notification);
-        // Refresh user profile to get updated category
+        // Refresh user profile in Layout and AuthContext to get updated category
         const fetchUpdatedProfile = async () => {
           try {
+            // Update Layout's userProfile state
             const response = await userService.getUserProfile();
             setUserProfile(response.data);
             console.log('✅ User profile refreshed after category update:', response.data);
+            
+            // Also refresh AuthContext user so all components using useAuth() get updated
+            await refreshUser();
+            console.log('✅ AuthContext user refreshed after category update');
           } catch (error) {
             console.error('Failed to refresh user profile:', error);
           }
@@ -302,7 +309,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [refreshUser]);
 
   const menuItems = [
     { path: '/dashboard', icon: '🏠', label: 'Dashboard' },

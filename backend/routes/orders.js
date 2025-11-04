@@ -860,10 +860,14 @@ router.post('/', auth, [
               
               // Get zone from Delhivery API
               // Calculate chargeable weight (in grams)
-              const volumetricWeight = (order.package_info.dimensions.length * 
+              // NOTE: order.package_info.weight is stored in kg (from order creation form)
+              // Volumetric weight calculation: (LxBxH)/5000 gives kg, then convert to grams
+              const volumetricWeightKg = (order.package_info.dimensions.length * 
                                         order.package_info.dimensions.width * 
                                         order.package_info.dimensions.height) / 5000;
-              const chargeableWeightGrams = Math.max(order.package_info.weight * 1000, volumetricWeight * 1000);
+              const volumetricWeightGrams = volumetricWeightKg * 1000; // Convert kg to grams
+              const actualWeightGrams = order.package_info.weight * 1000; // Convert kg to grams
+              const chargeableWeightGrams = Math.max(actualWeightGrams, volumetricWeightGrams);
               
               // Get zone from Delhivery API
               const zoneResult = await delhiveryService.getZoneFromDelhivery(
@@ -968,6 +972,9 @@ router.post('/', auth, [
           }
           
           console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', awbNumber);
+          
+          // Note: Auto-pickup removed - order will appear in 'ready_to_ship' tab
+          // User can manually request pickup using "Create Pickup Request" button
         } else {
           console.log('⚠️ DELHIVERY API SUCCESS BUT NO AWB FOUND - ORDER NOT SAVED', {
             orderId: order.order_id,
@@ -1153,22 +1160,25 @@ router.post('/', auth, [
         ? 'Order created, AWB generation in progress'
         : 'Order saved successfully';
 
+    // Response data for order creation
+    const responseData = {
+      order: order,
+      awb_number: order.delhivery_data?.waybill || null,
+      shipment_info: order.delhivery_data || null,
+      delhivery_confirmation: {
+        success: true,
+        awb: order.delhivery_data?.waybill,
+        status: order.delhivery_data?.status,
+        serviceable: order.delhivery_data?.serviceable,
+        label_url: order.delhivery_data?.label_url,
+        expected_delivery: order.delhivery_data?.expected_delivery_date
+      }
+    };
+    
     res.status(201).json({
       status: 'success',
       message: message,
-      data: {
-        order: order,
-        awb_number: order.delhivery_data?.waybill || null,
-        shipment_info: order.delhivery_data || null,
-        delhivery_confirmation: {
-          success: true,
-          awb: order.delhivery_data?.waybill,
-          status: order.delhivery_data?.status,
-          serviceable: order.delhivery_data?.serviceable,
-          label_url: order.delhivery_data?.label_url,
-          expected_delivery: order.delhivery_data?.expected_delivery_date
-        }
-      }
+      data: responseData
     });
 
   } catch (error) {
@@ -2043,6 +2053,128 @@ router.post('/:id/request-pickup', auth, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error requesting pickup'
+    });
+  }
+});
+
+// @desc    Cancel shipment for an order
+// @route   POST /api/orders/:id/cancel-shipment
+// @access  Private
+router.post('/:id/cancel-shipment', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const orderId = req.params.id;
+
+    // Find order
+    const order = await Order.findOne({
+      _id: orderId,
+      user_id: userId
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    // Validate AWB exists
+    if (!order.delhivery_data?.waybill) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'AWB number is required to cancel shipment. Order does not have an AWB number.'
+      });
+    }
+
+    const waybill = order.delhivery_data.waybill;
+
+    logger.info('🚫 Cancelling shipment for order', {
+      orderId: order.order_id,
+      waybill: waybill,
+      userId: userId.toString(),
+      currentStatus: order.status
+    });
+
+    // Call Delhivery API to cancel shipment
+    const cancelResult = await delhiveryService.cancelShipment(waybill);
+
+    if (!cancelResult.success) {
+      logger.error('❌ Shipment cancellation failed', {
+        orderId: order.order_id,
+        waybill: waybill,
+        error: cancelResult.error
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        message: cancelResult.error || 'Failed to cancel shipment with Delhivery',
+        error: cancelResult.error
+      });
+    }
+
+    // Update order status based on cancellation result
+    // According to Delhivery docs:
+    // - If Manifested before pickup: status stays Manifested, status_type becomes UD (Undelivered)
+    // - If In Transit or Pending: status stays In Transit, status_type becomes RT (Return to Origin)
+    // - If Scheduled: status updates to Canceled, status_type becomes CN (Cancellation)
+    
+    // Update delhivery_data with cancellation info
+    if (!order.delhivery_data) {
+      order.delhivery_data = {};
+    }
+    
+    order.delhivery_data.cancellation_status = 'cancelled';
+    order.delhivery_data.cancellation_date = new Date();
+    order.delhivery_data.cancellation_message = cancelResult.message;
+
+    // Update order status based on current status
+    // If order is in pickups_manifests (scheduled), mark as cancelled
+    if (order.status === 'pickups_manifests') {
+      // Could update to a cancelled status, but for now keep it in pickups_manifests
+      // with cancellation flag
+      order.delhivery_data.status_type = 'CN'; // Cancellation
+    } else if (order.status === 'in_transit' || order.status === 'pending') {
+      // Keep status as is, but mark for return
+      order.delhivery_data.status_type = 'RT'; // Return to Origin
+    } else if (order.status === 'ready_to_ship' || order.status === 'new') {
+      // If manifested but not picked up yet
+      order.delhivery_data.status_type = 'UD'; // Undelivered
+    }
+
+    await order.save();
+
+    logger.info('✅ Shipment cancelled successfully', {
+      orderId: order.order_id,
+      waybill: waybill,
+      statusType: order.delhivery_data.status_type,
+      cancellationMessage: cancelResult.message
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Shipment cancelled successfully',
+      data: {
+        order_id: order.order_id,
+        waybill: waybill,
+        cancellation_status: order.delhivery_data.cancellation_status,
+        cancellation_date: order.delhivery_data.cancellation_date,
+        status_type: order.delhivery_data.status_type,
+        message: cancelResult.message,
+        delhivery_response: cancelResult.data
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Cancel shipment error', {
+      orderId: req.params.id,
+      userId: req.user._id,
+      error: error.message,
+      stack: error.stack
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error cancelling shipment'
     });
   }
 });

@@ -585,6 +585,53 @@ const Orders: React.FC = () => {
     }
   };
 
+  const handleCancelShipment = async (orderId: string, orderDbId: string, awb: string) => {
+    if (!awb) {
+      alert('AWB number not available for cancellation');
+      return;
+    }
+
+    if (!orderDbId) {
+      alert('Order ID not available');
+      return;
+    }
+
+    // Confirm cancellation
+    if (!window.confirm(`Are you sure you want to cancel this shipment?\n\nOrder ID: ${orderId}\nAWB Number: ${awb}\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderDbId}/cancel-shipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        alert(`✅ Shipment cancelled successfully!\n\nOrder ID: ${data.data.order_id}\nAWB Number: ${data.data.waybill}\nStatus: ${data.data.cancellation_status}\n\n${data.data.message || ''}`);
+        
+        // Clear cache and refresh orders
+        orderService.clearCache();
+        fetchOrders();
+      } else {
+        throw new Error(data.message || data.error || 'Failed to cancel shipment');
+      }
+    } catch (error: any) {
+      console.error('Cancel shipment error:', error);
+      alert(`❌ Failed to cancel shipment: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePrintLabel = async (orderId: string, orderDbId?: string, awb?: string) => {
     if (!awb) {
       alert('AWB number not available for printing label');
@@ -1252,7 +1299,7 @@ const Orders: React.FC = () => {
                           </button>
                         )}
                         
-                        {/* Request Pickup button - only for ready_to_ship status */}
+                        {/* Create Pickup Request button - only for ready_to_ship status */}
                         {order.awb && 
                          activeTab !== 'pickups_manifests' &&
                          order.status === 'ready_to_ship' && 
@@ -1260,10 +1307,24 @@ const Orders: React.FC = () => {
                          (!order.pickupRequestStatus || order.pickupRequestStatus === 'pending') && (
                           <button 
                             className="action-btn request-pickup-btn"
-                            title="Request Pickup"
+                            title="Create Pickup Request"
                             onClick={() => handleRequestPickup(order._id, order.orderId, order.pickup_address?.name)}
                           >
-                            Request Pickup
+                            Create Pickup Request
+                          </button>
+                        )}
+                        
+                        {/* Cancel Shipment button - only for pickups_manifests status with AWB */}
+                        {order.awb && 
+                         activeTab === 'pickups_manifests' &&
+                         order.status === 'pickups_manifests' &&
+                         !order.delhivery_data?.cancellation_status && (
+                          <button 
+                            className="action-btn cancel-shipment-btn"
+                            title="Cancel Shipment"
+                            onClick={() => handleCancelShipment(order.orderId, order._id, order.awb || '')}
+                          >
+                            Cancel Shipment
                           </button>
                         )}
                         

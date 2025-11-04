@@ -91,6 +91,32 @@ const Dashboard: React.FC = () => {
   const dateIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
 
+  // Fetch fresh wallet balance DIRECTLY from MongoDB (no WebSocket dependency)
+  // This function is called from multiple places and always fetches fresh data
+  const fetchWalletBalanceFromMongoDB = async () => {
+    try {
+      console.log('💰 Fetching wallet balance directly from MongoDB...');
+      // Force fresh fetch from MongoDB (useCache = false)
+      const balance = await walletService.getWalletBalance(false);
+      console.log('✅ Wallet balance fetched from MongoDB:', balance);
+      setWalletBalance(balance);
+      DataCache.set('walletBalance', balance);
+      // Trigger animation on update
+      setIsBalanceUpdating(true);
+      setTimeout(() => setIsBalanceUpdating(false), 600);
+    } catch (error) {
+      console.error('❌ Error fetching wallet balance from MongoDB:', error);
+      // Use cached balance if fetch fails (fallback only)
+      const staleBalance = DataCache.getStale<WalletBalance>('walletBalance');
+      if (staleBalance) {
+        console.log('⚠️ Using cached wallet balance due to API error');
+        setWalletBalance(staleBalance);
+      } else {
+        setWalletBalance({ balance: 0, currency: 'INR' });
+      }
+    }
+  };
+
   // Update current date/time every second
   useEffect(() => {
     dateIntervalRef.current = setInterval(() => {
@@ -248,94 +274,42 @@ const Dashboard: React.FC = () => {
     // Initial data fetch - show cached data immediately if available
     fetchAllDashboardData(true); // true = show loading only if no cache
     
-    // Fetch fresh wallet balance in background
-    const fetchInitialWalletBalance = async () => {
-      try {
-        const balance = await walletService.getWalletBalance();
-        setWalletBalance(balance);
-        DataCache.set('walletBalance', balance);
-      } catch (error) {
-        console.error('❌ Error fetching wallet balance:', error);
-        // Use cached balance if fetch fails
-        const staleBalance = DataCache.getStale<WalletBalance>('walletBalance');
-        if (staleBalance) {
-          setWalletBalance(staleBalance);
-        } else {
-          setWalletBalance({ balance: 0, currency: 'INR' });
-        }
-      }
-    };
-    
-    fetchInitialWalletBalance();
+    // Fetch wallet balance immediately on mount (direct from MongoDB, no WebSocket)
+    fetchWalletBalanceFromMongoDB();
 
     // Listen for WebSocket reconnection events to refresh data
     const handleReconnect = () => {
       console.log('🔄 Dashboard: WebSocket reconnected, refreshing data...');
       fetchAllDashboardData(false); // Refresh in background, don't block UI
-      fetchInitialWalletBalance();
+      // Refresh wallet balance directly from MongoDB (not from WebSocket)
+      fetchWalletBalanceFromMongoDB();
     };
     window.addEventListener('websocket-reconnected', handleReconnect);
-    
-    // Subscribe to wallet balance updates
-    const unsubscribeWallet = walletService.subscribe((balance) => {
-      console.log('💰 Dashboard wallet balance updated:', balance);
-      setWalletBalance(balance);
-      // Trigger animation on update
-      setIsBalanceUpdating(true);
-      setTimeout(() => setIsBalanceUpdating(false), 600);
-    });
-
-    // Listen for real-time wallet updates via WebSocket
-    const unsubscribeNotifications = notificationService.subscribe((notification) => {
-      if (notification.type === 'wallet_balance_update') {
-        console.log('💰 Dashboard received wallet balance update:', notification);
-        const updatedBalance = {
-          balance: parseFloat(notification.balance) || 0,
-          currency: notification.currency || 'INR'
-        };
-        setWalletBalance(updatedBalance);
-        
-        // Trigger animation
-        setIsBalanceUpdating(true);
-        setTimeout(() => setIsBalanceUpdating(false), 600);
-      }
-    });
     
     // Handle WebSocket disconnects gracefully - don't clear state
     // WebSocket disconnects are normal (code 1001 = going away)
     // State should persist even if WebSocket disconnects
 
-    // Auto-refresh data every 5 minutes (increased from 2 to reduce rate limit hits)
-    // Also set up a longer interval for critical data (every 2 minutes) as fallback
-    const shortInterval = setInterval(() => {
-      // Only refresh wallet balance on longer interval (lightweight)
-      walletService.getWalletBalance().catch(err => {
-        console.error('❌ Error auto-refreshing wallet balance:', err);
-      });
-    }, 2 * 60 * 1000); // Every 2 minutes for wallet balance (reduced frequency)
+    // Auto-refresh wallet balance directly from MongoDB every 2 minutes
+    const walletRefreshInterval = setInterval(() => {
+      console.log('🔄 Auto-refreshing wallet balance from MongoDB...');
+      // Always fetch fresh from MongoDB (useCache = false)
+      fetchWalletBalanceFromMongoDB();
+    }, 2 * 60 * 1000); // Every 2 minutes
 
     refreshIntervalRef.current = setInterval(() => {
       console.log('🔄 Auto-refreshing dashboard data...');
       fetchAllDashboardData(false); // false = don't show loading, refresh in background
-      // Also refresh wallet balance
-      walletService.getWalletBalance()
-        .then(balance => {
-          setWalletBalance(balance);
-          DataCache.set('walletBalance', balance);
-        })
-        .catch(err => {
-          console.error('❌ Error auto-refreshing wallet balance:', err);
-        });
-    }, 5 * 60 * 1000); // Every 5 minutes for full dashboard refresh (increased to prevent rate limit hits)
+      // Also refresh wallet balance directly from MongoDB
+      fetchWalletBalanceFromMongoDB();
+    }, 5 * 60 * 1000); // Every 5 minutes for full dashboard refresh
 
     return () => {
-      unsubscribeWallet();
-      unsubscribeNotifications();
       window.removeEventListener('websocket-reconnected', handleReconnect);
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
       }
-      clearInterval(shortInterval);
+      clearInterval(walletRefreshInterval);
     };
   }, [dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
 
@@ -583,9 +557,8 @@ const Dashboard: React.FC = () => {
               
               // Refresh data
               fetchAllDashboardData();
-              walletService.getWalletBalance()
-                .then(balance => setWalletBalance(balance))
-                .catch(err => console.error('Error refreshing wallet:', err));
+              // Refresh wallet balance directly from MongoDB
+              fetchWalletBalanceFromMongoDB();
             }}
             title="Refresh Dashboard Data & Reconnect WebSocket"
             style={{
