@@ -1,0 +1,52 @@
+[2025-11-04T18:40:19.989Z] [ERROR] [PID:9404] ❌ Order cancellation status not saved correctly | Data: {
+  "orderId": "ORD1762267575814639",
+  "expected": "cancelled"
+}
+[2025-11-04T18:40:19.992Z] [ERROR] [PID:9404] ❌ Cancel shipment error | Data: {
+  "orderId": "690a12f2d8e616f149670fc6",
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "error": "Failed to save cancellation status to database",
+  "stack": "Error: Failed to save cancellation status to database\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\orders.js:2621:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+[2025-11-04T18:42:19.193Z] [ERROR] [PID:9404] ❌ Order cancellation status not saved correctly | Data: {
+  "orderId": "ORD1762267575814639",
+  "expected": "cancelled"
+}
+[2025-11-04T18:42:19.198Z] [ERROR] [PID:9404] ❌ Cancel shipment error | Data: {
+  "orderId": "690a12f2d8e616f149670fc6",
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "error": "Failed to save cancellation status to database",
+  "stack": "Error: Failed to save cancellation status to database\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\orders.js:2621:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+[2025-11-04T18:43:59.370Z] [ERROR] [PID:35552] ❌ Order cancellation status not saved correctly | Data: {
+  "orderId": "ORD1762267575814639",
+  "hasDelhiveryData": true,
+  "delhiveryDataKeys": [
+    "waybill",
+    "package_id",
+    "label_url",
+    "expected_delivery_date",
+    "pickup_scheduled",
+    "pickup_request_status",
+    "pickup_request_date",
+    "pickup_request_id",
+    "pickup_request_time"
+  ],
+  "expected": "cancelled"
+}
+[2025-11-04T18:43:59.456Z] [ERROR] [PID:35552] ❌ Direct update also failed | Data: {
+  "orderId": "ORD1762267575814639",
+  "error": "Direct update also failed to save cancellation status"
+}
+[2025-11-04T18:43:59.458Z] [ERROR] [PID:35552] ❌ Cancel shipment error | Data: {
+  "orderId": "690a12f2d8e616f149670fc6",
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "error": "Failed to save cancellation status to database after multiple attempts",
+  "stack": "Error: Failed to save cancellation status to database after multiple attempts\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\routes\\orders.js:2668:15\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+[2025-11-04T18:56:18.007Z] [ERROR] [PID:33848] ❌ WALLET REFUND FAILED | Data: {
+  "orderId": "ORD1762278684433992",
+  "error": "Transaction validation failed: transaction_category: `shipment_cancellation_refund` is not a valid enum value for path `transaction_category`.",
+  "stack": "ValidationError: Transaction validation failed: transaction_category: `shipment_cancellation_refund` is not a valid enum value for path `transaction_category`.\n    at Document.invalidate (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
+  "timestamp": "2025-11-04T18:56:18.007Z"
+}

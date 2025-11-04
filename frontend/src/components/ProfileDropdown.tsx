@@ -67,7 +67,27 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
       {/* User Info Section */}
       <div className="profile-header">
         <div className="user-avatar-large">
-          <span className="avatar-text">{user.initials}</span>
+          {user.avatar_url ? (
+            <img 
+              src={user.avatar_url} 
+              alt="Profile Avatar" 
+              className="avatar-image"
+              onError={(e) => {
+                // Fallback to initials if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  const span = document.createElement('span');
+                  span.className = 'avatar-text';
+                  span.textContent = user.initials || 'U';
+                  parent.appendChild(span);
+                }
+              }}
+            />
+          ) : (
+            <span className="avatar-text">{user.initials}</span>
+          )}
         </div>
         <div className="user-info">
           <div className="company-name">{user.company_name}</div>

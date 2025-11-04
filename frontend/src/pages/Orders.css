@@ -60,6 +60,22 @@
   border-radius: 4px;
   border: 1px solid #f5c6cb;
 }
+
+/* Cancelled Shipment Badge */
+.cancelled-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #dc3545;
+  background-color: #fff3cd;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #ffc107;
+  margin-top: 4px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
 .orders-container {
     width: 100%;
     padding: 0;

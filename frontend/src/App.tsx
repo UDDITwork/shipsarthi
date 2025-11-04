@@ -32,7 +32,6 @@ import Channel from './pages/Channel';
 import AccountSettings from './pages/AccountSettings';
 import AssignCourier from './pages/AssignCourier';
 import Customers from './pages/Customers';
-import PriceListPage from './pages/PriceList';
 
 // Admin Components
 import AdminLogin from './pages/AdminLogin';
@@ -159,14 +158,6 @@ function App() {
               } 
             />
             <Route 
-              path="/price-list" 
-              element={
-                <ProtectedRoute>
-                  <PriceListPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
               path="/warehouse" 
               element={
                 <ProtectedRoute>
@@ -216,6 +207,14 @@ function App() {
             />
             <Route 
               path="/account" 
+              element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/account-settings" 
               element={
                 <ProtectedRoute>
                   <AccountSettings />

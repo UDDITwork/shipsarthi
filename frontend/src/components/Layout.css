@@ -351,6 +351,14 @@
   text-transform: uppercase;
 }
 
+.user-avatar .avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .user-avatar-loading {
   color: #FFFFFF;
   font-size: 12px;
@@ -383,6 +391,8 @@
   min-height: 0;
   /* Ensure it takes available height */
   height: 100%;
+  /* CRITICAL: Ensure body can scroll by setting proper height constraint */
+  max-height: calc(100vh - 70px); /* Subtract header height */
 }
 
 .layout-sidebar {
@@ -545,7 +555,7 @@
 /* Main Content */
 .layout-main {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto !important; /* CRITICAL: Force scrolling to work */
   overflow-x: visible !important; /* Allow tab overlap - NO clipping */
   background-color: #FFFFFF;
   padding: 24px 30px;
@@ -570,8 +580,10 @@
   -moz-osx-font-smoothing: grayscale;
   /* CRITICAL: Set min-height to 0 to allow proper flex shrinking and scrolling */
   min-height: 0;
-  /* Ensure proper height for scrolling */
-  height: 100%;
+  /* CRITICAL: Ensure proper height for scrolling - use flex-basis instead of height */
+  flex-basis: 0;
+  /* Ensure it can shrink and grow properly */
+  max-height: 100%;
 }
 
 /* CRITICAL: Create white bridge that merges with active tab */

@@ -151,11 +151,13 @@ const Billing: React.FC = () => {
   // Listen for real-time wallet updates
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'wallet_balance_update' || notification.type === 'weight_discrepancy_charge') {
+      if (notification.type === 'wallet_balance_update' || 
+          notification.type === 'weight_discrepancy_charge' ||
+          notification.type === 'wallet_refund') {
         console.log('💰 Wallet-related notification:', notification);
         fetchWalletBalance();
-        // For charges also refresh transactions
-        if (notification.type === 'weight_discrepancy_charge') {
+        // Refresh transactions for charges and refunds
+        if (notification.type === 'weight_discrepancy_charge' || notification.type === 'wallet_refund') {
           fetchTransactions();
         }
       }

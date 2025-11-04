@@ -522,8 +522,9 @@ class DelhiveryService {
     async cancelShipment(waybill) {
         try {
             // Use production URL directly as specified
+            // NOTE: URL must NOT have trailing space - exact format: https://track.delhivery.com/api/p/edit
             const productionURL = 'https://track.delhivery.com';
-            const cancelURL = `${productionURL}/api/p/edit`;
+            const cancelURL = `${productionURL}/api/p/edit`.trim(); // Ensure no trailing spaces
             
             logger.info('🚫 Cancelling shipment', {
                 waybill,

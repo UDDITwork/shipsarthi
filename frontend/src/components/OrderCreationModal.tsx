@@ -5,11 +5,13 @@ import { environmentConfig } from '../config/environment';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { shippingService, ShippingCalculationRequest } from '../services/shippingService';
+import { walletService } from '../services/walletService';
 
 interface OrderCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOrderCreated: (order: any) => void;
+  orderType?: 'forward' | 'reverse'; // Optional: defaults to 'forward'
 }
 
 interface Warehouse {
@@ -49,7 +51,8 @@ interface Package {
 const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   isOpen,
   onClose,
-  onOrderCreated
+  onOrderCreated,
+  orderType = 'forward' // Default to forward orders
 }) => {
   const { user } = useAuth(); // Get user for category
   const userCategory = user?.user_category || 'Basic User';
@@ -70,6 +73,23 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   // Pincode validation states
   const [validatingDeliveryPincode, setValidatingDeliveryPincode] = useState(false);
   const [validatingPickupPincode, setValidatingPickupPincode] = useState(false);
+  
+  // Final shipping calculation state (mandatory before buttons appear)
+  const [finalShippingCalculation, setFinalShippingCalculation] = useState<{
+    calculating: boolean;
+    completed: boolean;
+    error: string | null;
+    zone: string | null;
+    walletBalance: number | null;
+    insufficientBalance: boolean;
+  }>({
+    calculating: false,
+    completed: false,
+    error: null,
+    zone: null,
+    walletBalance: null,
+    insufficientBalance: false
+  });
 
   // Form Data
   const [formData, setFormData] = useState({
@@ -526,7 +546,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           shipping_mode: (formData.shipping_mode || 'Surface') as 'Surface' | 'Express' | 'S' | 'E',
           payment_mode: formData.payment_info.payment_mode as 'Prepaid' | 'COD' | 'Pre-paid',
           cod_amount: formData.payment_info.payment_mode === 'COD' ? formData.payment_info.cod_amount : 0,
-          order_type: 'forward'
+          order_type: orderType === 'reverse' ? 'rto' : 'forward' // Use 'rto' for reverse orders, 'forward' for forward orders
         };
 
         const response = await shippingService.calculateShippingCharges(calculationRequest);
@@ -593,15 +613,187 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     calculateTotals();
   }, [formData.products, formData.payment_info.shipping_charges]);
 
+  // MANDATORY: Calculate shipping charges when reaching Step 6 (final step before buttons)
+  useEffect(() => {
+    if (currentStep === 6) {
+      // Only calculate if not already calculated or if charges are 0
+      // Use a small delay to ensure form data is updated
+      const timer = setTimeout(() => {
+        if (!finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0) {
+          calculateFinalShippingCharges();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      // Reset calculation state when leaving Step 6
+      setFinalShippingCalculation({
+        calculating: false,
+        completed: false,
+        error: null,
+        zone: null,
+        walletBalance: null,
+        insufficientBalance: false
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
+  // Mandatory shipping charges calculation before final buttons appear
+  const calculateFinalShippingCharges = async () => {
+    // Validate required fields
+    if (
+      !formData.delivery_address.pincode || formData.delivery_address.pincode.length !== 6 ||
+      !formData.pickup_address.pincode || formData.pickup_address.pincode.length !== 6 ||
+      !formData.package_info.weight || formData.package_info.weight <= 0
+    ) {
+      setFinalShippingCalculation({
+        calculating: false,
+        completed: false,
+        error: 'Please fill all required fields: Delivery pincode, Pickup pincode, and Weight',
+        zone: null,
+        walletBalance: null,
+        insufficientBalance: false
+      });
+      return;
+    }
+
+    // Validate dimensions
+    if (
+      !formData.package_info.dimensions.length || formData.package_info.dimensions.length <= 0 ||
+      !formData.package_info.dimensions.width || formData.package_info.dimensions.width <= 0 ||
+      !formData.package_info.dimensions.height || formData.package_info.dimensions.height <= 0
+    ) {
+      setFinalShippingCalculation({
+        calculating: false,
+        completed: false,
+        error: 'Please fill all required dimensions: Length, Width, and Height',
+        zone: null,
+        walletBalance: null,
+        insufficientBalance: false
+      });
+      return;
+    }
+
+    try {
+      setFinalShippingCalculation(prev => ({ ...prev, calculating: true, error: null }));
+      
+      const weightInGrams = formData.package_info.weight * 1000; // Convert kg to grams
+      
+      // Call backend API with pincodes - backend will get zone from Delhivery API
+      const calculationRequest: ShippingCalculationRequest = {
+        weight: weightInGrams, // Weight in grams
+        dimensions: {
+          length: formData.package_info.dimensions.length,
+          breadth: formData.package_info.dimensions.width,
+          height: formData.package_info.dimensions.height
+        },
+        // Don't provide zone - let backend get it from Delhivery API using pincodes
+        pickup_pincode: formData.pickup_address.pincode,
+        delivery_pincode: formData.delivery_address.pincode,
+        shipping_mode: (formData.shipping_mode || 'Surface') as 'Surface' | 'Express' | 'S' | 'E',
+        payment_mode: formData.payment_info.payment_mode as 'Prepaid' | 'COD' | 'Pre-paid',
+        cod_amount: formData.payment_info.payment_mode === 'COD' ? formData.payment_info.cod_amount : 0,
+        order_type: orderType === 'reverse' ? 'rto' : 'forward' // Use 'rto' for reverse orders, 'forward' for forward orders
+      };
+
+      const response = await shippingService.calculateShippingCharges(calculationRequest);
+      
+      // Fetch wallet balance to validate
+      let walletBalance: number | null = null;
+      let insufficientBalance = false;
+      try {
+        const walletData = await walletService.getWalletBalance(false); // Force fresh fetch
+        walletBalance = walletData.balance || 0;
+        
+        // Check if wallet balance is sufficient
+        if (walletBalance < response.totalCharges) {
+          insufficientBalance = true;
+          console.warn('⚠️ Insufficient wallet balance:', {
+            walletBalance,
+            shippingCharges: response.totalCharges,
+            shortfall: response.totalCharges - walletBalance
+          });
+        }
+      } catch (walletError) {
+        console.error('Failed to fetch wallet balance:', walletError);
+        // If wallet fetch fails, we can't verify balance - set to null and show warning
+        walletBalance = null;
+        insufficientBalance = true; // Show warning to be safe
+      }
+      
+      // Update shipping charges in form data
+      setFormData(prev => ({
+        ...prev,
+        payment_info: {
+          ...prev.payment_info,
+          shipping_charges: response.totalCharges
+        }
+      }));
+      
+      console.log('✅ Final shipping charges calculated (mandatory before buttons):', {
+        userCategory,
+        zone: response.zone || 'unknown',
+        pickup_pincode: formData.pickup_address.pincode,
+        delivery_pincode: formData.delivery_address.pincode,
+        weight: formData.package_info.weight,
+        charges: response.totalCharges,
+        walletBalance,
+        insufficientBalance
+      });
+
+      setFinalShippingCalculation({
+        calculating: false,
+        completed: !insufficientBalance, // Only mark as completed if balance is sufficient
+        error: null, // Error will be shown in UI if insufficientBalance is true
+        zone: response.zone || null,
+        walletBalance,
+        insufficientBalance
+      });
+      
+    } catch (error: any) {
+      console.error('❌ Final shipping charges calculation failed:', error);
+      setFinalShippingCalculation({
+        calculating: false,
+        completed: false,
+        error: error.message || 'Failed to calculate shipping charges. Please check your pincodes and try again.',
+        zone: null,
+        walletBalance: null,
+        insufficientBalance: false
+      });
+    }
+  };
+
   // Handle Save button (no AWB generation)
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Ensure shipping charges are calculated before proceeding
+    if (!finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0) {
+      alert('Please wait for shipping charges to be calculated before saving.');
+      await calculateFinalShippingCharges();
+      return;
+    }
+    // Check wallet balance before proceeding
+    if (finalShippingCalculation.insufficientBalance) {
+      alert(`⚠️ Insufficient Wallet Balance!\n\nYour wallet balance (₹${finalShippingCalculation.walletBalance?.toFixed(2) || '0.00'}) is less than the shipping charges (₹${formData.payment_info.shipping_charges.toFixed(2)}).\n\nPlease ask admin to recharge your wallet before creating this order.`);
+      return;
+    }
     await handleOrderSubmission(false); // generate_awb = false
   };
 
   // Handle Save & Assign Order button (with AWB generation)
   const handleSaveAndAssign = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Ensure shipping charges are calculated before proceeding
+    if (!finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0) {
+      alert('Please wait for shipping charges to be calculated before saving.');
+      await calculateFinalShippingCharges();
+      return;
+    }
+    // Check wallet balance before proceeding
+    if (finalShippingCalculation.insufficientBalance) {
+      alert(`⚠️ Insufficient Wallet Balance!\n\nYour wallet balance (₹${finalShippingCalculation.walletBalance?.toFixed(2) || '0.00'}) is less than the shipping charges (₹${formData.payment_info.shipping_charges.toFixed(2)}).\n\nPlease ask admin to recharge your wallet before creating this order.`);
+      return;
+    }
     await handleOrderSubmission(true); // generate_awb = true
   };
 
@@ -759,6 +951,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         },
         seller_info: formData.seller_info,
         shipping_mode: formData.shipping_mode,
+        order_type: orderType === 'reverse' ? 'reverse' : 'forward', // Send order type to backend
         order_id: orderId
       };
 
@@ -1766,6 +1959,189 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     />
                   </div>
                 </div>
+
+                {/* MANDATORY: Shipping Charges Calculation Section - Before Final Buttons */}
+                <div className="mandatory-shipping-section" style={{
+                  marginTop: '30px',
+                  padding: '20px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '2px solid #F68723'
+                }}>
+                  <div className="section-header" style={{ marginBottom: '15px' }}>
+                    <h3 style={{ color: '#F68723', margin: 0 }}>💰 Shipping Charges Calculation (Required)</h3>
+                  </div>
+                  
+                  {finalShippingCalculation.calculating ? (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <div style={{ fontSize: '16px', color: '#666', marginBottom: '10px' }}>
+                        🔄 Calculating shipping charges...
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#999' }}>
+                        Fetching zone from Delhivery API and calculating {orderType === 'reverse' ? 'RTO' : 'forward'} charges based on your rate card...
+                      </div>
+                    </div>
+                  ) : finalShippingCalculation.completed && !finalShippingCalculation.insufficientBalance ? (
+                    <div style={{ padding: '15px', backgroundColor: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <div>
+                          <strong style={{ color: '#155724', fontSize: '16px' }}>✅ Shipping Charges Calculated</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={calculateFinalShippingCharges}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            backgroundColor: '#F68723',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🔄 Recalculate
+                        </button>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                        <div>
+                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>Zone</div>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#155724' }}>
+                            {finalShippingCalculation.zone || 'N/A'}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>Shipping Charges</div>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#155724' }}>
+                            ₹{formData.payment_info.shipping_charges.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                        <div>📦 Pickup: {formData.pickup_address.pincode} | Delivery: {formData.delivery_address.pincode}</div>
+                        <div>⚖️ Weight: {formData.package_info.weight} kg | User Category: {userCategory}</div>
+                        <div>🔄 Order Type: <strong>{orderType === 'reverse' ? 'Reverse (RTO)' : 'Forward'}</strong> | Charges: <strong>{orderType === 'reverse' ? 'RTO Charges' : 'Forward Charges'}</strong></div>
+                        {finalShippingCalculation.walletBalance !== null && (
+                          <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#f0f8ff', borderRadius: '4px' }}>
+                            💰 Wallet Balance: <strong>₹{finalShippingCalculation.walletBalance.toFixed(2)}</strong> | 
+                            After Deduction: <strong>₹{(finalShippingCalculation.walletBalance - formData.payment_info.shipping_charges).toFixed(2)}</strong>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : finalShippingCalculation.insufficientBalance ? (
+                    <div style={{ padding: '15px', backgroundColor: '#fff3cd', borderRadius: '6px', border: '2px solid #ffc107' }}>
+                      <div style={{ color: '#856404', marginBottom: '15px' }}>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+                          ⚠️ Insufficient Wallet Balance
+                        </div>
+                        <div style={{ fontSize: '14px', lineHeight: '1.6', marginBottom: '12px' }}>
+                          <div><strong>Wallet Balance:</strong> ₹{finalShippingCalculation.walletBalance?.toFixed(2) || '0.00'}</div>
+                          <div><strong>Shipping Charges Required:</strong> ₹{formData.payment_info.shipping_charges.toFixed(2)}</div>
+                          <div style={{ marginTop: '8px', color: '#dc3545', fontWeight: 'bold' }}>
+                            <strong>Shortfall:</strong> ₹{(formData.payment_info.shipping_charges - (finalShippingCalculation.walletBalance || 0)).toFixed(2)}
+                          </div>
+                        </div>
+                        <div style={{ 
+                          padding: '12px', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '6px', 
+                          border: '1px solid #ffc107',
+                          fontSize: '14px',
+                          color: '#856404',
+                          marginTop: '12px'
+                        }}>
+                          <strong>❌ Order cannot proceed.</strong><br/>
+                          Your wallet balance is less than the shipping charges calculated.<br/>
+                          <strong>Please ask admin to recharge your wallet</strong> before creating this order.
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                        <button
+                          type="button"
+                          onClick={calculateFinalShippingCharges}
+                          style={{
+                            padding: '8px 16px',
+                            fontSize: '14px',
+                            backgroundColor: '#F68723',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🔄 Recalculate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Refresh wallet balance
+                            walletService.getWalletBalance(false).then(walletData => {
+                              calculateFinalShippingCharges();
+                            });
+                          }}
+                          style={{
+                            padding: '8px 16px',
+                            fontSize: '14px',
+                            backgroundColor: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🔄 Refresh Balance
+                        </button>
+                      </div>
+                    </div>
+                  ) : finalShippingCalculation.error ? (
+                    <div style={{ padding: '15px', backgroundColor: '#f8d7da', borderRadius: '6px', border: '1px solid #f5c6cb' }}>
+                      <div style={{ color: '#721c24', marginBottom: '10px' }}>
+                        <strong>❌ Calculation Failed</strong>
+                      </div>
+                      <div style={{ color: '#721c24', fontSize: '14px', marginBottom: '15px' }}>
+                        {finalShippingCalculation.error}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={calculateFinalShippingCharges}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: '14px',
+                          backgroundColor: '#F68723',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🔄 Try Again
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+                        Click the button below to calculate shipping charges before proceeding
+                      </div>
+                      <button
+                        type="button"
+                        onClick={calculateFinalShippingCharges}
+                        style={{
+                          padding: '12px 24px',
+                          fontSize: '16px',
+                          backgroundColor: '#F68723',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        💰 Calculate Shipping Charges
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -1783,12 +2159,41 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     Next →
                   </button>
                 ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {/* Show warning if shipping charges not calculated */}
+                    {!finalShippingCalculation.completed && !finalShippingCalculation.insufficientBalance && !finalShippingCalculation.error && (
+                      <div style={{
+                        padding: '12px',
+                        backgroundColor: '#fff3cd',
+                        border: '1px solid #ffc107',
+                        borderRadius: '6px',
+                        color: '#856404',
+                        fontSize: '14px',
+                        textAlign: 'center'
+                      }}>
+                        ⚠️ Please calculate shipping charges above before proceeding
+                      </div>
+                    )}
+                    {finalShippingCalculation.insufficientBalance && (
+                      <div style={{
+                        padding: '12px',
+                        backgroundColor: '#fff3cd',
+                        border: '2px solid #ffc107',
+                        borderRadius: '6px',
+                        color: '#856404',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        fontWeight: 'bold'
+                      }}>
+                        ⚠️ Insufficient wallet balance detected above. Please recharge your wallet before proceeding.
+                      </div>
+                    )}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button 
                       type="button" 
                       onClick={handleSave} 
                       className="btn btn-secondary" 
-                      disabled={loading}
+                        disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
                       style={{ flex: 1 }}
                     >
                       {loading ? 'Saving...' : 'Save'}
@@ -1797,11 +2202,12 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                       type="button" 
                       onClick={handleSaveAndAssign} 
                       className="btn btn-success" 
-                      disabled={loading}
+                        disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
                       style={{ flex: 1 }}
                     >
                       {loading ? 'Creating Order...' : 'Save & Assign Order'}
                     </button>
+                    </div>
                   </div>
                 )}
               </div>

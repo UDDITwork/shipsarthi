@@ -103,7 +103,7 @@ const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => vo
     }
   };
 
-  const zones = ['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F'];
+  const zones = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   if (loading) {
     return (
@@ -431,10 +431,10 @@ const Tools: React.FC = () => {
     const deliveryFirstDigit = deliveryPincode[0];
     
     if (pickupFirstDigit === deliveryFirstDigit) return 'B';
-    if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C1';
-    if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C2';
+    if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C';
+    if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C';
     
-    return 'D1'; // Default zone
+    return 'D'; // Default zone
   };
 
   const calculateShipping = async () => {

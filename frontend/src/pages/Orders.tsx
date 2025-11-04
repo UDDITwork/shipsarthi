@@ -616,11 +616,16 @@ const Orders: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data.status === 'success') {
-        alert(`✅ Shipment cancelled successfully!\n\nOrder ID: ${data.data.order_id}\nAWB Number: ${data.data.waybill}\nStatus: ${data.data.cancellation_status}\n\n${data.data.message || ''}`);
+        const cancellationStatus = data.data?.cancellation_status || 'unknown';
+        alert(`✅ Shipment cancelled successfully!\n\nOrder ID: ${data.data.order_id}\nAWB Number: ${data.data.waybill}\nCancellation Status: ${cancellationStatus}\n\n${data.data.message || ''}`);
         
-        // Clear cache and refresh orders
+        // Clear cache and refresh orders to show the cancellation badge
         orderService.clearCache();
-        fetchOrders();
+        
+        // Small delay to ensure backend has saved the cancellation status
+        setTimeout(() => {
+          fetchOrders();
+        }, 500);
       } else {
         throw new Error(data.message || data.error || 'Failed to cancel shipment');
       }
@@ -633,11 +638,6 @@ const Orders: React.FC = () => {
   };
 
   const handlePrintLabel = async (orderId: string, orderDbId?: string, awb?: string) => {
-    if (!awb) {
-      alert('AWB number not available for printing label');
-      return;
-    }
-
     if (!orderDbId) {
       alert('Order ID not available');
       return;
@@ -649,8 +649,8 @@ const Orders: React.FC = () => {
       const apiUrl = environmentConfig.apiUrl;
       const token = localStorage.getItem('token');
 
-      // Fetch HTML with authentication token
-      const response = await fetch(`${apiUrl}/orders/${orderDbId}/label?format=html`, {
+      // Fetch comprehensive order details HTML with authentication token
+      const response = await fetch(`${apiUrl}/orders/${orderDbId}/print`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -660,7 +660,7 @@ const Orders: React.FC = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to generate label');
+        throw new Error(error.message || 'Failed to generate order print page');
       }
 
       // Get HTML content
@@ -681,15 +681,15 @@ const Orders: React.FC = () => {
           }, 1000);
         };
         
-        alert('✅ Shipping label opened in new window. Print dialog will open automatically.');
+        // Note: Print dialog will open automatically via script in HTML
       } else {
         URL.revokeObjectURL(blobUrl);
-        throw new Error('Popup blocked. Please allow popups for this site to print labels.');
+        throw new Error('Popup blocked. Please allow popups for this site to print order details.');
       }
 
     } catch (error: any) {
-      console.error('Print label error:', error);
-      alert(`❌ Failed to generate shipping label: ${error.message || 'Unknown error'}`);
+      console.error('Print order error:', error);
+      alert(`❌ Failed to generate order print page: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -1233,6 +1233,15 @@ const Orders: React.FC = () => {
                           <div className="awb-number">
                             <span className="awb-label">AWB:</span>
                             <span className="awb-value">{order.awb}</span>
+                            {/* Cancellation indicator - check both cancellation_status and cancellation_response */}
+                            {(order.delhivery_data?.cancellation_status === 'cancelled' || 
+                              order.delhivery_data?.cancellation_response?.status === true ||
+                              (order.delhivery_data?.cancellation_response?.remark && 
+                               order.delhivery_data.cancellation_response.remark.toLowerCase().includes('cancelled'))) && (
+                              <span className="cancelled-badge" title="Shipment Cancelled">
+                                🚫 Cancelled
+                              </span>
+                            )}
                             <button 
                               className="copy-awb-btn" 
                               title="Copy AWB"
@@ -1350,13 +1359,12 @@ const Orders: React.FC = () => {
                           ></button>
                         )}
                         
-                        {/* Print button - only visible if AWB exists */}
-                        {order.awb && (
-                          <button 
-                            className="action-icon-btn print-btn" 
-                            onClick={() => handlePrintLabel(order.orderId, order._id, order.awb)}
-                          ></button>
-                        )}
+                        {/* Print button - always visible to print all order details */}
+                        <button 
+                          className="action-icon-btn print-btn" 
+                          onClick={() => handlePrintLabel(order.orderId, order._id, order.awb)}
+                          title="Print Order Details"
+                        ></button>
                       </div>
                     </td>
                   </tr>
@@ -1371,6 +1379,7 @@ const Orders: React.FC = () => {
           isOpen={isAddOrderModalOpen}
           onClose={() => setIsAddOrderModalOpen(false)}
           onOrderCreated={handleOrderCreated}
+          orderType={orderType} // Pass the current order type (forward/reverse)
         />
 
         {/* Bulk Import Modal */}

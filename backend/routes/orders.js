@@ -17,6 +17,181 @@ const router = express.Router();
 // NOTE: Zone calculation removed - now using Delhivery API to get zone
 // Zone is fetched from Delhivery invoice/charges API response
 
+/**
+ * Helper function to deduct wallet and create transaction for order
+ * @param {Object} order - The order document
+ * @param {String} userId - User ID
+ * @param {String} awbNumber - Optional AWB number (for orders with AWB)
+ * @returns {Promise<Object>} - Returns { success: boolean, transaction: Transaction|null, error: string|null }
+ */
+async function deductWalletForOrder(order, userId, awbNumber = null) {
+  try {
+    const shippingCharges = order.payment_info?.shipping_charges || 0;
+    
+    if (shippingCharges <= 0) {
+      return { success: true, transaction: null, message: 'No shipping charges to deduct' };
+    }
+    
+    console.log('💳 DEDUCTING WALLET FOR ORDER', {
+      orderId: order.order_id,
+      shippingCharges,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Get current wallet balance
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const openingBalance = user.wallet_balance || 0;
+    
+    if (openingBalance < shippingCharges) {
+      console.error('❌ INSUFFICIENT WALLET BALANCE', {
+        orderId: order.order_id,
+        required: shippingCharges,
+        available: openingBalance,
+        timestamp: new Date().toISOString()
+      });
+      throw new Error(`Insufficient wallet balance. Required: ₹${shippingCharges}, Available: ₹${openingBalance}`);
+    }
+    
+    // Deduct from wallet
+    const closingBalance = openingBalance - shippingCharges;
+    user.wallet_balance = closingBalance;
+    await user.save();
+    
+    // Get zone from Delhivery API (optional, won't fail if it doesn't work)
+    let zone = null;
+    try {
+      // Calculate chargeable weight (in grams)
+      const volumetricWeightKg = (order.package_info.dimensions.length * 
+                                order.package_info.dimensions.width * 
+                                order.package_info.dimensions.height) / 5000;
+      const volumetricWeightGrams = volumetricWeightKg * 1000;
+      const actualWeightGrams = order.package_info.weight * 1000;
+      const chargeableWeightGrams = Math.max(actualWeightGrams, volumetricWeightGrams);
+      
+      // Get zone from Delhivery API
+      const zoneResult = await delhiveryService.getZoneFromDelhivery(
+        order.pickup_address.pincode,
+        order.delivery_address.pincode,
+        chargeableWeightGrams,
+        order.shipping_mode === 'Express' ? 'E' : 'S',
+        'Delivered',
+        order.payment_info.payment_mode === 'COD' ? 'COD' : 'Pre-paid'
+      );
+      
+      zone = zoneResult.success ? zoneResult.zone : null;
+      
+      logger.info('🌍 Zone retrieved from Delhivery for transaction', {
+        orderId: order.order_id,
+        zone: zone,
+        zoneResultSuccess: zoneResult.success,
+        chargeableWeightGrams: chargeableWeightGrams
+      });
+    } catch (zoneError) {
+      console.warn('⚠️ Zone retrieval failed (non-critical):', zoneError.message);
+      // Continue without zone - not critical for transaction
+    }
+    
+    // Create transaction record
+    const transaction = new Transaction({
+      transaction_id: `DR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+      user_id: userId,
+      transaction_type: 'debit',
+      transaction_category: 'shipping_charge',
+      amount: shippingCharges,
+      description: `Shipping charges for order ${order.order_id}`,
+      related_order_id: order._id,
+      status: 'completed',
+      transaction_date: new Date(),
+      balance_info: {
+        opening_balance: openingBalance,
+        closing_balance: closingBalance
+      },
+      order_info: {
+        order_id: order.order_id,
+        awb_number: awbNumber || null,
+        weight: order.package_info.weight * 1000, // Convert kg to grams
+        zone: zone || null,
+        order_date: order.order_date
+      }
+    });
+    
+    await transaction.save();
+    
+    // Send WebSocket notifications for wallet deduction
+    try {
+      // Notification for wallet deduction
+      websocketService.sendNotificationToClient(String(userId), {
+        type: 'wallet_deduction',
+        title: 'Wallet Deducted',
+        message: `₹${shippingCharges} deducted for order ${order.order_id}. New balance: ₹${closingBalance}`,
+        client_id: userId,
+        amount: shippingCharges,
+        transaction_type: 'debit',
+        new_balance: closingBalance,
+        order_id: order.order_id,
+        created_at: new Date()
+      });
+      
+      // Real-time wallet balance update
+      websocketService.sendNotificationToClient(String(userId), {
+        type: 'wallet_balance_update',
+        balance: closingBalance,
+        currency: 'INR',
+        previous_balance: openingBalance,
+        amount: shippingCharges,
+        transaction_id: transaction.transaction_id,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log('📡 WALLET NOTIFICATIONS SENT:', {
+        orderId: order.order_id,
+        transactionId: transaction.transaction_id,
+        userId: userId,
+        amount: shippingCharges,
+        closing_balance: closingBalance
+      });
+    } catch (notifError) {
+      console.error('Failed to send wallet notifications:', notifError);
+      // Don't fail wallet deduction if notifications fail
+    }
+    
+    console.log('✅ WALLET DEDUCTED SUCCESSFULLY', {
+      orderId: order.order_id,
+      transactionId: transaction.transaction_id,
+      amount: shippingCharges,
+      oldBalance: openingBalance,
+      newBalance: closingBalance,
+      zone: zone,
+      userCategory: user.user_category,
+      timestamp: new Date().toISOString()
+    });
+    
+    return { 
+      success: true, 
+      transaction: transaction, 
+      message: 'Wallet deducted successfully',
+      openingBalance,
+      closingBalance
+    };
+  } catch (error) {
+    console.error('❌ WALLET DEDUCTION FAILED', {
+      orderId: order.order_id,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    return { 
+      success: false, 
+      transaction: null, 
+      error: error.message 
+    };
+  }
+}
+
 // @desc    Get all orders with filters and pagination
 // @route   GET /api/orders
 // @access  Private
@@ -183,6 +358,78 @@ router.get('/track/:awb', auth, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error tracking shipment'
+    });
+  }
+});
+
+// @desc    Generate comprehensive shipping label with order details and Delhivery label data
+// @route   GET /api/orders/:id/print
+// @access  Private
+// NOTE: This route MUST come before /:id route to avoid conflicts
+router.get('/:id/print', auth, async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      _id: req.params.id,
+      user_id: req.user._id
+    }).populate('user_id', 'company_name your_name email phone_number')
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    // Get waybill from multiple possible locations
+    const waybill = order.delhivery_data?.waybill || 
+                    order.shipping_info?.awb_number || 
+                    order.awb ||
+                    order.waybill;
+
+    // Fetch Delhivery label data if waybill exists
+    let delhiveryLabelData = null;
+    if (waybill) {
+      try {
+        logger.info('🏷️ Fetching Delhivery label data for print', {
+          orderId: order._id,
+          waybill
+        });
+
+        const labelResult = await delhiveryService.generateShippingLabel(waybill);
+        if (labelResult.success && labelResult.json_data) {
+          delhiveryLabelData = labelResult.json_data;
+          logger.info('✅ Delhivery label data fetched successfully');
+        } else {
+          logger.warn('⚠️ Delhivery label data not available, will use order data only');
+        }
+      } catch (labelError) {
+        logger.warn('⚠️ Failed to fetch Delhivery label data', {
+          error: labelError.message,
+          waybill
+        });
+        // Continue without Delhivery data - use order data only
+      }
+    }
+
+    // Generate comprehensive HTML shipping label with all order details + Delhivery data
+    const html = generateShippingLabelHTML(order, delhiveryLabelData);
+
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(html);
+
+  } catch (error) {
+    logger.error('❌ Generate order print error', {
+      orderId: req.params.id,
+      userId: req.user._id,
+      error: error.message,
+      stack: error.stack
+    });
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to generate order print page',
+      error: error.message
     });
   }
 });
@@ -588,6 +835,7 @@ router.post('/', auth, [
       },
       
       shipping_mode: req.body.shipping_mode || 'Surface',
+      order_type: req.body.order_type || 'forward', // Use 'forward' or 'reverse' from request
       status: 'new'
     };
 
@@ -829,146 +1077,16 @@ router.post('/', auth, [
           }
           
           // Deduct wallet and create transaction AFTER successful order save
-          try {
-            const shippingCharges = order.payment_info.shipping_charges || 0;
-            
-            if (shippingCharges > 0) {
-              console.log('💳 DEDUCTING WALLET FOR ORDER', {
-                orderId: order.order_id,
-                shippingCharges,
-                timestamp: new Date().toISOString()
-              });
-              
-              // Get current wallet balance
-              const user = await User.findById(userId);
-              const openingBalance = user.wallet_balance || 0;
-              
-              if (openingBalance < shippingCharges) {
-                console.error('❌ INSUFFICIENT WALLET BALANCE', {
-                  orderId: order.order_id,
-                  required: shippingCharges,
-                  available: openingBalance,
-                  timestamp: new Date().toISOString()
-                });
-                throw new Error('Insufficient wallet balance');
-              }
-              
-              // Deduct from wallet
-              const closingBalance = openingBalance - shippingCharges;
-              user.wallet_balance = closingBalance;
-              await user.save();
-              
-              // Get zone from Delhivery API
-              // Calculate chargeable weight (in grams)
-              // NOTE: order.package_info.weight is stored in kg (from order creation form)
-              // Volumetric weight calculation: (LxBxH)/5000 gives kg, then convert to grams
-              const volumetricWeightKg = (order.package_info.dimensions.length * 
-                                        order.package_info.dimensions.width * 
-                                        order.package_info.dimensions.height) / 5000;
-              const volumetricWeightGrams = volumetricWeightKg * 1000; // Convert kg to grams
-              const actualWeightGrams = order.package_info.weight * 1000; // Convert kg to grams
-              const chargeableWeightGrams = Math.max(actualWeightGrams, volumetricWeightGrams);
-              
-              // Get zone from Delhivery API
-              const zoneResult = await delhiveryService.getZoneFromDelhivery(
-                order.pickup_address.pincode,
-                order.delivery_address.pincode,
-                chargeableWeightGrams,
-                order.shipping_mode === 'Express' ? 'E' : 'S', // Billing mode
-                'Delivered', // Shipment status
-                order.payment_info.payment_mode === 'COD' ? 'COD' : 'Pre-paid' // Payment type
-              );
-              
-              const zone = zoneResult.success ? zoneResult.zone : null;
-              
-              logger.info('🌍 Zone retrieved from Delhivery for transaction', {
-                orderId: order.order_id,
-                zone: zone,
-                zoneResultSuccess: zoneResult.success,
-                chargeableWeightGrams: chargeableWeightGrams
-              });
-              
-              // Create transaction record
-              const transaction = new Transaction({
-                transaction_id: `DR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
-                user_id: userId,
-                transaction_type: 'debit',
-                transaction_category: 'shipping_charge',
-                amount: shippingCharges,
-                description: `Shipping charges for order ${order.order_id}`,
-                related_order_id: order._id,
-                status: 'completed',
-                transaction_date: new Date(),
-                balance_info: {
-                  opening_balance: openingBalance,
-                  closing_balance: closingBalance
-                },
-                order_info: {
-                  order_id: order.order_id,
-                  awb_number: awbNumber,
-                  weight: order.package_info.weight * 1000, // Convert kg to grams
-                  zone: zone || null, // Zone from Delhivery API
-                  order_date: order.order_date
-                }
-              });
-              
-              await transaction.save();
-              
-              // Send WebSocket notifications for wallet deduction
-              try {
-                // Notification for wallet deduction
-                websocketService.sendNotificationToClient(String(userId), {
-                  type: 'wallet_deduction',
-                  title: 'Wallet Deducted',
-                  message: `₹${shippingCharges} deducted for order ${order.order_id}. New balance: ₹${closingBalance}`,
-                  client_id: userId,
-                  amount: shippingCharges,
-                  transaction_type: 'debit',
-                  new_balance: closingBalance,
-                  order_id: order.order_id,
-                  created_at: new Date()
-                });
-                
-                // Real-time wallet balance update
-                websocketService.sendNotificationToClient(String(userId), {
-                  type: 'wallet_balance_update',
-                  balance: closingBalance,
-                  currency: 'INR',
-                  previous_balance: openingBalance,
-                  amount: shippingCharges,
-                  transaction_id: transaction.transaction_id,
-                  timestamp: new Date().toISOString()
-                });
-                
-                console.log('📡 WALLET NOTIFICATIONS SENT:', {
-                  orderId: order.order_id,
-                  transactionId: transaction.transaction_id,
-                  userId: userId,
-                  amount: shippingCharges,
-                  closing_balance: closingBalance
-                });
-              } catch (notifError) {
-                console.error('Failed to send wallet notifications:', notifError);
-              }
-              
-              console.log('✅ WALLET DEDUCTED SUCCESSFULLY', {
-                orderId: order.order_id,
-                transactionId: transaction.transaction_id,
-                amount: shippingCharges,
-                oldBalance: openingBalance,
-                newBalance: closingBalance,
-                zone: zone,
-                userCategory: user.user_category,
-                timestamp: new Date().toISOString()
-              });
-            }
-          } catch (walletError) {
+          const walletResult = await deductWalletForOrder(order, userId, awbNumber);
+          if (!walletResult.success) {
             console.error('❌ WALLET DEDUCTION FAILED', {
               orderId: order.order_id,
-              error: walletError.message,
+              error: walletResult.error,
               timestamp: new Date().toISOString()
             });
-            // Don't fail the order creation if wallet deduction fails
+            // Log error but don't fail order creation - order is already saved
+            // This allows the order to exist even if wallet deduction fails
+            // Admin can manually process the wallet deduction if needed
           }
           
           console.log('✅ Shipment created successfully for order:', order.order_id, 'AWB:', awbNumber);
@@ -1098,6 +1216,20 @@ router.post('/', auth, [
           timestamp: new Date().toISOString()
         });
         // Don't fail the order creation if customer creation fails
+      }
+      
+      // Deduct wallet and create transaction AFTER successful order save (for "Save" button flow)
+      // Note: AWB is null for orders saved without AWB generation
+      const walletResult = await deductWalletForOrder(order, userId, null);
+      if (!walletResult.success) {
+        console.error('❌ WALLET DEDUCTION FAILED', {
+          orderId: order.order_id,
+          error: walletResult.error,
+          timestamp: new Date().toISOString()
+        });
+        // Log error but don't fail order creation - order is already saved
+        // This allows the order to exist even if wallet deduction fails
+        // Admin can manually process the wallet deduction if needed
       }
     }
 
@@ -1881,6 +2013,285 @@ router.get('/:id/label', auth, async (req, res) => {
   }
 });
 
+function generateShippingLabelHTML(order, delhiveryLabelData = null) {
+  // Parse Delhivery label data to extract package information
+  let pkg = null;
+  if (delhiveryLabelData) {
+    try {
+      // Try to extract package data from Delhivery response (same logic as labelRenderer)
+      if (Array.isArray(delhiveryLabelData)) {
+        pkg = delhiveryLabelData[0];
+      } else if (delhiveryLabelData.packages && Array.isArray(delhiveryLabelData.packages)) {
+        pkg = delhiveryLabelData.packages[0];
+      } else if (typeof delhiveryLabelData === 'object') {
+        const keys = Object.keys(delhiveryLabelData);
+        if (keys.length > 0) {
+          const waybillKey = keys.find(k => /^\d{10,}$/.test(k));
+          if (waybillKey) {
+            pkg = delhiveryLabelData[waybillKey];
+          } else {
+            pkg = delhiveryLabelData[keys[0]];
+          }
+        }
+        if (!pkg && delhiveryLabelData.Wbn) {
+          pkg = delhiveryLabelData;
+        }
+      }
+    } catch (parseError) {
+      logger.warn('⚠️ Error parsing Delhivery label data', { error: parseError.message });
+    }
+  }
+
+  // Extract data - prefer Delhivery data, fallback to MongoDB order data
+  const waybill = pkg?.Wbn || pkg?.waybill || order.delhivery_data?.waybill || order.shipping_info?.awb_number || order.awb || order.waybill || 'N/A';
+  const barcodeImage = pkg?.Barcode || pkg?.barcode || pkg?.barcode_image || '';
+  const delhiveryLogo = pkg?.['Delhivery logo'] || pkg?.logo || '';
+  const sortCode = pkg?.['Sort code'] || pkg?.sortCode || 'N/A';
+  
+  // Customer/Delivery info - prefer Delhivery, fallback to MongoDB
+  const customerName = pkg?.Name || order.customer_info?.buyer_name || 'N/A';
+  const customerPhone = pkg?.Cnph || order.customer_info?.phone || 'N/A';
+  const customerEmail = order.customer_info?.email || '';
+  const deliveryAddress = pkg?.Address || order.delivery_address?.full_address || 'N/A';
+  const deliveryCity = pkg?.['Destination city'] || order.delivery_address?.city || 'N/A';
+  const deliveryState = pkg?.['Customer state'] || order.delivery_address?.state || 'N/A';
+  const deliveryPincode = pkg?.Pin || order.delivery_address?.pincode || 'N/A';
+  const deliveryLandmark = order.delivery_address?.landmark || '';
+  
+  // Origin/Pickup info - prefer Delhivery, fallback to MongoDB
+  const originName = pkg?.Origin || order.pickup_address?.name || 'N/A';
+  const originAddress = pkg?.Sadd || order.pickup_address?.full_address || 'N/A';
+  const originCity = pkg?.['Origin city'] || order.pickup_address?.city || 'N/A';
+  const originState = pkg?.['Origin state'] || order.pickup_address?.state || 'N/A';
+  const originPincode = pkg?.Rpin || order.pickup_address?.pincode || 'N/A';
+  
+  // Product/Package info
+  const productName = pkg?.Prd || (order.products && order.products[0]?.product_name) || 'N/A';
+  const productDescription = order.products && order.products[0]?.product_description || '';
+  const quantity = pkg?.Qty || (order.products && order.products[0]?.quantity) || 1;
+  const weight = pkg?.Weight || order.package_info?.weight || '0';
+  const dimensions = order.package_info?.dimensions ? 
+    `${order.package_info.dimensions.length} x ${order.package_info.dimensions.width} x ${order.package_info.dimensions.height} cm` : 
+    'N/A';
+  
+  // Payment info
+  const paymentMode = pkg?.Pt || order.payment_info?.payment_mode || 'Prepaid';
+  const codAmount = pkg?.Cod || (order.payment_info?.payment_mode === 'COD' ? order.payment_info?.cod_amount : 0);
+  const orderValue = order.payment_info?.order_value || 0;
+  const shippingCharges = order.payment_info?.shipping_charges || 0;
+  const totalAmount = order.payment_info?.total_amount || 0;
+  
+  // Shipping mode
+  const shippingMode = pkg?.Mot || order.shipping_mode || 'Surface';
+  
+  // Order details
+  const orderId = pkg?.Oid || order.order_id || 'N/A';
+  const referenceId = order.reference_id || '';
+  const invoiceRef = pkg?.['Invoice reference'] || order.invoice_number || 'N/A';
+  
+  const formatCurrency = (amount) => {
+    if (!amount) return '₹0.00';
+    return `₹${parseFloat(amount).toFixed(2)}`;
+  };
+
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleString('en-IN', { 
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping Label - ${orderId}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background: white;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+    .label-container {
+      width: 4in;
+      min-height: 6in;
+      border: 2px solid #000;
+      padding: 10px;
+      margin: 0 auto;
+      background: white;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .logo {
+      max-width: 120px;
+      height: auto;
+      margin-bottom: 5px;
+    }
+    .awb-section {
+      text-align: center;
+      margin: 12px 0;
+      padding: 8px;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+    }
+    .awb-number {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 5px 0;
+      letter-spacing: 1px;
+    }
+    .barcode-section {
+      text-align: center;
+      margin: 12px 0;
+    }
+    .barcode-image {
+      max-width: 100%;
+      height: auto;
+    }
+    .info-section {
+      border: 1px solid #000;
+      margin: 8px 0;
+      padding: 8px;
+      font-size: 9px;
+    }
+    .info-title {
+      font-weight: bold;
+      font-size: 11px;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 3px;
+      text-transform: uppercase;
+    }
+    .info-row {
+      margin: 3px 0;
+      line-height: 1.4;
+    }
+    .destination {
+      font-size: 13px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    .order-details {
+      font-size: 9px;
+      margin-top: 5px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 8px;
+      border-top: 1px solid #ccc;
+      padding-top: 5px;
+    }
+    @media print {
+      body { padding: 0; }
+      .label-container { border: 2px solid #000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="label-container">
+    <!-- Header with Logo -->
+    <div class="header">
+      ${delhiveryLogo ? `<img src="${delhiveryLogo}" class="logo" alt="Delhivery">` : '<div style="font-size: 14px; font-weight: bold;">DELHIVERY</div>'}
+      <div style="margin-top: 5px; font-size: 10px; font-weight: bold;">SHIPPING LABEL</div>
+    </div>
+
+    <!-- AWB Number -->
+    <div class="awb-section">
+      <div style="font-size: 9px; font-weight: bold;">AWB NUMBER</div>
+      <div class="awb-number">${waybill}</div>
+      ${sortCode !== 'N/A' ? `<div style="font-size: 9px;">Sort Code: ${sortCode}</div>` : ''}
+    </div>
+
+    <!-- Barcode -->
+    ${barcodeImage ? `
+    <div class="barcode-section">
+      <img src="${barcodeImage}" class="barcode-image" alt="Barcode">
+    </div>
+    ` : ''}
+
+    <!-- Origin Info -->
+    <div class="info-section">
+      <div class="info-title">FROM (ORIGIN)</div>
+      <div class="info-row"><strong>${originName}</strong></div>
+      <div class="info-row">${originAddress}</div>
+      <div class="info-row">${originCity}, ${originState} - ${originPincode}</div>
+    </div>
+
+    <!-- Destination Info -->
+    <div class="info-section">
+      <div class="info-title">TO (DESTINATION)</div>
+      <div class="info-row destination">${customerName}</div>
+      <div class="info-row">${deliveryAddress}</div>
+      ${deliveryLandmark ? `<div class="info-row">Landmark: ${deliveryLandmark}</div>` : ''}
+      <div class="info-row"><strong>${deliveryCity}, ${deliveryState} - ${deliveryPincode}</strong></div>
+      <div class="info-row">Phone: ${customerPhone}</div>
+      ${customerEmail ? `<div class="info-row">Email: ${customerEmail}</div>` : ''}
+    </div>
+
+    <!-- Package Details -->
+    <div class="info-section">
+      <div class="info-title">PACKAGE DETAILS</div>
+      <div class="info-row"><strong>Order ID:</strong> ${orderId}</div>
+      ${referenceId ? `<div class="info-row"><strong>Reference ID:</strong> ${referenceId}</div>` : ''}
+      <div class="info-row"><strong>Invoice:</strong> ${invoiceRef}</div>
+      <div class="info-row"><strong>Product:</strong> ${productName}</div>
+      ${productDescription ? `<div class="info-row">${productDescription}</div>` : ''}
+      <div class="info-row"><strong>Weight:</strong> ${weight} kg | <strong>Qty:</strong> ${quantity}</div>
+      ${dimensions !== 'N/A' ? `<div class="info-row"><strong>Dimensions:</strong> ${dimensions}</div>` : ''}
+      <div class="info-row"><strong>Payment:</strong> ${paymentMode} ${codAmount > 0 ? `- COD: ${formatCurrency(codAmount)}` : ''}</div>
+      <div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>
+      ${shippingCharges > 0 ? `<div class="info-row"><strong>Shipping Charges:</strong> ${formatCurrency(shippingCharges)}</div>` : ''}
+      ${totalAmount > 0 ? `<div class="info-row"><strong>Total Amount:</strong> ${formatCurrency(totalAmount)}</div>` : ''}
+      <div class="info-row"><strong>Mode:</strong> ${shippingMode}</div>
+    </div>
+
+    <!-- Additional Order Info (if available) -->
+    ${order.order_type ? `
+    <div class="info-section">
+      <div class="info-title">ORDER INFORMATION</div>
+      <div class="info-row"><strong>Order Type:</strong> ${order.order_type === 'forward' ? 'Forward' : 'Reverse (RTO)'}</div>
+      <div class="info-row"><strong>Status:</strong> ${order.status ? order.status.replace(/_/g, ' ').toUpperCase() : 'N/A'}</div>
+      ${order.order_date ? `<div class="info-row"><strong>Order Date:</strong> ${formatDate(order.order_date)}</div>` : ''}
+    </div>
+    ` : ''}
+
+    <!-- Footer -->
+    <div class="footer">
+      <div style="margin-bottom: 3px;"><strong>Track Your Package:</strong></div>
+      <div>https://track.delhivery.com/track/package/${waybill}</div>
+      ${order.user_id?.company_name ? `<div style="margin-top: 5px; font-size: 8px;">Seller: ${order.user_id.company_name}</div>` : ''}
+      <div style="margin-top: 5px; font-size: 7px;">Generated on ${formatDate(new Date())}</div>
+    </div>
+  </div>
+
+  <!-- Auto-print script -->
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    };
+  </script>
+</body>
+</html>
+  `;
+}
+
 // @desc    Request pickup for an order
 // @route   POST /api/orders/:id/request-pickup
 // @access  Private
@@ -2112,20 +2523,75 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
       });
     }
 
+    // Only proceed if Delhivery API confirms successful cancellation
+    // Check Delhivery response data to confirm cancellation
+    // Delhivery response format: { status: true, waybill: "...", remark: "Shipment has been cancelled.", order_id: "..." }
+    const delhiveryResponse = cancelResult.data || {};
+    
+    // Log the response for debugging
+    logger.info('📋 Delhivery cancellation response received', {
+      orderId: order.order_id,
+      waybill: waybill,
+      cancelResultSuccess: cancelResult.success,
+      delhiveryResponse: delhiveryResponse,
+      hasStatus: delhiveryResponse.hasOwnProperty('status'),
+      statusValue: delhiveryResponse.status,
+      hasRemark: delhiveryResponse.hasOwnProperty('remark'),
+      remarkValue: delhiveryResponse.remark,
+      cancelResultMessage: cancelResult.message
+    });
+    
+    // Check if Delhivery API confirms cancellation
+    // Delhivery returns: { status: true, waybill: "...", remark: "Shipment has been cancelled.", order_id: "..." }
+    const isCancelled = cancelResult.success && (
+      delhiveryResponse.status === true ||
+      delhiveryResponse.status === 'true' ||
+      delhiveryResponse.status === 1 ||
+      (delhiveryResponse.remark && typeof delhiveryResponse.remark === 'string' && delhiveryResponse.remark.toLowerCase().includes('cancelled')) ||
+      (delhiveryResponse.message && typeof delhiveryResponse.message === 'string' && delhiveryResponse.message.toLowerCase().includes('cancelled')) ||
+      (cancelResult.message && typeof cancelResult.message === 'string' && cancelResult.message.toLowerCase().includes('cancelled'))
+    );
+
+    if (!isCancelled) {
+      logger.warn('⚠️ Delhivery API response does not confirm cancellation', {
+        orderId: order.order_id,
+        waybill: waybill,
+        delhiveryResponse: delhiveryResponse,
+        cancelResultMessage: cancelResult.message
+      });
+      
+      // Still return success if API call was successful, but don't mark as cancelled
+      return res.status(200).json({
+        status: 'success',
+        message: cancelResult.message || 'Cancellation request sent, but confirmation pending',
+        data: {
+          order_id: order.order_id,
+          waybill: waybill,
+          cancellation_status: 'pending',
+          delhivery_response: delhiveryResponse
+        }
+      });
+    }
+
     // Update order status based on cancellation result
     // According to Delhivery docs:
     // - If Manifested before pickup: status stays Manifested, status_type becomes UD (Undelivered)
     // - If In Transit or Pending: status stays In Transit, status_type becomes RT (Return to Origin)
     // - If Scheduled: status updates to Canceled, status_type becomes CN (Cancellation)
     
-    // Update delhivery_data with cancellation info
+    // Update delhivery_data with cancellation info from Delhivery API response
     if (!order.delhivery_data) {
       order.delhivery_data = {};
     }
     
+    // Set cancellation status based on Delhivery API response confirmation
+    // Only mark as cancelled if Delhivery API explicitly confirms it
     order.delhivery_data.cancellation_status = 'cancelled';
     order.delhivery_data.cancellation_date = new Date();
-    order.delhivery_data.cancellation_message = cancelResult.message;
+    order.delhivery_data.cancellation_message = cancelResult.message || delhiveryResponse.remark || delhiveryResponse.message || 'Shipment cancelled successfully';
+    
+    // Store the full Delhivery response for reference and verification
+    order.delhivery_data.cancellation_response = delhiveryResponse;
 
     // Update order status based on current status
     // If order is in pickups_manifests (scheduled), mark as cancelled
@@ -2141,7 +2607,200 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
       order.delhivery_data.status_type = 'UD'; // Undelivered
     }
 
+    // CRITICAL: Mark nested object as modified so Mongoose detects the change
+    // Mongoose doesn't detect changes to nested objects automatically
+    order.markModified('delhivery_data');
+    
+    // IMPORTANT: Save order FIRST to ensure cancellation_status is persisted
     await order.save();
+    
+    // Reload order from database to verify save was successful
+    const savedOrder = await Order.findById(order._id).lean();
+    if (!savedOrder) {
+      logger.error('❌ Order not found after save', {
+        orderId: order.order_id,
+        orderDbId: order._id
+      });
+      throw new Error('Order not found after save');
+    }
+    
+    // Verify cancellation status was saved
+    if (!savedOrder.delhivery_data || savedOrder.delhivery_data.cancellation_status !== 'cancelled') {
+      logger.error('❌ Order cancellation status not saved correctly', {
+        orderId: order.order_id,
+        savedCancellationStatus: savedOrder.delhivery_data?.cancellation_status,
+        hasDelhiveryData: !!savedOrder.delhivery_data,
+        delhiveryDataKeys: savedOrder.delhivery_data ? Object.keys(savedOrder.delhivery_data) : [],
+        expected: 'cancelled'
+      });
+      
+      // Try alternative save method: Update directly in database using $set
+      try {
+        logger.info('🔄 Attempting direct database update with $set', {
+          orderId: order.order_id,
+          orderDbId: order._id.toString(),
+          cancellationStatus: 'cancelled',
+          statusType: order.delhivery_data.status_type
+        });
+
+        const updateResult = await Order.updateOne(
+          { _id: order._id },
+          { 
+            $set: { 
+              'delhivery_data.cancellation_status': 'cancelled',
+              'delhivery_data.cancellation_date': new Date(),
+              'delhivery_data.cancellation_message': cancelResult.message || delhiveryResponse.remark || delhiveryResponse.message || 'Shipment cancelled successfully',
+              'delhivery_data.cancellation_response': delhiveryResponse,
+              'delhivery_data.status_type': order.delhivery_data.status_type
+            }
+          }
+        );
+
+        logger.info('📊 Direct update result', {
+          orderId: order.order_id,
+          matchedCount: updateResult.matchedCount,
+          modifiedCount: updateResult.modifiedCount,
+          acknowledged: updateResult.acknowledged
+        });
+        
+        // Verify again after direct update
+        const updatedOrder = await Order.findById(order._id).lean();
+        if (updatedOrder?.delhivery_data?.cancellation_status === 'cancelled') {
+          logger.info('✅ Cancellation status saved using direct update method', {
+            orderId: order.order_id,
+            cancellationStatus: updatedOrder.delhivery_data.cancellation_status
+          });
+          // Update the order object for subsequent operations
+          order.delhivery_data = updatedOrder.delhivery_data;
+        } else {
+          // Log detailed error for debugging
+          logger.error('❌ Direct update verification failed', {
+            orderId: order.order_id,
+            hasDelhiveryData: !!updatedOrder?.delhivery_data,
+            cancellationStatus: updatedOrder?.delhivery_data?.cancellation_status,
+            allKeys: updatedOrder?.delhivery_data ? Object.keys(updatedOrder.delhivery_data) : [],
+            updateResult: await Order.findById(order._id).select('delhivery_data.cancellation_status').lean()
+          });
+          throw new Error('Direct update also failed to save cancellation status');
+        }
+      } catch (updateError) {
+        logger.error('❌ Direct update also failed', {
+          orderId: order.order_id,
+          error: updateError.message
+        });
+        throw new Error('Failed to save cancellation status to database after multiple attempts');
+      }
+    } else {
+      logger.info('✅ Cancellation status verified after save', {
+        orderId: order.order_id,
+        cancellationStatus: savedOrder.delhivery_data.cancellation_status
+      });
+    }
+
+    // Refund shipping charges to wallet if order was cancelled
+    // Only refund if shipping charges were deducted earlier
+    try {
+      const shippingCharges = order.payment_info?.shipping_charges || 0;
+      
+      if (shippingCharges > 0) {
+        logger.info('💰 Refunding shipping charges to wallet', {
+          orderId: order.order_id,
+          shippingCharges,
+          userId: userId.toString()
+        });
+
+        // Get current wallet balance
+        const user = await User.findById(userId);
+        if (!user) {
+          throw new Error('User not found for wallet refund');
+        }
+
+        const openingBalance = user.wallet_balance || 0;
+        const closingBalance = openingBalance + shippingCharges;
+
+        // Credit wallet
+        user.wallet_balance = closingBalance;
+        await user.save();
+
+        // Create credit transaction record
+        const refundTransaction = new Transaction({
+          transaction_id: `CR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+          user_id: userId,
+          transaction_type: 'credit',
+          transaction_category: 'shipment_cancellation_refund',
+          amount: shippingCharges,
+          description: `Refund for cancelled shipment - Order ${order.order_id}`,
+          related_order_id: order._id,
+          status: 'completed',
+          transaction_date: new Date(),
+          balance_info: {
+            opening_balance: openingBalance,
+            closing_balance: closingBalance
+          },
+          order_info: {
+            order_id: order.order_id,
+            awb_number: waybill,
+            weight: order.package_info?.weight * 1000 || 0,
+            zone: order.delhivery_data?.status_type || null,
+            order_date: order.order_date
+          }
+        });
+
+        await refundTransaction.save();
+
+        // Send WebSocket notifications for wallet refund
+        try {
+          websocketService.sendNotificationToClient(String(userId), {
+            type: 'wallet_refund',
+            title: 'Wallet Refunded',
+            message: `₹${shippingCharges} refunded for cancelled shipment ${order.order_id}. New balance: ₹${closingBalance}`,
+            client_id: userId,
+            amount: shippingCharges,
+            transaction_type: 'credit',
+            new_balance: closingBalance,
+            order_id: order.order_id,
+            created_at: new Date()
+          });
+
+          websocketService.sendNotificationToClient(String(userId), {
+            type: 'wallet_balance_update',
+            balance: closingBalance,
+            currency: 'INR',
+            previous_balance: openingBalance,
+            amount: shippingCharges,
+            transaction_id: refundTransaction.transaction_id,
+            timestamp: new Date().toISOString()
+          });
+
+          logger.info('📡 Wallet refund notifications sent', {
+            orderId: order.order_id,
+            transactionId: refundTransaction.transaction_id,
+            amount: shippingCharges,
+            closingBalance: closingBalance
+          });
+        } catch (notifError) {
+          logger.error('Failed to send wallet refund notifications:', notifError);
+          // Don't fail refund if notifications fail
+        }
+
+        logger.info('✅ Wallet refunded successfully', {
+          orderId: order.order_id,
+          transactionId: refundTransaction.transaction_id,
+          amount: shippingCharges,
+          oldBalance: openingBalance,
+          newBalance: closingBalance
+        });
+      }
+    } catch (walletError) {
+      logger.error('❌ WALLET REFUND FAILED', {
+        orderId: order.order_id,
+        error: walletError.message,
+        stack: walletError.stack,
+        timestamp: new Date().toISOString()
+      });
+      // Don't fail cancellation if refund fails - log error but continue
+      // Admin can manually process refund if needed
+    }
 
     logger.info('✅ Shipment cancelled successfully', {
       orderId: order.order_id,
@@ -2159,8 +2818,8 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
         cancellation_status: order.delhivery_data.cancellation_status,
         cancellation_date: order.delhivery_data.cancellation_date,
         status_type: order.delhivery_data.status_type,
-        message: cancelResult.message,
-        delhivery_response: cancelResult.data
+        message: order.delhivery_data.cancellation_message,
+        delhivery_response: delhiveryResponse
       }
     });
 

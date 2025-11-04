@@ -26,6 +26,7 @@ const transactionSchema = new mongoose.Schema({
       'shipping_charge',
       'cod_remittance',
       'refund',
+      'shipment_cancellation_refund',
       'penalty',
       'bonus',
       'cashback',

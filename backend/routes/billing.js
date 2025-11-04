@@ -81,9 +81,31 @@ router.get('/wallet-transactions', auth, async (req, res) => {
         // Get user info for account details
         const user = await User.findById(req.user._id).select('email your_name');
 
+        // Build filter query
+        const filterQuery = { user_id: req.user._id };
+
+        // Filter by transaction type if provided
+        if (req.query.type && req.query.type !== 'all') {
+            filterQuery.transaction_type = req.query.type;
+        }
+
+        // Filter by date range if provided
+        if (req.query.date_from || req.query.date_to) {
+            filterQuery.transaction_date = {};
+            if (req.query.date_from) {
+                filterQuery.transaction_date.$gte = new Date(req.query.date_from);
+            }
+            if (req.query.date_to) {
+                // Add one day to include the entire end date
+                const endDate = new Date(req.query.date_to);
+                endDate.setDate(endDate.getDate() + 1);
+                filterQuery.transaction_date.$lt = endDate;
+            }
+        }
+
         // Get transactions with populated order info
         const [transactions, totalCount] = await Promise.all([
-            Transaction.find({ user_id: req.user._id })
+            Transaction.find(filterQuery)
                 .sort({ transaction_date: -1 })
                 .skip(skip)
                 .limit(limit)
@@ -93,7 +115,7 @@ router.get('/wallet-transactions', auth, async (req, res) => {
                     model: 'Order'
                 })
                 .lean(),
-            Transaction.countDocuments({ user_id: req.user._id })
+            Transaction.countDocuments(filterQuery)
         ]);
 
         // Calculate wallet summary

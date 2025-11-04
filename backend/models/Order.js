@@ -329,8 +329,28 @@ const delhiverySchema = new mongoose.Schema({
   },
   pickup_request_time: {
     type: String
+  },
+  // Cancellation fields
+  cancellation_status: {
+    type: String,
+    enum: ['cancelled', 'pending', null],
+    default: null
+  },
+  cancellation_date: {
+    type: Date
+  },
+  cancellation_message: {
+    type: String
+  },
+  cancellation_response: {
+    type: mongoose.Schema.Types.Mixed // Store full Delhivery response
+  },
+  status_type: {
+    type: String,
+    enum: ['CN', 'RT', 'UD', null], // CN = Cancellation, RT = Return to Origin, UD = Undelivered
+    default: null
   }
-}, { _id: false });
+}, { _id: false, strict: false }); // Allow additional fields beyond schema
 
 // MPS (Multi Package Shipment) Schema
 const mpsSchema = new mongoose.Schema({

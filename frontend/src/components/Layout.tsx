@@ -305,6 +305,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           }
         };
         fetchUpdatedProfile();
+      } else if (notification.type === 'avatar_updated') {
+        console.log('🖼️ AVATAR UPDATED NOTIFICATION:', notification);
+        // Refresh user profile to get updated avatar
+        const fetchUpdatedProfile = async () => {
+          try {
+            const response = await userService.getUserProfile();
+            setUserProfile(response.data);
+            console.log('✅ User profile refreshed after avatar update:', response.data);
+          } catch (error) {
+            console.error('Failed to refresh user profile after avatar update:', error);
+          }
+        };
+        fetchUpdatedProfile();
       }
     });
 
@@ -319,7 +332,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/tools', icon: '🔧', label: 'Tools' },
     { path: '/billing', icon: '💳', label: 'Billing' },
     { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies' },
-    { path: '/price-list', icon: '💰', label: 'Price List' },
     { path: '/warehouse', icon: '🏢', label: 'Warehouse' },
     { path: '/channel', icon: '🔗', label: 'Channel' },
     { path: '/support', icon: '🎧', label: 'Support' },
@@ -414,6 +426,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               {loading && !userProfile ? (
                 <div className="user-avatar-loading">...</div>
+              ) : userProfile?.avatar_url ? (
+                <img 
+                  src={userProfile.avatar_url} 
+                  alt="Profile Avatar" 
+                  className="avatar-image"
+                  onError={(e) => {
+                    // Fallback to initials if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      const span = document.createElement('span');
+                      span.className = 'avatar-initials';
+                      span.textContent = userProfile?.initials || 
+                                        (userProfile?.your_name?.charAt(0).toUpperCase() || 
+                                         userProfile?.company_name?.charAt(0).toUpperCase() || 
+                                         'U');
+                      parent.appendChild(span);
+                    }
+                  }}
+                />
               ) : (
                 <span className="avatar-initials">
                   {userProfile?.initials || 

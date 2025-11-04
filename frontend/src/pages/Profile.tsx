@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { userService, UserProfile } from '../services/userService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Profile.css';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showApiKeys, setShowApiKeys] = useState(false);
@@ -14,6 +15,13 @@ const Profile: React.FC = () => {
   useEffect(() => {
     fetchUserProfile();
   }, []);
+
+  // Refresh profile when navigating back to this page (e.g., from settings)
+  useEffect(() => {
+    if (location.pathname === '/profile') {
+      fetchUserProfile();
+    }
+  }, [location.pathname]);
 
   const fetchUserProfile = async () => {
     try {
@@ -105,7 +113,27 @@ const Profile: React.FC = () => {
         <div className="profile-header-section">
           <div className="profile-avatar-section">
             <div className="profile-avatar-large">
-              <span className="avatar-text">{initials}</span>
+              {user.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt="Profile Avatar" 
+                  className="avatar-image"
+                  onError={(e) => {
+                    // Fallback to initials if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      const span = document.createElement('span');
+                      span.className = 'avatar-text';
+                      span.textContent = initials;
+                      parent.appendChild(span);
+                    }
+                  }}
+                />
+              ) : (
+                <span className="avatar-text">{initials}</span>
+              )}
             </div>
             <div className="profile-info-header">
               <h1 className="profile-name">{user.company_name || 'Your Company'}</h1>
