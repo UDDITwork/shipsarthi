@@ -504,92 +504,9 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     return '';
   };
 
-  // Auto-calculate shipping charges when relevant fields change
-  // Uses Delhivery API to get zone, then calculates from our rate card
-  useEffect(() => {
-    const autoCalculateShipping = async () => {
-      // Only calculate if we have minimum required data
-      if (
-        !formData.delivery_address.pincode || formData.delivery_address.pincode.length !== 6 ||
-        !formData.pickup_address.pincode || formData.pickup_address.pincode.length !== 6 ||
-        !formData.package_info.weight || formData.package_info.weight <= 0
-      ) {
-        return;
-      }
-
-      try {
-        setCalculatingShipping(true);
-        
-        const weightInGrams = formData.package_info.weight * 1000; // Convert kg to grams
-        
-        // Validate dimensions before API call
-        if (
-          !formData.package_info.dimensions.length || formData.package_info.dimensions.length <= 0 ||
-          !formData.package_info.dimensions.width || formData.package_info.dimensions.width <= 0 ||
-          !formData.package_info.dimensions.height || formData.package_info.dimensions.height <= 0
-        ) {
-          console.warn('⚠️ Invalid dimensions, skipping shipping calculation');
-          return;
-        }
-        
-        // Call backend API with pincodes - backend will get zone from Delhivery API
-        const calculationRequest: ShippingCalculationRequest = {
-          weight: weightInGrams, // Weight in grams
-          dimensions: {
-            length: formData.package_info.dimensions.length,
-            breadth: formData.package_info.dimensions.width,
-            height: formData.package_info.dimensions.height
-          },
-          // Don't provide zone - let backend get it from Delhivery API using pincodes
-          pickup_pincode: formData.pickup_address.pincode,
-          delivery_pincode: formData.delivery_address.pincode,
-          shipping_mode: (formData.shipping_mode || 'Surface') as 'Surface' | 'Express' | 'S' | 'E',
-          payment_mode: formData.payment_info.payment_mode as 'Prepaid' | 'COD' | 'Pre-paid',
-          cod_amount: formData.payment_info.payment_mode === 'COD' ? formData.payment_info.cod_amount : 0,
-          order_type: orderType === 'reverse' ? 'rto' : 'forward' // Use 'rto' for reverse orders, 'forward' for forward orders
-        };
-
-        const response = await shippingService.calculateShippingCharges(calculationRequest);
-        
-        // Update shipping charges in form data
-        setFormData(prev => ({
-          ...prev,
-          payment_info: {
-            ...prev.payment_info,
-            shipping_charges: response.totalCharges
-          }
-        }));
-        
-        console.log('✅ Auto-calculated shipping charges (zone from Delhivery API):', {
-          userCategory,
-          zone: response.zone || 'unknown',
-          pickup_pincode: formData.pickup_address.pincode,
-          delivery_pincode: formData.delivery_address.pincode,
-          weight: formData.package_info.weight,
-          charges: response.totalCharges
-        });
-        
-      } catch (error) {
-        console.error('Failed to auto-calculate shipping charges:', error);
-        // Don't set shipping charges to 0 on error, keep existing value
-      } finally {
-        setCalculatingShipping(false);
-      }
-    };
-
-    autoCalculateShipping();
-  }, [
-    formData.delivery_address.pincode,
-    formData.pickup_address.pincode,
-    formData.package_info.weight,
-    formData.package_info.dimensions.length,
-    formData.package_info.dimensions.width,
-    formData.package_info.dimensions.height,
-    formData.payment_info.payment_mode,
-    formData.payment_info.cod_amount,
-    formData.shipping_mode,
-    userCategory
-  ]);
+  // REMOVED: Auto-calculate shipping charges on field changes
+  // Shipping charges are now manual input only until final step (step 6)
+  // Final calculation is done in calculateFinalShippingCharges() before save/assign buttons
 
   const calculateTotals = () => {
     const orderValue = formData.products.reduce((sum, product) => 
@@ -1608,8 +1525,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                 <div className="form-row">
                   <div className="form-group">
                     <label>
-                      Shipping Charges
-                      {calculatingShipping && <span style={{ fontSize: '12px', color: '#666', marginLeft: '8px' }}>(Calculating...)</span>}
+                      Shipping Charges *
                     </label>
                     <div className="price-input">
                       <span className="currency-symbol">₹</span>
@@ -1617,12 +1533,13 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                         type="number"
                         value={formData.payment_info.shipping_charges || 0}
                         onChange={(e) => handleNestedInputChange('payment_info', 'shipping_charges', parseFloat(e.target.value) || 0)}
-                        placeholder="Auto-calculated"
+                        placeholder="Enter shipping charges manually"
                         min="0"
                         step="0.01"
+                        required
                       />
                     </div>
-                    <small className="form-note">Auto-calculated based on your category: <strong>{userCategory}</strong></small>
+                    <small className="form-note">Enter shipping charges manually. Charges will be calculated automatically in the final step before saving.</small>
                   </div>
                 </div>
 

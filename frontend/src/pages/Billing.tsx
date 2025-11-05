@@ -91,7 +91,13 @@ const Billing: React.FC = () => {
       params.append('limit', limit.toString());
       if (dateFrom) params.append('date_from', dateFrom);
       if (dateTo) params.append('date_to', dateTo);
-      if (transactionType !== 'all') params.append('type', transactionType);
+      
+      // Filter by tab: Transactions shows all, Recharges shows only credits
+      if (activeTab === 'recharges') {
+        params.append('type', 'credit');
+      } else if (transactionType !== 'all') {
+        params.append('type', transactionType);
+      }
 
       console.log('🔍 FETCHING WALLET TRANSACTIONS:', {
         params: params.toString(),
@@ -144,9 +150,9 @@ const Billing: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Refresh transactions when filters/page change
+    // Refresh transactions when filters/page change or tab changes
     fetchTransactions();
-  }, [page, limit, dateFrom, dateTo, transactionType]);
+  }, [page, limit, dateFrom, dateTo, transactionType, activeTab]);
 
   // Listen for real-time wallet updates
   useEffect(() => {
@@ -337,12 +343,13 @@ const Billing: React.FC = () => {
                   <th>DESCRIPTION</th>
                   <th>CREDIT</th>
                   <th>DEBIT</th>
+                  <th>UPDATED BALANCE</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="no-data-cell">
+                    <td colSpan={9} className="no-data-cell">
                       <div className="no-transactions">
                         <div className="no-transactions-icon">💰</div>
                         <h3>No transactions found</h3>
@@ -387,6 +394,11 @@ const Billing: React.FC = () => {
                         {txn.transaction_type === 'debit' && (
                           <div className="amount debit">-₹{txn.amount.toFixed(2)}</div>
                         )}
+                      </td>
+                      <td>
+                        <div className="balance-display">
+                          ₹{txn.closing_balance ? txn.closing_balance.toFixed(2) : '0.00'}
+                        </div>
                       </td>
                     </tr>
                   ))

@@ -229,6 +229,12 @@ router.get('/', auth, [
 
     if (req.query.status && req.query.status !== 'all') {
       filterQuery['status'] = req.query.status;
+      
+      // Exclude canceled shipments from pickups_manifests tab
+      // Canceled shipments should only appear in "All" tab
+      if (req.query.status === 'pickups_manifests') {
+        filterQuery['delhivery_data.cancellation_status'] = { $ne: 'cancelled' };
+      }
     }
 
     // Apply order type filter if provided

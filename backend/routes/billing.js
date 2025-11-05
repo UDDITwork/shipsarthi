@@ -309,12 +309,19 @@ router.post('/wallet/verify-payment',
                 transaction.updated_at = new Date();
 
                 const user = await User.findById(req.user._id);
-                user.wallet_balance = (user.wallet_balance || 0) + transaction.amount;
+                const openingBalance = user.wallet_balance || 0;
+                user.wallet_balance = openingBalance + transaction.amount;
                 await user.save();
 
                 // CRITICAL: Retrieve the live updated wallet balance from database
                 const updatedUser = await User.findById(req.user._id).select('wallet_balance');
                 const liveUpdatedBalance = updatedUser.wallet_balance || 0;
+                
+                // Update balance_info in transaction
+                transaction.balance_info = {
+                    opening_balance: openingBalance,
+                    closing_balance: liveUpdatedBalance
+                };
 
                 await transaction.save();
 

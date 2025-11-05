@@ -50,3 +50,31 @@
   "stack": "ValidationError: Transaction validation failed: transaction_category: `shipment_cancellation_refund` is not a valid enum value for path `transaction_category`.\n    at Document.invalidate (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\document.js:3358:32)\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\document.js:3119:17\n    at C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\mongoose\\lib\\schemaType.js:1416:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)",
   "timestamp": "2025-11-04T18:56:18.007Z"
 }
+[2025-11-04T19:36:48.033Z] [ERROR] [PID:33188] ❌ Pickup scheduling failed | Data: {
+  "error": "Client wallet balance is 464.84 which is less than 500.0",
+  "status": 400,
+  "errorData": {
+    "prepaid": "Client wallet balance is 464.84 which is less than 500.0"
+  },
+  "pickupLocation": "uddit kant",
+  "extractedMessage": "Client wallet balance is 464.84 which is less than 500.0"
+}
+[2025-11-04T19:36:48.038Z] [ERROR] [PID:33188] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "error": "Client wallet balance is 464.84 which is less than 500.0"
+}
+[2025-11-04T20:24:25.972Z] [ERROR] [PID:33188] ❌ Pickup scheduling failed | Data: {
+  "error": "Client wallet balance is 414.1 which is less than 500.0",
+  "status": 400,
+  "errorData": {
+    "prepaid": "Client wallet balance is 414.1 which is less than 500.0"
+  },
+  "pickupLocation": "UDDIT WAREHOUSE 1761511069016",
+  "extractedMessage": "Client wallet balance is 414.1 which is less than 500.0"
+}
+[2025-11-04T20:24:25.974Z] [ERROR] [PID:33188] ❌ Pickup request failed | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "error": "Client wallet balance is 414.1 which is less than 500.0"
+}
