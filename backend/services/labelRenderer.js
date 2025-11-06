@@ -19,6 +19,10 @@ class LabelRenderer {
       // Log the entire structure to understand the response
       logger.info('🔍 Label data structure:', {
         topLevelKeys: Object.keys(labelData),
+        isArray: Array.isArray(labelData),
+        hasPackages: !!labelData.packages,
+        packagesLength: labelData.packages?.length || 0,
+        packagesFound: labelData.packages_found,
         fullData: JSON.stringify(labelData, null, 2).substring(0, 1000)
       });
       
@@ -36,6 +40,31 @@ class LabelRenderer {
         packages = labelData;
       } else if (labelData.packages && Array.isArray(labelData.packages)) {
         packages = labelData.packages;
+        // Check if packages array is empty but packages_found indicates packages exist
+        if (packages.length === 0 && labelData.packages_found && labelData.packages_found > 0) {
+          logger.warn('⚠️ Packages array is empty but packages_found > 0', {
+            packages_found: labelData.packages_found,
+            allKeys: Object.keys(labelData)
+          });
+          // Try to find package data in other keys (Delhivery might nest it differently)
+          const allKeys = Object.keys(labelData);
+          for (const key of allKeys) {
+            if (key !== 'packages' && key !== 'packages_found' && 
+                typeof labelData[key] === 'object' && labelData[key] !== null) {
+              // Check if this looks like package data
+              const candidate = labelData[key];
+              if (Array.isArray(candidate) && candidate.length > 0) {
+                packages = candidate;
+                break;
+              } else if (candidate.Wbn || candidate.waybill || candidate.WBN || 
+                        candidate.Name || candidate.Address) {
+                // This looks like a package object
+                pkg = candidate;
+                break;
+              }
+            }
+          }
+        }
       } else if (labelData.packagesData && Array.isArray(labelData.packagesData)) {
         packages = labelData.packagesData;
       } else if (labelData.waybills && Array.isArray(labelData.waybills)) {
@@ -51,13 +80,28 @@ class LabelRenderer {
           if (waybillKey) {
             pkg = labelData[waybillKey];
           } else {
-            // Use first key's value
-            pkg = labelData[keys[0]];
+            // Check if any key contains package data (not metadata like packages_found)
+            const dataKeys = keys.filter(k => 
+              k !== 'packages_found' && 
+              k !== 'packages' && 
+              typeof labelData[k] === 'object' && 
+              labelData[k] !== null
+            );
+            if (dataKeys.length > 0) {
+              // Use first data key
+              pkg = labelData[dataKeys[0]];
+            } else {
+              // Use first key's value if it's an object
+              const firstKey = keys[0];
+              if (typeof labelData[firstKey] === 'object' && labelData[firstKey] !== null) {
+                pkg = labelData[firstKey];
+              }
+            }
           }
         }
         
         // If still no package, try to use labelData itself as the package
-        if (!pkg && labelData.Wbn) {
+        if (!pkg && (labelData.Wbn || labelData.waybill || labelData.WBN || waybill)) {
           pkg = labelData;
         }
       }
@@ -71,14 +115,27 @@ class LabelRenderer {
       if (!pkg) {
         logger.warn('⚠️ No package array found, attempting to use labelData directly', {
           labelDataKeys: Object.keys(labelData),
-          labelDataType: typeof labelData
+          labelDataType: typeof labelData,
+          hasPackages: !!labelData.packages,
+          packagesLength: labelData.packages?.length || 0,
+          packagesFound: labelData.packages_found
         });
         
         // Try using labelData as package if it has required fields
-        if (labelData && typeof labelData === 'object' && (labelData.Wbn || labelData.waybill || waybill)) {
+        if (labelData && typeof labelData === 'object' && (labelData.Wbn || labelData.waybill || labelData.WBN || waybill)) {
           pkg = labelData;
+        } else if (labelData && typeof labelData === 'object' && Object.keys(labelData).length > 0) {
+          // Last resort: if labelData has any keys, try to use it (might be a single package object)
+          // But only if it doesn't look like a metadata wrapper
+          const metadataKeys = ['packages', 'packages_found', 'status', 'message', 'error'];
+          const hasOnlyMetadata = Object.keys(labelData).every(k => metadataKeys.includes(k));
+          if (!hasOnlyMetadata) {
+            pkg = labelData;
+          } else {
+            throw new Error(`No package data found in label response. Available keys: ${Object.keys(labelData).join(', ')}. Packages found: ${labelData.packages_found || 0}`);
+          }
         } else {
-          throw new Error('No package data found in label response. Available keys: ' + Object.keys(labelData).join(', '));
+          throw new Error(`No package data found in label response. Available keys: ${Object.keys(labelData || {}).join(', ')}`);
         }
       }
       

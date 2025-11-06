@@ -2222,8 +2222,12 @@ class DelhiveryService {
                 responseStatus: response.status,
                 hasData: !!response.data,
                 dataType: typeof response.data,
+                isArray: Array.isArray(response.data),
                 responseKeys: response.data ? Object.keys(response.data) : [],
-                responseData: response.data
+                hasPackages: response.data?.packages ? true : false,
+                packagesLength: response.data?.packages?.length || 0,
+                packagesFound: response.data?.packages_found || 0,
+                responseDataPreview: response.data ? JSON.stringify(response.data).substring(0, 500) : null
             });
 
             // Check if response indicates an error from Delhivery

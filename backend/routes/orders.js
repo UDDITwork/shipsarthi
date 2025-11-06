@@ -1991,6 +1991,11 @@ router.get('/:id/label', auth, async (req, res) => {
     }
 
     // Otherwise, return JSON data for frontend rendering
+    // Generate HTML URL - handle production proxy correctly
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const host = req.get('x-forwarded-host') || req.get('host') || process.env.FRONTEND_URL?.replace(/^https?:\/\//, '') || 'localhost:5000';
+    const htmlUrl = `${protocol}://${host}/api/orders/${order._id}/label?format=html`;
+    
     return res.json({
       status: 'success',
       message: 'Shipping label data generated successfully',
@@ -1999,7 +2004,7 @@ router.get('/:id/label', auth, async (req, res) => {
         waybill: waybill,
         order_id: order.order_id,
         label_type: 'json',
-        html_url: `${req.protocol}://${req.get('host')}/api/orders/${order._id}/label?format=html`
+        html_url: htmlUrl
       }
     });
 
