@@ -3,13 +3,13 @@
   position: absolute;
   top: 100%;
   right: 0;
-  width: 380px;
+  width: 280px;
   background-color: #FFFFFF;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   border: 1px solid #E5E5E5;
   z-index: 1000;
-  margin-top: 10px;
+  margin-top: 8px;
   overflow: hidden;
   max-height: 500px;
 }
@@ -18,28 +18,28 @@
 .profile-header {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 12px;
   background-color: #FFFFFF;
   border-bottom: 1px solid #F0F0F0;
 }
 
 .user-avatar-large {
-  width: 60px;
-  height: 60px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background-color: #FF8C42;
+  background-color: #E5E5E5;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 16px;
+  margin-right: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
 .avatar-text {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #666666;
   letter-spacing: 0.5px;
 }
 
@@ -59,14 +59,14 @@
 }
 
 .company-name {
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 700;
   color: #2C4563;
   line-height: 1.2;
 }
 
 .contact-person {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 400;
   color: #666666;
   line-height: 1.2;
@@ -74,7 +74,7 @@
 }
 
 .user-role {
-  font-size: 13px;
+  font-size: 10px;
   color: #666666;
   font-weight: 400;
   line-height: 1.2;
@@ -83,11 +83,11 @@
 
 /* Profile Menu */
 .profile-menu {
-  padding: 10px 0;
+  padding: 6px 0;
 }
 
 .menu-item {
-  padding: 12px 20px;
+  padding: 8px 14px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   border-left: none;
@@ -108,14 +108,14 @@
 }
 
 .menu-icon {
-  font-size: 22px;
-  margin-right: 12px;
-  width: 28px;
-  height: 28px;
+  font-size: 16px;
+  margin-right: 10px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FF8C42;
+  color: #2C4563;
   flex-shrink: 0;
 }
 
@@ -124,15 +124,15 @@
 }
 
 .menu-title {
-  font-size: 15px;
+  font-size: 11px;
   font-weight: 600;
   color: #2C4563;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   line-height: 1.3;
 }
 
 .menu-subtitle {
-  font-size: 12px;
+  font-size: 9px;
   color: #999999;
   font-weight: 400;
   line-height: 1.3;
@@ -141,29 +141,31 @@
 
 /* Profile Footer */
 .profile-footer {
-  padding: 16px 20px 20px 20px;
+  padding: 10px 14px;
   background-color: #FFFFFF;
   border-top: 1px solid #E5E5E5;
   display: flex;
   justify-content: flex-end;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .logout-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 6px;
+  padding: 6px 14px;
   background-color: #FFFFFF;
   color: #2C4563;
   border: 1.5px solid #2C4563;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
   transition: all 0.2s ease;
-  min-height: 40px;
-  min-width: 120px;
+  min-height: 28px;
+  min-width: 90px;
 }
 
 .logout-button:hover {
@@ -172,48 +174,48 @@
 }
 
 .logout-icon {
-  font-size: 18px;
+  font-size: 13px;
   color: #2C4563;
 }
 
 .logout-text {
-  font-size: 14px;
+  font-size: 11px;
   color: #2C4563;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .profile-dropdown {
-    width: 320px;
+    width: 240px;
     right: -50px;
   }
   
   .profile-header {
-    padding: 15px;
+    padding: 10px;
   }
   
   .user-avatar-large {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
   }
   
   .avatar-text {
-    font-size: 20px;
+    font-size: 14px;
   }
   
   .company-name {
-    font-size: 16px;
+    font-size: 12px;
   }
   
   .contact-person {
-    font-size: 13px;
+    font-size: 10px;
   }
   
 }
 
 @media (max-width: 480px) {
   .profile-dropdown {
-    width: 280px;
+    width: 220px;
     right: -80px;
   }
 }

@@ -32,7 +32,7 @@ router.get('/pincode-info/:pincode', async (req, res) => {
                         success: true,
                         pincode: pincode,
                         city: serviceabilityResult.city || 'Unknown',
-                        state: serviceabilityResult.state_code || 'Unknown',
+                        state: serviceabilityResult.state_name || serviceabilityResult.state_code || 'Unknown', // Use full state name if available
                         serviceable: serviceabilityResult.serviceable || false
                     });
                 } else if (serviceabilityResult && serviceabilityResult.success && !serviceabilityResult.serviceable) {

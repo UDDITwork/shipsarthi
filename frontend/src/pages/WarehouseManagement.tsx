@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { warehouseService, Warehouse } from '../services/warehouseService';
+import { DataCache } from '../utils/dataCache';
 import './WarehouseManagement.css';
 
 const WarehouseManagement: React.FC = () => {
@@ -11,19 +12,65 @@ const WarehouseManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const [isUsingCache, setIsUsingCache] = useState(false);
 
   useEffect(() => {
     fetchWarehouses();
   }, []);
 
-  const fetchWarehouses = async () => {
-    try {
+  const fetchWarehouses = async (forceRefresh: boolean = false) => {
+    // Step 1: Try to load from cache first (if not forcing refresh)
+    if (!forceRefresh) {
+      const cachedWarehouses = DataCache.get<Warehouse[]>('warehouses');
+      if (cachedWarehouses && cachedWarehouses.length > 0) {
+        // Show cached data immediately - no loading spinner
+        setWarehouses(cachedWarehouses);
+        setLoading(false);
+        setIsUsingCache(true);
+        
+        // Fetch fresh data in background (non-blocking)
+        // Don't set loading state - user already sees cached data
+      } else {
+        // No cache available - show loading
+        setLoading(true);
+      }
+    } else {
+      // Force refresh - show loading
       setLoading(true);
+    }
+
+    // Step 2: Fetch fresh data from API
+    try {
       setError(null);
       const warehousesData = await warehouseService.getWarehouses();
+      
+      // Update state with fresh data
       setWarehouses(warehousesData);
+      setIsUsingCache(false);
+      
+      // Cache the successful response (30 minutes TTL)
+      DataCache.set('warehouses', warehousesData, 30 * 60 * 1000);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch warehouses');
+      // API failed - check if we have cached data
+      const cachedWarehouses = DataCache.getStale<Warehouse[]>('warehouses');
+      
+      if (cachedWarehouses && cachedWarehouses.length > 0) {
+        // Use cached data even if expired (stale-while-revalidate pattern)
+        setWarehouses(cachedWarehouses);
+        setIsUsingCache(true);
+        
+        // Show warning instead of error if it's a rate limit
+        if (err.response?.status === 429) {
+          setError('Rate limit reached. Showing cached data. Please try again in a moment.');
+        } else {
+          setError(`${err.message || 'Failed to fetch warehouses'}. Showing cached data.`);
+        }
+      } else {
+        // No cache available - show actual error
+        setError(err.message || 'Failed to fetch warehouses');
+        setWarehouses([]);
+        setIsUsingCache(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -41,7 +88,10 @@ const WarehouseManagement: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete "${warehouseName}"? This action cannot be undone.`)) {
       try {
         await warehouseService.deleteWarehouse(warehouseId);
-        setWarehouses(warehouses.filter(w => w._id !== warehouseId));
+        const updatedWarehouses = warehouses.filter(w => w._id !== warehouseId);
+        setWarehouses(updatedWarehouses);
+        // Update cache with new data
+        DataCache.set('warehouses', updatedWarehouses, 30 * 60 * 1000);
       } catch (err: any) {
         alert(`Failed to delete warehouse: ${err.message}`);
       }
@@ -52,7 +102,7 @@ const WarehouseManagement: React.FC = () => {
     try {
       await warehouseService.setDefaultWarehouse(warehouseId);
       // Refresh warehouses to update default status
-      fetchWarehouses();
+      fetchWarehouses(true); // Force refresh
     } catch (err: any) {
       alert(`Failed to set default warehouse: ${err.message}`);
     }
@@ -125,12 +175,22 @@ const WarehouseManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Error Message */}
+        {/* Error/Warning Message */}
         {error && (
-          <div className="error-message">
-            <span>Error: {error}</span>
-            <button onClick={fetchWarehouses} className="retry-btn">
-              Retry
+          <div className={`error-message ${isUsingCache ? 'warning-message' : ''}`}>
+            <span>{error}</span>
+            <button onClick={() => fetchWarehouses(true)} className="retry-btn">
+              {isUsingCache ? 'Refresh' : 'Retry'}
+            </button>
+          </div>
+        )}
+        
+        {/* Cache indicator (subtle) */}
+        {isUsingCache && !error && (
+          <div className="cache-indicator">
+            <span>Showing cached data</span>
+            <button onClick={() => fetchWarehouses(true)} className="refresh-link">
+              Refresh
             </button>
           </div>
         )}

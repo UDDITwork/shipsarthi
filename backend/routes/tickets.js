@@ -125,9 +125,17 @@ router.get('/:id', auth, async (req, res) => {
       });
     }
 
+    // Filter out internal messages for clients
+    const ticketObj = ticket.toObject();
+    if (ticketObj.conversation) {
+      ticketObj.conversation = ticketObj.conversation.filter(
+        msg => !msg.is_internal
+      );
+    }
+
     res.json({
       status: 'success',
-      data: ticket
+      data: ticketObj
     });
 
   } catch (error) {

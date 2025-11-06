@@ -140,11 +140,10 @@ const Billing: React.FC = () => {
     fetchWalletBalance();
     fetchTransactions();
 
-    // Periodic refresh as a safety-net (prevents stale UI if WS drops silently)
-    // Refresh more frequently (every 30 seconds) to ensure balance stays fresh
+    // Poll wallet balance from MongoDB every 60 seconds (no WebSocket dependency)
     const interval = setInterval(() => {
       fetchWalletBalance();
-    }, 30 * 1000); // every 30 seconds (reduced from 60 for better responsiveness)
+    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
 
     return () => clearInterval(interval);
   }, []);
@@ -154,23 +153,17 @@ const Billing: React.FC = () => {
     fetchTransactions();
   }, [page, limit, dateFrom, dateTo, transactionType, activeTab]);
 
-  // Listen for real-time wallet updates
+  // Poll wallet balance and transactions from MongoDB (no WebSocket dependency)
+  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
   useEffect(() => {
-    const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'wallet_balance_update' || 
-          notification.type === 'weight_discrepancy_charge' ||
-          notification.type === 'wallet_refund') {
-        console.log('💰 Wallet-related notification:', notification);
-        fetchWalletBalance();
-        // Refresh transactions for charges and refunds
-        if (notification.type === 'weight_discrepancy_charge' || notification.type === 'wallet_refund') {
-          fetchTransactions();
-        }
-      }
-    });
+    const pollInterval = setInterval(() => {
+      console.log('💰 Polling wallet balance and transactions from MongoDB...');
+      fetchWalletBalance();
+      fetchTransactions();
+    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
 
-    return unsubscribe;
-  }, []);
+    return () => clearInterval(pollInterval);
+  }, [page, limit, dateFrom, dateTo, transactionType, activeTab]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -193,11 +186,11 @@ const Billing: React.FC = () => {
     return `${date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
   };
 
-  // Format weight display (weight is in grams)
+  // Format weight display (weight is in kg)
   const formatWeight = (weight: number | null) => {
     if (!weight) return 'N/A';
-    // Weight is already in grams from backend
-    return `${weight.toFixed(1)} gm`;
+    // Weight is already in kg from backend (just needs unit label change)
+    return `${weight.toFixed(1)} kg`;
   };
 
   // Get default date range (last 7 days)

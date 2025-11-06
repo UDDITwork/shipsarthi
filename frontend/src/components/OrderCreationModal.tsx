@@ -1232,7 +1232,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                           top: '50%', 
                           transform: 'translateY(-50%)',
                           fontSize: '12px',
-                          color: '#F68723'
+                          color: '#2C4563'
                         }}>
                           Loading...
                         </span>
@@ -1673,7 +1673,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                                   top: '50%', 
                                   transform: 'translateY(-50%)',
                                   fontSize: '12px',
-                                  color: '#F68723'
+                                  color: '#2C4563'
                                 }}>
                                   Loading...
                                 </span>
@@ -1883,10 +1883,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                   padding: '20px',
                   backgroundColor: '#f8f9fa',
                   borderRadius: '8px',
-                  border: '2px solid #F68723'
+                  border: '2px solid #2C4563'
                 }}>
                   <div className="section-header" style={{ marginBottom: '15px' }}>
-                    <h3 style={{ color: '#F68723', margin: 0 }}>💰 Shipping Charges Calculation (Required)</h3>
+                    <h3 style={{ color: '#2C4563', margin: 0 }}>💰 Shipping Charges Calculation (Required)</h3>
                   </div>
                   
                   {finalShippingCalculation.calculating ? (
@@ -1910,7 +1910,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                           style={{
                             padding: '6px 12px',
                             fontSize: '12px',
-                            backgroundColor: '#F68723',
+                            backgroundColor: '#2C4563',
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
@@ -1980,7 +1980,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                           style={{
                             padding: '8px 16px',
                             fontSize: '14px',
-                            backgroundColor: '#F68723',
+                            backgroundColor: '#2C4563',
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
@@ -2025,7 +2025,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                         style={{
                           padding: '8px 16px',
                           fontSize: '14px',
-                          backgroundColor: '#F68723',
+                          backgroundColor: '#2C4563',
                           color: 'white',
                           border: 'none',
                           borderRadius: '4px',
@@ -2046,7 +2046,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                         style={{
                           padding: '12px 24px',
                           fontSize: '16px',
-                          backgroundColor: '#F68723',
+                          backgroundColor: '#2C4563',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',

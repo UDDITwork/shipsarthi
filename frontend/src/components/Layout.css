@@ -19,9 +19,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 70-80px;
-  min-height: 70px;
-  padding: 0 24px;
+  height: 50px;
+  min-height: 50px;
+  padding: 0 16px;
   background-color: #FFFFFF;
   border-bottom: 1px solid #E5E5E5;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -55,7 +55,7 @@
 }
 
 .logo {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
   text-decoration: none;
   display: flex;
@@ -74,35 +74,37 @@
 /* Header Center - Connected Search Bar */
 .header-center {
   flex: 1;
-  max-width: 500px;
-  margin: 0 30px;
+  max-width: 400px;
+  margin: 0 16px;
 }
 
 .search-form {
   display: flex;
   align-items: center;
   gap: 0;
-  border-radius: 6px;
+  border-radius: 17.5px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .search-select {
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: none;
   background-color: #2C4563;
   color: #FFFFFF;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   outline: none;
-  border-radius: 6px 0 0 6px;
+  border-radius: 17.5px 0 0 17.5px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 40px;
-  min-width: 120px;
+  background-position: right 10px center;
+  padding-right: 32px;
+  min-width: 100px;
+  height: 36px; /* Match button height for alignment */
+  box-sizing: border-box;
   transition: background-color 0.2s ease;
 }
 
@@ -112,14 +114,14 @@
 
 .search-input {
   flex: 1;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: none;
-  border-left: none;
-  border-right: none;
   background-color: #FFFFFF;
-  font-size: 14px;
+  font-size: 12px;
   outline: none;
-  min-width: 200px;
+  min-width: 150px;
+  height: 36px; /* Match button height for alignment */
+  box-sizing: border-box;
 }
 
 .search-input::placeholder {
@@ -132,14 +134,18 @@
   color: #FFFFFF;
   border: none;
   cursor: pointer;
-  font-size: 18px;
-  width: 50px;
-  height: 50px;
+  font-size: 14px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 17.5px 17.5px 0;
   transition: background-color 0.2s ease;
+}
+
+.search-button img {
+  filter: brightness(0) invert(1); /* Makes SVG icon white */
 }
 
 .search-button:hover {
@@ -150,7 +156,7 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-shrink: 0; /* Prevent shrinking */
 }
 
@@ -180,27 +186,30 @@
   display: flex;
   align-items: center;
   gap: 0;
-  border-radius: 6px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  height: 28px;
 }
 
 .wallet-display {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 4px;
+  padding: 4px 8px;
   background-color: #FFFFFF;
   border: 1px solid #E5E5E5;
   border-right: none;
-  border-radius: 6px 0 0 6px;
-  font-size: 16px;
+  border-radius: 20px 0 0 20px;
+  font-size: 12px;
   font-weight: 600;
   color: #2C4563;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .wallet-icon {
-  font-size: 18px;
+  font-size: 14px;
   color: #6B7280;
 }
 
@@ -213,13 +222,14 @@
 .debug-wallet-button {
   background: none;
   border: none;
-  font-size: 14px;
+  font-size: 10px;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 2px 4px;
   border-radius: 4px;
   color: #6B7280;
   transition: all 0.2s ease;
-  margin-left: 4px;
+  margin-left: 2px;
+  display: none; /* Hide debug buttons to reduce clutter */
 }
 
 .refresh-wallet-button:hover,
@@ -229,16 +239,19 @@
 }
 
 .recharge-button {
-  padding: 12px 16px;
+  padding: 4px 10px;
   background-color: #2C4563;
   color: #FFFFFF;
   border: none;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 20px 20px 0;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
   white-space: nowrap;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .recharge-button:hover {
@@ -251,16 +264,21 @@
 }
 
 .tickets-button {
-  padding: 12px 16px;
+  padding: 4px 10px;
   background-color: #2C4563;
   color: #FFFFFF;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
   white-space: nowrap;
+  margin-left: 8px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tickets-button:hover {
@@ -316,12 +334,12 @@
 }
 
 .user-avatar {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  min-height: 42px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   border-radius: 50%;
-  background-color: #FF8C42;
+  background-color: #E5E5E5;
   border: none;
   cursor: pointer;
   display: flex !important;
@@ -335,7 +353,7 @@
 }
 
 .user-avatar:hover {
-  background-color: #E57A35;
+  background-color: #D0D0D0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: scale(1.05);
 }
@@ -345,9 +363,9 @@
 }
 
 .avatar-initials {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #666666;
   text-transform: uppercase;
 }
 
@@ -360,7 +378,7 @@
 }
 
 .user-avatar-loading {
-  color: #FFFFFF;
+  color: #666666;
   font-size: 12px;
 }
 
@@ -392,14 +410,14 @@
   /* Ensure it takes available height */
   height: 100%;
   /* CRITICAL: Ensure body can scroll by setting proper height constraint */
-  max-height: calc(100vh - 70px); /* Subtract header height */
+  max-height: calc(100vh - 50px); /* Subtract header height */
 }
 
 .layout-sidebar {
-  width: 250px;
-  min-width: 250px;
+  width: 200px;
+  min-width: 200px;
   background-color: #FF8C42;
-  padding: 24px 0;
+  padding: 16px 0;
   overflow-y: auto;
   overflow-x: visible !important; /* CRITICAL: Force visible - allow tab to extend beyond */
   transition: width 0.3s ease, transform 0.3s ease;
@@ -429,7 +447,7 @@
 }
 
 .sidebar-logo-text {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.5px;
 }
@@ -467,11 +485,11 @@
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
+  gap: 10px;
+  padding: 10px 16px;
   color: #FFFFFF;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -479,7 +497,7 @@
   position: relative; /* CRITICAL: Relative for absolute active positioning */
   margin-right: 12px;
   /* Ensure proper height for absolute positioning calculation */
-  min-height: 56px;
+  min-height: 40px;
   height: auto;
 }
 
@@ -540,11 +558,21 @@
 /* The seamless merge happens through pure overlap and matching backgrounds */
 
 .sidebar-icon {
-  font-size: 24px;
+  font-size: 18px;
   min-width: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Vector icon styling - white for inactive, orange for active */
+.sidebar-icon img {
+  filter: brightness(0) invert(1); /* Makes SVG white */
+  transition: filter 0.2s ease;
+}
+
+.sidebar-item.active .sidebar-icon img {
+  filter: brightness(0) invert(0.6) sepia(1) saturate(3) hue-rotate(0deg) brightness(1.1); /* Makes SVG orange (#FF8C42) */
 }
 
 .sidebar-label {

@@ -113,12 +113,22 @@ router.get('/', auth, [
       .limit(limit)
       .lean();
 
+    // Filter out internal messages from conversation for each ticket
+    const filteredTickets = tickets.map(ticket => {
+      if (ticket.conversation && Array.isArray(ticket.conversation)) {
+        ticket.conversation = ticket.conversation.filter(
+          msg => !msg.is_internal
+        );
+      }
+      return ticket;
+    });
+
     const totalTickets = await SupportTicket.countDocuments(filterQuery);
 
     res.json({
       status: 'success',
       data: {
-        tickets,
+        tickets: filteredTickets,
         pagination: {
           current_page: page,
           total_pages: Math.ceil(totalTickets / limit),
@@ -154,9 +164,17 @@ router.get('/:id', auth, async (req, res) => {
       });
     }
 
+    // Filter out internal messages for clients
+    const ticketObj = ticket.toObject();
+    if (ticketObj.conversation) {
+      ticketObj.conversation = ticketObj.conversation.filter(
+        msg => !msg.is_internal
+      );
+    }
+
     res.json({
       status: 'success',
-      data: ticket
+      data: ticketObj
     });
 
   } catch (error) {

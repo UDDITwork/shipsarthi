@@ -1,4 +1,5 @@
 /* location is frontend/src/pages/Orders.css */
+/* IMPORTANT: This file must override global .action-btn from Customers.css */
 
 /* AWB Number Column Styles */
 .awb-cell {
@@ -86,39 +87,47 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding: 15px 0;
+    margin-bottom: 12px;
+    padding: 10px 0;
     width: 100%;
-    min-height: 60px;
+    min-height: 45px;
   }
   
   .order-type-toggle {
     display: flex;
     gap: 0;
-    background-color: #FFFFFF;
-    border: 2px solid #002B59;
-    border-radius: 8px;
-    overflow: hidden;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
   }
   
   .toggle-btn {
-    padding: 10px 30px;
-    background-color: #FFFFFF;
-    color: #002B59;
-    border: none;
-    font-size: 14px;
+    padding: 12px 24px;
+    background-color: #FFFFFF !important;
+    color: #002B59 !important;
+    border: 1.5px solid #002B59 !important;
+    border-radius: 20px !important;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin-right: 8px;
+  }
+  
+  .toggle-btn:last-child {
+    margin-right: 0;
   }
   
   .toggle-btn.active {
-    background-color: #002B59;
-    color: #FFFFFF;
+    background-color: #002B59 !important;
+    color: #FFFFFF !important;
+    border-color: #002B59 !important;
+    border-radius: 20px !important;
   }
   
   .toggle-btn:hover:not(.active) {
-    background-color: #F5F5F5;
+    background-color: #F5F5F5 !important;
   }
   
   .top-actions {
@@ -129,30 +138,45 @@
   }
   
   /* Legacy action-btn - overridden by table action buttons below */
-  .top-actions .action-btn {
-    padding: 12px 24px;
-    border: 2px solid #E0E0E0;
-    border-radius: 0px !important;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    min-width: fit-content;
-    flex-shrink: 0;
-    background-color: #FFFFFF;
-    color: #333333;
+  /* Border radius matches status tab buttons (8px) */
+  /* Override global .action-btn from Customers.css with higher specificity */
+  .orders-container .top-actions .action-btn,
+  .top-actions .action-btn.sync-btn,
+  .top-actions .action-btn.import-btn,
+  .top-actions .action-btn.add-btn,
+  .top-actions .sync-btn,
+  .top-actions .import-btn,
+  .top-actions .add-btn {
+    padding: 8px 16px !important;
+    border: 0.5px solid #E0E0E0 !important;
+    border-radius: 20px !important; /* Match .tab-btn border-radius (20px) */
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: fit-content !important;
+    flex-shrink: 0 !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    width: auto !important;
+    height: auto !important;
   }
   
-  .sync-btn:hover,
-  .import-btn:hover,
-  .add-btn:hover {
-    background-color: #F5F5F5;
-    border-color: #CCCCCC;
-    color: #222222;
+  .orders-container .top-actions .action-btn:hover,
+  .top-actions .action-btn.sync-btn:hover,
+  .top-actions .action-btn.import-btn:hover,
+  .top-actions .action-btn.add-btn:hover,
+  .top-actions .sync-btn:hover,
+  .top-actions .import-btn:hover,
+  .top-actions .add-btn:hover {
+    background-color: #F5F5F5 !important;
+    border-color: #CCCCCC !important;
+    color: #000000 !important;
+    border-radius: 20px !important;
   }
   
   /* Status Tabs */
@@ -179,12 +203,12 @@
   }
   
   .tab-btn {
-    padding: 10px 20px;
+    padding: 8px 14px;
     background-color: #FFFFFF;
     color: #002B59;
     border: 2px solid transparent;
-    border-radius: 8px 8px 0 0;
-    font-size: 14px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -199,15 +223,16 @@
     background-color: #002B59;
     color: #FFFFFF;
     border-bottom: 4px solid #F68723;
+    border-radius: 20px;
   }
   
   /* Filters Section */
   .filters-section {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
+    margin-bottom: 12px;
+    padding: 10px;
     background-color: #F9F9F9;
     border-radius: 8px;
     flex-wrap: wrap;
@@ -217,24 +242,33 @@
     position: relative;
   }
 
-  .date-filter .calendar-btn {
-    padding: 10px 20px;
+  .date-filter   .calendar-btn {
+    padding: 6px 14px;
     background-color: #FFFFFF;
     color: #002B59;
     border: 2px solid #002B59;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
   
   .calendar-btn:hover {
     background-color: #002B59;
     color: #FFFFFF;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
   }
 
   /* Date Picker Dropdown */
@@ -325,13 +359,27 @@
   }
 
   .apply-btn, .clear-btn, .quick-filter-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
+  }
+
+  .apply-btn:hover:not(:disabled),
+  .clear-btn:hover,
+  .quick-filter-btn:hover {
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
   }
 
   .apply-btn {
@@ -372,24 +420,33 @@
     max-width: 600px;
     background-color: #FFFFFF;
     border: 2px solid #E0E0E0;
-    border-radius: 8px;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
     overflow: hidden;
   }
   
   .search-type-select {
-    padding: 10px 15px;
+    padding: 6px 12px;
     border: none;
     background-color: #002B59;
     color: #FFFFFF;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     outline: none;
+    border-radius: 20px 0 0 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 0 !important;
   }
   
   .search-input {
     flex: 1;
-    padding: 10px 15px;
+    padding: 6px 12px;
     border: none;
     font-size: 14px;
     outline: none;
@@ -400,6 +457,11 @@
     background-color: #002B59;
     color: #FFFFFF;
     border: none;
+    border-radius: 0 20px 20px 0 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 20px !important;
     font-size: 18px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -407,15 +469,25 @@
   
   .search-btn:hover {
     background-color: #21476E;
+    border-radius: 0 20px 20px 0 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 20px !important;
   }
   
   .more-filters-btn {
-    padding: 10px 20px;
+    padding: 6px 14px;
     background-color: #FFFFFF;
     color: #002B59;
     border: 2px solid #002B59;
-    border-radius: 8px;
-    font-size: 14px;
+    box-sizing: border-box;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -426,12 +498,22 @@
   
   .more-filters-btn:hover {
     background-color: #F5F5F5;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
   }
 
   .more-filters-btn.active {
     background-color: #002B59;
     color: #FFFFFF;
-    border-color: #FF6B35;
+    border-color: #002B59;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
   }
 
   .more-filters-container {
@@ -820,21 +902,36 @@
   }
   
   .export-btn {
-    padding: 8px 15px;
-    background-color: #28A745;
+    padding: 6px 14px;
+    background-color: #002B59;
     color: #FFFFFF;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
+    border: 2px solid #002B59;
+    box-sizing: border-box;
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
   
   .export-btn:hover {
-    background-color: #218838;
+    background-color: #21476E;
+    border-color: #21476E;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
+    border-radius: 20px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
   }
   
   /* Orders Table */
@@ -848,7 +945,7 @@
   .orders-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1200px;
+    min-width: 1000px;
   }
   
   .orders-table thead {
@@ -860,17 +957,17 @@
   }
   
   .orders-table th {
-    padding: 15px 12px;
+    padding: 10px 8px;
     text-align: left;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     border-bottom: 2px solid #FFFFFF;
     white-space: nowrap;
   }
   
   .orders-table td {
-    padding: 15px 12px;
-    font-size: 13px;
+    padding: 10px 8px;
+    font-size: 11px;
     color: #333333;
     border-bottom: 1px solid #E0E0E0;
     vertical-align: top;
@@ -1464,3 +1561,83 @@
     font-size: 12px;
     font-weight: 600;
   }
+
+/* ============================================
+   CRITICAL OVERRIDE: Top Action Buttons
+   ============================================
+   This section MUST override global .action-btn from Customers.css
+   AND table .action-btn rules (lines 959-976)
+   These styles are placed at the end to ensure highest priority
+   MAXIMUM SPECIFICITY to override ALL conflicting rules
+   ============================================ */
+/* Force override for ALL action-btn variations in top-actions */
+.orders-container .orders-top-bar .top-actions button.action-btn.sync-btn,
+.orders-container .orders-top-bar .top-actions button.action-btn.import-btn,
+.orders-container .orders-top-bar .top-actions button.action-btn.add-btn,
+.orders-container .top-actions button.action-btn.sync-btn,
+.orders-container .top-actions button.action-btn.import-btn,
+.orders-container .top-actions button.action-btn.add-btn,
+.orders-container .orders-top-bar .top-actions button.sync-btn,
+.orders-container .orders-top-bar .top-actions button.import-btn,
+.orders-container .orders-top-bar .top-actions button.add-btn,
+.orders-container .top-actions button.sync-btn,
+.orders-container .top-actions button.import-btn,
+.orders-container .top-actions button.add-btn,
+.orders-container .top-actions .action-btn.sync-btn,
+.orders-container .top-actions .action-btn.import-btn,
+.orders-container .top-actions .action-btn.add-btn,
+.orders-container .top-actions .sync-btn,
+.orders-container .top-actions .import-btn,
+.orders-container .top-actions .add-btn {
+  /* CRITICAL: Set border-radius FIRST before any other properties */
+  /* Match .tab-btn border-radius (20px) */
+  border-radius: 20px !important;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  /* Override width/height from Customers.css .action-btn (32px x 32px circular) */
+  width: auto !important;
+  height: auto !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  /* Other properties */
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border: 0.5px solid #E0E0E0 !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.orders-container .top-actions button.action-btn.sync-btn:hover,
+.orders-container .top-actions button.action-btn.import-btn:hover,
+.orders-container .top-actions button.action-btn.add-btn:hover,
+.orders-container .orders-top-bar .top-actions button.action-btn:hover,
+.orders-container .orders-top-bar .top-actions button.sync-btn:hover,
+.orders-container .orders-top-bar .top-actions button.import-btn:hover,
+.orders-container .orders-top-bar .top-actions button.add-btn:hover,
+.orders-container .top-actions button.sync-btn:hover,
+.orders-container .top-actions button.import-btn:hover,
+.orders-container .top-actions button.add-btn:hover,
+.orders-container .top-actions .sync-btn:hover,
+.orders-container .top-actions .import-btn:hover,
+.orders-container .top-actions .add-btn:hover {
+  border-radius: 20px !important;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  background-color: #F5F5F5 !important;
+  border-color: #CCCCCC !important;
+  color: #000000 !important;
+}

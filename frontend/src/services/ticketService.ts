@@ -4,25 +4,36 @@ export interface Ticket {
   _id: string;
   ticket_id: string;
   category: string;
-  awb_numbers: string[];
-  comment: string;
-  status: 'open' | 'resolved' | 'closed';
-  attachments: Array<{
+  subject?: string;
+  description?: string;
+  awb_numbers?: string[];
+  comment?: string;
+  status: 'open' | 'in_progress' | 'waiting_customer' | 'resolved' | 'closed' | 'escalated';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  attachments?: Array<{
     file_url: string;
     file_type: string;
     file_name: string;
   }>;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
   conversation?: Array<{
-    comment_by: 'user' | 'support';
-    comment_text: string;
-    attachments: Array<{
+    message_type: 'user' | 'admin' | 'system';
+    sender_name: string;
+    sender?: string;
+    message_content?: string;
+    message?: string;
+    comment?: string;
+    attachments?: Array<{
       file_url: string;
       file_type: string;
       file_name: string;
     }>;
-    created_at: string;
+    timestamp?: string;
+    created_at?: string;
+    is_internal?: boolean;
   }>;
 }
 

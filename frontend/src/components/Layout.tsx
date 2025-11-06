@@ -8,6 +8,18 @@ import { useAuth } from '../contexts/AuthContext';
 import ProfileDropdown from './ProfileDropdown';
 import './Layout.css';
 
+// Import sidebar vector icons
+import group1Icon from '../SIDEBARVECTORS/Group 1.svg';
+import vector14Icon from '../SIDEBARVECTORS/Vector 14.svg';
+import group10Icon from '../SIDEBARVECTORS/Group 10.svg';
+import vectorIcon from '../SIDEBARVECTORS/Vector.svg';
+import group1BillingIcon from '../SIDEBARVECTORS/Group (1).svg';
+import group19Icon from '../SIDEBARVECTORS/Group 19.svg';
+import vector1Icon from '../SIDEBARVECTORS/Vector (1).svg';
+import vector2Icon from '../SIDEBARVECTORS/Vector (2).svg';
+import group3Icon from '../SIDEBARVECTORS/Group (3).svg';
+import searchIcon from '../SIDEBARVECTORS/search.svg';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -100,21 +112,43 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
 
   // Load user profile and wallet balance on component mount
+  // Profile is ALWAYS fetched from MongoDB independently of WebSocket
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        // Try to load from cache first for instant display
+        const cachedProfile = DataCache.get<UserProfile>('userProfile');
+        if (cachedProfile) {
+          setUserProfile(cachedProfile);
+          console.log('👤 USER PROFILE LOADED FROM CACHE:', cachedProfile);
+        }
+        
         setLoading(true);
-        console.log('👤 LOADING USER PROFILE...');
+        console.log('👤 LOADING USER PROFILE FROM MONGODB...');
+        
+        // Always fetch fresh from MongoDB (independent of WebSocket)
         const response = await userService.getUserProfile();
-        console.log('👤 USER PROFILE LOADED:', response.data);
+        console.log('👤 USER PROFILE LOADED FROM MONGODB:', response.data);
+        
+        // Cache the profile for persistence
+        DataCache.set('userProfile', response.data);
         setUserProfile(response.data);
         
         // Connect to WebSocket with user ID after profile is loaded
+        // WebSocket connection is SEPARATE from profile fetching
         if (response.data._id) {
           notificationService.connect(response.data._id);
         }
       } catch (error: any) {
         console.error('❌ ERROR LOADING USER PROFILE:', error);
+        
+        // Try to use cached profile if API fails
+        const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
+        if (cachedProfile) {
+          console.log('⚠️ Using cached profile due to API error');
+          setUserProfile(cachedProfile);
+        }
+        
         // If user is not authenticated, redirect to login
         if (error.response?.status === 401) {
           console.log('🔐 UNAUTHORIZED - Redirecting to login');
@@ -216,18 +250,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Refresh wallet balance AND reconnect WebSocket when page becomes visible (user switches back to tab)
+  // Auto-refresh user profile from MongoDB every 60 seconds (no WebSocket dependency)
+  // This ensures profile picture and data stay fresh without rate limiting
+  useEffect(() => {
+    const profileInterval = setInterval(async () => {
+      try {
+        console.log('🔄 Auto-refreshing user profile from MongoDB...');
+        const response = await userService.getUserProfile();
+        // Cache the updated profile for persistence
+        DataCache.set('userProfile', response.data);
+        setUserProfile(response.data);
+        // Also refresh AuthContext user
+        await refreshUser();
+        console.log('✅ User profile auto-refreshed from MongoDB:', response.data);
+      } catch (error) {
+        console.error('❌ Auto-refresh user profile failed:', error);
+        // Keep using current state or cached value - don't clear
+        const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
+        if (cachedProfile && !userProfile) {
+          setUserProfile(cachedProfile);
+        }
+      }
+    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
+
+    return () => clearInterval(profileInterval);
+  }, [userProfile, refreshUser]);
+
+  // Refresh wallet balance when page becomes visible (user switches back to tab)
+  // No WebSocket dependency - fetch directly from MongoDB
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (!document.hidden) {
-        console.log('👁️ Tab became visible - checking WebSocket connection...');
-        
-        // CRITICAL: Check and reconnect WebSocket if disconnected
-        const isConnected = notificationService.getConnectionState();
-        if (!isConnected && userProfile?._id) {
-          console.log('🔌 WebSocket disconnected - reconnecting after tab visible...');
-          notificationService.connect(userProfile._id);
-        }
+        console.log('👁️ Tab became visible - refreshing data from MongoDB...');
         
         // Show cached first, then refresh
         const cached = DataCache.get<WalletBalance>('walletBalance');
@@ -262,80 +316,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  // Listen for wallet recharge, deduction, and user category update notifications
+  // Poll wallet balance and user profile from MongoDB (no WebSocket dependency)
+  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
   useEffect(() => {
-    const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'wallet_recharge' || notification.type === 'wallet_deduction') {
-        console.log('💰 WALLET ADJUSTMENT NOTIFICATION:', notification);
-        // Refresh wallet balance when wallet adjustment notification is received
-        walletService.refreshBalance().then(balance => {
-          setWalletBalance(balance);
-          console.log('✅ Wallet balance refreshed after adjustment:', balance);
-        }).catch(error => {
-          console.error('Failed to refresh wallet balance:', error);
-        });
-      } else if (notification.type === 'wallet_balance_update') {
-        console.log('💰 REAL-TIME WALLET BALANCE UPDATE:', notification);
-        // Update wallet balance immediately without API call
-        const updatedBalance = {
-          balance: parseFloat(notification.balance) || 0,
-          currency: notification.currency || 'INR'
-        };
-        // Cache it immediately
-        DataCache.set('walletBalance', updatedBalance);
-        setWalletBalance(updatedBalance);
-        // Also notify wallet service listeners (which will also cache it)
-        walletService.notifyBalanceUpdate(updatedBalance);
-        console.log('✅ Wallet balance updated in real-time and cached:', updatedBalance);
-      } else if (notification.type === 'user_category_updated') {
-        console.log('🏷️ USER CATEGORY UPDATED NOTIFICATION:', notification);
-        // Refresh user profile in Layout and AuthContext to get updated category
-        const fetchUpdatedProfile = async () => {
-          try {
-            // Update Layout's userProfile state
-            const response = await userService.getUserProfile();
-            setUserProfile(response.data);
-            console.log('✅ User profile refreshed after category update:', response.data);
-            
-            // Also refresh AuthContext user so all components using useAuth() get updated
-            await refreshUser();
-            console.log('✅ AuthContext user refreshed after category update');
-          } catch (error) {
-            console.error('Failed to refresh user profile:', error);
-          }
-        };
-        fetchUpdatedProfile();
-      } else if (notification.type === 'avatar_updated') {
-        console.log('🖼️ AVATAR UPDATED NOTIFICATION:', notification);
-        // Refresh user profile to get updated avatar
-        const fetchUpdatedProfile = async () => {
-          try {
-            const response = await userService.getUserProfile();
-            setUserProfile(response.data);
-            console.log('✅ User profile refreshed after avatar update:', response.data);
-          } catch (error) {
-            console.error('Failed to refresh user profile after avatar update:', error);
-          }
-        };
-        fetchUpdatedProfile();
+    const pollInterval = setInterval(async () => {
+      try {
+        // Refresh wallet balance from MongoDB
+        const balance = await walletService.refreshBalance();
+        setWalletBalance(balance);
+        DataCache.set('walletBalance', balance);
+        
+        // Refresh user profile from MongoDB
+        const profileResponse = await userService.getUserProfile();
+        DataCache.set('userProfile', profileResponse.data);
+        setUserProfile(profileResponse.data);
+        
+        // Also refresh AuthContext user
+        await refreshUser();
+        
+        console.log('✅ Data refreshed from MongoDB (polling):', { balance, profile: profileResponse.data });
+      } catch (error) {
+        console.error('❌ Error polling data from MongoDB:', error);
+        // Use cached data if API fails
+        const cachedBalance = DataCache.getStale<WalletBalance>('walletBalance');
+        const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
+        if (cachedBalance) setWalletBalance(cachedBalance);
+        if (cachedProfile) setUserProfile(cachedProfile);
       }
-    });
+    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
 
-    return unsubscribe;
+    return () => clearInterval(pollInterval);
   }, [refreshUser]);
 
   const menuItems = [
-    { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
-    { path: '/orders', icon: '🛒', label: 'Orders' },
-    { path: '/packages', icon: '📦', label: 'Packages' },
-    { path: '/ndr', icon: '📦', label: 'NDR' },
-    { path: '/tools', icon: '🔧', label: 'Tools' },
-    { path: '/billing', icon: '💳', label: 'Billing' },
-    { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies' },
-    { path: '/warehouse', icon: '🏢', label: 'Warehouse' },
-    { path: '/channel', icon: '🔗', label: 'Channel' },
-    { path: '/support', icon: '🎧', label: 'Support' },
-    { path: '/settings', icon: '⚙️', label: 'Setting' },
+    { path: '/dashboard', icon: '🏠', label: 'Dashboard', svgIcon: group1Icon },
+    { path: '/orders', icon: '🛒', label: 'Orders', svgIcon: vector14Icon },
+    { path: '/packages', icon: '📦', label: 'Packages', svgIcon: null }, // Packages icon not specified
+    { path: '/ndr', icon: '📦', label: 'NDR', svgIcon: group10Icon },
+    { path: '/tools', icon: '🔧', label: 'Tools', svgIcon: vectorIcon },
+    { path: '/billing', icon: '💳', label: 'Billing', svgIcon: group1BillingIcon },
+    { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies', svgIcon: null }, // Weight Discrepancies icon not specified
+    { path: '/warehouse', icon: '🏢', label: 'Warehouse', svgIcon: group19Icon },
+    { path: '/channel', icon: '🔗', label: 'Channel', svgIcon: vector1Icon },
+    { path: '/support', icon: '🎧', label: 'Support', svgIcon: vector2Icon },
+    { path: '/settings', icon: '⚙️', label: 'Setting', svgIcon: group3Icon },
   ];
 
   return (
@@ -370,7 +394,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button type="submit" className="search-button">
-              🔍
+              <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
             </button>
           </form>
         </div>
@@ -380,15 +404,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
            <div style={{
              display: 'flex',
              alignItems: 'center',
-             marginRight: '10px',
-             padding: '4px 8px',
-             borderRadius: '4px',
-             backgroundColor: wsConnected ? '#28a745' : '#dc3545',
-             color: 'white',
-             fontSize: '12px',
-             fontWeight: 'bold'
+             marginRight: '6px',
+             fontSize: '11px',
+             fontWeight: '500',
+             color: '#333'
            }}>
-             {wsConnected ? '🟢' : '🔴'} {wsConnected ? 'Connected' : 'Disconnected'}
+             <span style={{
+               display: 'inline-block',
+               width: '8px',
+               height: '8px',
+               borderRadius: '50%',
+               backgroundColor: wsConnected ? '#28a745' : '#dc3545',
+               marginRight: '6px'
+             }}></span>
+             {wsConnected ? 'Connected' : 'Disconnected'}
            </div>
            
            <div className="wallet-section">
@@ -397,12 +426,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                <span className="wallet-balance">
                  {walletBalance?.balance?.toFixed(2) || (userProfile as any)?.wallet_balance?.toFixed(2) || '0.00'}
                </span>
-               <button className="refresh-wallet-button" onClick={handleRefreshWallet} title="Refresh Wallet Balance">
-                 🔄
-               </button>
-               <button className="debug-wallet-button" onClick={handleDebugWallet} title="Debug Wallet API">
-                 🔍
-               </button>
+              <button className="refresh-wallet-button" onClick={handleRefreshWallet} title="Refresh Wallet Balance">
+              </button>
+              <button className="debug-wallet-button" onClick={handleDebugWallet} title="Debug Wallet API">
+              </button>
              </div>
              <button className="recharge-button" onClick={handleRecharge}>
                Recharge
@@ -415,14 +442,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             🔔
           </button>
           
-          {/* Profile Circle - Always visible */}
+          {/* Profile Circle - Always visible and always clickable */}
+          {/* Profile is ALWAYS fetched from MongoDB, independent of WebSocket */}
           <div className="user-avatar-container" style={{ display: 'flex', visibility: 'visible', opacity: 1 }}>
             <button 
               className="user-avatar" 
-              onClick={userProfile ? handleProfileClick : undefined}
+              onClick={handleProfileClick}
               title={userProfile ? `${userProfile.company_name || 'Profile'}` : 'Loading...'}
-              disabled={!userProfile && loading}
-              style={{ display: 'flex', visibility: 'visible', opacity: 1 }}
+              style={{ display: 'flex', visibility: 'visible', opacity: 1, cursor: 'pointer' }}
+              disabled={false}
             >
               {loading && !userProfile ? (
                 <div className="user-avatar-loading">...</div>
@@ -436,7 +464,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
                     const parent = target.parentElement;
-                    if (parent) {
+                    if (parent && !parent.querySelector('.avatar-initials')) {
                       const span = document.createElement('span');
                       span.className = 'avatar-initials';
                       span.textContent = userProfile?.initials || 
@@ -457,20 +485,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </button>
             
-            {/* Profile Dropdown */}
-            {isProfileOpen && userProfile && (
+            {/* Profile Dropdown - Always show if clicked, will fetch profile if needed */}
+            {isProfileOpen && (
               <div className="profile-dropdown-wrapper" style={{ display: 'block', visibility: 'visible' }}>
-                <ProfileDropdown 
-                  user={{
-                    ...userProfile,
-                    initials: userProfile.initials || 
-                             (userProfile.your_name?.charAt(0).toUpperCase() || 
-                              userProfile.company_name?.charAt(0).toUpperCase() || 
-                              'U')
-                  }} 
-                  onClose={handleProfileClose}
-                  onLogout={handleLogout}
-                />
+                {userProfile ? (
+                  <ProfileDropdown 
+                    user={{
+                      ...userProfile,
+                      initials: userProfile.initials || 
+                               (userProfile.your_name?.charAt(0).toUpperCase() || 
+                                userProfile.company_name?.charAt(0).toUpperCase() || 
+                                'U')
+                    }} 
+                    onClose={handleProfileClose}
+                    onLogout={handleLogout}
+                  />
+                ) : (
+                  <div style={{ padding: '20px', textAlign: 'center' }}>
+                    <div>Loading profile...</div>
+                    <button onClick={() => {
+                      // Force refresh profile from MongoDB
+                      userService.getUserProfile().then(response => {
+                        DataCache.set('userProfile', response.data);
+                        setUserProfile(response.data);
+                      });
+                    }}>Refresh Profile</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -487,7 +528,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to={item.path}
                 className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
               >
-                <span className="sidebar-icon">{item.icon}</span>
+                <span className="sidebar-icon">
+                  {item.svgIcon ? (
+                    <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
+                  ) : (
+                    item.icon
+                  )}
+                </span>
                 <span className="sidebar-label">{item.label}</span>
               </Link>
             ))}

@@ -4,6 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { shippingService } from '../services/shippingService';
 import { apiService } from '../services/api';
 import './Tools.css';
+import RateCalculatorIcon from '../ratecalculator/RATECALCULATOR.svg';
+import ListIcon from '../ratecalculator/List.svg';
+import TruckIcon from '../ratecalculator/truck.svg';
+import MapFillIcon from '../ratecalculator/Map-Fill.svg';
 
 interface ShippingCalculationRequest {
   weight: number;
@@ -303,7 +307,7 @@ const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => vo
 
 const Tools: React.FC = () => {
   const { user, refreshUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'calculator' | 'price-list'>('calculator');
+  const [activeTab, setActiveTab] = useState<'calculator' | 'price-list' | 'manage-courier'>('calculator');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ShippingCalculationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -516,18 +520,6 @@ const Tools: React.FC = () => {
   return (
     <Layout>
       <div className="tools-page">
-        <div className="tools-header">
-          <div className="header-content">
-            <div className="header-text">
-              <h1>Shipping Tools</h1>
-              <p>Calculate shipping rates based on your user category: <strong>{userCategory}</strong></p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px', fontStyle: 'italic' }}>
-                Your category updates automatically when assigned by admin
-              </p>
-            </div>
-          </div>
-        </div>
-
         <div className="tools-content">
           {/* Main Tabs */}
           <div className="main-tabs">
@@ -535,326 +527,338 @@ const Tools: React.FC = () => {
               className={`main-tab ${activeTab === 'calculator' ? 'active' : ''}`}
               onClick={() => setActiveTab('calculator')}
             >
-              📊 Rate Calculator
+              <img src={RateCalculatorIcon} alt="Rate Calculator" className="tab-icon" />
+              <span>Rate Calculator</span>
             </button>
             <button 
               className={`main-tab ${activeTab === 'price-list' ? 'active' : ''}`}
               onClick={() => setActiveTab('price-list')}
             >
-              💰 Price List
+              <img src={ListIcon} alt="Price List" className="tab-icon" />
+              <span>Price List</span>
+            </button>
+            <button 
+              className={`main-tab ${activeTab === 'manage-courier' ? 'active' : ''}`}
+              onClick={() => setActiveTab('manage-courier')}
+            >
+              <img src={TruckIcon} alt="Manage Courier" className="tab-icon" />
+              <span>Manage Courier</span>
             </button>
           </div>
 
           {/* Calculator Tab */}
           {activeTab === 'calculator' && (
             <div className="calculator-section">
-              <div className="calculator-header">
-                <h2>Shipping Rate Calculator</h2>
-                <div className="tabs">
-                  <button 
-                    className={`tab active`}
-                  >
-                    Domestic
-                  </button>
+              <div className="calculator-wrapper">
+                {/* Left Side - Form */}
+                <div className="calculator-form-container">
+                  <div className="calculator-tabs">
+                    <button className={`mode-tab active`}>Domestic</button>
+                    <button className={`mode-tab`}>International</button>
+                  </div>
+
+                  <div className="calculator-form">
+                    <div className="form-group">
+                      <label>Shipment Type</label>
+                      <div className="radio-group">
+                        <label className="radio-label">
+                          <input 
+                            type="radio" 
+                            name="shipmentType" 
+                            value="forward"
+                            checked={formData.shipmentType === 'forward'}
+                            onChange={(e) => handleInputChange('shipmentType', e.target.value)}
+                          />
+                          Forward
+                        </label>
+                        <label className="radio-label">
+                          <input 
+                            type="radio" 
+                            name="shipmentType" 
+                            value="return"
+                            checked={formData.shipmentType === 'return'}
+                            onChange={(e) => handleInputChange('shipmentType', e.target.value)}
+                          />
+                          Return
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Pickup Pincode</label>
+                      <input
+                        type="text"
+                        placeholder="Enter 6 digit pickup pincode."
+                        value={formData.pickupPincode}
+                        onChange={(e) => handlePincodeChange('pickup', e.target.value)}
+                        maxLength={6}
+                        className="pincode-input"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Actual Weight</label>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={formData.actualWeight || ''}
+                        onChange={(e) => handleInputChange('actualWeight', e.target.value)}
+                        step="0.01"
+                        min="0"
+                        className="weight-input"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Payment Type</label>
+                      <div className="radio-group">
+                        <label className="radio-label">
+                          <input 
+                            type="radio" 
+                            name="paymentType" 
+                            value="prepaid"
+                            checked={formData.paymentType === 'prepaid'}
+                            onChange={(e) => handleInputChange('paymentType', e.target.value)}
+                          />
+                          Prepaid
+                        </label>
+                        <label className="radio-label">
+                          <input 
+                            type="radio" 
+                            name="paymentType" 
+                            value="cod"
+                            checked={formData.paymentType === 'cod'}
+                            onChange={(e) => handleInputChange('paymentType', e.target.value)}
+                          />
+                          Cash on Delivery
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Package Type</label>
+                      <select 
+                        value={formData.packageType}
+                        onChange={(e) => handleInputChange('packageType', e.target.value)}
+                        className="package-select"
+                      >
+                        <option value="single">Single Package (B2C)</option>
+                        <option value="bulk">Bulk Package (B2B)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Delivery Pincode</label>
+                      <input
+                        type="text"
+                        placeholder="Enter 6 digit delivery pincode."
+                        value={formData.deliveryPincode}
+                        onChange={(e) => handlePincodeChange('delivery', e.target.value)}
+                        maxLength={6}
+                        className="pincode-input"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Dimensions</label>
+                      <div className="dimensions-input">
+                        <input
+                          type="number"
+                          placeholder=""
+                          value={formData.dimensions.length}
+                          onChange={(e) => handleInputChange('dimensions.length', e.target.value)}
+                          step="0.1"
+                          min="0"
+                        />
+                        <input
+                          type="number"
+                          placeholder=""
+                          value={formData.dimensions.breadth}
+                          onChange={(e) => handleInputChange('dimensions.breadth', e.target.value)}
+                          step="0.1"
+                          min="0"
+                        />
+                        <input
+                          type="number"
+                          placeholder=""
+                          value={formData.dimensions.height}
+                          onChange={(e) => handleInputChange('dimensions.height', e.target.value)}
+                          step="0.1"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Shipment Value</label>
+                      <input
+                        type="number"
+                        placeholder="Enter Shipment Value"
+                        value={formData.shipmentValue}
+                        onChange={(e) => handleInputChange('shipmentValue', e.target.value)}
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Cash on Delivery Value</label>
+                      <input
+                        type="number"
+                        placeholder="Enter Cash on Delivery Value"
+                        value={formData.codValue}
+                        onChange={(e) => handleInputChange('codValue', e.target.value)}
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <div className="form-actions">
+                      <button 
+                        type="button" 
+                        onClick={clearForm}
+                        className="clear-btn"
+                      >
+                        Clear
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={calculateShipping}
+                        disabled={loading}
+                        className="calculate-btn"
+                      >
+                        {loading ? 'Calculating...' : 'Calculate'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side - Location Display */}
+                <div className="location-section">
+                  <div className="location-card">
+                    <div className="location-header">
+                      <img src={MapFillIcon} alt="Location" className="location-icon-img" />
+                      <span className="location-label">Pickup Location</span>
+                    </div>
+                    <div className="location-box">
+                      {validatingPincode.pickup ? (
+                        <div className="location-loading">Validating...</div>
+                      ) : pickupLocation ? (
+                        <>
+                          <div className={`location-city ${pickupLocation.city.includes('Invalid') || pickupLocation.city.includes('Error') ? 'error' : ''}`}>
+                            {pickupLocation.city}
+                          </div>
+                          <div className={`location-state ${pickupLocation.state.includes('Please check') || pickupLocation.state.includes('Try again') ? 'error' : ''}`}>
+                            {pickupLocation.state}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="location-city">City</div>
+                          <div className="location-state">State</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="location-connector">
+                    <div className="connector-line"></div>
+                  </div>
+
+                  <div className="location-card">
+                    <div className="location-header">
+                      <img src={MapFillIcon} alt="Location" className="location-icon-img" />
+                      <span className="location-label">Delivery Location</span>
+                    </div>
+                    <div className="location-box">
+                      {validatingPincode.delivery ? (
+                        <div className="location-loading">Validating...</div>
+                      ) : deliveryLocation ? (
+                        <>
+                          <div className={`location-city ${deliveryLocation.city.includes('Invalid') || deliveryLocation.city.includes('Error') ? 'error' : ''}`}>
+                            {deliveryLocation.city}
+                          </div>
+                          <div className={`location-state ${deliveryLocation.state.includes('Please check') || deliveryLocation.state.includes('Try again') ? 'error' : ''}`}>
+                            {deliveryLocation.state}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="location-city">City</div>
+                          <div className="location-state">State</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-            <div className="calculator-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Shipment Type</label>
-                  <div className="radio-group">
-                    <label className="radio-label">
-                      <input 
-                        type="radio" 
-                        name="shipmentType" 
-                        value="forward"
-                        checked={formData.shipmentType === 'forward'}
-                        onChange={(e) => handleInputChange('shipmentType', e.target.value)}
-                      />
-                      Forward
-                    </label>
-                    <label className="radio-label">
-                      <input 
-                        type="radio" 
-                        name="shipmentType" 
-                        value="return"
-                        checked={formData.shipmentType === 'return'}
-                        onChange={(e) => handleInputChange('shipmentType', e.target.value)}
-                      />
-                      Return
-                    </label>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Pickup Pincode</label>
-                  <input
-                    type="text"
-                    placeholder="Enter 6 digit pickup pincode"
-                    value={formData.pickupPincode}
-                    onChange={(e) => handlePincodeChange('pickup', e.target.value)}
-                    maxLength={6}
-                    className="pincode-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Actual Weight (kg)</label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.actualWeight}
-                    onChange={(e) => handleInputChange('actualWeight', e.target.value)}
-                    step="0.01"
-                    min="0"
-                    className="weight-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Payment Type</label>
-                  <div className="radio-group">
-                    <label className="radio-label">
-                      <input 
-                        type="radio" 
-                        name="paymentType" 
-                        value="prepaid"
-                        checked={formData.paymentType === 'prepaid'}
-                        onChange={(e) => handleInputChange('paymentType', e.target.value)}
-                      />
-                      Prepaid
-                    </label>
-                    <label className="radio-label">
-                      <input 
-                        type="radio" 
-                        name="paymentType" 
-                        value="cod"
-                        checked={formData.paymentType === 'cod'}
-                        onChange={(e) => handleInputChange('paymentType', e.target.value)}
-                      />
-                      Cash on Delivery
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Package Type</label>
-                  <select 
-                    value={formData.packageType}
-                    onChange={(e) => handleInputChange('packageType', e.target.value)}
-                    className="package-select"
-                  >
-                    <option value="single">Single Package (B2C)</option>
-                    <option value="bulk">Bulk Package (B2B)</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Delivery Pincode</label>
-                  <input
-                    type="text"
-                    placeholder="Enter 6 digit delivery pincode"
-                    value={formData.deliveryPincode}
-                    onChange={(e) => handlePincodeChange('delivery', e.target.value)}
-                    maxLength={6}
-                    className="pincode-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Dimensions (cm)</label>
-                  <div className="dimensions-input">
-                    <input
-                      type="number"
-                      placeholder="Length"
-                      value={formData.dimensions.length}
-                      onChange={(e) => handleInputChange('dimensions.length', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Width"
-                      value={formData.dimensions.breadth}
-                      onChange={(e) => handleInputChange('dimensions.breadth', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Height"
-                      value={formData.dimensions.height}
-                      onChange={(e) => handleInputChange('dimensions.height', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Shipment Value (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="Enter Shipment Value"
-                    value={formData.shipmentValue}
-                    onChange={(e) => handleInputChange('shipmentValue', e.target.value)}
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-              </div>
-
-              {formData.paymentType === 'cod' && (
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Cash on Delivery Value (₹)</label>
-                    <input
-                      type="number"
-                      placeholder="Enter Cash on Delivery Value"
-                      value={formData.codValue}
-                      onChange={(e) => handleInputChange('codValue', e.target.value)}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
+              {/* Results */}
+              {error && (
+                <div className="error-message">
+                  <span>❌ {error}</span>
                 </div>
               )}
 
-              <div className="form-actions">
-                <button 
-                  type="button" 
-                  onClick={clearForm}
-                  className="clear-btn"
-                >
-                  Clear
-                </button>
-                <button 
-                  type="button" 
-                  onClick={calculateShipping}
-                  disabled={loading}
-                  className="calculate-btn"
-                >
-                  {loading ? 'Calculating...' : 'Calculate'}
-                </button>
-              </div>
-            </div>
-
-            {/* Location Display */}
-            <div className="location-section">
-            <div className="location-card">
-              <div className="location-header">
-                <span className="location-icon">📍</span>
-                <span className="location-label">Pickup Location</span>
-              </div>
-              <div className="location-details">
-                {validatingPincode.pickup ? (
-                  <div className="location-loading">Validating...</div>
-                ) : pickupLocation ? (
-                  <>
-                    <div className={`location-city ${pickupLocation.city.includes('Invalid') || pickupLocation.city.includes('Error') ? 'error' : ''}`}>
-                      {pickupLocation.city}
-                    </div>
-                    <div className={`location-state ${pickupLocation.state.includes('Please check') || pickupLocation.state.includes('Try again') ? 'error' : ''}`}>
-                      {pickupLocation.state}
-                    </div>
-                  </>
-                ) : (
-                  <div className="location-placeholder">City, State</div>
-                )}
-              </div>
-            </div>
-
-            <div className="location-connector">
-              <div className="connector-line"></div>
-              <div className="connector-arrow">→</div>
-            </div>
-
-            <div className="location-card">
-              <div className="location-header">
-                <span className="location-icon">📍</span>
-                <span className="location-label">Delivery Location</span>
-              </div>
-              <div className="location-details">
-                {validatingPincode.delivery ? (
-                  <div className="location-loading">Validating...</div>
-                ) : deliveryLocation ? (
-                  <>
-                    <div className={`location-city ${deliveryLocation.city.includes('Invalid') || deliveryLocation.city.includes('Error') ? 'error' : ''}`}>
-                      {deliveryLocation.city}
-                    </div>
-                    <div className={`location-state ${deliveryLocation.state.includes('Please check') || deliveryLocation.state.includes('Try again') ? 'error' : ''}`}>
-                      {deliveryLocation.state}
-                    </div>
-                  </>
-                ) : (
-                  <div className="location-placeholder">City, State</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-            {/* Results */}
-            {error && (
-              <div className="error-message">
-                <span>❌ {error}</span>
-              </div>
-            )}
-
-            {result && (
-              <div className="results-section">
-                <h3>Shipping Calculation Results</h3>
-                <div className="results-card">
-                  <div className="result-header">
-                    <div className="user-category-badge">
-                      Rate Card: {result.user_category}
-                    </div>
-                    <div className="zone-badge">
-                      Zone: {result.zone}
-                    </div>
-                  </div>
-                  
-                  <div className="result-details">
-                    <div className="result-row">
-                      <span className="result-label">Weight:</span>
-                      <span className="result-value">{(result.weight / 1000).toFixed(2)} kg</span>
-                    </div>
-                    <div className="result-row">
-                      <span className="result-label">Chargeable Weight:</span>
-                      <span className="result-value">{result.calculation_result.chargeableWeight.toFixed(2)} kg</span>
-                    </div>
-                    <div className="result-row">
-                      <span className="result-label">Volumetric Weight:</span>
-                      <span className="result-value">{result.calculation_result.volumetricWeight.toFixed(2)} kg</span>
-                    </div>
-                    {formData.shipmentType === 'forward' && (
-                      <div className="result-row">
-                        <span className="result-label">Forward Charges:</span>
-                        <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
+              {result && (
+                <div className="results-section">
+                  <h3>Shipping Calculation Results</h3>
+                  <div className="results-card">
+                    <div className="result-header">
+                      <div className="user-category-badge">
+                        Rate Card: {result.user_category}
                       </div>
-                    )}
-                    {formData.shipmentType === 'rto' && (
-                      <div className="result-row">
-                        <span className="result-label">RTO Charges:</span>
-                        <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
+                      <div className="zone-badge">
+                        Zone: {result.zone}
                       </div>
-                    )}
-                    {result.cod_amount > 0 && (
+                    </div>
+                    
+                    <div className="result-details">
                       <div className="result-row">
-                        <span className="result-label">COD Charges:</span>
-                        <span className="result-value">₹{result.calculation_result.codCharges.toFixed(2)}</span>
+                        <span className="result-label">Weight:</span>
+                        <span className="result-value">{(result.weight / 1000).toFixed(2)} kg</span>
                       </div>
-                    )}
-                    <div className="result-row total-row">
-                      <span className="result-label">Total Charges:</span>
-                      <span className="result-value total-value">₹{result.calculation_result.totalCharges.toFixed(2)}</span>
+                      <div className="result-row">
+                        <span className="result-label">Chargeable Weight:</span>
+                        <span className="result-value">{result.calculation_result.chargeableWeight.toFixed(2)} kg</span>
+                      </div>
+                      <div className="result-row">
+                        <span className="result-label">Volumetric Weight:</span>
+                        <span className="result-value">{result.calculation_result.volumetricWeight.toFixed(2)} kg</span>
+                      </div>
+                      {formData.shipmentType === 'forward' && (
+                        <div className="result-row">
+                          <span className="result-label">Forward Charges:</span>
+                          <span className="result-value">₹{result.calculation_result.forwardCharges.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {formData.shipmentType === 'rto' && (
+                        <div className="result-row">
+                          <span className="result-label">RTO Charges:</span>
+                          <span className="result-value">₹{result.calculation_result.rtoCharges.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {result.cod_amount > 0 && (
+                        <div className="result-row">
+                          <span className="result-label">COD Charges:</span>
+                          <span className="result-value">₹{result.calculation_result.codCharges.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="result-row total-row">
+                        <span className="result-label">Total Charges:</span>
+                        <span className="result-value total-value">₹{result.calculation_result.totalCharges.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
+
+          {/* Manage Courier Tab */}
+          {activeTab === 'manage-courier' && (
+            <div className="manage-courier-section">
+              <p>Manage Courier functionality coming soon...</p>
             </div>
           )}
 

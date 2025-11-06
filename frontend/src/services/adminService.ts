@@ -220,23 +220,6 @@ class AdminService {
     return response;
   }
 
-  async getClientOrders(clientId: string, params: {
-    page?: number;
-    limit?: number;
-    status?: string;
-  } = {}): Promise<any> {
-    const queryParams = new URLSearchParams();
-    
-    if (params.page) queryParams.append('page', params.page.toString());
-    if (params.limit) queryParams.append('limit', params.limit.toString());
-    if (params.status) queryParams.append('status', params.status);
-
-    const response = await apiService.get(`/admin/clients/${clientId}/orders?${queryParams.toString()}`, {
-      headers: this.getAdminHeaders()
-    });
-    return response;
-  }
-
   async getClientPackages(clientId: string, params: {
     page?: number;
     limit?: number;
@@ -428,7 +411,8 @@ class AdminService {
     return response;
   }
 
-  async getClientWalletBalance(clientId: string): Promise<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }> {
+  // Legacy method - kept for backward compatibility
+  async getClientWalletBalanceLegacy(clientId: string): Promise<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }> {
     const response = await apiService.get<{ success: boolean; data: { client_id: string; client_id_code: string; company_name: string; email: string; wallet_balance: number } }>(`/admin/client-wallet/${clientId}`, {
       headers: this.getAdminHeaders()
     });
@@ -439,6 +423,500 @@ class AdminService {
     const response = await apiService.patch<{ success: boolean; message: string; data: AdminClient }>(`/admin/clients/${clientId}/label`, {
       user_category
     }, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // ADMIN BILLING METHODS
+  // ============================================================================
+
+  async getBillingClients(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<{
+    success: boolean;
+    data: {
+      clients: Array<{
+        _id: string;
+        client_id: string;
+        company_name: string;
+        email: string;
+        your_name: string;
+        wallet_balance: number;
+        total_credits: number;
+        total_debits: number;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.search) queryParams.append('search', params.search);
+
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        clients: Array<{
+          _id: string;
+          client_id: string;
+          company_name: string;
+          email: string;
+          your_name: string;
+          wallet_balance: number;
+          total_credits: number;
+          total_debits: number;
+        }>;
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(`/admin/billing/clients?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientBillingDetails(clientId: string): Promise<{
+    success: boolean;
+    data: {
+      _id: string;
+      client_id: string;
+      company_name: string;
+      email: string;
+      your_name: string;
+      phone_number: string;
+    };
+  }> {
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        _id: string;
+        client_id: string;
+        company_name: string;
+        email: string;
+        your_name: string;
+        phone_number: string;
+      };
+    }>(`/admin/billing/clients/${clientId}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientWalletBalance(clientId: string): Promise<{
+    success: boolean;
+    data: {
+      available_balance: number;
+      pending_credits: number;
+      pending_debits: number;
+      effective_balance: number;
+      currency: string;
+    };
+  }> {
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        available_balance: number;
+        pending_credits: number;
+        pending_debits: number;
+        effective_balance: number;
+        currency: string;
+      };
+    }>(`/admin/billing/clients/${clientId}/wallet-balance`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientWalletTransactions(clientId: string, params: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    date_from?: string;
+    date_to?: string;
+  } = {}): Promise<{
+    success: boolean;
+    data: {
+      transactions: Array<{
+        transaction_id: string;
+        transaction_type: 'credit' | 'debit';
+        amount: number;
+        description: string;
+        status: string;
+        transaction_date: string;
+        account_name: string;
+        account_email: string;
+        order_id: string;
+        awb_number: string;
+        weight: number | null;
+        zone: string;
+        closing_balance: number;
+      }>;
+      summary: {
+        current_balance: number;
+        total_credits: number;
+        total_debits: number;
+      };
+      pagination: {
+        current_page: number;
+        total_pages: number;
+        total_count: number;
+        per_page: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.type) queryParams.append('type', params.type);
+    if (params.date_from) queryParams.append('date_from', params.date_from);
+    if (params.date_to) queryParams.append('date_to', params.date_to);
+
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        transactions: Array<{
+          transaction_id: string;
+          transaction_type: 'credit' | 'debit';
+          amount: number;
+          description: string;
+          status: string;
+          transaction_date: string;
+          account_name: string;
+          account_email: string;
+          order_id: string;
+          awb_number: string;
+          weight: number | null;
+          zone: string;
+          closing_balance: number;
+        }>;
+        summary: {
+          current_balance: number;
+          total_credits: number;
+          total_debits: number;
+        };
+        pagination: {
+          current_page: number;
+          total_pages: number;
+          total_count: number;
+          per_page: number;
+        };
+      };
+    }>(`/admin/billing/clients/${clientId}/wallet-transactions?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // ADMIN ORDERS METHODS
+  // ============================================================================
+
+  async getOrdersClients(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<{
+    success: boolean;
+    data: {
+      clients: Array<{
+        _id: string;
+        client_id: string;
+        company_name: string;
+        email: string;
+        your_name: string;
+        total_orders: number;
+        orders_by_status: {
+          new: number;
+          ready_to_ship: number;
+          pickups_manifests: number;
+          in_transit: number;
+          out_for_delivery: number;
+          delivered: number;
+          ndr: number;
+          rto: number;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.search) queryParams.append('search', params.search);
+
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        clients: Array<{
+          _id: string;
+          client_id: string;
+          company_name: string;
+          email: string;
+          your_name: string;
+          total_orders: number;
+          orders_by_status: {
+            new: number;
+            ready_to_ship: number;
+            pickups_manifests: number;
+            in_transit: number;
+            out_for_delivery: number;
+            delivered: number;
+            ndr: number;
+            rto: number;
+          };
+        }>;
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(`/admin/orders/clients?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientOrders(clientId: string, params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    order_type?: string;
+    payment_mode?: string;
+    search?: string;
+    date_from?: string;
+    date_to?: string;
+  } = {}): Promise<{
+    status: string;
+    data: {
+      orders: any[];
+      pagination: {
+        current_page: number;
+        total_pages: number;
+        total_orders: number;
+        per_page: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.order_type) queryParams.append('order_type', params.order_type);
+    if (params.payment_mode) queryParams.append('payment_mode', params.payment_mode);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.date_from) queryParams.append('date_from', params.date_from);
+    if (params.date_to) queryParams.append('date_to', params.date_to);
+
+    const response = await apiService.get<{
+      status: string;
+      data: {
+        orders: any[];
+        pagination: {
+          current_page: number;
+          total_pages: number;
+          total_orders: number;
+          per_page: number;
+        };
+      };
+    }>(`/admin/orders/clients/${clientId}/orders?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientOrderStats(clientId: string): Promise<{
+    success: boolean;
+    data: {
+      new: number;
+      ready_to_ship: number;
+      pickups_manifests: number;
+      in_transit: number;
+      out_for_delivery: number;
+      delivered: number;
+      ndr: number;
+      rto: number;
+      all: number;
+    };
+  }> {
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        new: number;
+        ready_to_ship: number;
+        pickups_manifests: number;
+        in_transit: number;
+        out_for_delivery: number;
+        delivered: number;
+        ndr: number;
+        rto: number;
+        all: number;
+      };
+    }>(`/admin/orders/clients/${clientId}/stats`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // ADMIN NDR METHODS
+  // ============================================================================
+
+  async getNDRClients(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<{
+    success: boolean;
+    data: {
+      clients: Array<{
+        _id: string;
+        client_id: string;
+        company_name: string;
+        email: string;
+        your_name: string;
+        total_ndrs: number;
+        ndrs_by_status: {
+          action_required: number;
+          action_taken: number;
+          delivered: number;
+          rto: number;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.search) queryParams.append('search', params.search);
+
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        clients: Array<{
+          _id: string;
+          client_id: string;
+          company_name: string;
+          email: string;
+          your_name: string;
+          total_ndrs: number;
+          ndrs_by_status: {
+            action_required: number;
+            action_taken: number;
+            delivered: number;
+            rto: number;
+          };
+        }>;
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(`/admin/ndr/clients?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientNDRs(clientId: string, params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    ndr_reason?: string;
+    nsl_code?: string;
+    attempts_min?: number;
+    attempts_max?: number;
+    date_from?: string;
+    date_to?: string;
+    search?: string;
+  } = {}): Promise<{
+    status: string;
+    data: {
+      orders: any[];
+      pagination: {
+        current_page: number;
+        total_pages: number;
+        total_orders: number;
+        per_page: number;
+      };
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.ndr_reason) queryParams.append('ndr_reason', params.ndr_reason);
+    if (params.nsl_code) queryParams.append('nsl_code', params.nsl_code);
+    if (params.attempts_min) queryParams.append('attempts_min', params.attempts_min.toString());
+    if (params.attempts_max) queryParams.append('attempts_max', params.attempts_max.toString());
+    if (params.date_from) queryParams.append('date_from', params.date_from);
+    if (params.date_to) queryParams.append('date_to', params.date_to);
+    if (params.search) queryParams.append('search', params.search);
+
+    const response = await apiService.get<{
+      status: string;
+      data: {
+        orders: any[];
+        pagination: {
+          current_page: number;
+          total_pages: number;
+          total_orders: number;
+          per_page: number;
+        };
+      };
+    }>(`/admin/ndr/clients/${clientId}/ndrs?${queryParams.toString()}`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getClientNDRStats(clientId: string): Promise<{
+    success: boolean;
+    data: {
+      action_required: number;
+      action_taken: number;
+      delivered: number;
+      rto: number;
+      all: number;
+    };
+  }> {
+    const response = await apiService.get<{
+      success: boolean;
+      data: {
+        action_required: number;
+        action_taken: number;
+        delivered: number;
+        rto: number;
+        all: number;
+      };
+    }>(`/admin/ndr/clients/${clientId}/stats`, {
       headers: this.getAdminHeaders()
     });
     return response;

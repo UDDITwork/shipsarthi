@@ -4,12 +4,27 @@ import Layout from '../components/Layout';
 import RechargeModal from '../components/RechargeModal';
 import { userService, DashboardData } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
-import { notificationService } from '../services/notificationService';
 import { apiService } from '../services/api';
 import { DataCache } from '../utils/dataCache';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
+import CartIcon from '../dashboardvectors/Cart.svg';
+import WalletIcon from '../dashboardvectors/Wallet.svg';
+import TruckIcon from '../dashboardvectors/Truck.svg';
 import './Dashboard.css';
+
+/**
+ * Dashboard Component
+ * 
+ * IMPORTANT: This component fetches ALL data directly from REST APIs (MongoDB).
+ * Dashboard data is completely independent of WebSocket updates:
+ * - Wallet balance: Fetched directly from /api/user/wallet-balance and /api/dashboard/overview
+ * - Average shipping charges: Calculated directly from MongoDB via /api/dashboard/overview
+ * - All metrics: Fetched directly from respective dashboard API endpoints
+ * 
+ * WebSockets are NOT used for dashboard data to ensure accuracy and consistency.
+ * All data is fetched via direct API calls on mount and periodic polling.
+ */
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -130,7 +145,8 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
-  // Fetch all dashboard data - with cache fallback so app NEVER freezes
+  // Fetch all dashboard data DIRECTLY from MongoDB via REST APIs (no WebSocket dependency)
+  // This ensures dashboard data is always accurate and not affected by WebSocket connections
   const fetchAllDashboardData = async (showLoading: boolean = false) => {
     // Try to load from cache first - show data immediately, no freezing
     const cachedDashboard = DataCache.get<DashboardData>('dashboard');
@@ -237,14 +253,16 @@ const Dashboard: React.FC = () => {
       DataCache.set('shipmentDistribution', distributionResponse.data);
       DataCache.set('dashboardTransactions', transactionsResponse.data || []);
       
-      // Update wallet balance
+      // Update wallet balance directly from API response (no WebSocket dependency)
+      // Dashboard data is fetched directly from MongoDB, not affected by WebSockets
       if (dashboardResponse.data.wallet_balance !== undefined) {
         const balanceFromOverview = {
           balance: parseFloat(dashboardResponse.data.wallet_balance) || 0,
           currency: 'INR'
         };
         setWalletBalance(balanceFromOverview);
-        walletService.notifyBalanceUpdate(balanceFromOverview);
+        // Don't call notifyBalanceUpdate - dashboard should only use direct API data
+        // This ensures dashboard is completely independent of WebSocket updates
         DataCache.set('walletBalance', balanceFromOverview);
       }
     } catch (error) {
@@ -277,35 +295,22 @@ const Dashboard: React.FC = () => {
     // Fetch wallet balance immediately on mount (direct from MongoDB, no WebSocket)
     fetchWalletBalanceFromMongoDB();
 
-    // Listen for WebSocket reconnection events to refresh data
-    const handleReconnect = () => {
-      console.log('🔄 Dashboard: WebSocket reconnected, refreshing data...');
-      fetchAllDashboardData(false); // Refresh in background, don't block UI
-      // Refresh wallet balance directly from MongoDB (not from WebSocket)
-      fetchWalletBalanceFromMongoDB();
-    };
-    window.addEventListener('websocket-reconnected', handleReconnect);
-    
-    // Handle WebSocket disconnects gracefully - don't clear state
-    // WebSocket disconnects are normal (code 1001 = going away)
-    // State should persist even if WebSocket disconnects
-
-    // Auto-refresh wallet balance directly from MongoDB every 2 minutes
+    // Poll dashboard data from MongoDB (no WebSocket dependency)
+    // Auto-refresh wallet balance directly from MongoDB every 60 seconds
     const walletRefreshInterval = setInterval(() => {
       console.log('🔄 Auto-refreshing wallet balance from MongoDB...');
       // Always fetch fresh from MongoDB (useCache = false)
       fetchWalletBalanceFromMongoDB();
-    }, 2 * 60 * 1000); // Every 2 minutes
+    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
 
     refreshIntervalRef.current = setInterval(() => {
       console.log('🔄 Auto-refreshing dashboard data...');
       fetchAllDashboardData(false); // false = don't show loading, refresh in background
       // Also refresh wallet balance directly from MongoDB
       fetchWalletBalanceFromMongoDB();
-    }, 5 * 60 * 1000); // Every 5 minutes for full dashboard refresh
+    }, 120000); // Every 120 seconds (2 minutes) for full dashboard refresh to avoid rate limiting
 
     return () => {
-      window.removeEventListener('websocket-reconnected', handleReconnect);
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
       }
@@ -476,7 +481,7 @@ const Dashboard: React.FC = () => {
         {/* Date Range Display with Real-time Clock */}
         <div className="date-time-display">
           <div className="date-range-display" ref={datePickerRef} style={{ position: 'relative' }}>
-            <span className="calendar-icon">📅</span>
+            <span className="calendar-icon"></span>
             <span 
               className="date-text" 
               onClick={() => setShowDatePicker(!showDatePicker)}
@@ -536,51 +541,17 @@ const Dashboard: React.FC = () => {
             )}
           </div>
           <div className="current-time-display">
-            <span className="clock-icon">🕐</span>
             <span className="time-text">{formatCurrentTime()}</span>
             <span className="day-text">{getDayOfWeek()}</span>
           </div>
-          <button 
-            className="refresh-dashboard-btn"
-            onClick={() => {
-              console.log('🔄 Manual refresh triggered');
-              
-              // Check if WebSocket is connected, if not, reconnect it
-              const isConnected = notificationService.getConnectionState();
-              if (!isConnected) {
-                console.log('🔌 WebSocket disconnected - reconnecting...');
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                if (user._id) {
-                  notificationService.connect(user._id);
-                }
-              }
-              
-              // Refresh data
-              fetchAllDashboardData();
-              // Refresh wallet balance directly from MongoDB
-              fetchWalletBalanceFromMongoDB();
-            }}
-            title="Refresh Dashboard Data & Reconnect WebSocket"
-            style={{
-              marginLeft: '20px',
-              padding: '8px 16px',
-              backgroundColor: '#F68723',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            🔄 Refresh
-          </button>
         </div>
 
         {/* Wallet Balance Section */}
         <div className="wallet-balance-section">
           <div className="wallet-card">
-            <div className="wallet-icon">💰</div>
+            <div className="wallet-icon">
+              <img src={WalletIcon} alt="Wallet" />
+            </div>
             <div className="wallet-info">
               <div className="wallet-label">Wallet Balance</div>
               <div className={`wallet-amount ${isBalanceUpdating ? 'updating' : ''}`}>
@@ -599,12 +570,11 @@ const Dashboard: React.FC = () => {
             {/* Today's Orders Card */}
             <div className="metric-card">
               <div className="card-icon">
-                <span className="icon">🛒</span>
+                <img src={CartIcon} alt="Cart" className="icon" />
               </div>
               <div className="card-content">
                 <div className="card-header">
                   <h3>Today's Orders</h3>
-                  <button className="card-action-btn">📋</button>
                 </div>
                 <div className="card-value">{dashboardData?.metrics?.todaysOrders?.current || 0}</div>
                 <div className="card-subtitle">
@@ -618,12 +588,11 @@ const Dashboard: React.FC = () => {
             {/* Today's Revenue Card */}
             <div className="metric-card">
               <div className="card-icon">
-                <span className="icon">💼</span>
+                <img src={WalletIcon} alt="Wallet" className="icon" />
               </div>
               <div className="card-content">
                 <div className="card-header">
                   <h3>Today's Revenue</h3>
-                  <button className="card-action-btn">📋</button>
                 </div>
                 <div className="card-value">₹ {dashboardData?.metrics?.todaysRevenue?.current || 0}</div>
                 <div className="card-subtitle">
@@ -637,14 +606,13 @@ const Dashboard: React.FC = () => {
             {/* Average Shipping Cost Card */}
             <div className="metric-card">
               <div className="card-icon">
-                <span className="icon">🚚</span>
+                <img src={TruckIcon} alt="Truck" className="icon" />
               </div>
               <div className="card-content">
                 <div className="card-header">
                   <h3>Average Shipping Cost</h3>
-                  <button className="card-action-btn">📋</button>
                 </div>
-                <div className="card-value">₹ {dashboardData?.metrics?.averageShippingCost?.amount || 0}</div>
+                <div className="card-value">₹ {(dashboardData?.metrics?.averageShippingCost?.amount || 0).toFixed(2)}</div>
                 <div className="card-subtitle">
                   Total Orders
                   <br />
@@ -764,7 +732,7 @@ const Dashboard: React.FC = () => {
               <h2>Wallet Transactions</h2>
               <div className="wallet-actions">
                 <button className="recharge-btn" onClick={openRechargeModal}>
-                  💳 Recharge Wallet
+                  Recharge Wallet
                 </button>
                 <button className="view-all-btn" onClick={handleViewAllTransactions}>
                   View All

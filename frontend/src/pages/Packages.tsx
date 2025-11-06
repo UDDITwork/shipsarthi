@@ -231,7 +231,7 @@ const Packages: React.FC = () => {
               value={filters.search}
               onChange={(e) => setFilters({...filters, search: e.target.value})}
             />
-            <button type="submit" className="search-btn">🔍</button>
+            <button type="submit" className="search-btn"></button>
           </form>
 
           <select
@@ -368,31 +368,31 @@ const Packages: React.FC = () => {
 
                 <div className="package-footer">
                   {packageItem.is_default && (
-                    <span className="default-badge">⭐ Default</span>
+                    <span className="default-badge">Default</span>
                   )}
                   
                   <div className="package-buttons">
                     <button
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm btn-edit"
                       onClick={() => handleEditPackage(packageItem)}
                     >
-                      ✏️ Edit
+                      Edit
                     </button>
                     
                     {!packageItem.is_default && (
                       <button
-                        className="btn btn-sm btn-secondary"
+                        className="btn btn-sm btn-default"
                         onClick={() => handleSetDefault(packageItem._id)}
                       >
-                        ⭐ Set Default
+                        Set Default
                       </button>
                     )}
                     
                     <button
-                      className="btn btn-sm btn-danger"
+                      className="btn btn-sm btn-delete"
                       onClick={() => handleDeletePackage(packageItem._id)}
                     >
-                      🗑️ Delete
+                      Delete
                     </button>
                   </div>
                 </div>

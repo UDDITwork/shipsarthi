@@ -28,7 +28,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/clients', label: 'Clients', icon: '👥' },
-    { path: '/admin/wallet-recharge', label: 'Wallet Recharge', icon: '💰' },
+    { path: '/admin/billing', label: 'Billing', icon: '💰' },
+    { path: '/admin/orders', label: 'Orders', icon: '📦' },
+    { path: '/admin/ndr', label: 'NDR', icon: '📋' },
+    { path: '/admin/wallet-recharge', label: 'Wallet Recharge', icon: '💳' },
     { path: '/admin/weight-discrepancies', label: 'Weight Discrepancies', icon: '⚖️' },
   ];
 

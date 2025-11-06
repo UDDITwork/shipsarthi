@@ -8,15 +8,16 @@
 
 /* Profile Header */
 .profile-header {
-  background: linear-gradient(135deg, #F68723 0%, #E07612 100%);
+  background: #FFFFFF;
   padding: 40px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 30px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(246, 135, 35, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   position: relative;
+  border: 1px solid #E5E5E5;
 }
 
 .profile-avatar {

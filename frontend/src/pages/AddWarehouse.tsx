@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { warehouseService, Warehouse } from '../services/warehouseService';
+import { apiService } from '../services/api';
+import { DataCache } from '../utils/dataCache';
 import './AddWarehouse.css';
 
 interface CreateWarehouseData {
@@ -115,6 +117,8 @@ const AddWarehouse: React.FC = () => {
 
   const [errors, setErrors] = useState<any>({});
   const [returnAddressSame, setReturnAddressSame] = useState(false);
+  const [validatingPincode, setValidatingPincode] = useState(false);
+  const [validatingReturnPincode, setValidatingReturnPincode] = useState(false);
 
   // Load warehouse data in edit mode
   useEffect(() => {
@@ -180,6 +184,199 @@ const AddWarehouse: React.FC = () => {
     }
   }, [isEditMode, id, navigate]);
 
+  // Pincode validation function using Delhivery API
+  const validatePincode = async (pincode: string) => {
+    if (pincode.length !== 6) return null;
+    
+    try {
+      const response = await apiService.get<{ city: string; state: string; serviceable: boolean }>(`/tools/pincode-info/${pincode}`);
+      return response;
+    } catch (error) {
+      console.error('Pincode validation error:', error);
+      return null;
+    }
+  };
+
+  // Handle address pincode change with auto-fill
+  const handleAddressPincodeChange = async (pincode: string) => {
+    // Update pincode in form data
+    const [parent, child] = 'address.pincode'.split('.');
+    setFormData(prev => ({
+      ...prev,
+      [parent]: {
+        ...(prev as any)[parent],
+        [child]: pincode
+      }
+    }));
+    
+    // If pincode is 6 digits, validate and auto-fill city/state
+    if (pincode.length === 6) {
+      setValidatingPincode(true);
+      
+      try {
+        const locationInfo = await validatePincode(pincode);
+        if (locationInfo && locationInfo.city && locationInfo.state && 
+            locationInfo.city !== 'Unknown' && locationInfo.state !== 'Unknown' &&
+            locationInfo.city !== 'Not Serviceable' && locationInfo.state !== 'Not Serviceable') {
+          // Auto-fill city and state
+          setFormData(prev => {
+            const updated = {
+              ...prev,
+              address: {
+                ...prev.address,
+                city: locationInfo.city,
+                state: locationInfo.state
+              }
+            };
+            
+            // If return address same checkbox is checked, update return address too
+            if (returnAddressSame) {
+              updated.return_address = {
+                ...updated.return_address,
+                city: locationInfo.city,
+                state: locationInfo.state,
+                pincode: pincode
+              };
+            }
+            
+            return updated;
+          });
+        } else {
+          // Invalid pincode - clear fields
+          setFormData(prev => {
+            const updated = {
+              ...prev,
+              address: {
+                ...prev.address,
+                city: '',
+                state: ''
+              }
+            };
+            
+            if (returnAddressSame) {
+              updated.return_address = {
+                ...updated.return_address,
+                city: '',
+                state: ''
+              };
+            }
+            
+            return updated;
+          });
+        }
+      } catch (error) {
+        console.error('Pincode validation error:', error);
+        // On error, clear fields
+        setFormData(prev => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            city: '',
+            state: ''
+          }
+        }));
+      } finally {
+        setValidatingPincode(false);
+      }
+    } else {
+      // Clear city and state if pincode is incomplete
+      setFormData(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          city: '',
+          state: ''
+        }
+      }));
+    }
+    
+    // Clear error for this field
+    if (errors['address.pincode']) {
+      setErrors((prev: any) => {
+        const newErrors = { ...prev };
+        delete newErrors['address.pincode'];
+        return newErrors;
+      });
+    }
+  };
+
+  // Handle return address pincode change with auto-fill
+  const handleReturnAddressPincodeChange = async (pincode: string) => {
+    // Update pincode in form data
+    const [parent, child] = 'return_address.pincode'.split('.');
+    setFormData(prev => ({
+      ...prev,
+      [parent]: {
+        ...(prev as any)[parent],
+        [child]: pincode
+      }
+    }));
+    
+    // If pincode is 6 digits, validate and auto-fill city/state
+    if (pincode.length === 6) {
+      setValidatingReturnPincode(true);
+      
+      try {
+        const locationInfo = await validatePincode(pincode);
+        if (locationInfo && locationInfo.city && locationInfo.state && 
+            locationInfo.city !== 'Unknown' && locationInfo.state !== 'Unknown' &&
+            locationInfo.city !== 'Not Serviceable' && locationInfo.state !== 'Not Serviceable') {
+          // Auto-fill return address city and state
+          setFormData(prev => ({
+            ...prev,
+            return_address: {
+              ...prev.return_address,
+              city: locationInfo.city,
+              state: locationInfo.state
+            }
+          }));
+        } else {
+          // Invalid pincode - clear fields
+          setFormData(prev => ({
+            ...prev,
+            return_address: {
+              ...prev.return_address,
+              city: '',
+              state: ''
+            }
+          }));
+        }
+      } catch (error) {
+        console.error('Return pincode validation error:', error);
+        // On error, clear fields
+        setFormData(prev => ({
+          ...prev,
+          return_address: {
+            ...prev.return_address,
+            city: '',
+            state: ''
+          }
+        }));
+      } finally {
+        setValidatingReturnPincode(false);
+      }
+    } else {
+      // Clear city and state if pincode is incomplete
+      setFormData(prev => ({
+        ...prev,
+        return_address: {
+          ...prev.return_address,
+          city: '',
+          state: ''
+        }
+      }));
+    }
+    
+    // Clear error for this field
+    if (errors['return_address.pincode']) {
+      setErrors((prev: any) => {
+        const newErrors = { ...prev };
+        delete newErrors['return_address.pincode'];
+        return newErrors;
+      });
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
@@ -206,6 +403,24 @@ const AddWarehouse: React.FC = () => {
         setFormData(prev => ({
           ...prev,
           [name]: checked
+        }));
+      }
+    } else if (name === 'address.pincode') {
+      // Handle address pincode with auto-fill
+      handleAddressPincodeChange(value);
+    } else if (name === 'return_address.pincode') {
+      // Handle return address pincode with auto-fill (only if return address is not same)
+      if (!returnAddressSame) {
+        handleReturnAddressPincodeChange(value);
+      } else {
+        // If return address same, just update the pincode
+        const [parent, child] = name.split('.');
+        setFormData(prev => ({
+          ...prev,
+          [parent]: {
+            ...(prev as any)[parent],
+            [child]: value
+          }
         }));
       }
     } else if (name.includes('.')) {
@@ -405,6 +620,9 @@ const AddWarehouse: React.FC = () => {
         
         alert(`Warehouse "${response.title || response.name}" created successfully!`);
       }
+      
+      // Clear cache so fresh data is fetched when navigating back
+      DataCache.clear('warehouses');
       
       navigate('/warehouse');
       
@@ -650,6 +868,7 @@ const AddWarehouse: React.FC = () => {
                 maxLength={6}
                 className={errors['address.pincode'] ? 'error' : ''}
               />
+              {validatingPincode && <span style={{ fontSize: '12px', color: '#666', marginTop: '4px', display: 'block' }}>Fetching city and state...</span>}
               {errors['address.pincode'] && <span className="error-msg">{errors['address.pincode']}</span>}
             </div>
 
@@ -773,6 +992,7 @@ const AddWarehouse: React.FC = () => {
                 className={errors['return_address.pincode'] ? 'error' : ''}
                 style={returnAddressSame ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
               />
+              {validatingReturnPincode && !returnAddressSame && <span style={{ fontSize: '12px', color: '#666', marginTop: '4px', display: 'block' }}>Fetching city and state...</span>}
               {errors['return_address.pincode'] && <span className="error-msg">{errors['return_address.pincode']}</span>}
             </div>
           </div>

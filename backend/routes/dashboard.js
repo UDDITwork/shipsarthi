@@ -10,9 +10,24 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
+/**
+ * Dashboard Routes
+ * 
+ * IMPORTANT: These routes fetch ALL data directly from MongoDB.
+ * Dashboard data is completely independent of WebSocket updates:
+ * - Wallet balance: Fetched directly from User model (wallet_balance field)
+ * - Average shipping charges: Calculated directly from Order model aggregation
+ * - All metrics: Fetched directly from MongoDB collections via aggregation queries
+ * 
+ * These endpoints ensure dashboard data is always accurate and reflects the current database state.
+ * WebSocket notifications are NOT used for dashboard data to ensure consistency.
+ */
+
 // @desc    Get dashboard overview
 // @route   GET /api/dashboard/overview
 // @access  Private
+// @note    Fetches data directly from MongoDB - wallet balance, orders, revenue, and average shipping charges
+//          All data is calculated from live database queries, not WebSocket updates
 router.get('/overview', auth, async (req, res) => {
   const startTime = Date.now();
   logger.info('Dashboard overview request started', {

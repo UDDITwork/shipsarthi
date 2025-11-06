@@ -27,25 +27,12 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
   useEffect(() => {
     fetchNotifications();
     
-    // NOTE: Don't create a separate WebSocket connection here
-    // The Layout component already manages the WebSocket connection
-    // Just subscribe to the existing connection for notifications
-    
-    // Subscribe to real-time notifications
-    const unsubscribe = notificationService.subscribe((notification) => {
-      console.log('🔔 Real-time notification received:', notification);
-      // Add new notification to the list
-      setNotifications(prev => [notification, ...(prev || [])]);
-      setUnreadCount(prev => (prev || 0) + 1);
-    });
-    
-    // Poll for new notifications every 30 seconds as fallback
-    const interval = setInterval(fetchNotifications, 30000);
+    // Poll notifications from MongoDB (no WebSocket dependency)
+    // Poll every 60 seconds to avoid rate limiting while keeping notifications fresh
+    const interval = setInterval(fetchNotifications, 60000);
     
     return () => {
       clearInterval(interval);
-      unsubscribe();
-      // Don't disconnect - Layout component manages the connection
     };
   }, []); // fetchNotifications is stable, no need to include in deps
 

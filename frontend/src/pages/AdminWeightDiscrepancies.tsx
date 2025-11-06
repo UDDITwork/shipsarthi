@@ -238,9 +238,9 @@ const AdminWeightDiscrepancies: React.FC = () => {
                           {disc.awb_status}
                         </span>
                       </td>
-                      <td>{disc.client_declared_weight}g</td>
-                      <td>{disc.delhivery_updated_weight}g</td>
-                      <td className="diff-cell">{disc.weight_discrepancy}g</td>
+                      <td>{disc.client_declared_weight} kg</td>
+                      <td>{disc.delhivery_updated_weight} kg</td>
+                      <td className="diff-cell">{disc.weight_discrepancy} kg</td>
                       <td className="deduction-cell">-₹{disc.deduction_amount.toFixed(2)}</td>
                       <td>
                         <span className={`processed-badge ${disc.processed ? 'yes' : 'no'}`}>

@@ -20,6 +20,7 @@
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 2px solid #e3f2fd;
   }
   
   .modal-header {
@@ -136,7 +137,7 @@
   
   .section-header h3 {
     margin: 0;
-    color: #212529;
+    color: #2C4563;
     font-size: 18px;
     font-weight: 600;
   }
@@ -160,7 +161,7 @@
   
   .form-group label {
     font-weight: 600;
-    color: #495057;
+    color: #2C4563;
     margin-bottom: 8px;
     font-size: 14px;
   }
@@ -172,11 +173,29 @@
     font-style: italic;
   }
   
+  /* Date Input Styling */
+  .form-group input[type="date"] {
+    padding: 12px 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    background-color: #2C4563;
+    color: #FFFFFF;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
   .form-group input,
   .form-group select,
   .form-group textarea {
     padding: 12px 15px;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.3s ease;
@@ -187,8 +206,8 @@
   .form-group select:focus,
   .form-group textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #2C4563;
+    box-shadow: 0 0 0 3px rgba(44, 69, 99, 0.1);
   }
   
   .form-note {
@@ -200,17 +219,18 @@
   /* Special Input Groups */
   .phone-input-group {
     display: flex;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
   }
   
   .phone-prefix {
-    background: #f8f9fa;
+    background: #2C4563;
     padding: 12px 15px;
     border-right: 1px solid #e9ecef;
-    color: #6c757d;
-    font-weight: 500;
+    color: #FFFFFF;
+    font-weight: 600;
+    border-radius: 8px 0 0 8px;
   }
   
   .phone-input-group input {
@@ -221,20 +241,44 @@
   
   .price-input {
     display: flex;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
   }
   
   .currency-symbol {
-    background: #f8f9fa;
+    background: #2C4563;
     padding: 12px 15px;
     border-right: 1px solid #e9ecef;
-    color: #6c757d;
-    font-weight: 500;
+    color: #FFFFFF;
+    font-weight: 600;
+    border-radius: 8px 0 0 8px;
   }
   
   .price-input input {
+    border: none;
+    border-radius: 0;
+    flex: 1;
+  }
+
+  /* Percentage Input */
+  .percentage-input {
+    display: flex;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .percentage-symbol {
+    background: #2C4563;
+    padding: 12px 15px;
+    border-right: 1px solid #e9ecef;
+    color: #FFFFFF;
+    font-weight: 600;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .percentage-input input {
     border: none;
     border-radius: 0;
     flex: 1;
@@ -243,18 +287,19 @@
   .weight-input,
   .dimension-input {
     display: flex;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
   }
   
   .unit {
-    background: #f8f9fa;
+    background: #2C4563;
     padding: 12px 15px;
     border-left: 1px solid #e9ecef;
-    color: #6c757d;
-    font-weight: 500;
+    color: #FFFFFF;
+    font-weight: 600;
     font-size: 12px;
+    border-radius: 0 8px 8px 0;
   }
   
   .weight-input input,
@@ -267,24 +312,25 @@
   /* Quantity Input */
   .quantity-input {
     display: flex;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
   }
   
   .quantity-input button {
-    background: #f8f9fa;
+    background: #2C4563;
     border: none;
     padding: 12px 15px;
     cursor: pointer;
-    color: #6c757d;
+    color: #FFFFFF;
     font-weight: 600;
+    font-size: 16px;
     transition: all 0.3s ease;
   }
   
   .quantity-input button:hover {
-    background: #e9ecef;
-    color: #007bff;
+    background: #1a2d3f;
+    color: #FFFFFF;
   }
   
   .quantity-input input {
@@ -297,16 +343,17 @@
   /* Order ID Display */
   .order-id-display {
     display: flex;
-    border: 2px solid #e9ecef;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
   }
   
   .order-id-prefix {
-    background: #6c757d;
-    color: white;
+    background: #2C4563;
+    color: #FFFFFF;
     padding: 12px 15px;
     font-weight: 600;
+    border-radius: 8px 0 0 8px;
   }
   
   .order-id-number {
@@ -318,17 +365,18 @@
   }
   
   .refresh-btn {
-    background: #f8f9fa;
+    background: #2C4563;
     border: none;
     padding: 12px 15px;
     cursor: pointer;
-    color: #6c757d;
+    color: #FFFFFF;
     transition: all 0.3s ease;
+    border-radius: 0 8px 8px 0;
   }
   
   .refresh-btn:hover {
-    background: #e9ecef;
-    color: #007bff;
+    background: #1a2d3f;
+    color: #FFFFFF;
   }
   
   /* Radio Groups */
@@ -343,13 +391,14 @@
     gap: 8px;
     cursor: pointer;
     font-weight: 500;
-    color: #495057;
+    color: #2C4563;
   }
   
   .radio-label input[type="radio"] {
     width: 18px;
     height: 18px;
     margin: 0;
+    accent-color: #2C4563;
   }
   
   /* Checkbox */
@@ -359,13 +408,14 @@
     gap: 8px;
     cursor: pointer;
     font-weight: 500;
-    color: #495057;
+    color: #2C4563;
   }
   
   .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
     margin: 0;
+    accent-color: #2C4563;
   }
   
   /* Product Items */
@@ -688,30 +738,30 @@
   }
   
   .btn-secondary {
-    background: #6c757d;
+    background: #778899;
     color: white;
   }
   
   .btn-secondary:hover:not(:disabled) {
-    background: #545b62;
+    background: #5f6e7f;
   }
   
   .btn-primary {
-    background: #007bff;
+    background: #1F4068;
     color: white;
   }
   
   .btn-primary:hover:not(:disabled) {
-    background: #0056b3;
+    background: #152d4a;
   }
   
   .btn-success {
-    background: #28a745;
+    background: #00A8A8;
     color: white;
   }
   
   .btn-success:hover:not(:disabled) {
-    background: #218838;
+    background: #008a8a;
   }
   
   /* Responsive Design */

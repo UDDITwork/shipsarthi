@@ -672,11 +672,22 @@ class DelhiveryService {
                 if (response.data.delivery_codes && response.data.delivery_codes.length > 0) {
                     const serviceData = response.data.delivery_codes[0].postal_code;
                     
+                    // Extract full state name from 'inc' field (format: "City_Location (StateName)")
+                    // Example: "Jaipur_Mansrover_C (Rajasthan)" -> "Rajasthan"
+                    let stateName = serviceData.state_code || 'Unknown';
+                    if (serviceData.inc && typeof serviceData.inc === 'string') {
+                        const stateMatch = serviceData.inc.match(/\(([^)]+)\)/);
+                        if (stateMatch && stateMatch[1]) {
+                            stateName = stateMatch[1].trim();
+                        }
+                    }
+                    
                     logger.info('✅ Serviceability data found', {
                         pincode,
                         serviceable: true,
                         city: serviceData.city,
-                        state: serviceData.state_code,
+                        state_code: serviceData.state_code,
+                        state_name: stateName,
                         cod: serviceData.cod
                     });
 
@@ -686,6 +697,7 @@ class DelhiveryService {
                         cash_on_delivery: serviceData.cod === 'Y',
                         cash_pickup: serviceData.cash === 'Y',
                         state_code: serviceData.state_code,
+                        state_name: stateName, // Full state name extracted from inc field
                         district: serviceData.district,
                         city: serviceData.city,
                         pre_paid: serviceData.pre_paid === 'Y',

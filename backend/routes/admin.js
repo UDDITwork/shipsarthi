@@ -778,8 +778,11 @@ router.post('/tickets/:id/messages', async (req, res) => {
       });
     }
 
+    // Get admin name (use email if name not available)
+    const adminName = req.admin.name || req.admin.email || 'Admin';
+
     // Add admin message to conversation
-    await ticket.addMessage('admin', req.admin.email, message, [], is_internal);
+    await ticket.addMessage('admin', adminName, message, [], is_internal);
 
     // Update ticket status if it was waiting for admin response
     if (ticket.status === 'waiting_customer') {
@@ -787,16 +790,37 @@ router.post('/tickets/:id/messages', async (req, res) => {
       await ticket.save();
     }
 
-    // Send WebSocket notification for admin response
+    // Reload ticket to get populated user_id  
+    await ticket.populate('user_id', '_id your_name');
+
+    // Send WebSocket notification to admins
     websocketService.notifyNewMessage({
       ticket_id: ticket.ticket_id,
       _id: ticket._id,
-      client_name: ticket.user_id ? ticket.user_id.your_name : 'Unknown Client'
+      client_name: ticket.user_id?.your_name || 'Unknown Client'
     }, {
       message: message,
-      sender: 'Admin',
+      sender: adminName,
       timestamp: new Date().toISOString()
     });
+
+    // Send WebSocket notification to the client (only if not internal)
+    if (!is_internal && ticket.user_id && ticket.user_id._id) {
+      const clientNotification = {
+        type: 'admin_reply',
+        title: 'New Reply from Admin',
+        message: `You have a new reply in ticket ${ticket.ticket_id}`,
+        ticket_id: ticket.ticket_id,
+        ticket_id_mongo: ticket._id.toString(),
+        created_at: new Date().toISOString(),
+        data: {
+          message: message,
+          sender: adminName,
+          timestamp: new Date().toISOString()
+        }
+      };
+      websocketService.sendNotificationToClient(ticket.user_id._id, clientNotification);
+    }
 
     res.json({
       success: true,
@@ -1937,6 +1961,848 @@ router.get('/weight-discrepancies', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching weight discrepancies',
+      error: error.message
+    });
+  }
+});
+
+// ============================================================================
+// ADMIN BILLING ROUTES
+// ============================================================================
+
+// @desc    Get all clients for billing overview
+// @route   GET /api/admin/billing/clients
+// @access  Admin
+router.get('/billing/clients', async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '' } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const query = {};
+    
+    // Search filter
+    if (search) {
+      query.$or = [
+        { client_id: { $regex: search, $options: 'i' } },
+        { company_name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { your_name: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const [clients, total] = await Promise.all([
+      User.find(query)
+        .select('client_id company_name email your_name wallet_balance')
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(query)
+    ]);
+    
+    // Get wallet stats for each client
+    const clientsWithStats = await Promise.all(
+      clients.map(async (client) => {
+        const [credits, debits] = await Promise.all([
+          Transaction.aggregate([
+            { $match: { user_id: client._id, transaction_type: 'credit', status: 'completed' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+          ]),
+          Transaction.aggregate([
+            { $match: { user_id: client._id, transaction_type: 'debit', status: 'completed' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+          ])
+        ]);
+        
+        return {
+          _id: client._id,
+          client_id: client.client_id,
+          company_name: client.company_name,
+          email: client.email,
+          your_name: client.your_name,
+          wallet_balance: client.wallet_balance || 0,
+          total_credits: credits[0]?.total || 0,
+          total_debits: debits[0]?.total || 0
+        };
+      })
+    );
+    
+    res.json({
+      success: true,
+      data: {
+        clients: clientsWithStats,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get billing clients error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching billing clients',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client details for billing
+// @route   GET /api/admin/billing/clients/:clientId
+// @access  Admin
+router.get('/billing/clients/:clientId', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    const client = await User.findById(clientId)
+      .select('-password -password_reset_token -email_verification_token');
+    
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        _id: client._id,
+        client_id: client.client_id,
+        company_name: client.company_name,
+        email: client.email,
+        your_name: client.your_name,
+        phone_number: client.phone_number
+      }
+    });
+  } catch (error) {
+    console.error('Get client billing details error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching client details',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client wallet balance
+// @route   GET /api/admin/billing/clients/:clientId/wallet-balance
+// @access  Admin
+router.get('/billing/clients/:clientId/wallet-balance', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const client = await User.findById(clientId).select('wallet_balance');
+    
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+    
+    const pendingCredits = await Transaction.aggregate([
+      {
+        $match: {
+          user_id: clientId,
+          transaction_type: 'credit',
+          status: 'pending'
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$amount' }
+        }
+      }
+    ]);
+    
+    const pendingDebits = await Transaction.aggregate([
+      {
+        $match: {
+          user_id: clientId,
+          transaction_type: 'debit',
+          status: 'pending'
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$amount' }
+        }
+      }
+    ]);
+    
+    const availableBalance = client.wallet_balance || 0;
+    const pendingCreditAmount = pendingCredits[0]?.total || 0;
+    const pendingDebitAmount = pendingDebits[0]?.total || 0;
+    
+    res.json({
+      success: true,
+      data: {
+        available_balance: parseFloat(availableBalance.toFixed(2)),
+        pending_credits: parseFloat(pendingCreditAmount.toFixed(2)),
+        pending_debits: parseFloat(pendingDebitAmount.toFixed(2)),
+        effective_balance: parseFloat((availableBalance - pendingDebitAmount).toFixed(2)),
+        currency: 'INR'
+      }
+    });
+  } catch (error) {
+    console.error('Get client wallet balance error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching wallet balance',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client wallet transactions
+// @route   GET /api/admin/billing/clients/:clientId/wallet-transactions
+// @access  Admin
+router.get('/billing/clients/:clientId/wallet-transactions', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 25;
+    const skip = (page - 1) * limit;
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const client = await User.findById(clientId).select('email your_name wallet_balance');
+    
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+    
+    const filterQuery = { user_id: clientId };
+    
+    // Filter by transaction type
+    if (req.query.type && req.query.type !== 'all') {
+      filterQuery.transaction_type = req.query.type;
+    }
+    
+    // Filter by date range
+    if (req.query.date_from || req.query.date_to) {
+      filterQuery.transaction_date = {};
+      if (req.query.date_from) {
+        filterQuery.transaction_date.$gte = new Date(req.query.date_from);
+      }
+      if (req.query.date_to) {
+        const endDate = new Date(req.query.date_to);
+        endDate.setDate(endDate.getDate() + 1);
+        filterQuery.transaction_date.$lt = endDate;
+      }
+    }
+    
+    const [transactions, totalCount] = await Promise.all([
+      Transaction.find(filterQuery)
+        .sort({ transaction_date: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: 'related_order_id',
+          select: 'order_id delhivery_data package_info order_date',
+          model: 'Order'
+        })
+        .lean(),
+      Transaction.countDocuments(filterQuery)
+    ]);
+    
+    // Calculate wallet summary
+    const [credits, debits] = await Promise.all([
+      Transaction.aggregate([
+        { $match: { user_id: clientId, transaction_type: 'credit', status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]),
+      Transaction.aggregate([
+        { $match: { user_id: clientId, transaction_type: 'debit', status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ])
+    ]);
+    
+    const totalCredits = credits[0]?.total || 0;
+    const totalDebits = debits[0]?.total || 0;
+    const currentBalance = client.wallet_balance || 0;
+    
+    // Transform transactions for frontend
+    const transformedTransactions = transactions.map(txn => ({
+      transaction_id: txn.transaction_id,
+      transaction_type: txn.transaction_type,
+      amount: txn.amount,
+      description: txn.description,
+      status: txn.status,
+      transaction_date: txn.transaction_date,
+      account_name: client.your_name || 'N/A',
+      account_email: client.email || 'N/A',
+      order_id: txn.order_info?.order_id || txn.related_order_id?.order_id || '',
+      awb_number: txn.order_info?.awb_number || txn.related_order_id?.delhivery_data?.waybill || '',
+      weight: txn.order_info?.weight || (txn.related_order_id?.package_info?.weight ? txn.related_order_id.package_info.weight * 1000 : null),
+      zone: txn.order_info?.zone || '',
+      closing_balance: txn.balance_info?.closing_balance || 0
+    }));
+    
+    res.json({
+      success: true,
+      data: {
+        transactions: transformedTransactions,
+        summary: {
+          current_balance: currentBalance,
+          total_credits: totalCredits,
+          total_debits: totalDebits
+        },
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(totalCount / limit),
+          total_count: totalCount,
+          per_page: limit
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get client wallet transactions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching wallet transactions',
+      error: error.message
+    });
+  }
+});
+
+// ============================================================================
+// ADMIN ORDERS ROUTES
+// ============================================================================
+
+// @desc    Get all clients with order counts
+// @route   GET /api/admin/orders/clients
+// @access  Admin
+router.get('/orders/clients', async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '' } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const query = {};
+    
+    if (search) {
+      query.$or = [
+        { client_id: { $regex: search, $options: 'i' } },
+        { company_name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const [clients, total] = await Promise.all([
+      User.find(query)
+        .select('client_id company_name email your_name')
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(query)
+    ]);
+    
+    // Get order counts for each client
+    const clientsWithOrderStats = await Promise.all(
+      clients.map(async (client) => {
+        const orderCounts = await Order.aggregate([
+          { $match: { user_id: client._id } },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 }
+            }
+          }
+        ]);
+        
+        const statusMap = {};
+        orderCounts.forEach(item => {
+          statusMap[item._id] = item.count;
+        });
+        
+        const totalOrders = await Order.countDocuments({ user_id: client._id });
+        
+        return {
+          _id: client._id,
+          client_id: client.client_id,
+          company_name: client.company_name,
+          email: client.email,
+          your_name: client.your_name,
+          total_orders: totalOrders,
+          orders_by_status: {
+            new: statusMap['new'] || 0,
+            ready_to_ship: statusMap['ready_to_ship'] || 0,
+            pickups_manifests: statusMap['pickups_manifests'] || 0,
+            in_transit: statusMap['in_transit'] || 0,
+            out_for_delivery: statusMap['out_for_delivery'] || 0,
+            delivered: statusMap['delivered'] || 0,
+            ndr: statusMap['ndr'] || 0,
+            rto: statusMap['rto'] || 0
+          }
+        };
+      })
+    );
+    
+    res.json({
+      success: true,
+      data: {
+        clients: clientsWithOrderStats,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get orders clients error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching orders clients',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client orders
+// @route   GET /api/admin/orders/clients/:clientId/orders
+// @access  Admin
+router.get('/orders/clients/:clientId/orders', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 1000;
+    const skip = (page - 1) * limit;
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const filterQuery = { user_id: clientId };
+    
+    if (req.query.status && req.query.status !== 'all') {
+      filterQuery['status'] = req.query.status;
+      if (req.query.status === 'pickups_manifests') {
+        filterQuery['delhivery_data.cancellation_status'] = { $ne: 'cancelled' };
+      }
+    }
+    
+    if (req.query.order_type) {
+      filterQuery['order_type'] = req.query.order_type;
+    }
+    
+    if (req.query.payment_mode) {
+      filterQuery['payment_info.payment_mode'] = req.query.payment_mode;
+    }
+    
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i');
+      filterQuery.$or = [
+        { order_id: searchRegex },
+        { reference_id: searchRegex },
+        { 'delhivery_data.waybill': searchRegex },
+        { 'customer_info.buyer_name': searchRegex },
+        { 'customer_info.phone': searchRegex }
+      ];
+    }
+    
+    if (req.query.date_from || req.query.date_to) {
+      filterQuery.createdAt = {};
+      if (req.query.date_from) {
+        filterQuery.createdAt.$gte = new Date(req.query.date_from);
+      }
+      if (req.query.date_to) {
+        filterQuery.createdAt.$lte = new Date(req.query.date_to);
+      }
+    }
+    
+    const [orders, totalOrders] = await Promise.all([
+      Order.find(filterQuery)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Order.countDocuments(filterQuery)
+    ]);
+    
+    res.json({
+      status: 'success',
+      data: {
+        orders,
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(totalOrders / limit),
+          total_orders: totalOrders,
+          per_page: limit
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get client orders error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error fetching client orders',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client order statistics
+// @route   GET /api/admin/orders/clients/:clientId/stats
+// @access  Admin
+router.get('/orders/clients/:clientId/stats', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const orderCounts = await Order.aggregate([
+      { $match: { user_id: clientId } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    const stats = {
+      new: 0,
+      ready_to_ship: 0,
+      pickups_manifests: 0,
+      in_transit: 0,
+      out_for_delivery: 0,
+      delivered: 0,
+      ndr: 0,
+      rto: 0,
+      all: 0
+    };
+    
+    orderCounts.forEach(item => {
+      if (stats.hasOwnProperty(item._id)) {
+        stats[item._id] = item.count;
+      }
+      stats.all += item.count;
+    });
+    
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Get client order stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching order statistics',
+      error: error.message
+    });
+  }
+});
+
+// ============================================================================
+// ADMIN NDR ROUTES
+// ============================================================================
+
+// @desc    Get all clients with NDR counts
+// @route   GET /api/admin/ndr/clients
+// @access  Admin
+router.get('/ndr/clients', async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '' } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const query = {};
+    
+    if (search) {
+      query.$or = [
+        { client_id: { $regex: search, $options: 'i' } },
+        { company_name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const [clients, total] = await Promise.all([
+      User.find(query)
+        .select('client_id company_name email your_name')
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(query)
+    ]);
+    
+    // Get NDR counts for each client
+    const clientsWithNDRStats = await Promise.all(
+      clients.map(async (client) => {
+        const [actionRequired, actionTaken, delivered, rto] = await Promise.all([
+          Order.countDocuments({
+            user_id: client._id,
+            'ndr_info.is_ndr': true,
+            'ndr_info.resolution_action': { $in: [null, 'reattempt'] },
+            status: 'ndr'
+          }),
+          Order.countDocuments({
+            user_id: client._id,
+            'ndr_info.is_ndr': true,
+            'ndr_info.resolution_action': { $ne: null },
+            status: 'ndr'
+          }),
+          Order.countDocuments({
+            user_id: client._id,
+            'ndr_info.is_ndr': true,
+            status: 'delivered'
+          }),
+          Order.countDocuments({
+            user_id: client._id,
+            'ndr_info.is_ndr': true,
+            status: 'rto'
+          })
+        ]);
+        
+        const totalNDRs = actionRequired + actionTaken + delivered + rto;
+        
+        return {
+          _id: client._id,
+          client_id: client.client_id,
+          company_name: client.company_name,
+          email: client.email,
+          your_name: client.your_name,
+          total_ndrs: totalNDRs,
+          ndrs_by_status: {
+            action_required: actionRequired,
+            action_taken: actionTaken,
+            delivered: delivered,
+            rto: rto
+          }
+        };
+      })
+    );
+    
+    res.json({
+      success: true,
+      data: {
+        clients: clientsWithNDRStats,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get NDR clients error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching NDR clients',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client NDRs
+// @route   GET /api/admin/ndr/clients/:clientId/ndrs
+// @access  Admin
+router.get('/ndr/clients/:clientId/ndrs', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const filterQuery = {
+      user_id: clientId,
+      'ndr_info.is_ndr': true
+    };
+    
+    // Status filter
+    if (req.query.status && req.query.status !== 'all') {
+      switch (req.query.status) {
+        case 'action_required':
+          filterQuery['ndr_info.resolution_action'] = { $in: [null, 'reattempt'] };
+          filterQuery.status = 'ndr';
+          break;
+        case 'action_taken':
+          filterQuery['ndr_info.resolution_action'] = { $ne: null };
+          filterQuery.status = 'ndr';
+          break;
+        case 'delivered':
+          filterQuery.status = 'delivered';
+          break;
+        case 'rto':
+          filterQuery.status = 'rto';
+          break;
+      }
+    }
+    
+    // NDR reason filter
+    if (req.query.ndr_reason) {
+      filterQuery['ndr_info.ndr_reason'] = new RegExp(req.query.ndr_reason, 'i');
+    }
+    
+    // NSL code filter
+    if (req.query.nsl_code) {
+      filterQuery['ndr_info.nsl_code'] = req.query.nsl_code;
+    }
+    
+    // Attempts filter
+    if (req.query.attempts_min || req.query.attempts_max) {
+      filterQuery['ndr_info.ndr_attempts'] = {};
+      if (req.query.attempts_min) {
+        filterQuery['ndr_info.ndr_attempts'].$gte = parseInt(req.query.attempts_min);
+      }
+      if (req.query.attempts_max) {
+        filterQuery['ndr_info.ndr_attempts'].$lte = parseInt(req.query.attempts_max);
+      }
+    }
+    
+    // Date filter
+    if (req.query.date_from || req.query.date_to) {
+      filterQuery['ndr_info.last_ndr_date'] = {};
+      if (req.query.date_from) {
+        filterQuery['ndr_info.last_ndr_date'].$gte = new Date(req.query.date_from);
+      }
+      if (req.query.date_to) {
+        filterQuery['ndr_info.last_ndr_date'].$lte = new Date(req.query.date_to);
+      }
+    }
+    
+    // Search filter
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i');
+      filterQuery.$or = [
+        { 'delhivery_data.waybill': searchRegex },
+        { order_id: searchRegex },
+        { 'customer_info.buyer_name': searchRegex },
+        { 'customer_info.phone': searchRegex }
+      ];
+    }
+    
+    const [orders, totalOrders] = await Promise.all([
+      Order.find(filterQuery)
+        .sort({ 'ndr_info.last_ndr_date': -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Order.countDocuments(filterQuery)
+    ]);
+    
+    res.json({
+      status: 'success',
+      data: {
+        orders,
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(totalOrders / limit),
+          total_orders: totalOrders,
+          per_page: limit
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get client NDRs error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error fetching client NDRs',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get client NDR statistics
+// @route   GET /api/admin/ndr/clients/:clientId/stats
+// @access  Admin
+router.get('/ndr/clients/:clientId/stats', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID format'
+      });
+    }
+    
+    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    
+    const [actionRequired, actionTaken, delivered, rto] = await Promise.all([
+      Order.countDocuments({
+        user_id: clientId,
+        'ndr_info.is_ndr': true,
+        'ndr_info.resolution_action': { $in: [null, 'reattempt'] },
+        status: 'ndr'
+      }),
+      Order.countDocuments({
+        user_id: clientId,
+        'ndr_info.is_ndr': true,
+        'ndr_info.resolution_action': { $ne: null },
+        status: 'ndr'
+      }),
+      Order.countDocuments({
+        user_id: clientId,
+        'ndr_info.is_ndr': true,
+        status: 'delivered'
+      }),
+      Order.countDocuments({
+        user_id: clientId,
+        'ndr_info.is_ndr': true,
+        status: 'rto'
+      })
+    ]);
+    
+    const stats = {
+      action_required: actionRequired,
+      action_taken: actionTaken,
+      delivered: delivered,
+      rto: rto,
+      all: actionRequired + actionTaken + delivered + rto
+    };
+    
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Get client NDR stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching NDR statistics',
       error: error.message
     });
   }

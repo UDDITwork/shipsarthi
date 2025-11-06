@@ -50,19 +50,16 @@ const WeightDiscrepancies: React.FC = () => {
     fetchDiscrepancies();
   }, [page, limit, search, status]);
 
-  // Listen for real-time weight discrepancy notifications
+  // Poll weight discrepancies from MongoDB (no WebSocket dependency)
+  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
   useEffect(() => {
-    const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.type === 'weight_discrepancy_charge') {
-        console.log('⚖️ WEIGHT DISCREPANCY NOTIFICATION:', notification);
-        // Refresh discrepancies to show new charge
-        fetchDiscrepancies();
-        console.log('✅ Weight discrepancies refreshed');
-      }
-    });
+    const pollInterval = setInterval(() => {
+      console.log('⚖️ Polling weight discrepancies from MongoDB...');
+      fetchDiscrepancies();
+    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
 
-    return unsubscribe;
-  }, []);
+    return () => clearInterval(pollInterval);
+  }, [page, limit, search, status]);
 
   const fetchDiscrepancies = async () => {
     setLoading(true);
@@ -126,7 +123,7 @@ const WeightDiscrepancies: React.FC = () => {
             <div className="summary-card-icon">📊</div>
             <div className="summary-card-content">
               <div className="summary-card-label">Total Weight Difference</div>
-              <div className="summary-card-value">{summary.total_weight_discrepancy.toFixed(1)}g</div>
+              <div className="summary-card-value">{summary.total_weight_discrepancy.toFixed(1)} kg</div>
             </div>
           </div>
           
@@ -210,9 +207,9 @@ const WeightDiscrepancies: React.FC = () => {
                           {disc.awb_status}
                         </span>
                       </td>
-                      <td>{disc.client_declared_weight}g</td>
-                      <td>{disc.delhivery_updated_weight}g</td>
-                      <td className="diff-cell">{disc.weight_discrepancy}g</td>
+                      <td>{disc.client_declared_weight} kg</td>
+                      <td>{disc.delhivery_updated_weight} kg</td>
+                      <td className="diff-cell">{disc.weight_discrepancy} kg</td>
                       <td className="deduction-cell">-₹{disc.deduction_amount.toFixed(2)}</td>
                       <td className="transaction-id">{disc.transaction_id?.transaction_id || 'N/A'}</td>
                     </tr>

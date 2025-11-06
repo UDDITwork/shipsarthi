@@ -14,6 +14,7 @@ import Orders from './pages/Orders';
 import Packages from './pages/Packages';
 import NDR from './pages/NDR';
 import Support from './pages/Support';
+import TicketDetail from './pages/TicketDetail';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
 import WeightDiscrepancies from './pages/WeightDiscrepancies';
@@ -40,6 +41,9 @@ import AdminClients from './pages/AdminClients';
 import AdminClientTickets from './pages/AdminClientTickets';
 import AdminWalletRecharge from './pages/AdminWalletRecharge';
 import AdminWeightDiscrepancies from './pages/AdminWeightDiscrepancies';
+import AdminBilling from './pages/AdminBilling';
+import AdminOrders from './pages/AdminOrders';
+import AdminNDR from './pages/AdminNDR';
 import AdminLayout from './components/AdminLayout';
 
 // Protected Route Component
@@ -130,6 +134,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Support />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/support/tickets/:id" 
+              element={
+                <ProtectedRoute>
+                  <TicketDetail />
                 </ProtectedRoute>
               } 
             />
@@ -268,6 +280,54 @@ function App() {
               element={
                 <AdminLayout>
                   <AdminWeightDiscrepancies />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/billing" 
+              element={
+                <AdminLayout>
+                  <AdminBilling />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/billing/:clientId" 
+              element={
+                <AdminLayout>
+                  <AdminBilling />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/orders" 
+              element={
+                <AdminLayout>
+                  <AdminOrders />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/orders/:clientId" 
+              element={
+                <AdminLayout>
+                  <AdminOrders />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/ndr" 
+              element={
+                <AdminLayout>
+                  <AdminNDR />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/ndr/:clientId" 
+              element={
+                <AdminLayout>
+                  <AdminNDR />
                 </AdminLayout>
               } 
             />

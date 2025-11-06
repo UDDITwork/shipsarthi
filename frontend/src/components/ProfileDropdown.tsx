@@ -4,6 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { UserProfile } from '../services/userService';
 import './ProfileDropdown.css';
 
+// Import SVG vector icons
+import userIcon from '../profilevectors/User-Outline.svg';
+import apiIcon from '../profilevectors/API icon.svg';
+import group15Icon from '../profilevectors/Group 15.svg';
+import groupIcon from '../profilevectors/Group.svg';
+import vectorIcon from '../profilevectors/Vector.svg';
+
 interface ProfileDropdownProps {
   user: UserProfile;
   onClose: () => void;
@@ -100,7 +107,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
       <div className="profile-menu">
         <div className="menu-item active" onClick={handleMyProfile}>
           <div className="menu-item-content">
-            <div className="menu-icon">👤</div>
+            <div className="menu-icon">
+              <img src={userIcon} alt="My Profile" style={{ width: '16px', height: '16px' }} />
+            </div>
             <div className="menu-text">
               <div className="menu-title">My Profile</div>
               <div className="menu-subtitle">Account Setting</div>
@@ -110,7 +119,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
 
         <div className="menu-item" onClick={handleSupport}>
           <div className="menu-item-content">
-            <div className="menu-icon">🎧</div>
+            <div className="menu-icon">
+              <img src={vectorIcon} alt="Support" style={{ width: '16px', height: '16px' }} />
+            </div>
             <div className="menu-text">
               <div className="menu-title">Support</div>
               <div className="menu-subtitle">Contact Support</div>
@@ -120,7 +131,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
 
         <div className="menu-item" onClick={handleTermsConditions}>
           <div className="menu-item-content">
-            <div className="menu-icon">📄</div>
+            <div className="menu-icon">
+              <img src={group15Icon} alt="Terms & Conditions" style={{ width: '16px', height: '16px' }} />
+            </div>
             <div className="menu-text">
               <div className="menu-title">Terms & Conditions</div>
               <div className="menu-subtitle">Read Our Terms & Conditions</div>
@@ -130,7 +143,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
 
         <div className="menu-item" onClick={handleAPIIntegration}>
           <div className="menu-item-content">
-            <div className="menu-icon">🔗</div>
+            <div className="menu-icon">
+              <img src={apiIcon} alt="API Integration" style={{ width: '16px', height: '16px' }} />
+            </div>
             <div className="menu-text">
               <div className="menu-title">API Integration</div>
               <div className="menu-subtitle">Connect your online store</div>
@@ -146,7 +161,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, onClose, onLogo
           className="logout-button" 
           onClick={handleLogout}
         >
-          <span className="logout-icon">🚪</span>
+          <span className="logout-icon">
+            <img src={groupIcon} alt="Logout" style={{ width: '12px', height: '12px' }} />
+          </span>
           <span className="logout-text">Logout</span>
         </button>
       </div>

@@ -84,32 +84,50 @@ const Orders: React.FC = () => {
   });
 
   // Fetch Orders on component mount and when filters change
+  // NO WEBSOCKET DEPENDENCY - Orders fetched directly from MongoDB only
   useEffect(() => {
     fetchOrders();
     
-    // Set up periodic refresh (every 30 seconds) to keep data fresh from MongoDB
-    // This ensures data stays stable and doesn't disappear
+    // Poll orders from MongoDB (no WebSocket dependency)
+    // Refresh every 60 seconds to avoid rate limiting while keeping orders fresh
     const refreshInterval = setInterval(() => {
+      console.log('🔄 Polling orders from MongoDB (no WebSocket)...', { activeTab });
       // Refresh in background without blocking UI
       const orderFilters: any = {};
-      if (activeTab !== 'all') orderFilters.status = activeTab;
+      // When activeTab is 'all', don't set status filter
+      if (activeTab !== 'all') {
+        orderFilters.status = activeTab;
+      }
       if (orderType) orderFilters.order_type = orderType;
       if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
       if (filters.dateTo) orderFilters.date_to = filters.dateTo;
       if (filters.searchQuery) orderFilters.search = filters.searchQuery;
       if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
       
-      // Silent refresh from MongoDB - updates cache and state if data changes
+      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(orderFilters)}`;
+      
+      // Fetch directly from MongoDB (no cache, no WebSocket)
       orderService.getOrders(orderFilters, false).then(fetchedOrders => {
         if (fetchedOrders && fetchedOrders.length >= 0) {
           setOrders(fetchedOrders);
-          console.log(`🔄 Background refresh: ${fetchedOrders.length} orders from MongoDB`);
+          // Cache the refreshed orders
+          DataCache.set(cacheKey, fetchedOrders, 5 * 60 * 1000);
+          console.log(`✅ Orders refreshed from MongoDB: ${fetchedOrders.length} orders for tab: ${activeTab}`);
         }
       }).catch(err => {
-        console.warn('Background refresh failed, keeping current data:', err);
+        console.warn('⚠️ Orders refresh failed, keeping current data:', err);
         // Keep existing orders on screen - don't clear them
+        // Use cached data if available
+        const cached = DataCache.getStale<Order[]>(cacheKey);
+        if (cached && cached.length > 0) {
+          setOrders(cached);
+          console.log(`📦 Using cached orders: ${cached.length} orders for tab: ${activeTab}`);
+        } else if (orders.length > 0) {
+          // Keep existing orders - don't clear them
+          console.log(`⚠️ Keeping existing ${orders.length} orders on screen despite refresh error`);
+        }
       });
-    }, 30000); // 30 seconds
+    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
     
     return () => {
       clearInterval(refreshInterval);
@@ -117,56 +135,80 @@ const Orders: React.FC = () => {
   }, [activeTab, orderType, filters]);
 
   const fetchOrders = async () => {
+    // Build filters object - when activeTab is 'all', don't set status filter
+    const orderFilters: any = {};
+    if (activeTab !== 'all') {
+      orderFilters.status = activeTab;
+    }
+    // When 'all' is selected, explicitly don't set status - this ensures all orders are fetched
+    if (orderType) orderFilters.order_type = orderType;
+    if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
+    if (filters.dateTo) orderFilters.date_to = filters.dateTo;
+    if (filters.searchQuery) orderFilters.search = filters.searchQuery;
+    if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+
+    // Generate cache key based on filters
+    const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(orderFilters)}`;
+    
     try {
       // Try to load from cache first for instant display
-      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(filters)}`;
       const cachedOrders = DataCache.get<Order[]>(cacheKey);
       
       if (cachedOrders && cachedOrders.length > 0) {
-        console.log(`📦 Showing cached orders (${cachedOrders.length} orders)`);
+        console.log(`📦 Showing cached orders (${cachedOrders.length} orders) for tab: ${activeTab}`);
         setOrders(cachedOrders);
         setLoading(false); // Don't block UI with loading
       } else {
         setLoading(true); // Only show loading if no cache
       }
 
-      // Build filters object
-      const orderFilters: any = {};
-      if (activeTab !== 'all') orderFilters.status = activeTab;
-      if (orderType) orderFilters.order_type = orderType;
-      if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
-      if (filters.dateTo) orderFilters.date_to = filters.dateTo;
-      if (filters.searchQuery) orderFilters.search = filters.searchQuery;
-      if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+      console.log('📡 Fetching orders directly from MongoDB (no WebSocket)...', { 
+        activeTab, 
+        filters: orderFilters,
+        cacheKey 
+      });
 
-      console.log('📡 Fetching orders from MongoDB...', { filters: orderFilters });
-
-      // Fetch from MongoDB using orderService (with caching built-in)
-      const fetchedOrders = await orderService.getOrders(orderFilters, true);
+      // Fetch from MongoDB using orderService (direct API call, no WebSocket dependency)
+      // useCache = false to force fresh fetch, but we already showed cached above if available
+      const fetchedOrders = await orderService.getOrders(orderFilters, false);
 
       if (fetchedOrders && fetchedOrders.length > 0) {
-        console.log(`✅ Orders loaded (${fetchedOrders.length} orders)`);
+        console.log(`✅ Orders loaded from API (${fetchedOrders.length} orders) for tab: ${activeTab}`);
         setOrders(fetchedOrders);
-      } else if (!cachedOrders) {
-        // No orders and no cache - show empty state
-        console.log('📭 No orders found');
+        // Cache the fetched orders
+        DataCache.set(cacheKey, fetchedOrders, 5 * 60 * 1000); // 5 minutes cache
+      } else if (fetchedOrders && fetchedOrders.length === 0) {
+        // API returned empty array - this is valid (no orders found)
+        console.log(`📭 No orders found for tab: ${activeTab}`);
+        setOrders([]);
+        // Cache empty array too (but with shorter TTL)
+        DataCache.set(cacheKey, [], 1 * 60 * 1000); // 1 minute cache for empty results
+      } else if (cachedOrders && cachedOrders.length > 0) {
+        // Fetch returned null/undefined but we have cache - keep showing cache
+        console.log(`⚠️ API fetch failed but keeping cached orders (${cachedOrders.length} orders)`);
+        setOrders(cachedOrders);
+      } else {
+        // No orders, no cache - show empty state
+        console.log('📭 No orders found and no cache available');
         setOrders([]);
       }
-      // If we have cached orders, keep showing them even if fetch returns empty
 
     } catch (error: any) {
       console.error('❌ Error fetching orders:', error);
       
       // Try to use stale cache if available
-      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(filters)}`;
       const staleOrders = DataCache.getStale<Order[]>(cacheKey);
       
       if (staleOrders && staleOrders.length > 0) {
-        console.log(`⚠️ Using stale cached orders due to error (${staleOrders.length} orders)`);
+        console.log(`⚠️ Using stale cached orders due to error (${staleOrders.length} orders) for tab: ${activeTab}`);
         setOrders(staleOrders);
-      } else if (orders.length === 0) {
-        // Only show error if we don't have any orders to display
+      } else if (orders.length > 0) {
+        // Keep existing orders on screen - don't clear them on error
+        console.log(`⚠️ API error but keeping existing ${orders.length} orders on screen`);
+      } else {
+        // No cache and no existing orders - show empty state
         console.warn('⚠️ No orders available (cache or API)');
+        setOrders([]);
       }
     } finally {
       setLoading(false);
@@ -366,7 +408,7 @@ const Orders: React.FC = () => {
         'PIN': order.pin,
         'Product Name': order.productName,
         'Quantity': order.quantity,
-        'Weight (g)': order.weight,
+        'Weight (kg)': order.weight,
         'Payment Mode': order.paymentMode,
         'COD Amount': order.codAmount || 0,
         'Total Amount': order.totalAmount,
@@ -779,7 +821,7 @@ const Orders: React.FC = () => {
               <div className="details-grid">
                 <div className="detail-item"><strong>Product:</strong> {order.productName}</div>
                 <div className="detail-item"><strong>Quantity:</strong> {order.quantity}</div>
-                <div className="detail-item"><strong>Weight:</strong> {order.weight}g</div>
+                <div className="detail-item"><strong>Weight:</strong> {order.weight} kg</div>
                 {order.length && (
                   <div className="detail-item"><strong>Dimensions:</strong> {order.length} × {order.width} × {order.height} cm</div>
                 )}
@@ -846,23 +888,6 @@ const Orders: React.FC = () => {
           </div>
 
           <div className="top-actions">
-            <button 
-              className="action-btn refresh-btn" 
-              onClick={() => {
-                console.log('🔄 Manual refresh triggered for Orders');
-                // Clear cache and refresh from MongoDB
-                orderService.clearCache();
-                fetchOrders();
-              }}
-              title="Refresh Orders"
-              style={{
-                marginRight: '10px',
-                backgroundColor: '#F68723',
-                color: 'white'
-              }}
-            >
-              🔄 Refresh
-            </button>
             <button className="action-btn sync-btn" onClick={handleSyncOrders}>
               Sync Order
             </button>
@@ -946,7 +971,7 @@ const Orders: React.FC = () => {
               className="calendar-btn"
               onClick={() => setShowDatePicker(!showDatePicker)}
             >
-              📅 {filters.dateFrom ? formatDateForDisplay(filters.dateFrom) : 'Select Date Range'} 
+              {filters.dateFrom ? formatDateForDisplay(filters.dateFrom) : 'Select Date Range'} 
               {filters.dateTo && ` to ${formatDateForDisplay(filters.dateTo)}`}
               {!filters.dateFrom && !filters.dateTo && ' (Last 30 days)'}
             </button>
@@ -1032,7 +1057,7 @@ const Orders: React.FC = () => {
               value={filters.searchQuery}
               onChange={(e) => setFilters({...filters, searchQuery: e.target.value})}
             />
-            <button type="submit" className="search-btn">🔍</button>
+            <button type="submit" className="search-btn"></button>
           </form>
 
           <div className="more-filters-container">
@@ -1040,7 +1065,7 @@ const Orders: React.FC = () => {
               className={`more-filters-btn ${showMoreFilters ? 'active' : ''}`}
               onClick={handleMoreFiltersToggle}
             >
-            🎚️ More Filter
+            More Filter
           </button>
             
             {showMoreFilters && (
@@ -1205,7 +1230,7 @@ const Orders: React.FC = () => {
                     </td>
                     <td>
                       <div className="package-details-cell">
-                        <div>Weight: {order.weight || 0}g</div>
+                        <div>Weight: {order.weight || 0} kg</div>
                         {order.length && (
                           <div>
                             {order.length} x {order.width} x {order.height} cm

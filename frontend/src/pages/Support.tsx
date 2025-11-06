@@ -345,16 +345,21 @@ const Support: React.FC = () => {
                       <tr key={ticket._id}>
                         <td>{ticket.ticket_id}</td>
                         <td>{ticket.category}</td>
-                        <td>{ticket.awb_numbers.join(', ')}</td>
+                        <td>{ticket.awb_numbers && ticket.awb_numbers.length > 0 ? ticket.awb_numbers.join(', ') : 'N/A'}</td>
                         <td>
                           <span className={`status-badge ${ticket.status}`}>
                             {ticket.status}
                           </span>
                         </td>
-                        <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
-                        <td>{new Date(ticket.updatedAt).toLocaleDateString()}</td>
+                        <td>{(ticket.createdAt || ticket.created_at) ? new Date(ticket.createdAt || ticket.created_at || '').toLocaleDateString() : 'N/A'}</td>
+                        <td>{(ticket.updatedAt || ticket.updated_at) ? new Date(ticket.updatedAt || ticket.updated_at || '').toLocaleDateString() : 'N/A'}</td>
                         <td>
-                          <button className="action-btn">Add Comment</button>
+                          <button 
+                            className="action-btn" 
+                            onClick={() => window.location.href = `/support/tickets/${ticket._id}`}
+                          >
+                            View & Reply
+                          </button>
                         </td>
                       </tr>
                     ))
