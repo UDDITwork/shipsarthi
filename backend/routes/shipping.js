@@ -609,8 +609,32 @@ router.post('/calculate-rate-card',
                 });
             }
 
+            // Normalize zone if provided directly (map D1/C1 to D/C)
+            const zoneNormalizationMap = {
+                'C1': 'C',
+                'C2': 'C',
+                'D1': 'D',
+                'D2': 'D'
+            };
+            const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let finalZone = null;
+            
+            if (zone) {
+                // Normalize provided zone
+                finalZone = zoneNormalizationMap[zone] || zone;
+                
+                // Validate normalized zone is valid
+                if (!validZones.includes(finalZone)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Invalid zone "${finalZone}". Supported zones are: A, B, C, D, E, F.`,
+                        provided_zone: zone,
+                        normalized_zone: finalZone
+                    });
+                }
+            }
+            
             // Determine zone: either provided directly OR get from Delhivery API using pincodes
-            let finalZone = zone;
             if (!finalZone) {
                 // Zone not provided - get from Delhivery API using pincodes
                 if (!pickup_pincode || !delivery_pincode) {
@@ -655,12 +679,48 @@ router.post('/calculate-rate-card',
                     });
                 }
 
-                finalZone = zoneResult.zone;
-                logger.info('🌍 Zone retrieved from Delhivery for rate calculation', {
+                // Normalize zone: Map D1/C1 to D/C, D2/C2 to D/C (Delhivery returns extended zones, we use simplified)
+                let rawZone = zoneResult.zone;
+                const zoneNormalizationMap = {
+                    'C1': 'C',
+                    'C2': 'C',
+                    'D1': 'D',
+                    'D2': 'D'
+                };
+                finalZone = zoneNormalizationMap[rawZone] || rawZone;
+                
+                // Validate normalized zone is one of the supported zones (validZones already declared above)
+                if (!finalZone || !validZones.includes(finalZone)) {
+                    logger.error('❌ Invalid zone after normalization', {
+                        pickup_pincode,
+                        delivery_pincode,
+                        raw_zone: rawZone,
+                        normalized_zone: finalZone
+                    });
+                    return res.status(400).json({
+                        success: false,
+                        message: `Invalid zone "${finalZone}" received from Delhivery. Please contact support.`,
+                        raw_zone: rawZone,
+                        normalized_zone: finalZone
+                    });
+                }
+                
+                logger.info('🌍 Zone retrieved and normalized from Delhivery for rate calculation', {
                     pickup_pincode,
                     delivery_pincode,
-                    zone: finalZone,
+                    raw_zone: rawZone,
+                    normalized_zone: finalZone,
                     chargeableWeightGrams: chargeableWeightGrams
+                });
+            }
+
+            // Validate finalZone is set and valid before calculation
+            if (!finalZone || typeof finalZone !== 'string') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Zone is required for shipping charges calculation. Please provide zone or pincodes.',
+                    zone_provided: !!zone,
+                    pincodes_provided: !!(pickup_pincode && delivery_pincode)
                 });
             }
 

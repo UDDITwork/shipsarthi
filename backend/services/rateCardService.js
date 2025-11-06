@@ -600,13 +600,16 @@ class RateCardService {
     // Map zone from Delhivery API to our rate card zones
     // When Delhivery sends "C", we use C rates (previously C2 rates)
     // When Delhivery sends "D", we use D rates (previously D2 rates)
-    // C1 and D1 zones are removed - no longer used
+    // C1 and D1 zones are normalized to C and D respectively before reaching here
+    // This mapping is for backward compatibility and safety
     const zoneMap = {
       'A': 'A',
       'B': 'B',
       'C': 'C', // Direct mapping - when Delhivery sends C, use C rates
+      'C1': 'C', // Map C1 to C (normalized before reaching here, but added for safety)
       'C2': 'C', // Map C2 to C (backward compatibility)
       'D': 'D', // Direct mapping - when Delhivery sends D, use D rates
+      'D1': 'D', // Map D1 to D (normalized before reaching here, but added for safety)
       'D2': 'D', // Map D2 to D (backward compatibility)
       'E': 'E',
       'F': 'F'

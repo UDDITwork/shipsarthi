@@ -127,14 +127,14 @@ class ShippingService {
   }
 
   // Get zones for dropdown
+  // NOTE: C1, D1 are deprecated - Delhivery returns them but we normalize to C, D
+  // Only show simplified zones: A, B, C, D, E, F
   getZones() {
     return [
       { value: 'A', label: 'Zone A - Local within city' },
       { value: 'B', label: 'Zone B - Within 500 kms Regional' },
-      { value: 'C1', label: 'Zone C1 - Metro to Metro (501-1400 kms)' },
-      { value: 'C2', label: 'Zone C2 - Metro to Metro (1401-2500 kms)' },
-      { value: 'D1', label: 'Zone D1 - Rest of India (501-1400 kms)' },
-      { value: 'D2', label: 'Zone D2 - Rest of India (1401-2500 kms)' },
+      { value: 'C', label: 'Zone C - Metro to Metro (501-2500 kms)' },
+      { value: 'D', label: 'Zone D - Rest of India (501-2500 kms)' },
       { value: 'E', label: 'Zone E - Special (NE, J&K, >2500 kms)' },
       { value: 'F', label: 'Zone F - Special (NE, J&K, >2500 kms)' }
     ];

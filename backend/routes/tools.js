@@ -171,12 +171,38 @@ router.post('/rate-calculator',
                 });
             }
             
-            const zone = zoneResult.zone;
+            // Normalize zone: Map D1/C1 to D/C, D2/C2 to D/C (Delhivery returns extended zones, we use simplified)
+            const rawZone = zoneResult.zone;
+            const zoneNormalizationMap = {
+                'C1': 'C',
+                'C2': 'C',
+                'D1': 'D',
+                'D2': 'D'
+            };
+            let zone = zoneNormalizationMap[rawZone] || rawZone;
             
-            logger.info('🌍 Zone retrieved from Delhivery for rate calculation', {
+            // Validate normalized zone is one of the supported zones
+            const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+            if (!zone || !validZones.includes(zone)) {
+                logger.error('❌ Invalid zone after normalization', {
+                    pickup_pincode,
+                    delivery_pincode,
+                    raw_zone: rawZone,
+                    normalized_zone: zone
+                });
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid zone "${zone}" received from Delhivery. Please contact support.`,
+                    raw_zone: rawZone,
+                    normalized_zone: zone
+                });
+            }
+            
+            logger.info('🌍 Zone retrieved and normalized from Delhivery for rate calculation', {
                 pickup_pincode,
                 delivery_pincode,
-                zone: zone,
+                raw_zone: rawZone,
+                normalized_zone: zone,
                 chargeableWeightGrams: chargeableWeightGrams
             });
             

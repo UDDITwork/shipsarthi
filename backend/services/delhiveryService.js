@@ -940,36 +940,85 @@ class DelhiveryService {
                 };
             }
 
+            // Normalize zone: Map D1/C1 to D/C, D2/C2 to D/C (Delhivery returns extended zones, we use simplified)
+            const zoneNormalizationMap = {
+                'C1': 'C',
+                'C2': 'C',
+                'D1': 'D',
+                'D2': 'D'
+            };
+            const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+            
             // Extract zone from response
             if (response.data && Array.isArray(response.data) && response.data.length > 0) {
                 const chargeData = response.data[0];
-                const zone = chargeData.zone || null;
+                const rawZone = chargeData.zone || null;
+                let normalizedZone = null;
                 
-                logger.info('✅ Zone extracted from Delhivery response', {
+                if (rawZone && typeof rawZone === 'string') {
+                    // Normalize zone (trim whitespace, map extended zones)
+                    const trimmedZone = rawZone.trim().toUpperCase();
+                    normalizedZone = zoneNormalizationMap[trimmedZone] || trimmedZone;
+                    
+                    // Validate normalized zone is valid
+                    if (!validZones.includes(normalizedZone)) {
+                        logger.warn('⚠️ Invalid zone after normalization', {
+                            pickupPincode,
+                            deliveryPincode,
+                            raw_zone: rawZone,
+                            normalized_zone: normalizedZone
+                        });
+                        normalizedZone = null; // Set to null if invalid
+                    }
+                }
+                
+                logger.info('✅ Zone extracted and normalized from Delhivery response', {
                     pickupPincode,
                     deliveryPincode,
-                    zone: zone,
+                    raw_zone: rawZone,
+                    normalized_zone: normalizedZone,
                     fullResponse: chargeData
                 });
 
                 return {
                     success: true,
-                    zone: zone,
+                    zone: normalizedZone, // Return normalized zone
+                    raw_zone: rawZone, // Keep raw zone for reference
                     data: chargeData // Return full response for reference
                 };
             } else if (response.data && response.data.zone) {
                 // Handle case where response is object with zone directly
-                const zone = response.data.zone;
+                const rawZone = response.data.zone;
+                let normalizedZone = null;
                 
-                logger.info('✅ Zone extracted from Delhivery response (object format)', {
+                if (rawZone && typeof rawZone === 'string') {
+                    // Normalize zone (trim whitespace, map extended zones)
+                    const trimmedZone = rawZone.trim().toUpperCase();
+                    normalizedZone = zoneNormalizationMap[trimmedZone] || trimmedZone;
+                    
+                    // Validate normalized zone is valid
+                    if (!validZones.includes(normalizedZone)) {
+                        logger.warn('⚠️ Invalid zone after normalization', {
+                            pickupPincode,
+                            deliveryPincode,
+                            raw_zone: rawZone,
+                            normalized_zone: normalizedZone
+                        });
+                        normalizedZone = null; // Set to null if invalid
+                    }
+                }
+                
+                logger.info('✅ Zone extracted and normalized from Delhivery response (object format)', {
                     pickupPincode,
                     deliveryPincode,
-                    zone: zone
+                    raw_zone: rawZone,
+                    normalized_zone: normalizedZone
                 });
 
                 return {
                     success: true,
-                    zone: zone,
+                    zone: normalizedZone, // Return normalized zone
+                    raw_zone: rawZone, // Keep raw zone for reference
                     data: response.data
                 };
             } else {
