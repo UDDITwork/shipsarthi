@@ -18,13 +18,14 @@ interface ShipmentData {
   Scans?: TrackingScan[];
 }
 
-interface TrackingModalProps {
+export interface TrackingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  awb: string; // Changed from orderId to awb
+  awb: string;
+  orderId?: string | null;
 }
 
-const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb }) => {
+const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb, orderId }) => {
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +38,12 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb }) =
       setTrackingData(null);
       setError(null);
     }
-  }, [isOpen, awb]);
+  }, [isOpen, awb, orderId]);
 
   const fetchTrackingData = async () => {
-    if (!awb) {
+    const sanitizedAwb = (awb || '').trim();
+
+    if (!sanitizedAwb) {
       setError('AWB number not available');
       return;
     }
@@ -51,6 +54,9 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb }) =
 
     try {
       // Call tracking API with AWB number
+      const encodedAwb = encodeURIComponent(sanitizedAwb);
+      const orderIdParam = orderId && orderId.trim() ? `?order_id=${encodeURIComponent(orderId.trim())}` : '';
+
       const response = await apiService.get<{
         status: string;
         message: string;
@@ -58,7 +64,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb }) =
           waybill: string;
           tracking_data: any;
         };
-      }>(`/orders/track/${awb}`);
+      }>(`/orders/track/${encodedAwb}${orderIdParam}`);
 
       if (response.status === 'success' && response.data && response.data.tracking_data) {
         const tracking = response.data.tracking_data;

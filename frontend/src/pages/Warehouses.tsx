@@ -96,6 +96,25 @@ const Warehouses: React.FC = () => {
     }
   };
 
+  const baseActionButtonStyle: React.CSSProperties = {
+    padding: '8px 16px',
+    borderRadius: '8px',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    border: '1px solid #e5e7eb',
+    background: '#ffffff',
+    color: '#111827',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    whiteSpace: 'nowrap',
+    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    minWidth: '110px'
+  };
+
   return (
     <Layout>
       <div className="warehouses-container">
@@ -176,24 +195,40 @@ const Warehouses: React.FC = () => {
 
                   <div className="warehouse-actions">
                     <button 
-                      className="action-btn edit-btn"
+                      className="warehouse-action-btn warehouse-edit-btn"
+                      style={{
+                        ...baseActionButtonStyle,
+                        border: '1px solid #bfdbfe',
+                        color: '#1d4ed8'
+                      }}
                       onClick={() => handleEditWarehouse(warehouse._id)}
                     >
-                      ✏️ Edit
+                      Edit
                     </button>
                     {!warehouse.is_default && (
                       <button 
-                        className="action-btn default-btn"
+                        className="warehouse-action-btn warehouse-default-btn"
+                        style={{
+                          ...baseActionButtonStyle,
+                          border: '1px solid #d1d5db',
+                          color: '#1f2937',
+                          background: '#f9fafb'
+                        }}
                         onClick={() => handleSetDefault(warehouse._id)}
                       >
-                        ⭐ Set Default
+                        Set Default
                       </button>
                     )}
                     <button 
-                      className="action-btn delete-btn"
+                      className="warehouse-action-btn warehouse-delete-btn"
+                      style={{
+                        ...baseActionButtonStyle,
+                        border: '1px solid #fecaca',
+                        color: '#b91c1c'
+                      }}
                       onClick={() => handleDeleteWarehouse(warehouse._id, warehouse.title)}
                     >
-                      🗑️ Delete
+                      Delete
                     </button>
                   </div>
                 </div>

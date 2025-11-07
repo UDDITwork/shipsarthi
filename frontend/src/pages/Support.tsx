@@ -19,6 +19,7 @@ const Support: React.FC = () => {
   const [activeStatus, setActiveStatus] = useState<TicketStatus>('open');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Form state
@@ -192,7 +193,7 @@ const Support: React.FC = () => {
       }
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
       // Only include AWB numbers if category requires it and they're provided
@@ -210,7 +211,7 @@ const Support: React.FC = () => {
         }
       }
       
-      const response = await ticketService.createTicket(ticketData);
+      await ticketService.createTicket(ticketData);
       
       alert('Ticket created successfully!');
       setShowCreateModal(false);
@@ -221,13 +222,20 @@ const Support: React.FC = () => {
     } catch (error: any) {
       console.error('Error creating ticket:', error);
       // Show specific error message if available
-      const errorMessage = error.response?.data?.message || 
-                          (Array.isArray(error.response?.data?.errors) && error.response.data.errors[0]?.msg) ||
-                          error.message || 
-                          'Failed to create ticket. Please try again.';
+      let errorMessage = error.response?.data?.message || 
+                         (Array.isArray(error.response?.data?.errors) && error.response?.data?.errors?.[0]?.msg) ||
+                         error.message || 
+                         'Failed to create ticket. Please try again.';
+
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'The request timed out. Please check your network or try uploading smaller attachments.';
+      } else if (!error.response) {
+        errorMessage = 'Unable to reach the server. Check your internet connection and try again.';
+      }
+
       alert(errorMessage);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -503,8 +511,8 @@ const Support: React.FC = () => {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="submit-btn" disabled={loading}>
-                    {loading ? 'Submitting...' : 'Submit'}
+                  <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
                 </div>
               </form>

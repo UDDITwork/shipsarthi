@@ -120,6 +120,26 @@ const WarehouseManagement: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const baseActionButtonStyle: React.CSSProperties = {
+    padding: '8px 16px',
+    borderRadius: '8px',
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    border: '1px solid #e5e7eb',
+    background: '#ffffff',
+    color: '#111827',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    whiteSpace: 'nowrap',
+    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    minWidth: '96px',
+    height: 'auto'
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -268,6 +288,12 @@ const WarehouseManagement: React.FC = () => {
                     {!warehouse.is_default && (
                       <button
                         className="action-btn set-default-btn"
+                        style={{
+                          ...baseActionButtonStyle,
+                          border: '1px solid #d1d5db',
+                          color: '#1f2937',
+                          background: '#f9fafb'
+                        }}
                         onClick={() => handleSetDefault(warehouse._id)}
                       >
                         Set as Default
@@ -275,12 +301,22 @@ const WarehouseManagement: React.FC = () => {
                     )}
                     <button
                       className="action-btn edit-btn"
+                      style={{
+                        ...baseActionButtonStyle,
+                        border: '1px solid #bfdbfe',
+                        color: '#1d4ed8'
+                      }}
                       onClick={() => handleEditWarehouse(warehouse._id)}
                     >
                       Edit
                     </button>
                     <button
                       className="action-btn delete-btn"
+                      style={{
+                        ...baseActionButtonStyle,
+                        border: '1px solid #fecaca',
+                        color: '#b91c1c'
+                      }}
                       onClick={() => handleDeleteWarehouse(warehouse._id, warehouse.name)}
                     >
                       Delete

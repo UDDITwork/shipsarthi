@@ -67,9 +67,14 @@ const Orders: React.FC = () => {
     open: false,
     order: null
   });
-  const [trackingModal, setTrackingModal] = useState<{open: boolean, awb: string | null}>({
+  const [trackingModal, setTrackingModal] = useState<{
+    open: boolean;
+    awb: string | null;
+    orderId: string | null;
+  }>({
     open: false,
-    awb: null
+    awb: null,
+    orderId: null
   });
   const [pickupModal, setPickupModal] = useState<{
     open: boolean;
@@ -578,13 +583,19 @@ const Orders: React.FC = () => {
   };
 
   const handleTrackOrder = (orderId: string, awb?: string) => {
-    if (!awb) {
+    const sanitizedAwb = (awb || '').trim();
+
+    if (!sanitizedAwb) {
       alert('AWB number not available for tracking');
       return;
     }
-    
-    // Open tracking modal with AWB number
-    setTrackingModal({ open: true, awb: awb });
+
+    // Open tracking modal with AWB number and order reference (used for ref_ids during tracking)
+    setTrackingModal({
+      open: true,
+      awb: sanitizedAwb,
+      orderId: orderId?.trim() || null
+    });
   };
 
   const handleGenerateAWB = async (orderId: string, orderDbId: string) => {
@@ -1571,8 +1582,9 @@ const Orders: React.FC = () => {
       {/* Tracking Modal */}
       <TrackingModal
         isOpen={trackingModal.open}
-        onClose={() => setTrackingModal({ open: false, awb: null })}
+        onClose={() => setTrackingModal({ open: false, awb: null, orderId: null })}
         awb={trackingModal.awb || ''}
+        orderId={trackingModal.orderId || undefined}
       />
 
       {/* Pickup Request Modal */}

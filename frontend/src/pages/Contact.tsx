@@ -66,8 +66,8 @@ const Contact: React.FC = () => {
                   </svg>
                 </div>
                 <h3>Phone</h3>
-                <p>9351205202</p>
-                <a href="tel:9351205202">Call us now</a>
+                <p>9636369672</p>
+                <a href="tel:9636369672">Call us now</a>
               </div>
 
               <div className="contact-card">
@@ -205,7 +205,7 @@ const Contact: React.FC = () => {
             </div>
             <div className="faq-item">
               <h3>Do you provide phone support?</h3>
-              <p>Yes, you can call us at 9351205202 during business hours (9 AM - 6 PM IST, Monday to Friday) for immediate assistance.</p>
+              <p>Yes, you can call us at 9636369672 during business hours (9 AM - 6 PM IST, Monday to Friday) for immediate assistance.</p>
             </div>
             <div className="faq-item">
               <h3>Can I track my support ticket?</h3>

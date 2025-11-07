@@ -56,7 +56,7 @@
 
 /* Profile Header Section */
 .profile-header-section {
-  background: linear-gradient(135deg, #002B59 0%, #21476E 100%);
+  background-color: #002B59;
   border-radius: 12px;
   padding: 30px;
   margin-bottom: 30px;

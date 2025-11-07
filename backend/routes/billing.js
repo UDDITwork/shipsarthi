@@ -89,6 +89,11 @@ router.get('/wallet-transactions', auth, async (req, res) => {
             filterQuery.transaction_type = req.query.type;
         }
 
+        // Filter by transaction category if provided
+        if (req.query.category && req.query.category !== 'all') {
+            filterQuery.transaction_category = req.query.category;
+        }
+
         // Filter by date range if provided
         if (req.query.date_from || req.query.date_to) {
             filterQuery.transaction_date = {};
@@ -138,6 +143,7 @@ router.get('/wallet-transactions', auth, async (req, res) => {
         const transformedTransactions = transactions.map(txn => ({
             transaction_id: txn.transaction_id,
             transaction_type: txn.transaction_type,
+            transaction_category: txn.transaction_category || 'unknown',
             amount: txn.amount,
             description: txn.description,
             status: txn.status,

@@ -572,55 +572,55 @@ const AdminClientTickets: React.FC = () => {
                     )}
                   </div>
                 </div>
+              </div>
 
-                {/* Admin Actions */}
-                <div className="ticket-actions">
-                  <h3>Admin Actions</h3>
-                  
-                  <div className="action-group">
-                    <label>Update Status</label>
-                    <select
-                      value={selectedTicket.status}
-                      onChange={(e) => updateTicketStatus(selectedTicket._id, e.target.value)}
-                      className="status-select"
+              {/* Admin Actions */}
+              <div className="ticket-actions">
+                <h3>Admin Actions</h3>
+                
+                <div className="action-group">
+                  <label>Update Status</label>
+                  <select
+                    value={selectedTicket.status}
+                    onChange={(e) => updateTicketStatus(selectedTicket._id, e.target.value)}
+                    className="status-select"
+                  >
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="waiting_customer">Waiting Customer</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="escalated">Escalated</option>
+                  </select>
+                </div>
+
+                <div className="action-group">
+                  <label>Send Message</label>
+                  <div className="message-input-group">
+                    <textarea
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type your message..."
+                      className="message-textarea"
+                      rows={3}
+                    />
+                    <button
+                      onClick={() => sendMessage(selectedTicket._id)}
+                      disabled={!newMessage.trim() || sendingMessage}
+                      className="send-button"
                     >
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="waiting_customer">Waiting Customer</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="closed">Closed</option>
-                      <option value="escalated">Escalated</option>
-                    </select>
-                  </div>
-
-                  <div className="action-group">
-                    <label>Send Message</label>
-                    <div className="message-input-group">
-                      <textarea
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your message..."
-                        className="message-textarea"
-                        rows={3}
-                      />
-                      <button
-                        onClick={() => sendMessage(selectedTicket._id)}
-                        disabled={!newMessage.trim() || sendingMessage}
-                        className="send-button"
-                      >
-                        {sendingMessage ? (
-                          <>
-                            <div className="spinner-small"></div>
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4" />
-                            Send
-                          </>
-                        )}
-                      </button>
-                    </div>
+                      {sendingMessage ? (
+                        <>
+                          <div className="spinner-small"></div>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Send
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>

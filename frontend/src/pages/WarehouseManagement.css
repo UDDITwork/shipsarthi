@@ -329,42 +329,68 @@
   flex-wrap: wrap;
 }
 
-.action-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
+.warehouse-card .action-btn,
+.warehouse-actions .action-btn {
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  border: 1px solid transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+  white-space: nowrap !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  transform: none !important;
+}
+
+.warehouse-card .action-btn:focus-visible,
+.warehouse-actions .action-btn:focus-visible {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
 }
 
 .set-default-btn {
-  background: #f3f4f6;
-  color: #374151;
-  border-color: #d1d5db;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
 }
 
 .set-default-btn:hover {
-  background: #e5e7eb;
+  background: #f3f4f6 !important;
+  transform: none !important;
 }
 
 .edit-btn {
-  background: #3b82f6;
-  color: white;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+.warehouse-actions .edit-btn::before,
+.warehouse-card .edit-btn::before {
+  content: none !important;
 }
 
 .edit-btn:hover {
-  background: #2563eb;
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  transform: none !important;
 }
 
 .delete-btn {
-  background: #dc2626;
-  color: white;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
 }
 
 .delete-btn:hover {
-  background: #b91c1c;
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  transform: none !important;
 }
 
 /* Summary */

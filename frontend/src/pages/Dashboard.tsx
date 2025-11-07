@@ -705,17 +705,14 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="cod-grid">
                 <div className="cod-box">
-                  <div className="cod-icon">₹</div>
                   <div className="cod-value">₹{codStatus?.total_cod || 0}</div>
                   <div className="cod-label">Total COD</div>
                 </div>
                 <div className="cod-box">
-                  <div className="cod-icon">₹</div>
                   <div className="cod-value">₹{codStatus?.last_cod_remitted || 0}</div>
                   <div className="cod-label">Last COD Remitted</div>
                 </div>
                 <div className="cod-box">
-                  <div className="cod-icon">₹</div>
                   <div className="cod-value">₹{codStatus?.next_cod_available || 0}</div>
                   <div className="cod-label">Next COD Available</div>
                 </div>

@@ -525,13 +525,13 @@
   font-weight: 600;
   /* CRITICAL: Extend beyond sidebar - use negative margins and width calculation */
   margin-left: -12px;
-  margin-right: -30px !important; /* Extend 30px INTO content area */
+  margin-right: -20px !important; /* Extend 20px INTO content area */
   padding-left: 36px;
-  padding-right: 30px; /* Extra padding for extension area */
+  padding-right: 20px; /* Extra padding for extension area */
   /* Position relative to allow extension beyond parent */
   position: relative;
   /* Extend width to bridge gap completely - ensures overlap */
-  width: calc(100% + 42px) !important; /* 12px left + 30px right */
+  width: calc(100% + 32px) !important; /* 12px left + 20px right */
   /* CRITICAL: Use transform to extend and force GPU rendering (avoids sub-pixel gaps) */
   transform: translateX(-12px) translateZ(0);
   /* Force exact white background match */
@@ -586,7 +586,7 @@
   overflow-y: auto !important; /* CRITICAL: Force scrolling to work */
   overflow-x: visible !important; /* Allow tab overlap - NO clipping */
   background-color: #FFFFFF;
-  padding: 24px 30px;
+  padding: 16px 20px;
   /* CRITICAL: Start exactly where sidebar ends - ZERO gap */
   margin-left: 0 !important;
   /* The white background flows continuously from active sidebar item - unified surface */
@@ -597,8 +597,8 @@
   outline: none !important;
   /* CRITICAL: Content background MUST be identical to active tab background */
   background-color: #FFFFFF !important;
-  /* Content padding - tab overlaps into first 30px seamlessly */
-  padding-left: 30px;
+  /* Content padding - tab overlaps into first 20px seamlessly */
+  padding-left: 20px;
   /* CRITICAL: Remove any box-shadow that could create visual separation */
   box-shadow: none !important;
   /* Remove any potential border rendering artifacts */
@@ -618,9 +618,9 @@
 .layout-main::before {
   content: '';
   position: absolute;
-  left: -35px; /* Extend back into sidebar area to merge with tab */
+  left: -25px; /* Extend back into sidebar area to merge with tab */
   top: 0;
-  width: 35px;
+  width: 25px;
   height: 100%;
   background-color: #FFFFFF !important; /* Exact match */
   z-index: 500; /* Above content wrapper, below active tab */
@@ -633,15 +633,19 @@
 }
 
 .content-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
+  margin: 0;
   width: 100%;
   /* CRITICAL: Ensure no left margin/padding that could create visual gap */
   padding-left: 0;
   margin-left: 0;
+  margin-right: 0;
   /* Position relative to allow active tab overlay */
   position: relative;
   z-index: 0;
+  /* Fill available space for consistent layout regardless of sidebar state */
+  transform: none;
+  transform-origin: initial;
+  max-width: none;
 }
 
 /* ============================================
@@ -775,6 +779,14 @@
     padding: 16px;
   }
 
+  /* On mobile, ensure full-width layout */
+  .content-wrapper {
+    transform: none;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+  }
+
   /* Adjust sidebar active state for mobile - maintain C-shape with soft right edges */
   .sidebar-item.active {
     border-radius: 35px 6px 6px 35px; /* C-shape: rounded left, soft rounded right */
@@ -818,6 +830,14 @@
 
   .layout-main {
     padding: 12px;
+  }
+
+  /* On very small screens, maintain full width */
+  .content-wrapper {
+    transform: none;
+    max-width: none;
+    width: 100%;
+    margin: 0;
   }
 }
 

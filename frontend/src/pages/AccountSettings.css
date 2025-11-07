@@ -92,7 +92,7 @@
 }
 
 .card-header {
-  background-color: #34495E;
+  background-color: #002B59;
   color: #FFFFFF;
   padding: 20px 30px;
   display: flex;
@@ -114,7 +114,7 @@
   height: 36px;
   border-radius: 6px;
   background-color: #FFFFFF;
-  color: #34495E;
+  color: #002B59;
   border: none;
   font-size: 18px;
   cursor: pointer;
@@ -210,7 +210,7 @@
 }
 
 .documents-table thead {
-  background-color: #34495E;
+  background-color: #002B59;
   color: #FFFFFF;
 }
 
@@ -369,7 +369,7 @@
 /* Password Reset */
 .reset-password-trigger {
   padding: 12px 30px;
-  background-color: #34495E;
+  background-color: #002B59;
   color: #FFFFFF;
   border: none;
   border-radius: 8px;

@@ -1774,12 +1774,22 @@ class DelhiveryService {
             if (!warehouseData.name) {
                 throw new Error('Warehouse name is required for update (used for identification)');
             }
-            // Note: Per Delhivery API, only name, phone, and address are supported fields
+            if (!warehouseData.pin) {
+                throw new Error('Warehouse pincode is required for update');
+            }
+
+            const sanitizedPin = warehouseData.pin.toString().trim();
+            if (!sanitizedPin) {
+                throw new Error('Warehouse pincode is required for update');
+            }
+
+            // Note: Per Delhivery API, name (identifier) with pin required, phone/address optional
 
             // Prepare update payload per Delhivery API
             // Only phone and address can be updated (name is for identification only)
             const updatePayload = {
-                name: warehouseData.name  // Mandatory: used to identify the warehouse
+                name: warehouseData.name,  // Mandatory: used to identify the warehouse
+                pin: sanitizedPin
             };
 
             // Add phone if provided (required or optional based on API)

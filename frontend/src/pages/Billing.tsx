@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiService } from '../services/api';
-import { environmentConfig } from '../config/environment';
-import { notificationService } from '../services/notificationService';
 import './Billing.css';
 
 interface WalletTransaction {
   transaction_id: string;
   transaction_type: 'credit' | 'debit';
+  transaction_category?: string;
   amount: number;
   description: string;
   status: string;
@@ -27,6 +26,43 @@ interface WalletSummary {
   total_credits: number;
   total_debits: number;
 }
+
+interface WalletTransactionsResponse {
+  success: boolean;
+  data: {
+    transactions: WalletTransaction[];
+    summary: {
+      current_balance: number;
+      total_credits: number;
+      total_debits: number;
+    };
+    pagination: {
+      current_page: number;
+      total_pages: number;
+      total_count: number;
+      per_page: number;
+    };
+  };
+}
+
+const CACHE_TTL_MS = 60_000; // 1 minute cache window
+
+type CachedTransactionData = {
+  transactions: WalletTransaction[];
+  summary: {
+    totalCredits: number;
+    totalDebits: number;
+  };
+  pagination: {
+    totalPages: number;
+    totalCount: number;
+  };
+};
+
+type TransactionCache = Record<string, {
+  timestamp: number;
+  data: CachedTransactionData;
+}>;
 
 const Billing: React.FC = () => {
   const navigate = useNavigate();
@@ -55,8 +91,22 @@ const Billing: React.FC = () => {
   // Tabs
   const [activeTab, setActiveTab] = useState<'transactions' | 'recharges'>('transactions');
 
+  // Cache for transaction requests keyed by parameters
+  const transactionCacheRef = useRef<TransactionCache>({});
+
+  const applyTransactionData = useCallback((data: CachedTransactionData) => {
+    setTransactions(data.transactions);
+    setSummary(prev => ({
+      ...prev,
+      total_credits: data.summary.totalCredits,
+      total_debits: data.summary.totalDebits
+    }));
+    setTotalPages(data.pagination.totalPages);
+    setTotalCount(data.pagination.totalCount);
+  }, []);
+
   // Fetch current wallet balance (independent of filters)
-  const fetchWalletBalance = async () => {
+  const fetchWalletBalance = useCallback(async () => {
     try {
       const response = await apiService.get<{
         success: boolean;
@@ -80,90 +130,108 @@ const Billing: React.FC = () => {
     } catch (error) {
       console.error('❌ Error fetching wallet balance:', error);
     }
-  };
+  }, []);
 
   // Fetch wallet transactions
-  const fetchTransactions = async () => {
-    setLoading(true);
+  const fetchTransactions = useCallback(async ({ forceRefresh = false }: { forceRefresh?: boolean } = {}) => {
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
       if (dateFrom) params.append('date_from', dateFrom);
       if (dateTo) params.append('date_to', dateTo);
-      
-      // Filter by tab: Transactions shows all, Recharges shows only credits
+
+      const effectiveType = activeTab === 'recharges' ? 'credit' : transactionType;
+      if (effectiveType !== 'all') {
+        params.append('type', effectiveType);
+      }
+
       if (activeTab === 'recharges') {
-        params.append('type', 'credit');
-      } else if (transactionType !== 'all') {
-        params.append('type', transactionType);
+        params.append('category', 'wallet_recharge');
       }
 
-      console.log('🔍 FETCHING WALLET TRANSACTIONS:', {
-        params: params.toString(),
-        page,
-        limit
-      });
+      const paramsString = params.toString();
+      const cacheKey = `${activeTab}|${paramsString}`;
+      const cachedEntry = transactionCacheRef.current[cacheKey];
+      const isCacheValid = cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_TTL_MS);
 
-      const response = await fetch(`${environmentConfig.apiUrl}/billing/wallet-transactions?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      if (!forceRefresh && isCacheValid) {
+        applyTransactionData(cachedEntry.data);
+        setLoading(false);
+        return;
+      }
+
+      if (cachedEntry && !forceRefresh) {
+        applyTransactionData(cachedEntry.data);
+      }
+
+      const shouldShowLoading = forceRefresh || !cachedEntry;
+      if (shouldShowLoading) {
+        setLoading(true);
+      }
+
+      const response = await apiService.get<WalletTransactionsResponse>(`/billing/wallet-transactions?${paramsString}`);
+
+      const fetchedTransactions: WalletTransaction[] = response?.data?.transactions || [];
+      const sanitizedTransactions = activeTab === 'recharges'
+        ? fetchedTransactions.filter(txn => {
+            const category = (txn.transaction_category || '').toLowerCase();
+            if (!category) return false;
+            if (category.includes('refund')) return false;
+            return category.includes('wallet_recharge');
+          })
+        : fetchedTransactions;
+
+      const cacheData: CachedTransactionData = {
+        transactions: sanitizedTransactions,
+        summary: {
+          totalCredits: Number(response?.data?.summary?.total_credits || 0),
+          totalDebits: Number(response?.data?.summary?.total_debits || 0)
+        },
+        pagination: {
+          totalPages: response?.data?.pagination?.total_pages || 1,
+          totalCount: response?.data?.pagination?.total_count || sanitizedTransactions.length
         }
-      });
+      };
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ WALLET TRANSACTIONS FETCHED:', data);
-        
-        setTransactions(data.data.transactions || []);
-        // Do NOT override current_balance here; only update totals from the query
-        const totals = data.data.summary || { current_balance: 0, total_credits: 0, total_debits: 0 };
-        setSummary(prev => ({
-          ...prev,
-          total_credits: Number(totals.total_credits || 0),
-          total_debits: Number(totals.total_debits || 0)
-        }));
-        setTotalPages(data.data.pagination?.total_pages || 1);
-        setTotalCount(data.data.pagination?.total_count || 0);
-      } else {
-        console.error('❌ Failed to fetch transactions:', response.statusText);
-      }
+      transactionCacheRef.current[cacheKey] = {
+        timestamp: Date.now(),
+        data: cacheData
+      };
+
+      applyTransactionData(cacheData);
     } catch (error) {
-      console.error('❌ Error fetching transactions:', error);
+      console.error('❌ Error fetching transactions from MongoDB:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, page, limit, dateFrom, dateTo, transactionType, applyTransactionData]);
 
   useEffect(() => {
     // Initial fetches
     fetchWalletBalance();
-    fetchTransactions();
+    fetchTransactions({ forceRefresh: true });
 
     // Poll wallet balance from MongoDB every 60 seconds (no WebSocket dependency)
-    const interval = setInterval(() => {
+    const balanceInterval = setInterval(() => {
       fetchWalletBalance();
-    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
+    }, 60000);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Poll transactions on a cadence independent of WebSockets
+    const transactionInterval = setInterval(() => {
+      fetchTransactions({ forceRefresh: true });
+    }, CACHE_TTL_MS);
+
+    return () => {
+      clearInterval(balanceInterval);
+      clearInterval(transactionInterval);
+    };
+  }, [fetchWalletBalance, fetchTransactions]);
 
   useEffect(() => {
     // Refresh transactions when filters/page change or tab changes
     fetchTransactions();
-  }, [page, limit, dateFrom, dateTo, transactionType, activeTab]);
-
-  // Poll wallet balance and transactions from MongoDB (no WebSocket dependency)
-  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
-  useEffect(() => {
-    const pollInterval = setInterval(() => {
-      console.log('💰 Polling wallet balance and transactions from MongoDB...');
-      fetchWalletBalance();
-      fetchTransactions();
-    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
-
-    return () => clearInterval(pollInterval);
-  }, [page, limit, dateFrom, dateTo, transactionType, activeTab]);
+  }, [fetchTransactions]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -186,11 +254,10 @@ const Billing: React.FC = () => {
     return `${date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
   };
 
-  // Format weight display (weight is in kg)
+  // Format weight display (weight provided in grams)
   const formatWeight = (weight: number | null) => {
     if (!weight) return 'N/A';
-    // Weight is already in kg from backend (just needs unit label change)
-    return `${weight.toFixed(1)} kg`;
+    return `${Math.round(weight)} g`;
   };
 
   // Get default date range (last 7 days)
@@ -284,16 +351,22 @@ const Billing: React.FC = () => {
           
           <div className="filter-group">
             <label>Date Range</label>
-            <button
-              className="date-range-btn"
-              onClick={() => {
-                const from = dateFrom ? new Date(dateFrom).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Start Date';
-                const to = dateTo ? new Date(dateTo).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'End Date';
-                alert(`Date Range: ${from} to ${to}`);
-              }}
-            >
-              📅 {dateFrom && dateTo ? `${new Date(dateFrom).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} to ${new Date(dateTo).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : 'Select Date Range'}
-            </button>
+            <div className="date-range-inputs">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="filter-input"
+                max={dateTo || undefined}
+              />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="filter-input"
+                min={dateFrom || undefined}
+              />
+            </div>
           </div>
           
           <div className="filter-group">

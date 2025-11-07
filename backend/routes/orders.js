@@ -309,10 +309,13 @@ router.get('/', auth, [
 // @route   GET /api/orders/track/:awb
 // @access  Private
 router.get('/track/:awb', auth, async (req, res) => {
-  try {
+   try {
     const { awb } = req.params;
-    
-    if (!awb) {
+    const { order_id: orderIdQuery, ref_id: refIdQuery } = req.query;
+
+    const sanitizedAwb = (awb || '').trim();
+
+    if (!sanitizedAwb) {
       return res.status(400).json({
         status: 'error',
         message: 'AWB number is required'
@@ -320,16 +323,49 @@ router.get('/track/:awb', auth, async (req, res) => {
     }
 
     logger.info('📦 Tracking shipment', {
-      awb,
+      awb: sanitizedAwb,
       userId: req.user._id
     });
 
-    // Track shipment with Delhivery API using AWB number
-    const trackingResult = await delhiveryService.trackShipment(awb);
+    // Try to locate the order belonging to the current user so we can pass a reference ID to Delhivery
+    let referenceId = '';
+    try {
+      const orderForUser = await Order.findOne({
+        user_id: req.user._id,
+        $or: [
+          { 'shipping_info.awb_number': sanitizedAwb },
+          { 'delhivery_data.waybill': sanitizedAwb },
+          { awb: sanitizedAwb },
+          { waybill: sanitizedAwb }
+        ]
+      }).lean();
+
+      if (orderForUser) {
+        referenceId = (
+          orderIdQuery ||
+          refIdQuery ||
+          orderForUser.order_id ||
+          orderForUser.reference_id ||
+          ''
+        ).trim();
+      } else if (orderIdQuery || refIdQuery) {
+        referenceId = (orderIdQuery || refIdQuery || '').trim();
+      }
+    } catch (lookupError) {
+      logger.warn('⚠️ Failed to lookup order for tracking reference', {
+        awb: sanitizedAwb,
+        userId: req.user._id,
+        error: lookupError.message
+      });
+      referenceId = (orderIdQuery || refIdQuery || '').trim();
+    }
+
+    // Track shipment with Delhivery API using AWB number (and optional ref_ids for better accuracy)
+    const trackingResult = await delhiveryService.trackShipment(sanitizedAwb, referenceId);
 
     if (trackingResult.success) {
       logger.info('✅ Tracking data retrieved', {
-        awb,
+        awb: sanitizedAwb,
         hasData: !!trackingResult.data
       });
 
@@ -337,14 +373,15 @@ router.get('/track/:awb', auth, async (req, res) => {
         status: 'success',
         message: 'Tracking data retrieved successfully',
         data: {
-          waybill: awb,
+          waybill: sanitizedAwb,
           tracking_data: trackingResult.data
         }
       });
     } else {
       logger.error('❌ Tracking failed', {
-        awb,
-        error: trackingResult.error
+        awb: sanitizedAwb,
+        error: trackingResult.error,
+        referenceId
       });
 
       return res.status(400).json({

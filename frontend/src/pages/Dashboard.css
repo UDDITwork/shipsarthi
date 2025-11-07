@@ -200,7 +200,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px 20px;
-    background: linear-gradient(135deg, #002B59 0%, #21476E 100%);
+    background-color: #002B59;
     border-radius: 8px;
     color: #FFFFFF;
     font-weight: 600;
@@ -331,7 +331,7 @@
   
   /* Metric Card Styles */
   .metric-card {
-    background: linear-gradient(135deg, #002B59 0%, #21476E 100%);
+    background-color: #002B59;
     border-radius: 12px;
     padding: 16px;
     color: #FFFFFF;
@@ -408,10 +408,10 @@
   }
   
   /* Status Section */
-  .status-section {
+.status-section {
     background-color: #FFE8D6;
     border-radius: 12px;
-    padding: 25px;
+    padding: 20px;
   }
   
   .section-header {
@@ -428,15 +428,16 @@
   /* Status Grid */
   .status-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+    gap: 12px;
+    justify-content: center;
   }
   
   .status-box {
     background-color: #FFFFFF;
     border: 2px solid #002B59;
     border-radius: 10px;
-    padding: 20px 10px;
+    padding: 16px 8px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -448,31 +449,32 @@
   }
   
   .status-value {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #002B59;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   
   .status-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #002B59;
     font-weight: 500;
-    line-height: 1.3;
+    line-height: 1.2;
   }
   
   /* COD Grid */
   .cod-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
+    gap: 16px;
+    justify-content: center;
   }
   
   .cod-box {
     background-color: #FFFFFF;
     border: 2px solid #002B59;
     border-radius: 10px;
-    padding: 20px 10px;
+    padding: 16px 8px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -491,17 +493,17 @@
   }
   
   .cod-value {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #002B59;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   
   .cod-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #002B59;
     font-weight: 500;
-    line-height: 1.3;
+    line-height: 1.2;
   }
   
   /* Bottom Section */
@@ -676,7 +678,7 @@
     }
   
     .status-grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
     }
   }
   
@@ -710,7 +712,8 @@
     }
   
     .status-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+      justify-content: center;
     }
   }
   
@@ -756,7 +759,7 @@
     }
   
     .status-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
   
     .cod-grid {

@@ -55,6 +55,9 @@ interface ShippingCalculationResponse {
   chargeableWeight: number;
 }
 
+type ZoneDefinitionMap = { [key: string]: string[] };
+type ZoneDefinitionEntry = { zone: string; definition: string };
+
 interface RateCardData {
   userCategory: string;
   carrier: string;
@@ -71,43 +74,169 @@ interface RateCardData {
     minimumAmount: number;
     gstAdditional: boolean;
   };
-  zoneDefinitions: { [key: string]: string[] };
+  zoneDefinitions: ZoneDefinitionMap | ZoneDefinitionEntry[];
   termsAndConditions: string[];
 }
+
+type RateCardCacheEntry = {
+  timestamp: number;
+  data: RateCardData;
+};
+
+const RATE_CARD_CACHE_PREFIX = 'rateCardCache_';
+const RATE_CARD_CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
 
 // Price List Tab Component
 const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => void }> = ({ userCategory, onRefreshUserData }) => {
   const [rateCardData, setRateCardData] = useState<RateCardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusType, setStatusType] = useState<'info' | 'warning'>('info');
 
-  useEffect(() => {
-    fetchRateCard();
-  }, [userCategory]);
+  const isBrowser = typeof window !== 'undefined';
 
-  const fetchRateCard = async () => {
+  const getCacheKey = () => `${RATE_CARD_CACHE_PREFIX}${userCategory}`;
+
+  const readCache = (): RateCardCacheEntry | null => {
+    if (!isBrowser) return null;
     try {
-      setLoading(true);
+      const cached = localStorage.getItem(getCacheKey());
+      if (!cached) return null;
+      const parsed = JSON.parse(cached);
+      if (!parsed?.data || !parsed?.timestamp) return null;
+      return parsed as RateCardCacheEntry;
+    } catch (err) {
+      console.warn('Failed to read rate card cache:', err);
+      return null;
+    }
+  };
+
+  const writeCache = (data: RateCardData, timestamp: number) => {
+    if (!isBrowser) return;
+    try {
+      localStorage.setItem(getCacheKey(), JSON.stringify({ timestamp, data }));
+    } catch (err) {
+      console.warn('Failed to write rate card cache:', err);
+    }
+  };
+
+  const clearCache = () => {
+    if (!isBrowser) return;
+    try {
+      localStorage.removeItem(getCacheKey());
+    } catch (err) {
+      console.warn('Failed to clear rate card cache:', err);
+    }
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch (err) {
+      return '';
+    }
+  };
+
+  const updateStatusMessage = (
+    timestamp: number,
+    options: { source: 'cache' | 'network'; reason?: 'stale-cache' | 'rate-limit' }
+  ) => {
+    const formatted = formatTimestamp(timestamp);
+    if (!formatted) {
+      setStatusMessage(null);
+      return;
+    }
+
+    if (options.source === 'cache') {
+      if (options.reason === 'rate-limit') {
+        setStatusType('warning');
+        setStatusMessage(`Rate limit reached. Showing cached rate card data from ${formatted}.`);
+      } else if (options.reason === 'stale-cache') {
+        setStatusType('warning');
+        setStatusMessage(`Using cached rate card data from ${formatted}. Refreshing in the background...`);
+      } else {
+        setStatusType('info');
+        setStatusMessage(`Loaded cached rate card data. Last updated: ${formatted}.`);
+      }
+    } else {
+      setStatusType('info');
+      setStatusMessage(`Last updated: ${formatted}.`);
+    }
+  };
+
+  const fetchRateCard = async ({ background = false }: { background?: boolean } = {}) => {
+    try {
+      if (!background) {
+        setLoading(true);
+      }
       setError(null);
-      
+
       const response = await apiService.get<{ success: boolean; data: RateCardData }>(`/shipping/rate-card/${userCategory}`);
-      
+
       if (response.success && response.data) {
         console.log('Rate card data received:', response.data);
         setRateCardData(response.data);
+        const timestamp = Date.now();
+        updateStatusMessage(timestamp, { source: 'network' });
+        writeCache(response.data, timestamp);
       } else {
         console.error('Invalid rate card response:', response);
         setError('Invalid rate card data received');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch rate card');
+      if (err?.response?.status === 429) {
+        const cachedEntry = readCache();
+        if (cachedEntry) {
+          setRateCardData(prev => prev ?? cachedEntry.data);
+          updateStatusMessage(cachedEntry.timestamp, { source: 'cache', reason: 'rate-limit' });
+          setError(null);
+        } else {
+          setError('Rate limit exceeded. Please wait a moment and try again.');
+        }
+      } else {
+        setError(err.message || 'Failed to fetch rate card');
+      }
       console.error('Rate card fetch error:', err);
     } finally {
-      setLoading(false);
+      if (!background) {
+        setLoading(false);
+      }
     }
   };
 
+  useEffect(() => {
+    const cachedEntry = readCache();
+
+    if (cachedEntry) {
+      setRateCardData(cachedEntry.data);
+      setLoading(false);
+      const isStale = Date.now() - cachedEntry.timestamp > RATE_CARD_CACHE_DURATION;
+      updateStatusMessage(cachedEntry.timestamp, {
+        source: 'cache',
+        reason: isStale ? 'stale-cache' : undefined,
+      });
+
+      if (isStale) {
+        fetchRateCard({ background: true });
+      }
+    } else {
+      fetchRateCard();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCategory]);
+
   const zones = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  const handleRetry = () => {
+    fetchRateCard();
+  };
+
+  const handleRefreshUserData = () => {
+    clearCache();
+    onRefreshUserData();
+    fetchRateCard();
+  };
 
   if (loading) {
     return (
@@ -133,10 +262,10 @@ const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => vo
           <div className="error-icon">❌</div>
           <p>{error}</p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            <button onClick={fetchRateCard} className="retry-btn">
+            <button onClick={handleRetry} className="retry-btn">
               Retry
             </button>
-            <button onClick={onRefreshUserData} className="retry-btn" style={{ backgroundColor: '#007bff' }}>
+            <button onClick={handleRefreshUserData} className="retry-btn" style={{ backgroundColor: '#007bff' }}>
               Refresh User Data
             </button>
           </div>
@@ -168,6 +297,12 @@ const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => vo
           <span className="category-badge">{rateCardData.userCategory}</span>
         </div>
       </div>
+
+      {statusMessage && (
+        <div className={`rate-card-status ${statusType === 'warning' ? 'warning' : ''}`}>
+          {statusMessage}
+        </div>
+      )}
 
       <div className="price-tables">
         {/* Forward Charges Table */}
@@ -267,12 +402,26 @@ const PriceListTab: React.FC<{ userCategory: string; onRefreshUserData: () => vo
         <div className="zone-definitions-container">
           <h3>Zone Definitions</h3>
           <div className="zone-grid">
-            {rateCardData.zoneDefinitions && Object.keys(rateCardData.zoneDefinitions).length > 0 ? (
+            {Array.isArray(rateCardData.zoneDefinitions) ? (
+              rateCardData.zoneDefinitions.length > 0 ? (
+                rateCardData.zoneDefinitions.map((zoneDef: ZoneDefinitionEntry) => (
+                  <div key={zoneDef.zone} className="zone-item">
+                    <div className="zone-name">{zoneDef.zone}</div>
+                    <div className="zone-states">{zoneDef.definition}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="zone-item">
+                  <div className="zone-name">No Zone Data</div>
+                  <div className="zone-states">Zone definitions not available</div>
+                </div>
+              )
+            ) : rateCardData.zoneDefinitions && Object.keys(rateCardData.zoneDefinitions).length > 0 ? (
               Object.entries(rateCardData.zoneDefinitions).map(([zone, states]) => (
                 <div key={zone} className="zone-item">
                   <div className="zone-name">Zone {zone}</div>
                   <div className="zone-states">
-                    {Array.isArray(states) ? states.join(', ') : 'No states defined'}
+                    {Array.isArray(states) && states.length > 0 ? states.join(', ') : 'No states defined'}
                   </div>
                 </div>
               ))
@@ -584,16 +733,30 @@ const Tools: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="form-group">
-                      <label>Pickup Pincode</label>
-                      <input
-                        type="text"
-                        placeholder="Enter 6 digit pickup pincode."
-                        value={formData.pickupPincode}
-                        onChange={(e) => handlePincodeChange('pickup', e.target.value)}
-                        maxLength={6}
-                        className="pincode-input"
-                      />
+                    <div className="inline-field-row">
+                      <div className="form-group">
+                        <label>Pickup Pincode</label>
+                        <input
+                          type="text"
+                          placeholder="Enter 6 digit pickup pincode."
+                          value={formData.pickupPincode}
+                          onChange={(e) => handlePincodeChange('pickup', e.target.value)}
+                          maxLength={6}
+                          className="pincode-input"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Delivery Pincode</label>
+                        <input
+                          type="text"
+                          placeholder="Enter 6 digit delivery pincode."
+                          value={formData.deliveryPincode}
+                          onChange={(e) => handlePincodeChange('delivery', e.target.value)}
+                          maxLength={6}
+                          className="pincode-input"
+                        />
+                      </div>
                     </div>
 
                     <div className="form-group">
@@ -645,18 +808,6 @@ const Tools: React.FC = () => {
                         <option value="single">Single Package (B2C)</option>
                         <option value="bulk">Bulk Package (B2B)</option>
                       </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Delivery Pincode</label>
-                      <input
-                        type="text"
-                        placeholder="Enter 6 digit delivery pincode."
-                        value={formData.deliveryPincode}
-                        onChange={(e) => handlePincodeChange('delivery', e.target.value)}
-                        maxLength={6}
-                        className="pincode-input"
-                      />
                     </div>
 
                     <div className="form-group">

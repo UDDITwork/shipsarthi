@@ -123,9 +123,17 @@ class TicketService {
     // Backend expects string (comma-separated) or array, so convert array to comma-separated string
     if (ticketData.awb_numbers) {
       if (Array.isArray(ticketData.awb_numbers)) {
-        formData.append('awb_numbers', ticketData.awb_numbers.join(','));
-      } else {
-        formData.append('awb_numbers', ticketData.awb_numbers);
+        ticketData.awb_numbers.forEach(awb => {
+          const trimmedAwb = awb?.trim();
+          if (trimmedAwb) {
+            formData.append('awb_numbers[]', trimmedAwb);
+          }
+        });
+      } else if (ticketData.awb_numbers) {
+        const trimmedAwb = ticketData.awb_numbers.trim();
+        if (trimmedAwb) {
+          formData.append('awb_numbers[]', trimmedAwb);
+        }
       }
     }
     

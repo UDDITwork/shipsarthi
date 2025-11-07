@@ -194,7 +194,7 @@ const About: React.FC = () => {
           </div>
           <div className="contact-info">
             <p><strong>Email:</strong> hello@shipsarthi.com</p>
-            <p><strong>Phone:</strong> 9351205202</p>
+            <p><strong>Phone:</strong> 9636369672</p>
           </div>
         </div>
       </div>

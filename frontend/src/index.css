@@ -25,6 +25,56 @@ body {
   overflow: hidden; /* Prevent root scroll, let layout handle it */
 }
 
+/* Allow scrolling for landing page and other standalone pages */
+#root:has(.landing-page),
+#root:has(.login-page),
+#root:has(.register-page),
+#root:has(.forgot-password-page),
+#root:has(.tracking-page),
+#root:has(.privacy-policy-page),
+#root:has(.terms-conditions-page),
+#root:has(.shipment-cancellation-page),
+#root:has(.order-cancellation-page),
+#root:has(.contact-page),
+#root:has(.about-page) {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+/* Also allow body/html to scroll for standalone pages */
+body:has(.landing-page),
+body:has(.login-page),
+body:has(.register-page),
+body:has(.forgot-password-page),
+body:has(.tracking-page),
+body:has(.privacy-policy-page),
+body:has(.terms-conditions-page),
+body:has(.shipment-cancellation-page),
+body:has(.order-cancellation-page),
+body:has(.contact-page),
+body:has(.about-page) {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+html:has(.landing-page),
+html:has(.login-page),
+html:has(.register-page),
+html:has(.forgot-password-page),
+html:has(.tracking-page),
+html:has(.privacy-policy-page),
+html:has(.terms-conditions-page),
+html:has(.shipment-cancellation-page),
+html:has(.order-cancellation-page),
+html:has(.contact-page),
+html:has(.about-page) {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
 /* Utility Classes */
 .btn-primary {
   background-color: #ff6b35;

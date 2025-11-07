@@ -28,7 +28,7 @@
 }
 
 .add-warehouse-btn {
-  background: linear-gradient(135deg, #002B59, #004080);
+  background-color: #002B59;
   color: white;
   border: none;
   padding: 6px 14px;
@@ -43,7 +43,7 @@
 }
 
 .add-warehouse-btn:hover {
-  background: linear-gradient(135deg, #001A3D, #002B59);
+  background-color: #002B59;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
 }
@@ -114,7 +114,7 @@
 }
 
 .create-first-btn {
-  background: linear-gradient(135deg, #002B59, #004080);
+  background-color: #002B59;
   color: white;
   border: none;
   padding: 6px 14px;
@@ -126,7 +126,7 @@
 }
 
 .create-first-btn:hover {
-  background: linear-gradient(135deg, #001A3D, #002B59);
+  background-color: #002B59;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 43, 89, 0.3);
 }
@@ -234,84 +234,77 @@
   flex-wrap: wrap;
 }
 
-.action-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+.warehouse-card .action-btn,
+.warehouse-actions .action-btn {
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  transition: all 0.2s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+  white-space: nowrap !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  transform: none !important;
 }
 
-/* Override global action-btn styles from Customers.css */
+.warehouse-card .action-btn:focus-visible,
+.warehouse-actions .action-btn:focus-visible {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
+}
+
+.default-btn {
+  color: #d97706 !important;
+  border-color: #fcd34d !important;
+}
+
+.default-btn:hover {
+  background: #fffbeb !important;
+  border-color: #fbbf24 !important;
+  transform: none !important;
+}
+
 .warehouse-actions .action-btn.edit-btn,
 .warehouse-actions .edit-btn,
 .warehouse-card .edit-btn {
-  background: white !important;
-  color: black !important;
-  border: 0.5px solid #E0E0E0 !important;
-  border-radius: 8px !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: auto !important;
-  min-height: auto !important;
-  padding: 8px 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+.warehouse-actions .edit-btn::before,
+.warehouse-card .edit-btn::before {
+  content: none !important;
 }
 
 .warehouse-actions .action-btn.edit-btn:hover,
 .warehouse-actions .edit-btn:hover,
 .warehouse-card .edit-btn:hover {
-  background: #F5F5F5 !important;
-  transform: translateY(-1px);
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  transform: none !important;
 }
 
-.default-btn {
-  background: #FFF3E0;
-  color: #F57C00;
-  border-radius: 8px !important;
-  width: auto !important;
-  height: auto !important;
-}
-
-.default-btn:hover {
-  background: #FFE0B2;
-  transform: translateY(-1px);
-}
-
-/* Override global action-btn styles from Customers.css */
 .warehouse-actions .action-btn.delete-btn,
 .warehouse-actions .delete-btn,
 .warehouse-card .delete-btn {
-  background: white !important;
-  color: black !important;
-  border: 0.5px solid #E0E0E0 !important;
-  border-radius: 8px !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: auto !important;
-  min-height: auto !important;
-  padding: 8px 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
 }
 
 .warehouse-actions .action-btn.delete-btn:hover,
 .warehouse-actions .delete-btn:hover,
 .warehouse-card .delete-btn:hover {
-  background: #F5F5F5 !important;
-  transform: translateY(-1px);
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  transform: none !important;
 }
 
 /* Responsive Design */
