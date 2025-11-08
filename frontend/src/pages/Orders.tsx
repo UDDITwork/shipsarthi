@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
@@ -26,6 +26,14 @@ interface OrderFilters {
   state?: string;
   minAmount?: number;
   maxAmount?: number;
+}
+
+interface BulkImportSummary {
+  total: number;
+  created: number;
+  failed: number;
+  errors: Array<{ row: number; error: string }>;
+  details: Array<{ row: number; order_id: string | null }>;
 }
 
 const Orders: React.FC = () => {
@@ -61,8 +69,12 @@ const Orders: React.FC = () => {
   // Modal States
   const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
   const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
+  const [bulkImportSummary, setBulkImportSummary] = useState<BulkImportSummary | null>(null);
+  const [bulkImportError, setBulkImportError] = useState<string | null>(null);
+  const [isBulkImportLoading, setIsBulkImportLoading] = useState(false);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [viewOrderModal, setViewOrderModal] = useState<{open: boolean, order: Order | null}>({
     open: false,
     order: null
@@ -149,8 +161,14 @@ const Orders: React.FC = () => {
     if (orderType) orderFilters.order_type = orderType;
     if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
     if (filters.dateTo) orderFilters.date_to = filters.dateTo;
-    if (filters.searchQuery) orderFilters.search = filters.searchQuery;
+    if (filters.searchQuery) {
+      orderFilters.search = filters.searchQuery;
+      orderFilters.search_type = filters.searchType;
+    }
     if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+    if (filters.state && filters.state.trim()) orderFilters.state = filters.state.trim();
+    if (typeof filters.minAmount === 'number') orderFilters.min_amount = filters.minAmount;
+    if (typeof filters.maxAmount === 'number') orderFilters.max_amount = filters.maxAmount;
 
     // Generate cache key based on filters
     const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(orderFilters)}`;
@@ -236,43 +254,81 @@ const Orders: React.FC = () => {
   };
 
   const handleBulkImport = () => {
+    setBulkImportSummary(null);
+    setBulkImportError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setIsBulkImportModalOpen(true);
   };
 
   const handleBulkImportClose = () => {
     setIsBulkImportModalOpen(false);
+    setBulkImportSummary(null);
+    setBulkImportError(null);
+    setIsBulkImportLoading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleBulkImportSubmit = async (file: File) => {
+    if (!file) return;
+
     try {
-      setLoading(true);
-      // Process CSV/Excel file and import orders
+      setIsBulkImportLoading(true);
+      setBulkImportError(null);
+      setBulkImportSummary(null);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setBulkImportError('Authentication required. Please log in again.');
+        setIsBulkImportLoading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', file);
-      
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/orders/bulk-import`, {
+
+      const response = await fetch(`${environmentConfig.apiUrl}/orders/bulk-import`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${token}`
         },
         body: formData
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert(`Successfully imported ${data.importedCount} orders!`);
-        // Clear cache and refresh from MongoDB
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch (err) {
+        data = { success: false, message: 'Unable to parse response from server.' };
+      }
+
+      if (response.ok || response.status === 207) {
+        const summary: BulkImportSummary | undefined = data?.data;
+        if (summary) {
+          setBulkImportSummary(summary);
+        }
         orderService.clearCache();
-        fetchOrders(); // Refresh orders list
-        setIsBulkImportModalOpen(false);
+        await fetchOrders();
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        if (data.success) {
+          setTimeout(() => {
+            setIsBulkImportModalOpen(false);
+            setBulkImportSummary(null);
+          }, 1800);
+        }
       } else {
-        throw new Error('Import failed');
+        setBulkImportError(data.message || 'Failed to import orders. Please check your file format.');
       }
     } catch (error) {
       console.error('Bulk import error:', error);
-      alert('Failed to import orders. Please check your file format.');
+      setBulkImportError(error instanceof Error ? error.message : 'Failed to import orders. Please check your file format.');
     } finally {
-      setLoading(false);
+      setIsBulkImportLoading(false);
     }
   };
 
@@ -363,8 +419,14 @@ const Orders: React.FC = () => {
     if (orderType) orderFilters.order_type = orderType;
     if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
     if (filters.dateTo) orderFilters.date_to = filters.dateTo;
-    if (filters.searchQuery) orderFilters.search = filters.searchQuery;
-    if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+      if (filters.searchQuery) {
+        orderFilters.search = filters.searchQuery;
+        orderFilters.search_type = filters.searchType;
+      }
+      if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+      if (filters.state && filters.state.trim()) orderFilters.state = filters.state.trim();
+      if (typeof filters.minAmount === 'number') orderFilters.min_amount = filters.minAmount;
+      if (typeof filters.maxAmount === 'number') orderFilters.max_amount = filters.maxAmount;
     
     // Refresh orders from MongoDB
     fetchOrders();
@@ -565,6 +627,10 @@ const Orders: React.FC = () => {
       dateTo: '',
       searchQuery: '',
       searchType: 'order',
+      paymentMode: undefined,
+      state: undefined,
+      minAmount: undefined,
+      maxAmount: undefined,
     });
     setShowMoreFilters(false);
   };
@@ -1432,9 +1498,67 @@ const Orders: React.FC = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <p>Upload a CSV or Excel file to import multiple orders at once.</p>
+                <div className="bulk-import-instructions">
+                  <p>Download the template below to ensure your column headers match Shipsarthi order variables.</p>
+                  <a
+                    href="/bulk-order-template.csv"
+                    download
+                    className="download-template-btn"
+                  >
+                    ⬇️ Download Sample CSV
+                  </a>
+                  <p className="bulk-template-note">Supported file types: .csv, .xlsx, .xls • File size ≤ 5MB</p>
+                  <div className="bulk-columns-grid">
+                    <span>order_id (optional)</span>
+                    <span>order_date</span>
+                    <span>reference_id</span>
+                    <span>invoice_number</span>
+                    <span>customer_name</span>
+                    <span>customer_phone</span>
+                    <span>customer_email</span>
+                    <span>customer_gstin</span>
+                    <span>delivery_address_line1</span>
+                    <span>delivery_address_line2</span>
+                    <span>delivery_city</span>
+                    <span>delivery_state</span>
+                    <span>delivery_pincode</span>
+                    <span>delivery_country</span>
+                    <span>pickup_name</span>
+                    <span>pickup_phone</span>
+                    <span>pickup_address</span>
+                    <span>pickup_city</span>
+                    <span>pickup_state</span>
+                    <span>pickup_pincode</span>
+                    <span>pickup_country</span>
+                    <span>product_name</span>
+                    <span>product_sku</span>
+                    <span>product_hsn</span>
+                    <span>product_quantity</span>
+                    <span>product_unit_price</span>
+                    <span>product_discount</span>
+                    <span>product_tax</span>
+                    <span>package_weight_kg</span>
+                    <span>package_length_cm</span>
+                    <span>package_width_cm</span>
+                    <span>package_height_cm</span>
+                    <span>payment_mode</span>
+                    <span>cod_amount</span>
+                    <span>shipping_mode</span>
+                    <span>seller_name</span>
+                    <span>seller_gst</span>
+                    <span>seller_reseller</span>
+                  </div>
+                  <ul className="bulk-guidelines">
+                    <li>Use one order per row. Duplicate the row if you need multiple products per order.</li>
+                    <li>Phone numbers must be 10 digits (starts with 6-9). Pincodes must be 6 digits.</li>
+                    <li>Dimensions are in CM and weight in KG. Payment mode accepts <code>Prepaid</code> or <code>COD</code>.</li>
+                    <li>Leave <code>order_id</code> blank if you want Shipsarthi to auto-generate it.</li>
+                  </ul>
+                </div>
+
                 <div className="file-upload-area">
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept=".csv,.xlsx,.xls"
                     onChange={(e) => {
@@ -1444,19 +1568,73 @@ const Orders: React.FC = () => {
                       }
                     }}
                     className="file-input"
+                    disabled={isBulkImportLoading}
                   />
                   <div className="upload-text">
-                    📁 Click to select file or drag and drop
+                    {isBulkImportLoading ? '🔄 Uploading and validating…' : '📁 Click to select file or drag and drop'}
                   </div>
                 </div>
-                <div className="import-instructions">
-                  <h4>File Format Requirements:</h4>
-                  <ul>
-                    <li>CSV or Excel format (.csv, .xlsx, .xls)</li>
-                    <li>Include columns: Order ID, Customer Name, Phone, Address, etc.</li>
-                    <li>Maximum file size: 10MB</li>
-                  </ul>
-                </div>
+
+                {bulkImportError && (
+                  <div className="bulk-import-error">
+                    {bulkImportError}
+                  </div>
+                )}
+
+                {isBulkImportLoading && (
+                  <div className="bulk-import-loading">
+                    🚚 Creating orders… Please keep this window open.
+                  </div>
+                )}
+
+                {bulkImportSummary && (
+                  <div className="bulk-import-summary">
+                    <h4>Import Summary</h4>
+                    <div className="summary-stats">
+                      <div>
+                        <span>Total rows</span>
+                        <strong>{bulkImportSummary.total}</strong>
+                      </div>
+                      <div>
+                        <span>Orders created</span>
+                        <strong className="summary-success">{bulkImportSummary.created}</strong>
+                      </div>
+                      <div>
+                        <span>Failed rows</span>
+                        <strong className={bulkImportSummary.failed > 0 ? 'summary-failed' : ''}>{bulkImportSummary.failed}</strong>
+                      </div>
+                    </div>
+
+                    {bulkImportSummary.details.length > 0 && (
+                      <div className="bulk-import-success-list">
+                        <h5>Created Orders</h5>
+                        <ul>
+                          {bulkImportSummary.details.slice(0, 8).map((detail, idx) => (
+                            <li key={`${detail.order_id || detail.row}-${idx}`}>
+                              Row {detail.row}: {detail.order_id || 'Created successfully'}
+                            </li>
+                          ))}
+                          {bulkImportSummary.details.length > 8 && (
+                            <li>…and {bulkImportSummary.details.length - 8} more</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                    {bulkImportSummary.errors.length > 0 && (
+                      <div className="bulk-import-errors">
+                        <h5>Rows with issues</h5>
+                        <ul>
+                          {bulkImportSummary.errors.map((err, idx) => (
+                            <li key={`${err.row}-${idx}`}>
+                              Row {err.row}: {err.error}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

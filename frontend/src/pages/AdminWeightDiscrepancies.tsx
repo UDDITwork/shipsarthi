@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import { environmentConfig } from '../config/environment';
 import './AdminWeightDiscrepancies.css';
 
@@ -126,8 +125,7 @@ const AdminWeightDiscrepancies: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="admin-weight-discrepancies">
+    <div className="admin-weight-discrepancies">
         {/* Header */}
         <div className="page-header">
           <h1>⚖️ Weight Discrepancies</h1>
@@ -272,8 +270,7 @@ const AdminWeightDiscrepancies: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-    </AdminLayout>
+    </div>
   );
 };
 

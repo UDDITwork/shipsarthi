@@ -166,11 +166,11 @@ const Landing: React.FC = () => {
   ];
 
   const partners = [
-    { name: 'DELHIVERY', logo: '/image 1.svg' },
-    { name: 'AMAZON', logo: '/image 3.svg' },
-    { name: 'XPRESSBEES', logo: '/image 4.svg' },
-    { name: 'TRACKON', logo: '/image 5.svg' },
-    { name: 'DTDC', logo: '/image 6.svg' }
+    { name: 'DELHIVERY', logo: '/image 1.svg', isLive: true },
+    { name: 'AMAZON', logo: '/image 3.svg', isLive: false },
+    { name: 'XPRESSBEES', logo: '/image 4.svg', isLive: false },
+    { name: 'TRACKON', logo: '/image 5.svg', isLive: false },
+    { name: 'DTDC', logo: '/image 6.svg', isLive: false }
   ];
 
   return (
@@ -179,16 +179,42 @@ const Landing: React.FC = () => {
       <header className="header">
         <div className="header-container">
           <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
-            <span className="logo-text">Shipsarthi</span>
+            <img src="/NEW LOGO.png" alt="Shipsarthi" className="logo-img" />
           </div>
           
           <nav className="nav-links">
             <a href="#services" className="nav-link">Services</a>
-            <a href="#calculator" className="nav-link">Rate Calculator</a>
+            <a
+              href="/rate-calculator"
+              className="nav-link"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/rate-calculator');
+              }}
+            >
+              Rate Calculator
+            </a>
             <a href="#features" className="nav-link">Features</a>
-            <a href="/about" className="nav-link">About</a>
-            <a href="/contact" className="nav-link">Contact Us</a>
+            <a
+              href="/about"
+              className="nav-link"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/about');
+              }}
+            >
+              About
+            </a>
+            <a
+              href="/contact"
+              className="nav-link"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/contact');
+              }}
+            >
+              Contact Us
+            </a>
           </nav>
           
           <div className="header-buttons">
@@ -212,7 +238,7 @@ const Landing: React.FC = () => {
       <section className="hero-section">
         <div className="hero-container">
           <div className="hero-left">
-            <h1 className="hero-title">Enquire Now !</h1>
+            <div className="enquireNow">Enquire Now !</div>
             <form className="enquiry-form" onSubmit={handleSubmit}>
               {/* Success/Error Messages */}
               {submitStatus === 'success' && (
@@ -384,7 +410,11 @@ const Landing: React.FC = () => {
           
           <div className="partners-grid">
             {partners.map((partner, index) => (
-              <div key={index} className="partner-logo">
+              <div
+                key={index}
+                className={`partner-logo${partner.isLive ? ' partner-live' : ' partner-coming'}`}
+              >
+                {!partner.isLive && <span className="coming-soon-badge">Coming Soon</span>}
                 <img src={partner.logo} alt={partner.name} />
               </div>
             ))}

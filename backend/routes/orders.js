@@ -1,6 +1,9 @@
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const moment = require('moment');
+const multer = require('multer');
+const XLSX = require('xlsx');
+const axios = require('axios');
 const { auth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const Warehouse = require('../models/Warehouse');
@@ -13,6 +16,105 @@ const labelRenderer = require('../services/labelRenderer');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+const uploadStorage = multer.memoryStorage();
+const upload = multer({
+  storage: uploadStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB
+  }
+});
+
+const normalizeKey = (key) => (key ? key.toString().trim().toLowerCase().replace(/\s+/g, '_') : '');
+
+const isRowEmpty = (row) => {
+  if (!row) return true;
+  return Object.values(row).every((value) => {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    return false;
+  });
+};
+
+const normalizeString = (value, defaultValue = '') => {
+  if (value === null || value === undefined) return defaultValue;
+  if (value instanceof Date) {
+    return moment(value).format('YYYY-MM-DD');
+  }
+  return value.toString().trim() || defaultValue;
+};
+
+const normalizePincode = (value) => {
+  if (value === null || value === undefined) return '';
+  let str = value.toString().trim();
+  if (!str) return '';
+  str = str.replace(/\D/g, '');
+  if (str.length > 6) {
+    str = str.slice(0, 6);
+  }
+  return str;
+};
+
+const normalizePhone = (value) => {
+  if (value === null || value === undefined) return '';
+  let str = value.toString().trim();
+  if (!str) return '';
+  str = str.replace(/\D/g, '');
+  if (str.length > 10) {
+    str = str.slice(-10);
+  }
+  return str;
+};
+
+const parseNumber = (value, defaultValue = 0) => {
+  if (value === null || value === undefined || value === '') return defaultValue;
+  const num = parseFloat(value);
+  if (Number.isNaN(num)) return defaultValue;
+  return num;
+};
+
+const parseInteger = (value, defaultValue = 0) => {
+  if (value === null || value === undefined || value === '') return defaultValue;
+  const num = parseInt(value, 10);
+  if (Number.isNaN(num)) return defaultValue;
+  return num;
+};
+
+const normalizeDate = (value) => {
+  if (!value) {
+    return moment().format('YYYY-MM-DD');
+  }
+
+  if (value instanceof Date) {
+    return moment(value).format('YYYY-MM-DD');
+  }
+
+  const raw = value.toString().trim();
+  if (!raw) {
+    return moment().format('YYYY-MM-DD');
+  }
+
+  let date = moment(raw, ['YYYY-MM-DD', 'DD-MM-YYYY', 'MM-DD-YYYY', 'DD/MM/YYYY', 'MM/DD/YYYY'], true);
+  if (!date.isValid()) {
+    date = moment(new Date(raw));
+  }
+
+  if (!date.isValid()) {
+    return moment().format('YYYY-MM-DD');
+  }
+
+  return date.format('YYYY-MM-DD');
+};
+
+const normalizePaymentMode = (value) => {
+  const normalized = normalizeString(value).toUpperCase();
+  return normalized === 'COD' ? 'COD' : 'Prepaid';
+};
+
+const normalizeShippingMode = (value) => {
+  const normalized = normalizeString(value).toLowerCase();
+  return normalized === 'express' ? 'Express' : 'Surface';
+};
 
 // NOTE: Zone calculation removed - now using Delhivery API to get zone
 // Zone is fetched from Delhivery invoice/charges API response
@@ -195,6 +297,304 @@ async function deductWalletForOrder(order, userId, awbNumber = null) {
 // @desc    Get all orders with filters and pagination
 // @route   GET /api/orders
 // @access  Private
+router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    const file = req.file;
+
+    logger.info('📥 Bulk order import received', {
+      userId: req.user._id,
+      fileName: file.originalname,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      timestamp: new Date().toISOString()
+    });
+
+    const workbook = XLSX.read(file.buffer, { type: 'buffer', cellDates: true });
+    const sheetName = workbook.SheetNames[0];
+
+    if (!sheetName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Uploaded file does not contain any sheets'
+      });
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+    if (!rawRows || rawRows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Uploaded file does not contain any rows'
+      });
+    }
+
+    const baseUrl = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}`;
+
+    const importResults = {
+      total: 0,
+      created: 0,
+      failed: 0,
+      errors: [],
+      details: []
+    };
+
+    const requiredFields = [
+      'customer_name',
+      'customer_phone',
+      'delivery_address_line1',
+      'delivery_city',
+      'delivery_state',
+      'delivery_pincode',
+      'pickup_name',
+      'pickup_phone',
+      'pickup_address',
+      'pickup_city',
+      'pickup_state',
+      'pickup_pincode',
+      'product_name',
+      'product_quantity',
+      'product_unit_price',
+      'package_weight_kg',
+      'package_length_cm',
+      'package_width_cm',
+      'package_height_cm'
+    ];
+
+    for (let i = 0; i < rawRows.length; i++) {
+      const originalRow = rawRows[i];
+      const rowNumber = i + 2; // Header is row 1
+
+      if (isRowEmpty(originalRow)) {
+        continue;
+      }
+
+      importResults.total += 1;
+
+      const normalizedRow = {};
+      Object.keys(originalRow).forEach((key) => {
+        const normalized = normalizeKey(key);
+        if (normalized) {
+          normalizedRow[normalized] = originalRow[key];
+        }
+      });
+
+      const getCell = (...aliases) => {
+        for (const alias of aliases) {
+          const normalized = normalizeKey(alias);
+          if (Object.prototype.hasOwnProperty.call(normalizedRow, normalized)) {
+            return normalizedRow[normalized];
+          }
+        }
+        return '';
+      };
+
+      const missingFields = [];
+      requiredFields.forEach((field) => {
+        const value = normalizeString(getCell(field));
+        if (!value) {
+          missingFields.push(field);
+        }
+      });
+
+      const customerPhone = normalizePhone(getCell('customer_phone'));
+      if (!customerPhone || customerPhone.length !== 10) {
+        missingFields.push('customer_phone (10 digits required)');
+      }
+
+      const pickupPhone = normalizePhone(getCell('pickup_phone'));
+      if (!pickupPhone || pickupPhone.length !== 10) {
+        missingFields.push('pickup_phone (10 digits required)');
+      }
+
+      const deliveryPincode = normalizePincode(getCell('delivery_pincode'));
+      if (!deliveryPincode || deliveryPincode.length !== 6) {
+        missingFields.push('delivery_pincode (6 digits required)');
+      }
+
+      const pickupPincode = normalizePincode(getCell('pickup_pincode'));
+      if (!pickupPincode || pickupPincode.length !== 6) {
+        missingFields.push('pickup_pincode (6 digits required)');
+      }
+
+      const quantity = Math.max(parseInteger(getCell('product_quantity'), 1), 1);
+      const unitPrice = parseNumber(getCell('product_unit_price'), 0);
+      const discount = parseNumber(getCell('product_discount'), 0);
+      const tax = parseNumber(getCell('product_tax'), 0);
+      const packageWeight = parseNumber(getCell('package_weight_kg'), 0);
+      const packageLength = parseNumber(getCell('package_length_cm'), 0);
+      const packageWidth = parseNumber(getCell('package_width_cm'), 0);
+      const packageHeight = parseNumber(getCell('package_height_cm'), 0);
+
+      if (packageWeight <= 0) {
+        missingFields.push('package_weight_kg (>0 required)');
+      }
+
+      if (packageLength <= 0) {
+        missingFields.push('package_length_cm (>0 required)');
+      }
+
+      if (packageWidth <= 0) {
+        missingFields.push('package_width_cm (>0 required)');
+      }
+
+      if (packageHeight <= 0) {
+        missingFields.push('package_height_cm (>0 required)');
+      }
+
+      if (missingFields.length > 0) {
+        importResults.failed += 1;
+        importResults.errors.push({
+          row: rowNumber,
+          error: `Missing or invalid fields: ${missingFields.join(', ')}`
+        });
+        continue;
+      }
+
+      const paymentMode = normalizePaymentMode(getCell('payment_mode'));
+      const shippingMode = normalizeShippingMode(getCell('shipping_mode'));
+      const orderDate = normalizeDate(getCell('order_date'));
+      const orderId = normalizeString(getCell('order_id'));
+
+      const orderValue = +(unitPrice * quantity).toFixed(2);
+      const totalAmount = +(orderValue - discount + tax).toFixed(2);
+      const codAmount = paymentMode === 'COD' ? parseNumber(getCell('cod_amount'), totalAmount) : 0;
+      const grandTotal = +(totalAmount + 0).toFixed(2);
+
+      const payload = {
+        order_date: orderDate,
+        reference_id: normalizeString(getCell('reference_id')),
+        invoice_number: normalizeString(getCell('invoice_number')),
+        customer_info: {
+          buyer_name: normalizeString(getCell('customer_name')),
+          phone: customerPhone,
+          alternate_phone: normalizePhone(getCell('customer_alternate_phone')),
+          email: normalizeString(getCell('customer_email')),
+          gstin: normalizeString(getCell('customer_gstin'))
+        },
+        delivery_address: {
+          address_line_1: normalizeString(getCell('delivery_address_line1')),
+          address_line_2: normalizeString(getCell('delivery_address_line2')),
+          pincode: deliveryPincode,
+          city: normalizeString(getCell('delivery_city')),
+          state: normalizeString(getCell('delivery_state')),
+          country: normalizeString(getCell('delivery_country'), 'India')
+        },
+        pickup_address: {
+          warehouse_id: '',
+          name: normalizeString(getCell('pickup_name')),
+          full_address: normalizeString(getCell('pickup_address')),
+          city: normalizeString(getCell('pickup_city')),
+          state: normalizeString(getCell('pickup_state')),
+          pincode: pickupPincode,
+          phone: pickupPhone,
+          country: normalizeString(getCell('pickup_country'), 'India')
+        },
+        products: [
+          {
+            product_name: normalizeString(getCell('product_name')),
+            quantity,
+            unit_price: unitPrice,
+            hsn_code: normalizeString(getCell('product_hsn')),
+            category: normalizeString(getCell('product_category')),
+            sku: normalizeString(getCell('product_sku')),
+            discount,
+            tax
+          }
+        ],
+        package_info: {
+          package_type: normalizeString(getCell('package_type'), 'Single Package (B2C)'),
+          weight: packageWeight,
+          dimensions: {
+            length: packageLength,
+            width: packageWidth,
+            height: packageHeight
+          },
+          number_of_boxes: parseInteger(getCell('number_of_boxes'), 1),
+          weight_per_box: packageWeight / Math.max(parseInteger(getCell('number_of_boxes'), 1), 1),
+          rov_type: normalizeString(getCell('rov_type')),
+          rov_owner: normalizeString(getCell('rov_owner')),
+          weight_photo_url: '',
+          dimensions_photo_url: '',
+          save_dimensions: false
+        },
+        payment_info: {
+          payment_mode: paymentMode,
+          order_value: orderValue,
+          total_amount: totalAmount,
+          shipping_charges: 0,
+          grand_total: grandTotal,
+          cod_amount: codAmount
+        },
+        seller_info: {
+          name: normalizeString(getCell('seller_name')),
+          gst_number: normalizeString(getCell('seller_gst')),
+          reseller_name: normalizeString(getCell('seller_reseller'))
+        },
+        shipping_mode: shippingMode,
+        order_id: orderId || undefined,
+        generate_awb: false
+      };
+
+      try {
+        const response = await axios.post(`${baseUrl}/api/orders`, payload, {
+          headers: {
+            Authorization: req.headers.authorization,
+            'Content-Type': 'application/json'
+          },
+          timeout: 120000
+        });
+
+        importResults.created += 1;
+        importResults.details.push({
+          row: rowNumber,
+          order_id: response.data?.data?.order?.order_id || payload.order_id || null
+        });
+      } catch (error) {
+        importResults.failed += 1;
+        let message = error.message;
+        if (error.response?.data?.errors) {
+          message = error.response.data.errors.map((err) => err.msg || err.message).join(', ');
+        } else if (error.response?.data?.message) {
+          message = error.response.data.message;
+        }
+        importResults.errors.push({
+          row: rowNumber,
+          error: message
+        });
+      }
+    }
+
+    const success = importResults.failed === 0;
+
+    return res.status(success ? 200 : 207).json({
+      success,
+      message: success ? 'Bulk import completed successfully' : 'Bulk import completed with some errors',
+      data: importResults
+    });
+  } catch (error) {
+    logger.error('❌ Bulk order import error', {
+      userId: req.user._id,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error processing bulk import',
+      error: error.message
+    });
+  }
+});
+
 router.get('/', auth, [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
@@ -247,14 +647,57 @@ router.get('/', auth, [
     }
 
     if (req.query.search) {
-      const searchRegex = new RegExp(req.query.search, 'i');
-      filterQuery.$or = [
-        { order_id: searchRegex },
-        { reference_id: searchRegex },
-        { 'shipping_info.awb_number': searchRegex },
-        { 'customer_info.buyer_name': searchRegex },
-        { 'customer_info.phone': searchRegex }
-      ];
+      const searchValue = String(req.query.search || '').trim();
+      if (searchValue) {
+        const searchRegex = new RegExp(searchValue, 'i');
+        const searchType = String(req.query.search_type || '').toLowerCase();
+
+        if (searchType === 'order') {
+          filterQuery.order_id = searchRegex;
+        } else if (searchType === 'reference') {
+          filterQuery.reference_id = searchRegex;
+        } else if (searchType === 'awb') {
+          filterQuery.$or = [
+            { 'shipping_info.awb_number': searchRegex },
+            { 'delhivery_data.waybill': searchRegex },
+            { awb: searchRegex },
+            { waybill: searchRegex }
+          ];
+        } else {
+          filterQuery.$or = [
+            { order_id: searchRegex },
+            { reference_id: searchRegex },
+            { 'shipping_info.awb_number': searchRegex },
+            { 'delhivery_data.waybill': searchRegex },
+            { 'customer_info.buyer_name': searchRegex },
+            { 'customer_info.phone': searchRegex }
+          ];
+        }
+      }
+    }
+
+    if (req.query.state) {
+      const stateValue = String(req.query.state || '').trim();
+      if (stateValue) {
+        filterQuery['delivery_address.state'] = new RegExp(stateValue, 'i');
+      }
+    }
+
+    if (req.query.min_amount || req.query.max_amount) {
+      const minAmount = req.query.min_amount ? parseFloat(req.query.min_amount) : null;
+      const maxAmount = req.query.max_amount ? parseFloat(req.query.max_amount) : null;
+
+      const amountFilter = {};
+      if (!isNaN(minAmount)) {
+        amountFilter.$gte = minAmount;
+      }
+      if (!isNaN(maxAmount)) {
+        amountFilter.$lte = maxAmount;
+      }
+
+      if (Object.keys(amountFilter).length > 0) {
+        filterQuery['payment_info.total_amount'] = amountFilter;
+      }
     }
 
     if (req.query.date_from || req.query.date_to) {
@@ -424,6 +867,9 @@ router.get('/:id/print', auth, async (req, res) => {
       });
     }
 
+    // Prepare placeholder for any hosted PDF returned by Delhivery
+    let delhiveryLabelPdfUrl = null;
+
     // Get waybill from multiple possible locations
     const waybill = order.delhivery_data?.waybill || 
                     order.shipping_info?.awb_number || 
@@ -439,11 +885,20 @@ router.get('/:id/print', auth, async (req, res) => {
           waybill
         });
 
-        const labelResult = await delhiveryService.generateShippingLabel(waybill);
+        const labelResult = await delhiveryService.generateShippingLabel(waybill, {
+          pdf: false,
+          pdf_size: '4R'
+        });
         if (labelResult.success && labelResult.json_data) {
           delhiveryLabelData = labelResult.json_data;
           logger.info('✅ Delhivery label data fetched successfully');
-        } else {
+        }
+
+        // If Delhivery responded with a hosted PDF link, append to HTML later
+        if (labelResult.success && labelResult.pdf_url) {
+          delhiveryLabelPdfUrl = labelResult.pdf_url;
+          logger.info('📄 Delhivery provided PDF label link', { pdfUrl: delhiveryLabelPdfUrl });
+        } else if (!delhiveryLabelData) {
           logger.warn('⚠️ Delhivery label data not available, will use order data only');
         }
       } catch (labelError) {
@@ -456,7 +911,7 @@ router.get('/:id/print', auth, async (req, res) => {
     }
 
     // Generate comprehensive HTML shipping label with all order details + Delhivery data
-    const html = generateShippingLabelHTML(order, delhiveryLabelData);
+    const html = generateShippingLabelHTML(order, delhiveryLabelData, delhiveryLabelPdfUrl);
 
     res.setHeader('Content-Type', 'text/html');
     return res.send(html);
@@ -2061,7 +2516,7 @@ router.get('/:id/label', auth, async (req, res) => {
   }
 });
 
-function generateShippingLabelHTML(order, delhiveryLabelData = null) {
+function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLabelPdfUrl = null) {
   // Parse Delhivery label data to extract package information
   let pkg = null;
   if (delhiveryLabelData) {
@@ -2127,7 +2582,8 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
   const codAmount = pkg?.Cod || (order.payment_info?.payment_mode === 'COD' ? order.payment_info?.cod_amount : 0);
   const orderValue = order.payment_info?.order_value || 0;
   const shippingCharges = order.payment_info?.shipping_charges || 0;
-  const totalAmount = order.payment_info?.total_amount || 0;
+  const totalAmount = order.payment_info?.total_amount || (orderValue + shippingCharges);
+  const grandTotal = order.payment_info?.grand_total || totalAmount;
   
   // Shipping mode
   const shippingMode = pkg?.Mot || order.shipping_mode || 'Surface';
@@ -2136,6 +2592,20 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
   const orderId = pkg?.Oid || order.order_id || 'N/A';
   const referenceId = order.reference_id || '';
   const invoiceRef = pkg?.['Invoice reference'] || order.invoice_number || 'N/A';
+  const orderDate = order.order_date || order.createdAt || null;
+
+  // Seller / pickup details
+  const sellerName = order.seller_info?.name || order.user_id?.company_name || originName || 'N/A';
+  const sellerContactName = order.seller_info?.reseller_name || order.user_id?.your_name || '';
+  const sellerAddress = order.seller_info?.address || originAddress || '';
+  const sellerGst = order.seller_info?.gst_number || order.user_id?.gst_number || '';
+  const sellerPhone = order.pickup_address?.phone || order.user_id?.phone_number || '';
+  const sellerEmail = order.user_id?.email || '';
+
+  // Product list & notes
+  const products = Array.isArray(order.products) ? order.products : [];
+  const totalQuantity = products.reduce((sum, item) => sum + (item.quantity || 0), 0) || quantity || 0;
+  const specialInstructions = order.special_instructions || order.internal_notes || '';
   
   const formatCurrency = (amount) => {
     if (!amount) return '₹0.00';
@@ -2228,6 +2698,9 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
       margin: 3px 0;
       line-height: 1.4;
     }
+    .info-row strong {
+      font-weight: 700;
+    }
     .destination {
       font-size: 13px;
       font-weight: bold;
@@ -2236,6 +2709,35 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
     .order-details {
       font-size: 9px;
       margin-top: 5px;
+    }
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 8.5px;
+    }
+    .products-table th,
+    .products-table td {
+      border: 1px solid #ddd;
+      padding: 4px;
+      text-align: left;
+    }
+    .products-table th {
+      background: #f5f5f5;
+      font-weight: 600;
+    }
+    .charges-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 9px;
+    }
+    .charges-table td {
+      padding: 3px 0;
+    }
+    .charges-table td.amount {
+      text-align: right;
+      font-weight: 600;
     }
     .footer {
       text-align: center;
@@ -2280,6 +2782,16 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
       <div class="info-row">${originCity}, ${originState} - ${originPincode}</div>
     </div>
 
+    <div class="info-section">
+      <div class="info-title">SELLER / CONTACT</div>
+      <div class="info-row"><strong>${sellerName}</strong></div>
+      ${sellerContactName ? `<div class="info-row">Contact: ${sellerContactName}</div>` : ''}
+      <div class="info-row">${sellerAddress}</div>
+      ${sellerGst ? `<div class="info-row">GST: ${sellerGst}</div>` : ''}
+      ${sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
+      ${sellerEmail ? `<div class="info-row">Email: ${sellerEmail}</div>` : ''}
+    </div>
+
     <!-- Destination Info -->
     <div class="info-section">
       <div class="info-title">TO (DESTINATION)</div>
@@ -2305,7 +2817,62 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
       <div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>
       ${shippingCharges > 0 ? `<div class="info-row"><strong>Shipping Charges:</strong> ${formatCurrency(shippingCharges)}</div>` : ''}
       ${totalAmount > 0 ? `<div class="info-row"><strong>Total Amount:</strong> ${formatCurrency(totalAmount)}</div>` : ''}
+      ${grandTotal > 0 ? `<div class="info-row"><strong>Grand Total:</strong> ${formatCurrency(grandTotal)}</div>` : ''}
       <div class="info-row"><strong>Mode:</strong> ${shippingMode}</div>
+    </div>
+
+    ${products.length > 0 ? `
+    <div class="info-section">
+      <div class="info-title">PRODUCT SUMMARY</div>
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th style="width: 42%;">Product</th>
+            <th style="width: 18%;">SKU / HSN</th>
+            <th style="width: 20%;">Qty</th>
+            <th style="width: 20%; text-align: right;">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${products.map(item => `
+            <tr>
+              <td>${item.product_name || '-'}</td>
+              <td>${item.sku || item.hsn_code || '-'}</td>
+              <td>${item.quantity || 0}</td>
+              <td style="text-align: right;">${formatCurrency((item.unit_price || 0) * (item.quantity || 0))}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="info-row" style="margin-top: 4px;"><strong>Total Quantity:</strong> ${totalQuantity}</div>
+    </div>
+    ` : ''}
+
+    <div class="info-section">
+      <div class="info-title">CHARGES SUMMARY</div>
+      <table class="charges-table">
+        <tbody>
+          <tr>
+            <td>Order Value</td>
+            <td class="amount">${formatCurrency(orderValue)}</td>
+          </tr>
+          ${shippingCharges > 0 ? `
+          <tr>
+            <td>Shipping Charges</td>
+            <td class="amount">${formatCurrency(shippingCharges)}</td>
+          </tr>` : ''}
+          ${codAmount > 0 ? `
+          <tr>
+            <td>COD Amount to Collect</td>
+            <td class="amount">${formatCurrency(codAmount)}</td>
+          </tr>` : ''}
+          ${grandTotal > 0 ? `
+          <tr>
+            <td style="font-weight:700;">Grand Total</td>
+            <td class="amount" style="font-weight:700;">${formatCurrency(grandTotal)}</td>
+          </tr>` : ''}
+        </tbody>
+      </table>
     </div>
 
     <!-- Additional Order Info (if available) -->
@@ -2314,7 +2881,14 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
       <div class="info-title">ORDER INFORMATION</div>
       <div class="info-row"><strong>Order Type:</strong> ${order.order_type === 'forward' ? 'Forward' : 'Reverse (RTO)'}</div>
       <div class="info-row"><strong>Status:</strong> ${order.status ? order.status.replace(/_/g, ' ').toUpperCase() : 'N/A'}</div>
-      ${order.order_date ? `<div class="info-row"><strong>Order Date:</strong> ${formatDate(order.order_date)}</div>` : ''}
+      ${orderDate ? `<div class="info-row"><strong>Order Date:</strong> ${formatDate(orderDate)}</div>` : ''}
+    </div>
+    ` : ''}
+
+    ${specialInstructions ? `
+    <div class="info-section">
+      <div class="info-title">SPECIAL INSTRUCTIONS</div>
+      <div class="info-row">${specialInstructions}</div>
     </div>
     ` : ''}
 
@@ -2323,6 +2897,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null) {
       <div style="margin-bottom: 3px;"><strong>Track Your Package:</strong></div>
       <div>https://track.delhivery.com/track/package/${waybill}</div>
       ${order.user_id?.company_name ? `<div style="margin-top: 5px; font-size: 8px;">Seller: ${order.user_id.company_name}</div>` : ''}
+      ${delhiveryLabelPdfUrl ? `<div style="margin-top: 4px; font-size: 8px;">Official Label PDF: <a href="${delhiveryLabelPdfUrl}" target="_blank">Download</a></div>` : ''}
       <div style="margin-top: 5px; font-size: 7px;">Generated on ${formatDate(new Date())}</div>
     </div>
   </div>

@@ -10,6 +10,7 @@ const Customer = require('../models/Customer');
 const SupportTicket = require('../models/Support');
 const Transaction = require('../models/Transaction');
 const WeightDiscrepancy = require('../models/WeightDiscrepancy');
+const ShipmentTrackingEvent = require('../models/ShipmentTrackingEvent');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
@@ -39,6 +40,46 @@ const adminAuth = (req, res, next) => {
 
 // Apply admin auth to all routes
 router.use(adminAuth);
+
+const CLIENT_DETAIL_PROJECTION = '-password -password_reset_token -email_verification_token';
+
+const findClientByIdentifier = async (identifier) => {
+  let client = null;
+
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    client = await User.findById(identifier).select(CLIENT_DETAIL_PROJECTION);
+  }
+
+  if (!client) {
+    client = await User.findOne({ client_id: identifier }).select(CLIENT_DETAIL_PROJECTION);
+  }
+
+  return client;
+};
+
+const buildClientDetailsResponse = async (client) => {
+  const [orderCount, packageCount, customerCount, recentOrders] = await Promise.all([
+    Order.countDocuments({ user_id: client._id }),
+    Package.countDocuments({ user_id: client._id }),
+    Customer.countDocuments({ user_id: client._id }),
+    Order.find({ user_id: client._id })
+      .sort({ created_at: -1 })
+      .limit(5)
+      .select('order_id status total_amount created_at')
+  ]);
+
+  const clientData = typeof client.toJSON === 'function' ? client.toJSON() : client;
+
+  return {
+    ...clientData,
+    stats: {
+      orders: orderCount,
+      packages: packageCount,
+      customers: customerCount,
+      recentOrders
+    }
+  };
+};
 
 // Get all clients with pagination and search
 router.get('/clients', async (req, res) => {
@@ -138,8 +179,7 @@ router.get('/clients', async (req, res) => {
 // Get client details by ID
 router.get('/clients/:id', async (req, res) => {
   try {
-    const client = await User.findById(req.params.id)
-      .select('-password -password_reset_token -email_verification_token');
+    const client = await findClientByIdentifier(req.params.id);
 
     if (!client) {
       return res.status(404).json({
@@ -148,26 +188,28 @@ router.get('/clients/:id', async (req, res) => {
       });
     }
 
-    // Get detailed stats
-    const [orderCount, packageCount, customerCount, recentOrders] = await Promise.all([
-      Order.countDocuments({ user_id: client._id }),
-      Package.countDocuments({ user_id: client._id }),
-      Customer.countDocuments({ user_id: client._id }),
-      Order.find({ user_id: client._id })
-        .sort({ created_at: -1 })
-        .limit(5)
-        .select('order_id status total_amount created_at')
-    ]);
+    let clientWithStats;
+    try {
+      clientWithStats = await buildClientDetailsResponse(client);
+    } catch (statsError) {
+      console.error('Error building client details response:', statsError);
+      logger.error('Error building client details response', {
+        error: statsError?.message,
+        stack: statsError?.stack,
+        clientId: req.params.id
+      });
 
-    const clientWithStats = {
-      ...client.toJSON(),
-      stats: {
-        orders: orderCount,
-        packages: packageCount,
-        customers: customerCount,
-        recentOrders
-      }
-    };
+      const clientData = typeof client.toJSON === 'function' ? client.toJSON() : client;
+      clientWithStats = {
+        ...clientData,
+        stats: {
+          orders: 0,
+          packages: 0,
+          customers: 0,
+          recentOrders: []
+        }
+      };
+    }
 
     res.json({
       success: true,
@@ -175,7 +217,12 @@ router.get('/clients/:id', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error fetching client details:', error);
+    console.error('Error fetching client details raw error:', error);
+    logger.error('Error fetching client details:', {
+      error: error?.message,
+      stack: error?.stack,
+      clientId: req.params.id
+    });
     res.status(500).json({
       success: false,
       message: 'Error fetching client details',
@@ -2329,8 +2376,24 @@ router.get('/orders/clients', async (req, res) => {
         const orderCounts = await Order.aggregate([
           { $match: { user_id: client._id } },
           {
+            $addFields: {
+              effective_status: {
+                $cond: [
+                  {
+                    $or: [
+                      { $eq: ['$status', 'cancelled'] },
+                      { $eq: ['$delhivery_data.cancellation_status', 'cancelled'] }
+                    ]
+                  },
+                  'cancelled',
+                  '$status'
+                ]
+              }
+            }
+          },
+          {
             $group: {
-              _id: '$status',
+              _id: '$effective_status',
               count: { $sum: 1 }
             }
           }
@@ -2358,7 +2421,8 @@ router.get('/orders/clients', async (req, res) => {
             out_for_delivery: statusMap['out_for_delivery'] || 0,
             delivered: statusMap['delivered'] || 0,
             ndr: statusMap['ndr'] || 0,
-            rto: statusMap['rto'] || 0
+            rto: statusMap['rto'] || 0,
+            cancelled: statusMap['cancelled'] || 0
           }
         };
       })
@@ -2391,20 +2455,25 @@ router.get('/orders/clients', async (req, res) => {
 // @access  Admin
 router.get('/orders/clients/:clientId/orders', async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid client ID format'
-      });
-    }
-    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 1000;
     const skip = (page - 1) * limit;
     
-    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
+    let clientObjectId = null;
+    if (mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      clientObjectId = new mongoose.Types.ObjectId(req.params.clientId);
+    } else {
+      const client = await User.findOne({ client_id: req.params.clientId }).select('_id');
+      if (!client) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Client not found'
+        });
+      }
+      clientObjectId = client._id;
+    }
     
-    const filterQuery = { user_id: clientId };
+    const filterQuery = { user_id: clientObjectId };
     
     if (req.query.status && req.query.status !== 'all') {
       filterQuery['status'] = req.query.status;
@@ -2473,22 +2542,149 @@ router.get('/orders/clients/:clientId/orders', async (req, res) => {
   }
 });
 
+// @desc    Get complete order details for admin view
+// @route   GET /api/admin/orders/:orderId/details
+// @access  Admin
+router.get('/orders/:orderId/details', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    if (!orderId || typeof orderId !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Order identifier is required'
+      });
+    }
+
+    const lookupConditions = [];
+
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      lookupConditions.push({ _id: new mongoose.Types.ObjectId(orderId) });
+    }
+
+    lookupConditions.push({ order_id: orderId });
+
+    if (orderId.length >= 6) {
+      lookupConditions.push({ 'delhivery_data.waybill': orderId });
+    }
+
+    const order = await Order.findOne({ $or: lookupConditions })
+      .populate({
+        path: 'user_id',
+        select: 'client_id company_name your_name email phone_number user_category account_status kyc_status created_at'
+      })
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    const trackingHistory = Array.isArray(order.delhivery_data?.waybill)
+      ? []
+      : order.delhivery_data?.waybill
+        ? await ShipmentTrackingEvent.find({ waybill: order.delhivery_data.waybill })
+            .sort({ status_date_time: -1, createdAt: -1 })
+            .lean()
+        : [];
+
+    const { __v, user_id: clientRef, ...orderData } = order;
+
+    const clientInfo = clientRef
+      ? {
+          _id: clientRef._id,
+          client_id: clientRef.client_id,
+          company_name: clientRef.company_name,
+          your_name: clientRef.your_name,
+          email: clientRef.email,
+          phone_number: clientRef.phone_number,
+          user_category: clientRef.user_category,
+          account_status: clientRef.account_status,
+          kyc_status: clientRef.kyc_status,
+          created_at: clientRef.created_at
+        }
+      : null;
+
+    const products = Array.isArray(orderData.products)
+      ? orderData.products.map((product, index) => ({
+          line_item: index + 1,
+          total_price:
+            typeof product.unit_price === 'number' && typeof product.quantity === 'number'
+              ? product.unit_price * product.quantity
+              : undefined,
+          ...product
+        }))
+      : [];
+
+    const statusHistory = Array.isArray(orderData.status_history)
+      ? [...orderData.status_history].sort((a, b) => {
+          const aTime = new Date(a.timestamp || a.createdAt || 0).getTime();
+          const bTime = new Date(b.timestamp || b.createdAt || 0).getTime();
+          return bTime - aTime;
+        })
+      : [];
+
+    const packageInfo = orderData.package_info || {};
+    const paymentInfo = orderData.payment_info || {};
+
+    const metrics = {
+      total_products: products.reduce((sum, product) => sum + (product.quantity || 0), 0),
+      total_units: products.reduce((sum, product) => sum + (product.quantity || 0), 0),
+      volumetric_weight: packageInfo.volumetric_weight || null,
+      actual_weight: packageInfo.weight || null,
+      order_value: paymentInfo.order_value ?? null,
+      cod_amount: paymentInfo.cod_amount ?? null,
+      total_amount: paymentInfo.total_amount ?? null,
+      shipping_charges: paymentInfo.shipping_charges ?? null,
+      grand_total: paymentInfo.grand_total ?? null
+    };
+
+    const responseData = {
+      ...orderData,
+      client: clientInfo,
+      products,
+      status_history: statusHistory,
+      tracking_history: trackingHistory,
+      metrics
+    };
+
+    return res.json({
+      success: true,
+      data: responseData
+    });
+  } catch (error) {
+    console.error('Get admin order details error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching order details',
+      error: error.message
+    });
+  }
+});
+
 // @desc    Get client order statistics
 // @route   GET /api/admin/orders/clients/:clientId/stats
 // @access  Admin
 router.get('/orders/clients/:clientId/stats', async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.clientId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid client ID format'
-      });
+    let clientObjectId = null;
+    if (mongoose.Types.ObjectId.isValid(req.params.clientId)) {
+      clientObjectId = new mongoose.Types.ObjectId(req.params.clientId);
+    } else {
+      const client = await User.findOne({ client_id: req.params.clientId }).select('_id');
+      if (!client) {
+        return res.status(404).json({
+          success: false,
+          message: 'Client not found'
+        });
+      }
+      clientObjectId = client._id;
     }
     
-    const clientId = new mongoose.Types.ObjectId(req.params.clientId);
-    
     const orderCounts = await Order.aggregate([
-      { $match: { user_id: clientId } },
+      { $match: { user_id: clientObjectId } },
       {
         $group: {
           _id: '$status',

@@ -104,6 +104,33 @@ class ShippingService {
     }
   }
 
+  // Public rate card calculation for landing page (uses New User rates)
+  async calculatePublicShippingCharges(request: ShippingCalculationRequest): Promise<{
+    forwardCharges: number;
+    rtoCharges: number;
+    codCharges: number;
+    totalCharges: number;
+    volumetricWeight: number;
+    chargeableWeight: number;
+    zone?: string;
+  }> {
+    try {
+      const response = await apiService.post<{ success: boolean; data: {
+        forwardCharges: number;
+        rtoCharges: number;
+        codCharges: number;
+        totalCharges: number;
+        volumetricWeight: number;
+        chargeableWeight: number;
+        zone?: string;
+      } }>('/shipping/public/calculate-rate-card', request);
+      return response.data;
+    } catch (error: any) {
+      console.error('Public calculate shipping charges error:', error);
+      throw new Error(error.message || 'Failed to calculate shipping charges for new users');
+    }
+  }
+
   // Get rate card for a specific user category
   async getRateCard(userCategory: string): Promise<RateCard> {
     try {

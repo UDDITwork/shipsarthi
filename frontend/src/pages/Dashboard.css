@@ -229,15 +229,15 @@
   }
 
   /* Wallet Balance Section */
-  .wallet-balance-section {
-    margin-bottom: 30px;
+.wallet-balance-section {
+    margin-bottom: 24px;
   }
 
-  .wallet-card {
+.wallet-card {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px;
+    gap: 12px;
+    padding: 12px;
     background: linear-gradient(135deg, #F68723 0%, #FF9F40 100%);
     border-radius: 12px;
     color: white;
@@ -248,20 +248,20 @@
     transform: translateY(-2px);
   }
 
-  .wallet-icon {
+.wallet-icon {
     background: rgba(255, 255, 255, 0.2);
     padding: 12px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
-  .wallet-icon img {
-    width: 32px;
-    height: 32px;
+.wallet-icon img {
+    width: 28px;
+    height: 28px;
     filter: brightness(0) invert(1);
   }
 
@@ -275,8 +275,8 @@
     margin-bottom: 4px;
   }
 
-  .wallet-amount {
-    font-size: 20px;
+.wallet-amount {
+    font-size: 18px;
     font-weight: 700;
     transition: all 0.3s ease;
   }
@@ -315,28 +315,28 @@
   }
   
   /* Dashboard Grid Layout */
-  .dashboard-grid {
+.dashboard-grid {
     display: grid;
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: 16px;
     margin-bottom: 16px;
   }
   
   /* Metrics Column (Left Side) */
-  .metrics-column {
+.metrics-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
   }
   
   /* Metric Card Styles */
-  .metric-card {
+.metric-card {
     background-color: #002B59;
     border-radius: 12px;
-    padding: 16px;
+    padding: 14px;
     color: #FFFFFF;
     display: flex;
-    gap: 14px;
+    gap: 12px;
     align-items: flex-start;
     transition: transform 0.3s ease;
   }
@@ -345,9 +345,9 @@
     transform: translateY(-5px);
   }
   
-  .card-icon {
-    width: 64px;
-    height: 64px;
+.card-icon {
+    width: 48px;
+    height: 48px;
     background-color: #FFFFFF;
     border-radius: 50%;
     display: flex;
@@ -356,9 +356,9 @@
     flex-shrink: 0;
   }
   
-  .card-icon img.icon {
-    width: 30px;
-    height: 26px;
+.card-icon img.icon {
+    width: 24px;
+    height: 22px;
     object-fit: contain;
     filter: brightness(0) saturate(100%);
   }
@@ -381,8 +381,8 @@
     color: #FFFFFF;
   }
   
-  .card-value {
-    font-size: 22px;
+.card-value {
+    font-size: 18px;
     font-weight: 700;
     margin-bottom: 8px;
     color: #FFFFFF;
@@ -401,21 +401,21 @@
   }
   
   /* Status Column (Right Side) */
-  .status-column {
+.status-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
   }
   
   /* Status Section */
 .status-section {
     background-color: #FFE8D6;
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px;
   }
   
-  .section-header {
-    margin-bottom: 20px;
+.section-header {
+    margin-bottom: 16px;
   }
   
   .section-header h2 {
@@ -426,18 +426,18 @@
   }
   
   /* Status Grid */
-  .status-grid {
+.status-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 140px));
     gap: 12px;
     justify-content: center;
   }
   
-  .status-box {
+.status-box {
     background-color: #FFFFFF;
     border: 2px solid #002B59;
     border-radius: 10px;
-    padding: 16px 8px;
+    padding: 14px 8px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -448,8 +448,8 @@
     border-color: #F68723;
   }
   
-  .status-value {
-    font-size: 24px;
+.status-value {
+    font-size: 18px;
     font-weight: 700;
     color: #002B59;
     margin-bottom: 6px;
@@ -463,18 +463,18 @@
   }
   
   /* COD Grid */
-  .cod-grid {
+.cod-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 140px));
+    gap: 14px;
     justify-content: center;
   }
   
-  .cod-box {
+.cod-box {
     background-color: #FFFFFF;
     border: 2px solid #002B59;
     border-radius: 10px;
-    padding: 16px 8px;
+    padding: 14px 8px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -485,15 +485,15 @@
     border-color: #F68723;
   }
   
-  .cod-icon {
-    font-size: 24px;
+.cod-icon {
+    font-size: 18px;
     font-weight: 700;
     color: #002B59;
     margin-bottom: 8px;
   }
   
-  .cod-value {
-    font-size: 24px;
+.cod-value {
+    font-size: 18px;
     font-weight: 700;
     color: #002B59;
     margin-bottom: 6px;
@@ -507,40 +507,40 @@
   }
   
   /* Bottom Section */
-  .bottom-section {
+.bottom-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    margin-top: 25px;
+    gap: 16px;
+    margin-top: 20px;
   }
   
-  .wallet-transactions,
-  .shipments-chart {
+.wallet-transactions,
+.shipments-chart {
     background-color: #FFFFFF;
     border-radius: 12px;
-    padding: 25px;
+    padding: 16px;
     border: 1px solid #E0E0E0;
   }
   
-  .section-header-with-action {
+.section-header-with-action {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #002B59;
   }
   
-  .section-header-with-action h2 {
-    font-size: 18px;
+.section-header-with-action h2 {
+    font-size: 17px;
     font-weight: 700;
     color: #002B59;
     margin: 0;
   }
   
-  .wallet-actions {
+.wallet-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
   }
 
@@ -623,13 +623,13 @@
   }
   
   /* Chart Container */
-  .chart-container {
-    min-height: 350px;
-    height: 350px;
+.chart-container {
+    min-height: 260px;
+    height: 260px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
   }
   
   .no-chart-data {
@@ -674,11 +674,11 @@
   /* Responsive Design */
   @media (max-width: 1400px) {
     .dashboard-grid {
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 240px 1fr;
     }
   
     .status-grid {
-      grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 140px));
     }
   }
   
@@ -712,7 +712,7 @@
     }
   
     .status-grid {
-      grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 140px));
       justify-content: center;
     }
   }
@@ -792,11 +792,11 @@
   
     .status-box,
     .cod-box {
-      padding: 15px 10px;
+      padding: 12px 8px;
     }
   
     .status-value {
-      font-size: 24px;
+      font-size: 18px;
     }
   
     .status-label {

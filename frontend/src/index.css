@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -12,12 +12,19 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Montserrat', 'Afacad', sans-serif;
   background-color: #f8f9fa;
   color: #333;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+.heading,
+.section-title {
+  font-family: 'Afacad', 'Montserrat', sans-serif;
+  font-weight: 600;
 }
 
 #root {
@@ -27,6 +34,7 @@ body {
 
 /* Allow scrolling for landing page and other standalone pages */
 #root:has(.landing-page),
+#root:has(.public-rate-calculator-page),
 #root:has(.login-page),
 #root:has(.register-page),
 #root:has(.forgot-password-page),
@@ -44,6 +52,7 @@ body {
 
 /* Also allow body/html to scroll for standalone pages */
 body:has(.landing-page),
+body:has(.public-rate-calculator-page),
 body:has(.login-page),
 body:has(.register-page),
 body:has(.forgot-password-page),
@@ -60,6 +69,7 @@ body:has(.about-page) {
 }
 
 html:has(.landing-page),
+html:has(.public-rate-calculator-page),
 html:has(.login-page),
 html:has(.register-page),
 html:has(.forgot-password-page),

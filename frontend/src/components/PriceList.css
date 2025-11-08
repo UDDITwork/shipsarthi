@@ -10,9 +10,9 @@
 .rate-card-header {
   background: linear-gradient(135deg, #ff6b35, #f7931e);
   color: white;
-  padding: 30px;
+  padding: 20px;
   border-radius: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -32,19 +32,19 @@
 .logo-section {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .shipsarthi-logo {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .logo-icon {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   display: flex;
@@ -53,7 +53,7 @@
 }
 
 .truck-icon {
-  font-size: 24px;
+  font-size: 20px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -61,14 +61,14 @@
 }
 
 .plane-icon {
-  font-size: 16px;
+  font-size: 14px;
   position: absolute;
   top: 20%;
   right: 20%;
 }
 
 .logo-text {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: bold;
   margin: 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
@@ -76,28 +76,28 @@
 
 .rate-card-title {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .rate-card-title h1 {
-  font-size: 32px;
-  margin: 0 0 10px 0;
+  font-size: 26px;
+  margin: 0 0 8px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .rate-card-title p {
-  font-size: 18px;
+  font-size: 15px;
   margin: 0;
   opacity: 0.9;
 }
 
 .website-info {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .website-info p {
-  font-size: 16px;
+  font-size: 14px;
   margin: 0;
   opacity: 0.9;
 }
@@ -107,14 +107,14 @@
 }
 
 .charges-section {
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .charges-section h3 {
   color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  font-size: 20px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
   border-bottom: 3px solid #ff6b35;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .rate-table th {
-  padding: 15px 12px;
+  padding: 12px 10px;
   text-align: center;
   font-weight: 600;
   font-size: 14px;
@@ -149,7 +149,7 @@
 }
 
 .rate-table td {
-  padding: 12px;
+  padding: 10px;
   text-align: center;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
@@ -173,8 +173,8 @@
 }
 
 .cod-section {
-  margin-bottom: 40px;
-  padding: 20px;
+  margin-bottom: 28px;
+  padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #ff6b35;
@@ -182,26 +182,26 @@
 
 .cod-section h3 {
   color: #333;
-  font-size: 24px;
-  margin-bottom: 15px;
+  font-size: 20px;
+  margin-bottom: 12px;
 }
 
 .cod-info p {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: #333;
   margin: 0;
 }
 
 .zone-definitions {
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .zone-definitions h3 {
   color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  font-size: 20px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
   border-bottom: 3px solid #ff6b35;
 }
 
@@ -217,16 +217,16 @@
 }
 
 .zone-table th {
-  padding: 15px;
+  padding: 12px;
   text-align: left;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .zone-table td {
-  padding: 15px;
+  padding: 12px;
   border-bottom: 1px solid #eee;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -239,20 +239,20 @@
 }
 
 .terms-section {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .terms-section h3 {
   color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  font-size: 20px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
   border-bottom: 3px solid #ff6b35;
 }
 
 .terms-list {
   background: #f8f9fa;
-  padding: 20px;
+  padding: 16px;
   border-radius: 8px;
   border-left: 4px solid #ff6b35;
 }
@@ -269,15 +269,15 @@
 
 .loading {
   text-align: center;
-  padding: 40px;
-  font-size: 18px;
+  padding: 28px;
+  font-size: 16px;
   color: #666;
 }
 
 .error {
   text-align: center;
-  padding: 40px;
-  font-size: 18px;
+  padding: 28px;
+  font-size: 16px;
   color: #e74c3c;
   background: #fdf2f2;
   border-radius: 8px;
@@ -291,41 +291,7 @@
   }
   
   .rate-card-header {
-    padding: 20px;
-  }
-  
-  .logo-text {
-    font-size: 24px;
-  }
-  
-  .rate-card-title h1 {
-    font-size: 28px;
-  }
-  
-  .rate-table {
-    font-size: 12px;
-  }
-  
-  .rate-table th,
-  .rate-table td {
-    padding: 8px 6px;
-  }
-  
-  .zone-table th,
-  .zone-table td {
-    padding: 10px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .rate-card-header {
-    padding: 15px;
-  }
-  
-  .logo-section {
-    flex-direction: column;
-    text-align: center;
+    padding: 18px;
   }
   
   .logo-text {
@@ -336,9 +302,43 @@
     font-size: 24px;
   }
   
+  .rate-table {
+    font-size: 11px;
+  }
+  
   .rate-table th,
   .rate-table td {
-    padding: 6px 4px;
-    font-size: 11px;
+    padding: 7px 6px;
+  }
+  
+  .zone-table th,
+  .zone-table td {
+    padding: 9px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rate-card-header {
+    padding: 14px;
+  }
+  
+  .logo-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .rate-card-title h1 {
+    font-size: 22px;
+  }
+  
+  .rate-table th,
+  .rate-table td {
+    padding: 5px 4px;
+    font-size: 10px;
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { userService, UserProfile } from '../services/userService';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './Profile.css';
 
 const Profile: React.FC = () => {
@@ -36,10 +36,6 @@ const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleEditProfile = () => {
-    navigate('/account-settings');
   };
 
   const generateInitials = (name: string): string => {
@@ -145,9 +141,9 @@ const Profile: React.FC = () => {
               </div>
             </div>
           </div>
-          <button className="edit-profile-btn" onClick={handleEditProfile}>
+          <Link className="edit-profile-btn" to="/account-settings">
             ✏️ Edit Profile
-          </button>
+          </Link>
         </div>
 
         {/* Main Content Grid */}

@@ -304,7 +304,21 @@ router.post('/', auth, upload.array('attachments', 5), [
 // @route   POST /api/support/:id/messages
 // @access  Private
 router.post('/:id/messages', auth, upload.array('attachments', 5), [
-  body('message').trim().notEmpty().withMessage('Message is required')
+  body('message')
+    .optional({ checkFalsy: true })
+    .trim(),
+  body('comment')
+    .optional({ checkFalsy: true })
+    .trim(),
+  body().custom((value, { req }) => {
+    const message = req.body.message;
+    const comment = req.body.comment;
+    if ((typeof message === 'string' && message.trim().length > 0) ||
+        (typeof comment === 'string' && comment.trim().length > 0)) {
+      return true;
+    }
+    throw new Error('Message is required');
+  })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -346,7 +360,9 @@ router.post('/:id/messages', auth, upload.array('attachments', 5), [
       });
     }
 
-    await ticket.addMessage('user', req.user.your_name, req.body.message, attachments);
+    const messageContent = (req.body.message || req.body.comment || '').trim();
+
+    await ticket.addMessage('user', req.user.your_name, messageContent, attachments);
 
     // Update ticket status if it was resolved/closed
     if (['resolved', 'closed'].includes(ticket.status)) {

@@ -138,8 +138,8 @@
 /* Filters Section */
 .filters-section {
   display: flex;
-  gap: 14px;
-  align-items: center;
+  gap: 12px;
+  align-items: flex-end;
   margin-bottom: 12px;
   padding: 12px;
   background-color: #F9F9F9;
@@ -147,37 +147,45 @@
   flex-wrap: wrap;
 }
 
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 140px;
+}
+
+.filter-group.date-range-group {
+  flex: 2 1 auto;
+  min-width: 280px;
+}
+
 .date-range-inputs {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
 }
 
 .date-range-inputs .filter-input {
   flex: 1;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 150px;
+  min-width: 130px;
 }
 
 .filter-group label {
   font-size: 10px;
   font-weight: 600;
   color: #002B59;
+  white-space: nowrap;
 }
 
 .filter-input,
 .filter-select {
-  padding: 6px 12px;
+  padding: 8px 10px;
   border: 1px solid #D1D5DB;
   border-radius: 6px;
   font-size: 12px;
   transition: border-color 0.2s;
+  min-height: 34px;
 }
 
 .filter-input:focus,
@@ -467,6 +475,25 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .filters-section {
+    gap: 10px;
+  }
+
+  .filter-group {
+    min-width: 120px;
+  }
+
+  .filter-group.date-range-group {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .date-range-inputs {
+    gap: 8px;
+  }
+}
+
 @media (max-width: 1200px) {
   .wallet-summary-cards {
     grid-template-columns: 1fr;

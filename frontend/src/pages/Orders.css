@@ -699,16 +699,20 @@
 
   /* File Upload Styles */
   .file-upload-area {
+    position: relative;
     border: 2px dashed #CED4DA;
     border-radius: 8px;
     padding: 30px;
     text-align: center;
     margin: 20px 0;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
+    overflow: hidden;
+    background-color: #F9FBFD;
   }
 
   .file-upload-area:hover {
     border-color: #002B59;
+    background-color: #F3F7FC;
   }
 
   .file-input {
@@ -721,29 +725,182 @@
     cursor: pointer;
   }
 
+  .file-input:disabled {
+    cursor: not-allowed;
+  }
+
   .upload-text {
-    color: #6C757D;
-    font-size: 16px;
-  }
-
-  .import-instructions {
-    background-color: #F8F9FA;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-  }
-
-  .import-instructions h4 {
-    margin: 0 0 10px 0;
     color: #495057;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .bulk-import-instructions {
+    background-color: #F8F9FA;
+    border: 1px solid #E9ECEF;
+    border-radius: 10px;
+    padding: 20px;
+    color: #495057;
+  }
+
+  .download-template-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    margin: 10px 0;
+    background-color: #002B59;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.2s;
+  }
+
+  .download-template-btn:hover {
+    background-color: #01417f;
+    transform: translateY(-1px);
+  }
+
+  .bulk-template-note {
+    color: #6C757D;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .bulk-columns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 8px;
+    margin: 18px 0;
+  }
+
+  .bulk-columns-grid span {
+    background-color: #fff;
+    border: 1px solid #E1E5EB;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #495057;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+  }
+
+  .bulk-guidelines {
+    margin: 0;
+    padding-left: 18px;
+    color: #495057;
+    font-size: 13px;
+  }
+
+  .bulk-guidelines li {
+    margin-bottom: 6px;
+  }
+
+  .bulk-guidelines code {
+    background-color: #EEF2F7;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .bulk-import-error {
+    margin-top: 15px;
+    padding: 12px 16px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    border-radius: 6px;
     font-size: 14px;
   }
 
-  .import-instructions ul {
-    margin: 0;
-    padding-left: 20px;
+  .bulk-import-loading {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .bulk-import-summary {
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid #E1E5EB;
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    box-shadow: 0 8px 24px rgba(0, 43, 89, 0.06);
+  }
+
+  .bulk-import-summary h4 {
+    margin: 0 0 12px 0;
+    color: #002B59;
+    font-size: 16px;
+  }
+
+  .summary-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .summary-stats div {
+    flex: 1;
+    min-width: 120px;
+    background-color: #F5F8FC;
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .summary-stats span {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
     color: #6C757D;
+    margin-bottom: 4px;
+  }
+
+  .summary-stats strong {
+    font-size: 18px;
+    color: #002B59;
+  }
+
+  .summary-stats .summary-success {
+    color: #1E9E63;
+  }
+
+  .summary-stats .summary-failed {
+    color: #C92A2A;
+  }
+
+  .bulk-import-success-list,
+  .bulk-import-errors {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+    background-color: #F8F9FA;
+  }
+
+  .bulk-import-success-list h5,
+  .bulk-import-errors h5 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #002B59;
+  }
+
+  .bulk-import-success-list ul,
+  .bulk-import-errors ul {
+    margin: 0;
+    padding-left: 18px;
     font-size: 13px;
+    color: #495057;
+  }
+
+  .bulk-import-errors {
+    border-color: #f5c6cb;
+    background-color: #fff5f5;
   }
 
   /* Recharge Modal Styles */

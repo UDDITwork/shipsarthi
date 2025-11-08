@@ -63,6 +63,13 @@
   letter-spacing: -0.5px;
 }
 
+.logo-image {
+  height: 36px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
 .logo-ship {
   color: #FF8C42;
 }

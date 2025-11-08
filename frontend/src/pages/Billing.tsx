@@ -349,7 +349,7 @@ const Billing: React.FC = () => {
             />
           </div>
           
-          <div className="filter-group">
+          <div className="filter-group date-range-group">
             <label>Date Range</label>
             <div className="date-range-inputs">
               <input

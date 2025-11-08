@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Tracking.css';
+import { environmentConfig } from '../config/environment';
 
 // Types for tracking response
 interface TrackingScan {
@@ -32,26 +33,45 @@ const Tracking: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState('');
+  const [trackingMeta, setTrackingMeta] = useState<{
+    waybill: string;
+    attempts?: number;
+    hasRefIds?: boolean;
+  } | null>(null);
 
   const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!awbNumber.trim()) return;
+    if (!awbNumber.trim()) {
+      setError('Please enter a valid AWB number.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
     setTrackingData(null);
+    setTrackingMeta(null);
 
     try {
       // Call our backend API instead of Delhivery directly
-      const apiUrl = process.env.REACT_APP_ENVIRONMENT === 'production' 
-        ? process.env.REACT_APP_PRODUCTION_API_URL 
-        : process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const trimmedAwb = awbNumber.trim();
+      const trimmedOrderId = orderId.trim();
+      const baseApiUrl = environmentConfig.apiUrl.replace(/\/$/, '');
+
       const response = await axios.get(
-        `${apiUrl}/api/shipping/public/track/${awbNumber.trim()}`
+        `${baseApiUrl}/shipping/public/track/${encodeURIComponent(trimmedAwb)}`,
+        trimmedOrderId
+          ? {
+              params: {
+                ref_ids: trimmedOrderId
+              }
+            }
+          : undefined
       );
 
       if (response.data?.success && response.data?.data) {
         setTrackingData(response.data.data);
+        setTrackingMeta(response.data.meta || null);
       } else {
         setError(response.data?.message || 'No tracking information found for this AWB number.');
       }
@@ -79,7 +99,7 @@ const Tracking: React.FC = () => {
       <header className="tracking-header">
         <div className="header-container">
           <div className="logo">
-            <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="logo-img" />
+            <img src="/NEW LOGO.PNG" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">
               <span className="logo-ship">Ship</span>
               <span className="logo-sarthi">sarthi</span>
@@ -88,9 +108,27 @@ const Tracking: React.FC = () => {
           
           <nav className="nav-links">
             <a href="#services" className="nav-link">Services</a>
-            <a href="#calculator" className="nav-link">Rate Calculator</a>
+            <a
+              href="/rate-calculator"
+              className="nav-link"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/rate-calculator');
+              }}
+            >
+              Rate Calculator
+            </a>
             <a href="#features" className="nav-link">Features</a>
-            <a href="/contact" className="nav-link">Contact Us</a>
+            <a
+              href="/contact"
+              className="nav-link"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/contact');
+              }}
+            >
+              Contact Us
+            </a>
           </nav>
           
           <div className="header-buttons">
@@ -153,6 +191,21 @@ const Tracking: React.FC = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="orderId" className="form-label">
+                    Order ID <span className="optional">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="orderId"
+                    className="form-input"
+                    placeholder="Enter Order ID (if available)"
+                    value={orderId}
+                    onChange={(e) => setOrderId(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+
                 <button 
                   type="submit" 
                   className="track-order-btn"
@@ -176,26 +229,45 @@ const Tracking: React.FC = () => {
                     <h3>Tracking Information</h3>
                     <div className="awb-display">AWB: {trackingData.AWB}</div>
                   </div>
+
+                  {trackingMeta && (
+                    <div className="tracking-meta">
+                      <span>
+                        Lookups attempted: {trackingMeta.attempts ?? 1}
+                      </span>
+                      {trackingMeta.hasRefIds && orderId.trim() && (
+                        <span>Reference search used</span>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="shipment-info">
                     <div className="info-row">
                       <span className="label">Status:</span>
-                      <span className={`status ${trackingData.Status.toLowerCase().replace(/\s+/g, '-')}`}>
-                        {trackingData.Status}
+                      <span
+                        className={`status ${
+                          trackingData?.Status
+                            ? trackingData.Status.toLowerCase().replace(/\s+/g, '-')
+                            : 'unknown'
+                        }`}
+                      >
+                        {trackingData?.Status || 'Not Available'}
                       </span>
                     </div>
                     <div className="info-row">
                       <span className="label">Origin:</span>
-                      <span className="value">{trackingData.Origin}</span>
+                      <span className="value">{trackingData?.Origin || 'Not Available'}</span>
                     </div>
                     <div className="info-row">
                       <span className="label">Destination:</span>
-                      <span className="value">{trackingData.Destination}</span>
+                      <span className="value">{trackingData?.Destination || 'Not Available'}</span>
                     </div>
                     <div className="info-row">
                       <span className="label">Last Updated:</span>
                       <span className="value">
-                        {new Date(trackingData.StatusDateTime).toLocaleString()}
+                        {trackingData?.StatusDateTime
+                          ? new Date(trackingData.StatusDateTime).toLocaleString()
+                          : 'Not Available'}
                       </span>
                     </div>
                   </div>

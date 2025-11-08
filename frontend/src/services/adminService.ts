@@ -21,6 +21,12 @@ export interface AdminClient {
     orders: number;
     packages: number;
     customers: number;
+    recentOrders?: Array<{
+      order_id: string;
+      status: string;
+      total_amount?: number;
+      created_at?: string;
+    }>;
   };
 }
 
@@ -152,6 +158,171 @@ export interface ClientDocumentsResponse {
     };
     documents: ClientDocument[];
   };
+}
+
+export interface AdminOrderAddress {
+  address_line_1?: string;
+  address_line_2?: string;
+  full_address?: string;
+  landmark?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  country?: string;
+  address_type?: string;
+}
+
+export interface AdminOrderPickupAddress {
+  name?: string;
+  full_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  phone?: string;
+}
+
+export interface AdminOrderDetailsProduct {
+  line_item: number;
+  product_name?: string;
+  product_description?: string;
+  quantity?: number;
+  unit_price?: number;
+  hsn_code?: string;
+  category?: string;
+  sku?: string;
+  discount?: number;
+  tax?: number;
+  tax_rate?: number;
+  total_price?: number;
+  [key: string]: any;
+}
+
+export interface AdminOrderDetailsStatusHistory {
+  status: string;
+  timestamp?: string;
+  remarks?: string;
+  location?: string;
+  updated_by?: string;
+  [key: string]: any;
+}
+
+export interface AdminOrderDetailsTrackingEvent {
+  _id?: string;
+  waybill?: string;
+  order_id?: string;
+  reference_no?: string;
+  status: string;
+  status_type?: string;
+  status_date_time: string;
+  status_location?: string;
+  instructions?: string;
+  nsl_code?: string;
+  sort_code?: string;
+  pickup_date?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
+}
+
+export interface AdminOrderDetailsMetrics {
+  total_products: number;
+  total_units: number;
+  volumetric_weight: number | null;
+  actual_weight: number | null;
+  order_value: number | null;
+  cod_amount: number | null;
+  total_amount: number | null;
+  shipping_charges: number | null;
+  grand_total: number | null;
+}
+
+export interface AdminOrderClientSummary {
+  _id: string;
+  client_id: string;
+  company_name: string;
+  your_name: string;
+  email: string;
+  phone_number: string;
+  user_category?: string;
+  account_status?: string;
+  kyc_status?: {
+    status: string;
+    verified_date?: string;
+    verification_notes?: string;
+  };
+  created_at?: string;
+}
+
+export interface AdminOrderDetails {
+  _id: string;
+  order_id: string;
+  status: string;
+  order_date?: string;
+  reference_id?: string;
+  invoice_number?: string;
+  order_type?: string;
+  shipping_mode?: string;
+  delivery_address?: AdminOrderAddress;
+  pickup_address?: AdminOrderPickupAddress;
+  return_address?: AdminOrderAddress;
+  customer_info?: {
+    buyer_name?: string;
+    phone?: string;
+    alternate_phone?: string;
+    email?: string;
+    gstin?: string;
+    [key: string]: any;
+  };
+  products: AdminOrderDetailsProduct[];
+  package_info?: {
+    weight?: number;
+    dimensions?: {
+      length?: number;
+      width?: number;
+      height?: number;
+    };
+    volumetric_weight?: number;
+    package_type?: string;
+    number_of_boxes?: number;
+    weight_per_box?: number;
+    rov_type?: string;
+    rov_owner?: string;
+    weight_photo_url?: string;
+    dimensions_photo_url?: string;
+    [key: string]: any;
+  };
+  payment_info?: {
+    payment_mode?: string;
+    cod_amount?: number;
+    order_value?: number;
+    total_amount?: number;
+    shipping_charges?: number;
+    grand_total?: number;
+    [key: string]: any;
+  };
+  seller_info?: {
+    name?: string;
+    gst_number?: string;
+    address?: string;
+    reseller_name?: string;
+    [key: string]: any;
+  };
+  delhivery_data?: Record<string, any>;
+  mps_data?: Record<string, any>;
+  ndr_info?: Record<string, any>;
+  status_history: AdminOrderDetailsStatusHistory[];
+  tracking_history: AdminOrderDetailsTrackingEvent[];
+  metrics: AdminOrderDetailsMetrics;
+  client?: AdminOrderClientSummary | null;
+  special_instructions?: string;
+  internal_notes?: string;
+  cancellation_reason?: string;
+  cancelled_date?: string;
+  pickup_scheduled_date?: string;
+  delivered_date?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
 }
 
 class AdminService {
@@ -647,6 +818,7 @@ class AdminService {
           delivered: number;
           ndr: number;
           rto: number;
+          cancelled: number;
         };
       }>;
       pagination: {
@@ -680,7 +852,8 @@ class AdminService {
             out_for_delivery: number;
             delivered: number;
             ndr: number;
-            rto: number;
+          rto: number;
+          cancelled: number;
           };
         }>;
         pagination: {
@@ -772,6 +945,19 @@ class AdminService {
         all: number;
       };
     }>(`/admin/orders/clients/${clientId}/stats`, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async getOrderDetails(orderId: string): Promise<{
+    success: boolean;
+    data: AdminOrderDetails;
+  }> {
+    const response = await apiService.get<{
+      success: boolean;
+      data: AdminOrderDetails;
+    }>(`/admin/orders/${orderId}/details`, {
       headers: this.getAdminHeaders()
     });
     return response;

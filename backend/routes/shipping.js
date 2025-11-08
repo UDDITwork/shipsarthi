@@ -5,6 +5,150 @@ const delhiveryService = require('../services/delhiveryService');
 const Order = require('../models/Order');
 const NDR = require('../models/NDR');
 const { body, validationResult } = require('express-validator');
+const RateCardService = require('../services/rateCardService');
+const logger = require('../utils/logger');
+
+const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
+    if (!trackingResult) {
+        return null;
+    }
+
+    const rawData = trackingResult.data ?? trackingResult;
+    const candidateArrays = [
+        rawData?.ShipmentData,
+        rawData?.data?.ShipmentData,
+        rawData?.Success?.ShipmentData,
+        rawData?.success?.ShipmentData,
+        rawData?.Success?.data?.ShipmentData,
+        rawData?.Packages,
+        rawData?.packages,
+        Array.isArray(rawData) ? rawData : null
+    ];
+
+    let shipments = null;
+
+    for (const candidate of candidateArrays) {
+        if (Array.isArray(candidate) && candidate.length > 0) {
+            shipments = candidate;
+            break;
+        }
+    }
+
+    if (!shipments) {
+        if (rawData && typeof rawData === 'object' && rawData.AWB) {
+            shipments = [rawData];
+        } else {
+            return null;
+        }
+    }
+
+    const shipment = shipments[0];
+
+    if (!shipment || typeof shipment !== 'object') {
+        return null;
+    }
+
+    const normalizeString = (value) => {
+        if (value === undefined || value === null) {
+            return '';
+        }
+        return String(value).trim();
+    };
+
+    const scansSource = Array.isArray(shipment.Scans)
+        ? shipment.Scans
+        : Array.isArray(shipment.scans)
+            ? shipment.scans
+            : Array.isArray(shipment.ScanDetail)
+                ? shipment.ScanDetail
+                : Array.isArray(shipment.scanDetails)
+                    ? shipment.scanDetails
+                    : [];
+
+    const scans = scansSource
+        .map((scan) => {
+            const scanObj = scan || {};
+            const scanType = normalizeString(
+                scanObj.ScanType ||
+                scanObj.Scan ||
+                scanObj.Status ||
+                scanObj.status ||
+                scanObj.scan_type
+            );
+
+            const scanDateTime = normalizeString(
+                scanObj.ScanDateTime ||
+                scanObj.ScannedDateTime ||
+                scanObj.Date ||
+                scanObj.datetime ||
+                scanObj.UpdatedDate ||
+                scanObj.updated_at
+            );
+
+            const scanLocation = normalizeString(
+                scanObj.ScanLocation ||
+                scanObj.ScannedLocation ||
+                scanObj.Location ||
+                scanObj.location
+            );
+
+            const remarks = normalizeString(
+                scanObj.Remarks ||
+                scanObj.Instructions ||
+                scanObj.Remark ||
+                scanObj.remark
+            );
+
+            return {
+                ScanType: scanType,
+                ScanDateTime: scanDateTime,
+                ScanLocation: scanLocation,
+                Remarks: remarks
+            };
+        })
+        .filter(
+            (scan) =>
+                scan.ScanType ||
+                scan.ScanDateTime ||
+                scan.ScanLocation ||
+                scan.Remarks
+        );
+
+    return {
+        AWB: normalizeString(
+            shipment.AWB ||
+            shipment.waybill ||
+            shipment.Waybill ||
+            trackingResult.waybill ||
+            fallbackWaybill
+        ),
+        Status: normalizeString(
+            shipment.Status ||
+            shipment.status ||
+            shipment.CurrentStatus ||
+            shipment.current_status
+        ) || 'Unknown',
+        StatusDateTime: normalizeString(
+            shipment.StatusDateTime ||
+            shipment.status_datetime ||
+            shipment.StatusDate ||
+            shipment.status_date
+        ),
+        Origin: normalizeString(
+            shipment.Origin ||
+            shipment.origin ||
+            shipment.From ||
+            shipment.from
+        ),
+        Destination: normalizeString(
+            shipment.Destination ||
+            shipment.destination ||
+            shipment.To ||
+            shipment.to
+        ),
+        Scans: scans
+    };
+};
 
 router.post('/create-shipment',
     auth,
@@ -109,23 +253,61 @@ router.get('/public/track/:waybill', async (req, res) => {
             });
         }
 
-        const trackingResult = await delhiveryService.trackShipment(req.params.waybill);
+        const waybill = String(req.params.waybill || '').trim();
+        const refIds =
+            typeof req.query.ref_ids === 'string'
+                ? req.query.ref_ids.trim()
+                : '';
+
+        const trackingResult = await delhiveryService.trackShipment(
+            waybill,
+            refIds
+        );
 
         if (trackingResult.success) {
-            res.json({
+            const normalized = normalizeTrackingResponse(
+                trackingResult,
+                waybill
+            );
+
+            if (!normalized) {
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        'AWB number not found. Please verify the number and try again.'
+                });
+            }
+
+            return res.json({
                 success: true,
-                data: trackingResult
-            });
-        } else {
-            res.status(400).json({
-                success: false,
-                message: 'Failed to track shipment',
-                error: trackingResult.error
+                data: normalized,
+                meta: {
+                    waybill: normalized.AWB,
+                    attempts: trackingResult.attempts ?? 1,
+                    hasRefIds: Boolean(refIds)
+                }
             });
         }
+
+        const statusCode =
+            trackingResult.statusCode === 404 ||
+            trackingResult.errorType === 'WAYBILL_NOT_FOUND'
+                ? 404
+                : trackingResult.statusCode || 400;
+
+        return res.status(statusCode).json({
+            success: false,
+            message:
+                trackingResult.error ||
+                'Failed to track shipment. Please try again later.',
+            errorType: trackingResult.errorType || 'UNKNOWN_ERROR'
+        });
     } catch (error) {
-        console.error('Public track shipment error:', error);
-        res.status(500).json({
+        logger.error('Public track shipment error', {
+            error: error.message,
+            stack: error.stack
+        });
+        return res.status(500).json({
             success: false,
             message: 'Internal server error',
             error: error.message
@@ -547,6 +729,201 @@ router.post('/calculate-cost',
 
 // Calculate shipping cost based on rate card system
 // Accepts either: (zone) OR (pickup_pincode + delivery_pincode) to get zone from Delhivery
+router.post('/public/calculate-rate-card',
+    [
+        body('weight').isFloat({ min: 0.1 }).withMessage('Valid weight is required'),
+        body('dimensions.length').isFloat({ min: 0.1 }).withMessage('Valid length is required'),
+        body('dimensions.breadth').isFloat({ min: 0.1 }).withMessage('Valid breadth is required'),
+        body('dimensions.height').isFloat({ min: 0.1 }).withMessage('Valid height is required'),
+        body('zone').optional().isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Valid zone is required (C1, D1 removed - use C, D instead)'),
+        body('pickup_pincode').optional().isLength({ min: 6, max: 6 }).withMessage('Pickup pincode must be 6 digits'),
+        body('delivery_pincode').optional().isLength({ min: 6, max: 6 }).withMessage('Delivery pincode must be 6 digits'),
+        body('shipping_mode').optional().isIn(['Surface', 'Express', 'S', 'E']).withMessage('Shipping mode must be Surface/Express or S/E'),
+        body('payment_mode').optional().isIn(['Prepaid', 'COD', 'Pre-paid']).withMessage('Payment mode must be Prepaid or COD'),
+        body('cod_amount').optional().isFloat({ min: 0 }).withMessage('COD amount must be positive'),
+        body('order_type').optional().isIn(['forward', 'rto']).withMessage('Order type must be "forward" or "rto"')
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation failed',
+                    errors: errors.array()
+                });
+            }
+
+            const {
+                weight,
+                dimensions,
+                zone,
+                pickup_pincode,
+                delivery_pincode,
+                shipping_mode,
+                payment_mode,
+                cod_amount,
+                order_type = 'forward'
+            } = req.body;
+
+            const userCategory = 'New User';
+            const availableCategories = RateCardService.getAvailableUserCategories();
+
+            if (!availableCategories.includes(userCategory)) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Rate card not configured for new user category',
+                    user_category: userCategory
+                });
+            }
+
+            const rateCard = RateCardService.getRateCard(userCategory);
+            if (!rateCard) {
+                return res.status(500).json({
+                    success: false,
+                    message: `Rate card not available for user category: ${userCategory}`,
+                    user_category: userCategory
+                });
+            }
+
+            if (!['forward', 'rto'].includes(order_type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid order type. Must be "forward" or "rto"',
+                    order_type: order_type
+                });
+            }
+
+            const zoneNormalizationMap = {
+                'C1': 'C',
+                'C2': 'C',
+                'D1': 'D',
+                'D2': 'D'
+            };
+            const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let finalZone = null;
+
+            if (zone) {
+                finalZone = zoneNormalizationMap[zone] || zone;
+                if (!validZones.includes(finalZone)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Invalid zone "${finalZone}". Supported zones are: A, B, C, D, E, F.`,
+                        provided_zone: zone,
+                        normalized_zone: finalZone
+                    });
+                }
+            }
+
+            if (!finalZone) {
+                if (!pickup_pincode || !delivery_pincode) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Either zone OR (pickup_pincode + delivery_pincode) must be provided'
+                    });
+                }
+
+                if (!delhiveryService.validateApiKey()) {
+                    return res.status(503).json({
+                        success: false,
+                        message: 'Delhivery API not configured'
+                    });
+                }
+
+                const volumetricWeightKg = (dimensions.length * dimensions.breadth * dimensions.height) / 5000;
+                const volumetricWeightGrams = volumetricWeightKg * 1000;
+                const chargeableWeightGrams = Math.max(weight, volumetricWeightGrams);
+                const shippingModeForDelhivery = shipping_mode === 'Express' || shipping_mode === 'E' ? 'E' : 'S';
+                const paymentTypeForDelhivery = payment_mode === 'COD' ? 'COD' : 'Pre-paid';
+
+                const zoneResult = await delhiveryService.getZoneFromDelhivery(
+                    pickup_pincode,
+                    delivery_pincode,
+                    chargeableWeightGrams,
+                    shippingModeForDelhivery,
+                    'Delivered',
+                    paymentTypeForDelhivery
+                );
+
+                if (!zoneResult.success || !zoneResult.zone) {
+                    logger.error('❌ Failed to get zone from Delhivery for public rate calculation', {
+                        pickup_pincode,
+                        delivery_pincode,
+                        error: zoneResult.error
+                    });
+                    return res.status(400).json({
+                        success: false,
+                        message: zoneResult.error || 'Failed to get zone information from Delhivery',
+                        error: zoneResult.error
+                    });
+                }
+
+                const rawZone = zoneResult.zone;
+                finalZone = zoneNormalizationMap[rawZone] || rawZone;
+
+                if (!finalZone || !validZones.includes(finalZone)) {
+                    logger.error('❌ Invalid zone after normalization for public rate calculation', {
+                        pickup_pincode,
+                        delivery_pincode,
+                        raw_zone: rawZone,
+                        normalized_zone: finalZone
+                    });
+                    return res.status(400).json({
+                        success: false,
+                        message: `Invalid zone "${finalZone}" received from Delhivery. Please contact support.`,
+                        raw_zone: rawZone,
+                        normalized_zone: finalZone
+                    });
+                }
+
+                logger.info('🌍 Zone retrieved and normalized from Delhivery for public rate calculation', {
+                    pickup_pincode,
+                    delivery_pincode,
+                    raw_zone: rawZone,
+                    normalized_zone: finalZone,
+                    chargeableWeightGrams: chargeableWeightGrams
+                });
+            }
+
+            if (!finalZone || typeof finalZone !== 'string') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Zone is required for shipping charges calculation. Please provide zone or pincodes.',
+                    zone_provided: !!zone,
+                    pincodes_provided: !!(pickup_pincode && delivery_pincode)
+                });
+            }
+
+            const result = RateCardService.calculateShippingCharges(
+                userCategory,
+                weight,
+                dimensions,
+                finalZone,
+                cod_amount || 0,
+                order_type
+            );
+
+            res.json({
+                success: true,
+                message: 'Shipping charges calculated successfully',
+                data: {
+                    ...result,
+                    zone: finalZone,
+                    user_category: userCategory,
+                    rate_card_applied: rateCard.userCategory
+                }
+            });
+        } catch (error) {
+            console.error('Public calculate rate card cost error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message
+            });
+        }
+    }
+);
+
 router.post('/calculate-rate-card',
     auth,
     [
@@ -575,10 +952,8 @@ router.post('/calculate-rate-card',
 
             const { weight, dimensions, zone, pickup_pincode, delivery_pincode, shipping_mode, payment_mode, cod_amount, order_type = 'forward' } = req.body;
             const userCategory = req.user.user_category || 'Basic User';
-            const logger = require('../utils/logger');
 
             // SECURITY: Validate user category exists and is valid
-            const RateCardService = require('../services/rateCardService');
             const availableCategories = RateCardService.getAvailableUserCategories();
             
             if (!availableCategories.includes(userCategory)) {

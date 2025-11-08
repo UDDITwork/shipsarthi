@@ -60,6 +60,10 @@ interface OrderFilters {
   date_from?: string;
   date_to?: string;
   search?: string;
+  search_type?: 'order' | 'reference' | 'awb';
+  state?: string;
+  min_amount?: number;
+  max_amount?: number;
 }
 
 interface OrdersResponse {
@@ -111,6 +115,10 @@ class OrderService {
       if (filters.date_from) params.append('date_from', filters.date_from);
       if (filters.date_to) params.append('date_to', filters.date_to);
       if (filters.search) params.append('search', filters.search);
+      if (filters.search_type) params.append('search_type', filters.search_type);
+      if (filters.state) params.append('state', filters.state);
+      if (typeof filters.min_amount === 'number') params.append('min_amount', filters.min_amount.toString());
+      if (typeof filters.max_amount === 'number') params.append('max_amount', filters.max_amount.toString());
 
       const queryString = params.toString();
       const url = `/orders${queryString ? `?${queryString}` : ''}`;

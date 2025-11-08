@@ -653,7 +653,10 @@ orderSchema.index({ createdAt: -1 });
 
 // Virtual for total products count
 orderSchema.virtual('total_products').get(function() {
-  return this.products.reduce((sum, product) => sum + product.quantity, 0);
+  if (!Array.isArray(this.products) || this.products.length === 0) {
+    return 0;
+  }
+  return this.products.reduce((sum, product) => sum + (product.quantity || 0), 0);
 });
 
 // Pre-save middleware to calculate volumetric weight

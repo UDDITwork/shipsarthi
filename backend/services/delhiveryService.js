@@ -2202,14 +2202,30 @@ class DelhiveryService {
             }
 
             const params = {
-                wbns: cleanWaybill
+                // Delhivery docs historically used both `wbns` (waybill numbers) and `waybill`
+                // Some accounts only honour one of them, so send both for maximum compatibility
+                wbns: cleanWaybill,
+                waybill: cleanWaybill
             };
+
+            // Support optional PDF generation and sizing parameters
+            if (typeof options.pdf !== 'undefined') {
+                params.pdf = options.pdf ? 'true' : 'false';
+            }
+
+            if (options.pdf_size) {
+                params.pdf_size = options.pdf_size;
+            }
+
+            if (options.extra_params && typeof options.extra_params === 'object') {
+                Object.assign(params, options.extra_params);
+            }
 
             logger.info('📄 Calling Delhivery packing_slip API', {
                 waybill: cleanWaybill,
                 url: labelURL,
                 params,
-                note: 'This API returns JSON data only'
+                note: 'This API returns JSON data only when pdf=false; pdf=true returns S3 link'
             });
 
             const response = await axios.get(labelURL, {
@@ -2237,6 +2253,7 @@ class DelhiveryService {
                 hasPackages: response.data?.packages ? true : false,
                 packagesLength: response.data?.packages?.length || 0,
                 packagesFound: response.data?.packages_found || 0,
+                hasPdfUrl: !!(response.data?.pdf_url || response.data?.label_url || response.data?.link),
                 responseDataPreview: response.data ? JSON.stringify(response.data).substring(0, 500) : null
             });
 
@@ -2288,14 +2305,22 @@ class DelhiveryService {
 
             // Success case - return the data
             if (response.status >= 200 && response.status < 300) {
-                // Delhivery packing_slip API returns JSON data only
-                // The frontend will need to convert this to PDF
+                // Delhivery packing_slip API behaviour:
+                //  - pdf=false (default): returns JSON payload with package data
+                //  - pdf=true: returns an object containing an S3 link for the PDF
+                const pdfUrl = response.data?.pdf_url || response.data?.label_url || response.data?.link || null;
+
                 return {
                     success: true,
                     data: response.data,
                     json_data: response.data,
-                    message: 'Shipping label JSON data received from Delhivery',
-                    note: 'Frontend must render JSON to PDF'
+                    pdf_url: pdfUrl,
+                    message: pdfUrl
+                        ? 'Shipping label PDF link received from Delhivery'
+                        : 'Shipping label JSON data received from Delhivery',
+                    note: pdfUrl
+                        ? 'PDF link supplied by Delhivery'
+                        : 'Frontend must render JSON to PDF'
                 };
             }
 

@@ -4,6 +4,7 @@ import './ShippingCalculator.css';
 
 interface ShippingCalculatorProps {
   userCategory: string;
+  isPublic?: boolean;
   onCalculate?: (result: {
     forwardCharges: number;
     rtoCharges: number;
@@ -16,6 +17,7 @@ interface ShippingCalculatorProps {
 
 const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({ 
   userCategory, 
+  isPublic = false,
   onCalculate 
 }) => {
   const [weight, setWeight] = useState<number>(0);
@@ -25,6 +27,8 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
     height: 0
   });
   const [zone, setZone] = useState<string>('A');
+  const [pickupPincode, setPickupPincode] = useState<string>('');
+  const [deliveryPincode, setDeliveryPincode] = useState<string>('');
   const [codAmount, setCodAmount] = useState<number>(0);
   const [calculationResult, setCalculationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,12 +56,33 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
         return;
       }
 
-      const result = await shippingService.calculateShippingCharges({
+      if (isPublic) {
+        if (!/^[1-9][0-9]{5}$/.test(pickupPincode)) {
+          setError('Enter a valid 6-digit pickup pincode');
+          return;
+        }
+        if (!/^[1-9][0-9]{5}$/.test(deliveryPincode)) {
+          setError('Enter a valid 6-digit delivery pincode');
+          return;
+        }
+      }
+
+      const result = await (isPublic 
+        ? shippingService.calculatePublicShippingCharges({
+            weight,
+            dimensions,
+            zone: undefined,
+            pickup_pincode: pickupPincode,
+            delivery_pincode: deliveryPincode,
+            cod_amount: codAmount > 0 ? codAmount : undefined
+          })
+        : shippingService.calculateShippingCharges({
         weight,
         dimensions,
         zone,
         cod_amount: codAmount > 0 ? codAmount : undefined
-      });
+          })
+      );
 
       setCalculationResult(result);
       
@@ -81,6 +106,8 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
     setWeight(0);
     setDimensions({ length: 0, breadth: 0, height: 0 });
     setZone('A');
+    setPickupPincode('');
+    setDeliveryPincode('');
     setCodAmount(0);
     setCalculationResult(null);
     setError(null);
@@ -108,20 +135,47 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="zone">Destination Zone</label>
-            <select
-              id="zone"
-              value={zone}
-              onChange={(e) => setZone(e.target.value)}
-            >
-              {zones.map(zoneOption => (
-                <option key={zoneOption.value} value={zoneOption.value}>
-                  {zoneOption.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {isPublic ? (
+            <>
+              <div className="form-group">
+                <label htmlFor="pickupPincode">Pickup Pincode</label>
+                <input
+                  type="tel"
+                  id="pickupPincode"
+                  value={pickupPincode}
+                  onChange={(e) => setPickupPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Pickup pincode"
+                  maxLength={6}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="deliveryPincode">Delivery Pincode</label>
+                <input
+                  type="tel"
+                  id="deliveryPincode"
+                  value={deliveryPincode}
+                  onChange={(e) => setDeliveryPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Delivery pincode"
+                  maxLength={6}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="form-group">
+              <label htmlFor="zone">Destination Zone</label>
+              <select
+                id="zone"
+                value={zone}
+                onChange={(e) => setZone(e.target.value)}
+              >
+                {zones.map(zoneOption => (
+                  <option key={zoneOption.value} value={zoneOption.value}>
+                    {zoneOption.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="form-row">
@@ -191,7 +245,13 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
             type="button"
             onClick={handleCalculate}
             className="calculate-btn"
-            disabled={weight <= 0 || dimensions.length <= 0 || dimensions.breadth <= 0 || dimensions.height <= 0}
+            disabled={
+              weight <= 0 ||
+              dimensions.length <= 0 ||
+              dimensions.breadth <= 0 ||
+              dimensions.height <= 0 ||
+              (isPublic && (!/^[1-9][0-9]{5}$/.test(pickupPincode) || !/^[1-9][0-9]{5}$/.test(deliveryPincode)))
+            }
           >
             Calculate Shipping Cost
           </button>
@@ -215,12 +275,18 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
             </div>
             <div className="result-item">
               <span className="result-label">Volumetric Weight:</span>
-              <span className="result-value">{calculationResult.volumetricWeight.toFixed(2)} grams</span>
+              <span className="result-value">{calculationResult.volumetricWeight.toFixed(2)} kg</span>
             </div>
             <div className="result-item">
               <span className="result-label">Chargeable Weight:</span>
-              <span className="result-value">{calculationResult.chargeableWeight.toFixed(2)} grams</span>
+              <span className="result-value">{calculationResult.chargeableWeight.toFixed(2)} kg</span>
             </div>
+            {calculationResult.zone && (
+              <div className="result-item">
+                <span className="result-label">Zone:</span>
+                <span className="result-value">{calculationResult.zone}</span>
+              </div>
+            )}
             <div className="result-item">
               <span className="result-label">Forward Charges:</span>
               <span className="result-value">₹{calculationResult.forwardCharges.toFixed(2)}</span>

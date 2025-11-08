@@ -158,6 +158,7 @@ class TicketService {
   async addComment(ticketId: string, commentData: AddCommentData): Promise<Ticket> {
     const formData = new FormData();
     formData.append('comment', commentData.comment);
+    formData.append('message', commentData.comment);
     
     if (commentData.files) {
       commentData.files.forEach(file => {
