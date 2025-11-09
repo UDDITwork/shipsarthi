@@ -10605,3 +10605,134 @@
 }
 [2025-11-09T18:15:48.416Z] [INFO] [PID:18504] 🛑 SIGINT received, shutting down gracefully
 [2025-11-09T18:15:48.419Z] [INFO] [PID:18504] 🔌 Cleaning up WebSocket service...
+[2025-11-09T18:17:28.479Z] [INFO] [PID:30432] ✅ Tracking service started - will run every 3 hours
+[2025-11-09T18:17:29.720Z] [INFO] [PID:30432] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-09T18:17:29.720Z"
+}
+[2025-11-09T18:17:29.743Z] [INFO] [PID:30432] 🔌 WebSocket server initialized
+[2025-11-09T18:17:30.666Z] [INFO] [PID:30432] ✅ Connected to MongoDB
+[2025-11-09T18:17:30.672Z] [INFO] [PID:30432] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-09T18:17:31.376Z] [INFO] [PID:30432] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-09T18:17:31.376Z"
+}
+[2025-11-09T18:17:33.586Z] [INFO] [PID:30432] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1762712253586_8ruehla1z",
+  "totalClients": 1
+}
+[2025-11-09T18:17:33.591Z] [INFO] [PID:30432] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-09T18:17:33.595Z] [INFO] [PID:30432] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1762712253586_8ruehla1z",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-09T18:17:44.756Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:17:59.760Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:18:14.759Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:18:29.773Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:18:44.775Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:18:59.789Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:19:14.804Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:19:29.817Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:19:44.822Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:19:59.829Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:20:14.845Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:20:29.843Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:20:44.845Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:20:59.848Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:21:14.862Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:21:29.865Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:21:44.867Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:21:59.881Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:22:14.884Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:22:18.093Z] [INFO] [PID:30432] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T18:22:18.118Z] [DEBUG] [PID:30432] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T18:22:29.894Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:22:44.900Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:22:59.901Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:23:14.905Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:23:29.911Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:23:44.913Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:23:59.925Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:24:14.928Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:24:29.939Z] [DEBUG] [PID:30432] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762712253586_8ruehla1z"
+}
+[2025-11-09T18:24:44.518Z] [INFO] [PID:30432] 🛑 SIGINT received, shutting down gracefully
+[2025-11-09T18:24:44.522Z] [INFO] [PID:30432] 🔌 Cleaning up WebSocket service...

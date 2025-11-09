@@ -26,7 +26,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // CORS Configuration - MUST come BEFORE helmet() to ensure CORS headers are set
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3000',
@@ -34,8 +39,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'https://shipsarthi.vercel.app',
   'https://shipsarthi-git-main-udditworks-projects.vercel.app',
   'https://www.shipsarthi.com',
-  'https://shipsarthi.com'
-];
+      'https://shipsarthi.com'
+    ];
 
 // CORS middleware - MUST be before helmet
 app.use(cors({
