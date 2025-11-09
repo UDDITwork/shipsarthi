@@ -10582,3 +10582,26 @@
 }
 [2025-11-09T18:12:18.913Z] [INFO] [PID:20816] 🛑 SIGINT received, shutting down gracefully
 [2025-11-09T18:12:18.916Z] [INFO] [PID:20816] 🔌 Cleaning up WebSocket service...
+[2025-11-09T18:15:43.486Z] [INFO] [PID:18504] ✅ Tracking service started - will run every 3 hours
+[2025-11-09T18:15:44.318Z] [INFO] [PID:18504] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-09T18:15:44.318Z"
+}
+[2025-11-09T18:15:44.333Z] [INFO] [PID:18504] 🔌 WebSocket server initialized
+[2025-11-09T18:15:44.854Z] [INFO] [PID:18504] ✅ Connected to MongoDB
+[2025-11-09T18:15:44.858Z] [INFO] [PID:18504] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-09T18:15:46.123Z] [INFO] [PID:18504] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-09T18:15:46.122Z"
+}
+[2025-11-09T18:15:48.416Z] [INFO] [PID:18504] 🛑 SIGINT received, shutting down gracefully
+[2025-11-09T18:15:48.419Z] [INFO] [PID:18504] 🔌 Cleaning up WebSocket service...

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
-import { ticketService, Ticket, TicketStats, TicketStatusCounts } from '../services/ticketService';
+import { ticketService, Ticket, TicketStatusCounts } from '../services/ticketService';
 import './Support.css';
 
 type TicketStatus = 'open' | 'resolved' | 'closed' | 'all';
