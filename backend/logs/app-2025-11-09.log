@@ -11910,3 +11910,87 @@
 }
 [2025-11-09T21:57:12.293Z] [INFO] [PID:22024] 🛑 SIGINT received, shutting down gracefully
 [2025-11-09T21:57:12.297Z] [INFO] [PID:22024] 🔌 Cleaning up WebSocket service...
+[2025-11-09T22:00:40.375Z] [INFO] [PID:21808] ✅ Tracking service started - will run every 3 hours
+[2025-11-09T22:00:42.438Z] [INFO] [PID:21808] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-09T22:00:42.438Z"
+}
+[2025-11-09T22:00:42.486Z] [INFO] [PID:21808] 🔌 WebSocket server initialized
+[2025-11-09T22:00:43.538Z] [INFO] [PID:21808] ✅ Connected to MongoDB
+[2025-11-09T22:00:43.553Z] [INFO] [PID:21808] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-09T22:00:45.434Z] [INFO] [PID:21808] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-09T22:00:45.434Z"
+}
+[2025-11-09T22:19:35.947Z] [INFO] [PID:21808] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T22:19:35.984Z] [DEBUG] [PID:21808] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T22:19:43.622Z] [INFO] [PID:21808] ✅ Delhivery API Key validation passed | Data: {
+  "apiKeyLength": 40,
+  "apiKeyPreview": "216cb0f07e...",
+  "apiURL": "https://track.delhivery.com/api"
+}
+[2025-11-09T22:19:43.625Z] [INFO] [PID:21808] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000700",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T22:19:43.628Z] [INFO] [PID:21808] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000700",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T22:19:43.867Z] [INFO] [PID:21808] ✅ Tracking successful | Data: {
+  "waybill": "44800710000700",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T22:54:35.216Z] [INFO] [PID:21808] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T22:54:35.255Z] [DEBUG] [PID:21808] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T22:54:36.958Z] [INFO] [PID:21808] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T22:54:37.011Z] [DEBUG] [PID:21808] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T22:54:44.124Z] [INFO] [PID:21808] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T22:54:44.160Z] [DEBUG] [PID:21808] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T23:14:36.648Z] [INFO] [PID:21808] 🛑 SIGINT received, shutting down gracefully
+[2025-11-09T23:14:36.652Z] [INFO] [PID:21808] 🔌 Cleaning up WebSocket service...

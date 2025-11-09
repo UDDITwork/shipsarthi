@@ -42,7 +42,11 @@ const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
         }
     }
 
-    const shipment = shipments[0];
+    const shipmentNode = shipments[0];
+    const shipment =
+        shipmentNode?.Shipment ||
+        shipmentNode?.shipment ||
+        shipmentNode;
 
     if (!shipment || typeof shipment !== 'object') {
         return null;
@@ -55,25 +59,127 @@ const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
         return String(value).trim();
     };
 
-    const scansSource = Array.isArray(shipment.Scans)
-        ? shipment.Scans
-        : Array.isArray(shipment.scans)
-            ? shipment.scans
-            : Array.isArray(shipment.ScanDetail)
-                ? shipment.ScanDetail
-                : Array.isArray(shipment.scanDetails)
-                    ? shipment.scanDetails
-                    : [];
+    const formatLocation = (value) => {
+        if (!value) {
+            return '';
+        }
+
+        if (typeof value === 'string') {
+            return normalizeString(value);
+        }
+
+        if (typeof value === 'object') {
+            const parts = [
+                value.city || value.City,
+                value.state || value.State,
+                value.country || value.Country,
+                value.name || value.Name,
+                value.location || value.Location,
+                value.area || value.Area,
+                value.state_code || value.StateCode
+            ]
+                .map((part) => normalizeString(part))
+                .filter(Boolean);
+
+            return parts.join(', ');
+        }
+
+        return '';
+    };
+
+    const extractStatus = (value) => {
+        if (!value) {
+            return {};
+        }
+
+        if (typeof value === 'string') {
+            return {
+                status: normalizeString(value)
+            };
+        }
+
+        if (typeof value === 'object') {
+            return {
+                status: normalizeString(
+                    value.Status ||
+                    value.status ||
+                    value.StatusType ||
+                    value.status_type ||
+                    value.scan_type ||
+                    value.code
+                ),
+                statusDateTime: normalizeString(
+                    value.StatusDateTime ||
+                    value.status_datetime ||
+                    value.time ||
+                    value.date ||
+                    value.datetime
+                ),
+                location: formatLocation(
+                    value.StatusLocation ||
+                    value.status_location ||
+                    value.location ||
+                    value.City ||
+                    value.city
+                )
+            };
+        }
+
+        return {};
+    };
+
+    const scansCandidates = [
+        shipment.Scans,
+        shipment.scans,
+        shipment.ScanDetail,
+        shipment.scanDetails,
+        shipment.scans_list,
+        shipment.scansList,
+        shipment.Scans?.ScanDetail,
+        shipment.Scans?.scanDetail,
+        shipment.Scans?.Scan_Detail,
+        shipment.scans?.ScanDetail,
+        shipment.scans?.scanDetail,
+        shipment.scans?.scan_detail
+    ];
+
+    let scansSource = [];
+    for (const candidate of scansCandidates) {
+        if (Array.isArray(candidate)) {
+            scansSource = candidate;
+            break;
+        }
+
+        if (candidate && Array.isArray(candidate.ScanDetail)) {
+            scansSource = candidate.ScanDetail;
+            break;
+        }
+
+        if (candidate && Array.isArray(candidate.scanDetail)) {
+            scansSource = candidate.scanDetail;
+            break;
+        }
+
+        if (candidate && Array.isArray(candidate.scan_detail)) {
+            scansSource = candidate.scan_detail;
+            break;
+        }
+    }
 
     const scans = scansSource
         .map((scan) => {
             const scanObj = scan || {};
+            const nestedStatus = extractStatus(
+                scanObj.Status || scanObj.status || scanObj.status_detail
+            );
+
             const scanType = normalizeString(
                 scanObj.ScanType ||
                 scanObj.Scan ||
                 scanObj.Status ||
                 scanObj.status ||
-                scanObj.scan_type
+                scanObj.scan_type ||
+                nestedStatus.status
             );
 
             const scanDateTime = normalizeString(
@@ -82,14 +188,16 @@ const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
                 scanObj.Date ||
                 scanObj.datetime ||
                 scanObj.UpdatedDate ||
-                scanObj.updated_at
+                scanObj.updated_at ||
+                nestedStatus.statusDateTime
             );
 
             const scanLocation = normalizeString(
                 scanObj.ScanLocation ||
                 scanObj.ScannedLocation ||
                 scanObj.Location ||
-                scanObj.location
+                scanObj.location ||
+                nestedStatus.location
             );
 
             const remarks = normalizeString(
@@ -114,6 +222,38 @@ const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
                 scan.Remarks
         );
 
+    const statusInfo = extractStatus(
+        shipment.Status ||
+        shipment.status ||
+        shipment.CurrentStatus ||
+        shipment.current_status
+    );
+
+    const statusDateTime =
+        statusInfo.statusDateTime ||
+        normalizeString(
+            shipment.StatusDateTime ||
+            shipment.status_datetime ||
+            shipment.StatusDate ||
+            shipment.status_date
+        );
+
+    const originRaw =
+        shipment.Origin ||
+        shipment.origin ||
+        shipment.OriginDetail ||
+        shipment.origin_detail ||
+        shipment.OriginDetails ||
+        shipment.origin_details;
+
+    const destinationRaw =
+        shipment.Destination ||
+        shipment.destination ||
+        shipment.DestinationDetail ||
+        shipment.destination_detail ||
+        shipment.DestinationDetails ||
+        shipment.destination_details;
+
     return {
         AWB: normalizeString(
             shipment.AWB ||
@@ -123,29 +263,29 @@ const normalizeTrackingResponse = (trackingResult, fallbackWaybill = '') => {
             fallbackWaybill
         ),
         Status: normalizeString(
+            statusInfo.status ||
             shipment.Status ||
             shipment.status ||
             shipment.CurrentStatus ||
             shipment.current_status
         ) || 'Unknown',
-        StatusDateTime: normalizeString(
-            shipment.StatusDateTime ||
-            shipment.status_datetime ||
-            shipment.StatusDate ||
-            shipment.status_date
-        ),
-        Origin: normalizeString(
-            shipment.Origin ||
-            shipment.origin ||
-            shipment.From ||
-            shipment.from
-        ),
-        Destination: normalizeString(
-            shipment.Destination ||
-            shipment.destination ||
-            shipment.To ||
-            shipment.to
-        ),
+        StatusDateTime: statusDateTime,
+        Origin:
+            formatLocation(originRaw) ||
+            normalizeString(
+                shipment.From ||
+                shipment.from ||
+                shipment.Source ||
+                shipment.source
+            ),
+        Destination:
+            formatLocation(destinationRaw) ||
+            normalizeString(
+                shipment.To ||
+                shipment.to ||
+                shipment.Consignee ||
+                shipment.consignee
+            ),
         Scans: scans
     };
 };
