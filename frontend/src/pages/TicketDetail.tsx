@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { ticketService, Ticket } from '../services/ticketService';
@@ -14,13 +14,7 @@ const TicketDetail: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  useEffect(() => {
-    if (id) {
-      fetchTicket();
-    }
-  }, [id]);
-
-  const fetchTicket = async () => {
+  const fetchTicket = useCallback(async () => {
     if (!id) return;
     try {
       setLoading(true);
@@ -33,7 +27,13 @@ const TicketDetail: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (id) {
+      fetchTicket();
+    }
+  }, [id, fetchTicket]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

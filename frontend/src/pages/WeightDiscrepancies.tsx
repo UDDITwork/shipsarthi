@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { environmentConfig } from '../config/environment';
-import { notificationService } from '../services/notificationService';
 import './WeightDiscrepancies.css';
 
 interface WeightDiscrepancy {
@@ -30,13 +29,19 @@ interface Summary {
   total_deduction: number;
 }
 
+const INITIAL_SUMMARY: Summary = {
+  total_discrepancies: 0,
+  total_weight_discrepancy: 0,
+  total_deduction: 0
+};
+
+const createInitialSummary = (): Summary => ({
+  ...INITIAL_SUMMARY
+});
+
 const WeightDiscrepancies: React.FC = () => {
   const [discrepancies, setDiscrepancies] = useState<WeightDiscrepancy[]>([]);
-  const [summary, setSummary] = useState<Summary>({
-    total_discrepancies: 0,
-    total_weight_discrepancy: 0,
-    total_deduction: 0
-  });
+  const [summary, setSummary] = useState<Summary>(() => createInitialSummary());
   const [loading, setLoading] = useState(false);
   
   // Filters
@@ -46,22 +51,7 @@ const WeightDiscrepancies: React.FC = () => {
   const [status, setStatus] = useState('all');
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    fetchDiscrepancies();
-  }, [page, limit, search, status]);
-
-  // Poll weight discrepancies from MongoDB (no WebSocket dependency)
-  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
-  useEffect(() => {
-    const pollInterval = setInterval(() => {
-      console.log('⚖️ Polling weight discrepancies from MongoDB...');
-      fetchDiscrepancies();
-    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
-
-    return () => clearInterval(pollInterval);
-  }, [page, limit, search, status]);
-
-  const fetchDiscrepancies = async () => {
+  const fetchDiscrepancies = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -79,7 +69,7 @@ const WeightDiscrepancies: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setDiscrepancies(data.data.discrepancies || []);
-        setSummary(data.data.summary || summary);
+        setSummary(data.data.summary || createInitialSummary());
         setTotal(data.data.pagination.total || 0);
       }
     } catch (error) {
@@ -87,7 +77,22 @@ const WeightDiscrepancies: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, search, status]);
+
+  useEffect(() => {
+    fetchDiscrepancies();
+  }, [fetchDiscrepancies]);
+
+  // Poll weight discrepancies from MongoDB (no WebSocket dependency)
+  // Refresh every 60 seconds to avoid rate limiting while keeping data fresh
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      console.log('⚖️ Polling weight discrepancies from MongoDB...');
+      fetchDiscrepancies();
+    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
+
+    return () => clearInterval(pollInterval);
+  }, [fetchDiscrepancies]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

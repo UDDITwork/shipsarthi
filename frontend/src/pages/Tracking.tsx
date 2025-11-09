@@ -21,12 +21,6 @@ interface TrackingData {
   Scans: TrackingScan[];
 }
 
-interface TrackingResponse {
-  data: {
-    ShipmentData: TrackingData[];
-  };
-}
-
 const Tracking: React.FC = () => {
   const navigate = useNavigate();
   const [awbNumber, setAwbNumber] = useState('');
