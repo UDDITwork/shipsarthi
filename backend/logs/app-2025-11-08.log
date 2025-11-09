@@ -4901,3 +4901,830 @@
 }
 [2025-11-08T19:15:19.922Z] [INFO] [PID:26920] 🛑 SIGINT received, shutting down gracefully
 [2025-11-08T19:15:19.926Z] [INFO] [PID:26920] 🔌 Cleaning up WebSocket service...
+[2025-11-08T19:19:32.652Z] [INFO] [PID:27888] ✅ Tracking service started - will run every 3 hours
+[2025-11-08T19:19:33.261Z] [INFO] [PID:27888] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-08T19:19:33.261Z"
+}
+[2025-11-08T19:19:33.274Z] [INFO] [PID:27888] 🔌 WebSocket server initialized
+[2025-11-08T19:19:33.771Z] [INFO] [PID:27888] ✅ Connected to MongoDB
+[2025-11-08T19:19:33.778Z] [INFO] [PID:27888] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-08T19:19:34.807Z] [INFO] [PID:27888] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-08T19:19:34.807Z"
+}
+[2025-11-08T19:19:36.256Z] [INFO] [PID:27888] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-08T19:19:36.293Z] [DEBUG] [PID:27888] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-08T21:54:30.797Z] [INFO] [PID:28876] ✅ Tracking service started - will run every 3 hours
+[2025-11-08T21:54:32.029Z] [INFO] [PID:28876] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-08T21:54:32.029Z"
+}
+[2025-11-08T21:54:32.050Z] [INFO] [PID:28876] 🔌 WebSocket server initialized
+[2025-11-08T21:54:32.699Z] [INFO] [PID:28876] ✅ Connected to MongoDB
+[2025-11-08T21:54:32.713Z] [INFO] [PID:28876] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-08T21:54:33.933Z] [INFO] [PID:28876] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-08T21:54:33.933Z"
+}
+[2025-11-08T21:54:44.274Z] [INFO] [PID:28876] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-08T21:54:44.318Z] [DEBUG] [PID:28876] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-08T22:01:56.206Z] [INFO] [PID:28876] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-08T22:01:56.241Z] [DEBUG] [PID:28876] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T03:55:13.223Z] [ERROR] [PID:28876] Error fetching notifications: | Data: {
+  "errorLabelSet": {},
+  "reason": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {
+      "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360562306,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360562306,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360562307,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      }
+    },
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-n08s5r-shard-0",
+    "maxElectionId": {
+      "$oid": "7fffffff0000000000000107"
+    },
+    "maxSetVersion": 269,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": null
+  }
+}
+[2025-11-09T03:55:20.591Z] [ERROR] [PID:28876] Error fetching notifications: | Data: {
+  "errorLabelSet": {},
+  "reason": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {
+      "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360582971,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360582968,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360562307,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      }
+    },
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-n08s5r-shard-0",
+    "maxElectionId": {
+      "$oid": "7fffffff0000000000000107"
+    },
+    "maxSetVersion": 269,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": null
+  }
+}
+[2025-11-09T03:55:29.028Z] [ERROR] [PID:28876] Error fetching notifications: | Data: {
+  "errorLabelSet": {},
+  "reason": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {
+      "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-01.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360582971,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-00.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360582968,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017": {
+        "address": "ac-efpuavo-shard-00-02.sq4227p.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 360562307,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      }
+    },
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-n08s5r-shard-0",
+    "maxElectionId": {
+      "$oid": "7fffffff0000000000000107"
+    },
+    "maxSetVersion": 269,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": null
+  }
+}
+[2025-11-09T06:30:00.070Z] [INFO] [PID:28876] 🔄 Starting scheduled shipment tracking...
+[2025-11-09T06:30:00.186Z] [INFO] [PID:28876] 🔍 Found 14 orders to track
+[2025-11-09T06:30:00.189Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:00.192Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:00.194Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000361",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:00.415Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:00.416Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:01.427Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:01.430Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:01.432Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000416",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:01.523Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:01.526Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:02.542Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:02.543Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:02.545Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000641",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:02.624Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:02.625Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:03.627Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:03.629Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:03.631Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001046",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:03.746Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-09T06:30:03.748Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:04.762Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:04.764Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:04.766Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001083",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:04.845Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-09T06:30:04.847Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:05.865Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:05.873Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:05.878Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001120",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:05.961Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:05.965Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:06.978Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:06.980Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:06.982Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001131",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:07.070Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:07.073Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:08.082Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:08.084Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:08.086Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001142",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:08.162Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:08.163Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:09.177Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:09.179Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:09.181Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001153",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:09.269Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:09.271Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:10.287Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:10.288Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:10.289Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001164",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:10.366Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:10.368Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-09T06:30:11.377Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:11.378Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:11.380Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001175",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:11.455Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:11.456Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:12.462Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-09T06:30:12.464Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:12.466Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001186",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:12.536Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-09T06:30:12.537Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-09T06:30:13.539Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:13.542Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:13.544Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001190",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:13.621Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-09T06:30:13.623Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-09T06:30:14.626Z] [INFO] [PID:28876] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "new"
+}
+[2025-11-09T06:30:14.629Z] [INFO] [PID:28876] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-09T06:30:14.631Z] [INFO] [PID:28876] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001260",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-09T06:30:14.723Z] [INFO] [PID:28876] ✅ Tracking successful | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-09T06:30:14.724Z] [INFO] [PID:28876] 📊 No status change needed | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "new"
+}
+[2025-11-09T06:30:15.732Z] [INFO] [PID:28876] ✅ Completed scheduled shipment tracking
