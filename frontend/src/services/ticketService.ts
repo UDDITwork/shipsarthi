@@ -11,9 +11,12 @@ export interface Ticket {
   status: 'open' | 'in_progress' | 'waiting_customer' | 'resolved' | 'closed' | 'escalated';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   attachments?: Array<{
+    _id?: string;
     file_url: string;
     file_type: string;
     file_name: string;
+    file_size?: number;
+    mimetype?: string;
   }>;
   createdAt?: string;
   created_at?: string;
@@ -27,9 +30,12 @@ export interface Ticket {
     message?: string;
     comment?: string;
     attachments?: Array<{
+      _id?: string;
       file_url: string;
       file_type: string;
       file_name: string;
+      file_size?: number;
+      mimetype?: string;
     }>;
     timestamp?: string;
     created_at?: string;
@@ -37,16 +43,38 @@ export interface Ticket {
   }>;
 }
 
+export interface TicketStatusCounts {
+  open: number;
+  in_progress: number;
+  waiting_customer: number;
+  resolved: number;
+  closed: number;
+  escalated: number;
+  [key: string]: number;
+}
+
 export interface TicketStats {
-  status_counts: {
-    open: number;
-    resolved: number;
-    closed: number;
-    all: number;
+  period_days: number;
+  summary: {
+    total_tickets: number;
+    avg_resolution_time: number;
+    status_breakdown: {
+      [status: string]: {
+        count: number;
+        avg_resolution_time: number;
+      };
+    };
+    category_breakdown: Array<{
+      _id: string;
+      count: number;
+      avg_priority?: number;
+    }>;
   };
-  category_breakdown: Array<{
+  status_counts: TicketStatusCounts;
+  detailed_stats: Array<{
     _id: string;
     count: number;
+    avg_resolution_time: number;
   }>;
 }
 

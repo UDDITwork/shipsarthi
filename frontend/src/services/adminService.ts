@@ -1,4 +1,5 @@
 import { apiService } from './api';
+import { environmentConfig } from '../config/environment';
 
 export interface AdminClient {
   _id: string;
@@ -95,16 +96,22 @@ export interface AdminTicket {
     message?: string;
     timestamp: string;
     is_internal?: boolean;
-    attachments: Array<{
+    attachments?: Array<{
+      _id?: string;
       file_name: string;
       file_url: string;
       file_type: string;
+      file_size?: number;
+      mimetype?: string;
     }>;
   }>;
-  attachments: Array<{
+  attachments?: Array<{
+    _id?: string;
     file_name: string;
     file_url: string;
     file_type: string;
+    file_size?: number;
+    mimetype?: string;
   }>;
 }
 
@@ -124,8 +131,28 @@ export interface AdminTicketsResponse {
       status_breakdown: {
         [key: string]: number;
       };
+      status_counts?: {
+        [key: string]: number;
+      };
     };
   };
+}
+
+export interface AdminTicketUpdateData {
+  ticket?: AdminTicket;
+  previous_status?: string;
+  current_status?: string;
+  previous_priority?: string;
+  current_priority?: string;
+  status_counts?: {
+    [key: string]: number;
+  };
+}
+
+export interface AdminTicketUpdateResponse {
+  success: boolean;
+  message: string;
+  data?: AdminTicketUpdateData;
 }
 
 export interface AdminDashboardResponse {
@@ -496,14 +523,63 @@ class AdminService {
     return response;
   }
 
-  async updateTicketStatus(ticketId: string, status: string, reason?: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiService.patch<{ success: boolean; message: string }>(`/admin/tickets/${ticketId}/status`, {
+  async updateTicketStatus(ticketId: string, status: string, reason?: string): Promise<AdminTicketUpdateResponse> {
+    const response = await apiService.patch<AdminTicketUpdateResponse>(`/admin/tickets/${ticketId}/status`, {
       status,
       reason
     }, {
       headers: this.getAdminHeaders()
     });
     return response;
+  }
+
+  async updateTicketPriority(ticketId: string, priority: 'low' | 'medium' | 'high' | 'urgent', reason?: string): Promise<AdminTicketUpdateResponse> {
+    const response = await apiService.patch<AdminTicketUpdateResponse>(`/admin/tickets/${ticketId}/priority`, {
+      priority,
+      reason
+    }, {
+      headers: this.getAdminHeaders()
+    });
+    return response;
+  }
+
+  async downloadAttachment(ticketId: string, attachmentId: string, fallbackName?: string): Promise<{
+    blob: Blob;
+    contentType: string;
+    filename: string;
+  }> {
+    const downloadUrl = `${environmentConfig.apiUrl}/admin/tickets/${ticketId}/attachments/${attachmentId}/download`;
+
+    const response = await fetch(downloadUrl, {
+      method: 'GET',
+      headers: {
+        ...this.getAdminHeaders()
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Failed to download attachment' }));
+      throw new Error(errorData.message || 'Failed to download attachment');
+    }
+
+    const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+    const contentDisposition = response.headers.get('Content-Disposition');
+
+    let filename = fallbackName || `attachment-${attachmentId}`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = decodeURIComponent(filenameMatch[1].replace(/['"]/g, ''));
+      }
+    }
+
+    const blob = await response.blob();
+
+    return {
+      blob,
+      contentType,
+      filename
+    };
   }
 
   async assignTicket(ticketId: string, assignedTo: string, department: string = 'customer_service'): Promise<{ success: boolean; message: string }> {

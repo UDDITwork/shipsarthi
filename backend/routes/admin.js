@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const XLSX = require('xlsx');
 const router = express.Router();
+const https = require('https');
+const http = require('http');
 const User = require('../models/User');
 const Order = require('../models/Order');
 const Package = require('../models/Package');
@@ -14,6 +16,170 @@ const ShipmentTrackingEvent = require('../models/ShipmentTrackingEvent');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
+const STATUS_KEYS = ['open', 'in_progress', 'waiting_customer', 'resolved', 'closed', 'escalated'];
+
+const formatStatusCounts = (stats = []) => {
+  const counts = STATUS_KEYS.reduce((acc, key) => {
+    acc[key] = 0;
+    return acc;
+  }, {});
+
+  stats.forEach(stat => {
+    if (stat && stat._id && typeof counts[stat._id] === 'number') {
+      counts[stat._id] = stat.count || 0;
+    }
+  });
+
+  return counts;
+};
+
+const sanitizeFilename = (filename = 'attachment') => {
+  const defaultName = 'attachment';
+  if (typeof filename !== 'string' || !filename.trim()) return defaultName;
+  return filename.replace(/[/\\?%*:|"<>]/g, '_');
+};
+
+const buildContentDisposition = (filename) => {
+  const safeFilename = sanitizeFilename(filename);
+  const asciiFilename = safeFilename.replace(/["]/g, '');
+  return `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`;
+};
+
+const resolveMimeType = (attachment) => {
+  if (attachment?.mimetype) {
+    return attachment.mimetype;
+  }
+
+  const extension = (attachment?.file_name || '').split('.').pop()?.toLowerCase();
+
+  const extensionMap = {
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    mp3: 'audio/mpeg',
+    wav: 'audio/wav',
+    ogg: 'audio/ogg',
+    mp4: 'video/mp4',
+    mpeg: 'video/mpeg',
+    mov: 'video/quicktime'
+  };
+
+  if (extension && extensionMap[extension]) {
+    return extensionMap[extension];
+  }
+
+  switch (attachment?.file_type) {
+    case 'image':
+      return 'image/jpeg';
+    case 'audio':
+      return 'audio/mpeg';
+    case 'video':
+      return 'video/mp4';
+    case 'document':
+    default:
+      return 'application/octet-stream';
+  }
+};
+
+const findAttachmentById = (ticketDoc, attachmentId) => {
+  if (!ticketDoc || !attachmentId) return null;
+
+  if (typeof ticketDoc.attachments?.id === 'function') {
+    const directAttachment = ticketDoc.attachments.id(attachmentId);
+    if (directAttachment) {
+      return directAttachment;
+    }
+  }
+
+  if (Array.isArray(ticketDoc.conversation)) {
+    for (const message of ticketDoc.conversation) {
+      if (typeof message.attachments?.id === 'function') {
+        const messageAttachment = message.attachments.id(attachmentId);
+        if (messageAttachment) {
+          return messageAttachment;
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
+const streamAttachmentFromUrl = (res, fileUrl, filename, mimeType = 'application/octet-stream') => {
+  if (!fileUrl) {
+    return res.status(400).json({
+      success: false,
+      message: 'Attachment URL missing'
+    });
+  }
+
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(fileUrl);
+  } catch (error) {
+    logger.error('Attachment download URL parse error:', error);
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid attachment URL'
+    });
+  }
+
+  const client = parsedUrl.protocol === 'https:' ? https : http;
+  const request = client.get(fileUrl, (fileResponse) => {
+    if (!fileResponse || fileResponse.statusCode >= 400) {
+      logger.error('Attachment download upstream error', {
+        statusCode: fileResponse?.statusCode,
+        statusMessage: fileResponse?.statusMessage
+      });
+      if (!res.headersSent) {
+        res.status(502).json({
+          success: false,
+          message: 'Failed to fetch attachment from storage'
+        });
+      }
+      return;
+    }
+
+    const contentType =
+      mimeType ||
+      fileResponse.headers['content-type'] ||
+      'application/octet-stream';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', buildContentDisposition(filename));
+
+    if (fileResponse.headers['content-length']) {
+      res.setHeader('Content-Length', fileResponse.headers['content-length']);
+    }
+
+    fileResponse.pipe(res);
+  });
+
+  request.on('error', (error) => {
+    logger.error('Attachment download request error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: 'Error downloading attachment'
+      });
+    }
+  });
+
+  request.setTimeout(30000, () => {
+    request.destroy();
+    if (!res.headersSent) {
+      res.status(504).json({
+        success: false,
+        message: 'Attachment download timed out'
+      });
+    }
+  });
+};
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ 
@@ -648,7 +814,8 @@ router.get('/clients/:id/tickets', async (req, res) => {
           status_breakdown: stats.reduce((acc, stat) => {
             acc[stat._id] = stat.count;
             return acc;
-          }, {})
+          }, {}),
+          status_counts: formatStatusCounts(stats)
         }
       }
     });
@@ -740,6 +907,7 @@ router.get('/tickets', async (req, res) => {
             acc[stat._id] = stat.count;
             return acc;
           }, {}),
+          status_counts: formatStatusCounts(stats),
           category_breakdown: categoryStats
         }
       }
@@ -790,6 +958,53 @@ router.get('/tickets/:id', async (req, res) => {
       success: false,
       message: 'Error fetching ticket details',
       error: error.message
+    });
+  }
+});
+
+// @desc    Download ticket attachment (admin)
+// @route   GET /api/admin/tickets/:ticketId/attachments/:attachmentId/download
+// @access  Admin
+router.get('/tickets/:ticketId/attachments/:attachmentId/download', async (req, res) => {
+  try {
+    const { ticketId, attachmentId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId) || !mongoose.Types.ObjectId.isValid(attachmentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid ticket or attachment ID'
+      });
+    }
+
+    const ticket = await SupportTicket.findById(ticketId);
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ticket not found'
+      });
+    }
+
+    const attachment = findAttachmentById(ticket, attachmentId);
+
+    if (!attachment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attachment not found'
+      });
+    }
+
+    streamAttachmentFromUrl(
+      res,
+      attachment.file_url,
+      attachment.file_name,
+      resolveMimeType(attachment)
+    );
+  } catch (error) {
+    logger.error('Error downloading ticket attachment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error downloading attachment'
     });
   }
 });
@@ -935,16 +1150,27 @@ router.patch('/tickets/:id/status', async (req, res) => {
     const statusMessage = `Ticket status changed from "${previousStatus}" to "${status}"${reason ? `. Reason: ${reason}` : ''}`;
     await ticket.addMessage('system', 'System', statusMessage, [], true);
     
-    // Save the ticket
-    await ticket.save();
+    // Fetch fresh ticket data
+    const updatedTicket = await SupportTicket.findById(ticket._id)
+      .populate('user_id', 'company_name your_name email phone_number client_id')
+      .populate('related_orders', 'order_id customer_info.buyer_name status');
+
+    const clientIdForStats = updatedTicket?.user_id?._id || updatedTicket?.user_id;
+    let clientStatusCounts = null;
+
+    if (clientIdForStats) {
+      const stats = await SupportTicket.getTicketStats(clientIdForStats, null, null);
+      clientStatusCounts = formatStatusCounts(stats);
+    }
 
     res.json({
       success: true,
       message: 'Ticket status updated successfully',
       data: {
-        ticket_id: ticket.ticket_id,
+        ticket: updatedTicket,
         previous_status: previousStatus,
-        current_status: ticket.status
+        current_status: status,
+        status_counts: clientStatusCounts
       }
     });
 
@@ -953,6 +1179,89 @@ router.patch('/tickets/:id/status', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error updating ticket status',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Admin update ticket priority
+// @route   PATCH /api/admin/tickets/:id/priority
+// @access  Admin
+router.patch('/tickets/:id/priority', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid ticket ID'
+      });
+    }
+
+    const { priority, reason = '' } = req.body;
+    const validPriorities = ['low', 'medium', 'high', 'urgent'];
+
+    if (!priority || !validPriorities.includes(priority)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid priority value'
+      });
+    }
+
+    const ticket = await SupportTicket.findById(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ticket not found'
+      });
+    }
+
+    const previousPriority = ticket.priority;
+
+    if (previousPriority === priority) {
+      return res.json({
+        success: true,
+        message: 'Priority unchanged',
+        data: {
+          ticket_id: ticket.ticket_id,
+          previous_priority: previousPriority,
+          current_priority: ticket.priority
+        }
+      });
+    }
+
+    ticket.priority = priority;
+
+    const priorityMessage = `Ticket priority changed from "${previousPriority}" to "${priority}"${reason ? `. Reason: ${reason}` : ''}`;
+    await ticket.addMessage('system', 'System', priorityMessage, [], true);
+
+    const updatedTicket = await SupportTicket.findById(ticket._id)
+      .populate('user_id', 'company_name your_name email phone_number client_id')
+      .populate('related_orders', 'order_id customer_info.buyer_name status');
+
+    const clientIdForStats = updatedTicket?.user_id?._id || updatedTicket?.user_id;
+    let clientStatusCounts = null;
+
+    if (clientIdForStats) {
+      const stats = await SupportTicket.getTicketStats(clientIdForStats, null, null);
+      clientStatusCounts = formatStatusCounts(stats);
+    }
+
+    res.json({
+      success: true,
+      message: 'Ticket priority updated successfully',
+      data: {
+        ticket: updatedTicket,
+        previous_priority: previousPriority,
+        current_priority: priority,
+        status_counts: clientStatusCounts
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error updating ticket priority:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating ticket priority',
       error: error.message
     });
   }

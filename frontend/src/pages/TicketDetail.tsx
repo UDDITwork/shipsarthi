@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { ticketService, Ticket } from '../services/ticketService';
 import { ArrowLeft, Send, Paperclip, User, MessageSquare } from 'lucide-react';
 import './TicketDetail.css';
+import { environmentConfig } from '../config/environment';
 
 const TicketDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ const TicketDetail: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<string | null>(null);
 
   const fetchTicket = useCallback(async () => {
     if (!id) return;
@@ -34,6 +36,105 @@ const TicketDetail: React.FC = () => {
       fetchTicket();
     }
   }, [id, fetchTicket]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      fetchTicket();
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [fetchTicket]);
+
+  const handleAttachmentDownload = useCallback(async (attachment: any) => {
+    if (!ticket || !attachment) {
+      return;
+    }
+
+    const attachmentKey = attachment._id || attachment.file_url;
+
+    if (!attachment._id || !attachmentKey) {
+      if (attachment.file_url) {
+        window.open(attachment.file_url, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    const downloadUrl = `${environmentConfig.apiUrl}/support/${ticket._id}/attachments/${attachment._id}/download`;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert('Please log in to download attachments.');
+      return;
+    }
+
+    try {
+      setDownloadingAttachmentId(attachmentKey);
+
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to download attachment' }));
+        throw new Error(errorData.message || 'Failed to download attachment');
+      }
+
+      const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+      const contentDisposition = response.headers.get('Content-Disposition');
+
+      let filename = attachment.file_name || 'attachment';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = decodeURIComponent(filenameMatch[1].replace(/['"]/g, ''));
+        }
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const isViewable = contentType.startsWith('application/pdf') || contentType.startsWith('image/');
+
+      if (isViewable) {
+        const newWindow = window.open(blobUrl, '_blank');
+        if (!newWindow) {
+          alert('Please allow popups to view the attachment.');
+        }
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(blobUrl);
+          } catch (error) {
+            console.warn('Error revoking blob URL:', error);
+          }
+        }, 60_000);
+      } else {
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(blobUrl);
+          } catch (error) {
+            console.warn('Error revoking blob URL:', error);
+          }
+        }, 10_000);
+      }
+    } catch (error: any) {
+      console.error('Error downloading attachment:', error);
+      alert(error?.message || 'Failed to download attachment. Please try again.');
+    } finally {
+      setDownloadingAttachmentId(null);
+    }
+  }, [ticket]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -177,7 +278,7 @@ const TicketDetail: React.FC = () => {
                         <MessageSquare size={16} />
                       )}
                       <span className="sender-name">
-                        {msg.message_type === 'user' ? 'You' : msg.sender_name || 'Admin'}
+                        {msg.message_type === 'user' ? 'You' : 'Shipsarthi Support'}
                       </span>
                     </div>
                     <span className="message-time">
@@ -189,18 +290,25 @@ const TicketDetail: React.FC = () => {
                   </div>
                   {msg.attachments && msg.attachments.length > 0 && (
                     <div className="message-attachments">
-                      {msg.attachments.map((att, attIndex) => (
-                        <a 
-                          key={attIndex} 
-                          href={att.file_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="attachment-link"
-                        >
-                          <Paperclip size={14} />
-                          {att.file_name}
-                        </a>
-                      ))}
+                      <span className="attachments-label">Attachments:</span>
+                      <div className="attachments-list">
+                        {msg.attachments.map((att, attIndex) => {
+                          const attachmentKey = att._id || att.file_url || `${attIndex}`;
+                          const isDownloading = downloadingAttachmentId === attachmentKey;
+                          return (
+                          <button
+                            key={attachmentKey}
+                            type="button"
+                            className="attachment-link"
+                            onClick={() => handleAttachmentDownload(att)}
+                            disabled={isDownloading}
+                          >
+                            <Paperclip size={14} />
+                            {isDownloading ? 'Downloading...' : att.file_name || `Attachment ${attIndex + 1}`}
+                          </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

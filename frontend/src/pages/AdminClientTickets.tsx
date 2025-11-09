@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Phone, Mail, Building, Filter, Search, Send } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Phone, Mail, Building, Filter, Search, Send, Paperclip } from 'lucide-react';
 import { adminService, AdminTicket, AdminClient } from '../services/adminService';
 import './AdminClientTickets.css';
 
@@ -15,6 +15,7 @@ const AdminClientTickets: React.FC = () => {
   const [stats, setStats] = useState<{
     total_tickets: number;
     status_breakdown: { [key: string]: number };
+    status_counts?: { [key: string]: number };
   } | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,11 @@ const AdminClientTickets: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [statusDraft, setStatusDraft] = useState<AdminTicket['status'] | ''>('');
+  const [priorityDraft, setPriorityDraft] = useState<AdminTicket['priority']>('medium');
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingPriority, setUpdatingPriority] = useState(false);
+  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<string | null>(null);
 
   // Fetch selected ticket details when ticketId changes
   useEffect(() => {
@@ -113,6 +119,8 @@ const AdminClientTickets: React.FC = () => {
     try {
       const response = await adminService.getTicketDetails(ticketIdParam);
       setSelectedTicket(response.data);
+      setStatusDraft(response.data.status);
+      setPriorityDraft(response.data.priority);
     } catch (err: any) {
       console.error('Error fetching ticket details:', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch ticket details');
@@ -170,16 +178,109 @@ const AdminClientTickets: React.FC = () => {
     }
   }, [clientId, filters.status, filters.category, filters.search, filters.page, fetchTickets]);
 
-  const updateTicketStatus = async (ticketIdParam: string, status: string) => {
+  useEffect(() => {
+    if (selectedTicket) {
+      setStatusDraft(selectedTicket.status);
+      setPriorityDraft(selectedTicket.priority);
+    } else {
+      setStatusDraft('');
+      setPriorityDraft('medium');
+    }
+  }, [selectedTicket]);
+
+  const updateTicketStatus = async (
+    ticketIdParam: string,
+    status: AdminTicket['status'] | ''
+  ) => {
+    if (!status) return;
     try {
+      setUpdatingStatus(true);
       await adminService.updateTicketStatus(ticketIdParam, status);
-      // Refresh ticket details
       await fetchTicketDetails(ticketIdParam);
-      // Refresh tickets list
       await fetchTickets();
+      setStatusDraft(status);
     } catch (err: any) {
       console.error('Error updating ticket status:', err);
       setError(err.response?.data?.message || err.message || 'Failed to update ticket status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const updateTicketPriority = async (ticketIdParam: string, priority: AdminTicket['priority']) => {
+    if (!priority) return;
+    try {
+      setUpdatingPriority(true);
+      await adminService.updateTicketPriority(ticketIdParam, priority);
+      await fetchTicketDetails(ticketIdParam);
+      await fetchTickets();
+      setPriorityDraft(priority);
+    } catch (err: any) {
+      console.error('Error updating ticket priority:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to update ticket priority');
+    } finally {
+      setUpdatingPriority(false);
+    }
+  };
+
+  const handleAttachmentDownload = async (attachment: any, attachmentKey: string) => {
+    if (!selectedTicket || !attachment) {
+      return;
+    }
+
+    if (!attachment._id) {
+      if (attachment.file_url) {
+        window.open(attachment.file_url, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    try {
+      setDownloadingAttachmentId(attachmentKey);
+
+      const { blob, contentType, filename } = await adminService.downloadAttachment(
+        selectedTicket._id,
+        attachment._id,
+        attachment.file_name
+      );
+
+      const blobUrl = URL.createObjectURL(blob);
+      const isViewable = contentType.startsWith('application/pdf') || contentType.startsWith('image/');
+
+      if (isViewable) {
+        const newWindow = window.open(blobUrl, '_blank');
+        if (!newWindow) {
+          alert('Please allow popups to view the attachment.');
+        }
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(blobUrl);
+          } catch (error) {
+            console.warn('Error revoking blob URL:', error);
+          }
+        }, 60_000);
+      } else {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = blobUrl;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(blobUrl);
+          } catch (error) {
+            console.warn('Error revoking blob URL:', error);
+          }
+        }, 10_000);
+      }
+    } catch (err: any) {
+      console.error('Error downloading attachment:', err);
+      const message = err?.message || 'Failed to download attachment';
+      setError(message);
+      alert(message);
+    } finally {
+      setDownloadingAttachmentId(null);
     }
   };
 
@@ -356,15 +457,21 @@ const AdminClientTickets: React.FC = () => {
           </div>
           <div className="stat-item">
             <span className="stat-label">Open:</span>
-            <span className="stat-value text-blue-600">{stats.status_breakdown.open || 0}</span>
+            <span className="stat-value text-blue-600">
+              {stats.status_counts?.open ?? stats.status_breakdown.open ?? 0}
+            </span>
           </div>
           <div className="stat-item">
             <span className="stat-label">In Progress:</span>
-            <span className="stat-value text-yellow-600">{stats.status_breakdown.in_progress || 0}</span>
+            <span className="stat-value text-yellow-600">
+              {stats.status_counts?.in_progress ?? stats.status_breakdown.in_progress ?? 0}
+            </span>
           </div>
           <div className="stat-item">
             <span className="stat-label">Resolved:</span>
-            <span className="stat-value text-green-600">{stats.status_breakdown.resolved || 0}</span>
+            <span className="stat-value text-green-600">
+              {stats.status_counts?.resolved ?? stats.status_breakdown.resolved ?? 0}
+            </span>
           </div>
         </div>
       )}
@@ -548,18 +655,27 @@ const AdminClientTickets: React.FC = () => {
                           </div>
                           {message.attachments && message.attachments.length > 0 && (
                             <div className="message-attachments">
-                              <strong>Attachments:</strong>
-                              {message.attachments.map((attachment, idx) => (
-                                <a
-                                  key={idx}
-                                  href={attachment.file_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="attachment-link"
-                                >
-                                  {attachment.file_name}
-                                </a>
-                              ))}
+                              <span className="attachments-label">Attachments:</span>
+                              <div className="attachments-list">
+                                {message.attachments.map((attachment, idx) => {
+                                  const attachmentKey = attachment._id || attachment.file_url || `${idx}`;
+                                  const isDownloading = downloadingAttachmentId === attachmentKey;
+                                  return (
+                                  <button
+                                    key={attachmentKey}
+                                    type="button"
+                                    className="attachment-link"
+                                    onClick={() => handleAttachmentDownload(attachment, attachmentKey)}
+                                    disabled={isDownloading}
+                                  >
+                                    <Paperclip size={14} />
+                                    {isDownloading
+                                      ? 'Downloading...'
+                                      : attachment.file_name || `Attachment ${idx + 1}`}
+                                  </button>
+                                  );
+                                })}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -580,18 +696,54 @@ const AdminClientTickets: React.FC = () => {
                 
                 <div className="action-group">
                   <label>Update Status</label>
-                  <select
-                    value={selectedTicket.status}
-                    onChange={(e) => updateTicketStatus(selectedTicket._id, e.target.value)}
-                    className="status-select"
-                  >
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="waiting_customer">Waiting Customer</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
-                    <option value="escalated">Escalated</option>
-                  </select>
+                  <div className="action-row">
+                    <select
+                      value={statusDraft}
+                      onChange={(e) => setStatusDraft(e.target.value as AdminTicket['status'])}
+                      className="status-select"
+                    >
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="closed">Closed</option>
+                      <option value="escalated">Escalated</option>
+                    </select>
+                    <button
+                      onClick={() => updateTicketStatus(selectedTicket._id, statusDraft)}
+                      disabled={!statusDraft || statusDraft === selectedTicket.status || updatingStatus}
+                      className="confirm-button"
+                    >
+                      {updatingStatus ? 'Updating...' : 'Confirm'}
+                    </button>
+                  </div>
+                  {selectedTicket.status === 'waiting_customer' && (
+                    <p className="status-hint">
+                      Currently waiting on client response. You can move to another status once ready.
+                    </p>
+                  )}
+                </div>
+
+                <div className="action-group">
+                  <label>Update Priority</label>
+                  <div className="action-row">
+                    <select
+                      value={priorityDraft}
+                      onChange={(e) => setPriorityDraft(e.target.value as AdminTicket['priority'])}
+                      className="status-select"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="urgent">Urgent</option>
+                    </select>
+                    <button
+                      onClick={() => updateTicketPriority(selectedTicket._id, priorityDraft)}
+                      disabled={!priorityDraft || priorityDraft === selectedTicket.priority || updatingPriority}
+                      className="confirm-button"
+                    >
+                      {updatingPriority ? 'Updating...' : 'Confirm'}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="action-group">

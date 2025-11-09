@@ -5,6 +5,9 @@ const fileAttachmentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  mimetype: {
+    type: String
+  },
   file_url: {
     type: String,
     required: true

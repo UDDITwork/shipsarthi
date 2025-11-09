@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
-import { ticketService, Ticket, TicketStats } from '../services/ticketService';
+import { ticketService, Ticket, TicketStats, TicketStatusCounts } from '../services/ticketService';
 import './Support.css';
 
 type TicketStatus = 'open' | 'resolved' | 'closed' | 'all';
@@ -14,10 +14,17 @@ interface Category {
   description: string;
 }
 
-const DEFAULT_STATUS_COUNTS: TicketStats['status_counts'] = {
+type ClientStatusCounts = TicketStatusCounts & {
+  all: number;
+};
+
+const DEFAULT_STATUS_COUNTS: ClientStatusCounts = {
   open: 0,
+  in_progress: 0,
+  waiting_customer: 0,
   resolved: 0,
   closed: 0,
+  escalated: 0,
   all: 0
 };
 
@@ -36,7 +43,7 @@ const Support: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   // Statistics
-  const [stats, setStats] = useState<TicketStats['status_counts']>(DEFAULT_STATUS_COUNTS);
+  const [stats, setStats] = useState<ClientStatusCounts>(DEFAULT_STATUS_COUNTS);
 
   const categories: Category[] = [
     {
@@ -126,21 +133,21 @@ const Support: React.FC = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await ticketService.getStats();
-      const statusCounts =
-        response?.status_counts ||
-        (response as any)?.data?.status_counts;
+      const statsResponse = await ticketService.getStats();
+      const statusCounts = statsResponse?.status_counts ?? ({} as TicketStatusCounts);
 
-      if (statusCounts) {
-        setStats({
-          open: Number(statusCounts.open ?? 0),
-          resolved: Number(statusCounts.resolved ?? 0),
-          closed: Number(statusCounts.closed ?? 0),
-          all: Number(statusCounts.all ?? 0)
-        });
-      } else {
-        setStats(DEFAULT_STATUS_COUNTS);
-      }
+      const mergedCounts: ClientStatusCounts = {
+        ...DEFAULT_STATUS_COUNTS,
+        ...statusCounts,
+        all: Object.values(statusCounts).reduce((total, value) => {
+          if (typeof value === 'number' && !Number.isNaN(value)) {
+            return total + value;
+          }
+          return total;
+        }, 0)
+      };
+
+      setStats(mergedCounts);
     } catch (error) {
       console.error('Error fetching stats:', error);
       setStats(DEFAULT_STATUS_COUNTS);

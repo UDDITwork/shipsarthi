@@ -2,6 +2,8 @@ const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const moment = require('moment');
 const multer = require('multer');
+const https = require('https');
+const http = require('http');
 const { auth } = require('../middleware/auth');
 const SupportTicket = require('../models/Support');
 const websocketService = require('../services/websocketService');
@@ -9,6 +11,183 @@ const cloudinaryService = require('../services/cloudinaryService');
 
 const router = express.Router();
 const isDev = process.env.NODE_ENV !== 'production';
+
+const STATUS_KEYS = ['open', 'in_progress', 'waiting_customer', 'resolved', 'closed', 'escalated'];
+
+const formatStatusCounts = (stats = []) => {
+  const counts = STATUS_KEYS.reduce((acc, key) => {
+    acc[key] = 0;
+    return acc;
+  }, {});
+
+  stats.forEach(stat => {
+    if (stat && stat._id && typeof counts[stat._id] === 'number') {
+      counts[stat._id] = stat.count || 0;
+    }
+  });
+
+  return counts;
+};
+
+const sanitizeTicketForClient = (ticketDoc) => {
+  if (!ticketDoc) return null;
+
+  const ticket = typeof ticketDoc.toObject === 'function' ? ticketDoc.toObject() : ticketDoc;
+
+  if (ticket.conversation && Array.isArray(ticket.conversation)) {
+    ticket.conversation = ticket.conversation.filter(msg => !msg.is_internal);
+  }
+
+  return ticket;
+};
+
+const findAttachmentById = (ticketDoc, attachmentId) => {
+  if (!ticketDoc || !attachmentId) return null;
+
+  if (typeof ticketDoc.attachments?.id === 'function') {
+    const directAttachment = ticketDoc.attachments.id(attachmentId);
+    if (directAttachment) {
+      return directAttachment;
+    }
+  }
+
+  if (Array.isArray(ticketDoc.conversation)) {
+    for (const message of ticketDoc.conversation) {
+      if (typeof message.attachments?.id === 'function') {
+        const messageAttachment = message.attachments.id(attachmentId);
+        if (messageAttachment) {
+          return messageAttachment;
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
+const sanitizeFilename = (filename = 'attachment') => {
+  const defaultName = 'attachment';
+  if (typeof filename !== 'string' || !filename.trim()) return defaultName;
+  return filename.replace(/[/\\?%*:|"<>]/g, '_');
+};
+
+const buildContentDisposition = (filename) => {
+  const safeFilename = sanitizeFilename(filename);
+  const asciiFilename = safeFilename.replace(/["]/g, '');
+  return `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`;
+};
+
+const resolveMimeType = (attachment) => {
+  if (attachment?.mimetype) {
+    return attachment.mimetype;
+  }
+
+  const extension = (attachment?.file_name || '').split('.').pop()?.toLowerCase();
+
+  const extensionMap = {
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    mp3: 'audio/mpeg',
+    wav: 'audio/wav',
+    ogg: 'audio/ogg',
+    mp4: 'video/mp4',
+    mpeg: 'video/mpeg',
+    mov: 'video/quicktime'
+  };
+
+  if (extension && extensionMap[extension]) {
+    return extensionMap[extension];
+  }
+
+  switch (attachment?.file_type) {
+    case 'image':
+      return 'image/jpeg';
+    case 'audio':
+      return 'audio/mpeg';
+    case 'video':
+      return 'video/mp4';
+    case 'document':
+    default:
+      return 'application/octet-stream';
+  }
+};
+
+const streamAttachmentFromUrl = (res, fileUrl, filename, mimeType = 'application/octet-stream') => {
+  if (!fileUrl) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Attachment URL missing'
+    });
+  }
+
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(fileUrl);
+  } catch (error) {
+    console.error('Attachment download URL parse error:', error);
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid attachment URL'
+    });
+  }
+
+  const client = parsedUrl.protocol === 'https:' ? https : http;
+  const request = client.get(fileUrl, (fileResponse) => {
+    if (!fileResponse || fileResponse.statusCode >= 400) {
+      console.error('Attachment download upstream error', {
+        statusCode: fileResponse?.statusCode,
+        statusMessage: fileResponse?.statusMessage
+      });
+      if (!res.headersSent) {
+        res.status(502).json({
+          status: 'error',
+          message: 'Failed to fetch attachment from storage'
+        });
+      }
+      return;
+    }
+
+    const contentType =
+      mimeType ||
+      fileResponse.headers['content-type'] ||
+      'application/octet-stream';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', buildContentDisposition(filename));
+
+    if (fileResponse.headers['content-length']) {
+      res.setHeader('Content-Length', fileResponse.headers['content-length']);
+    }
+
+    fileResponse.pipe(res);
+  });
+
+  request.on('error', (error) => {
+    console.error('Attachment download request error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        status: 'error',
+        message: 'Error downloading attachment'
+      });
+    }
+  });
+
+  request.setTimeout(30000, () => {
+    request.destroy();
+    if (!res.headersSent) {
+      res.status(504).json({
+        status: 'error',
+        message: 'Attachment download timed out'
+      });
+    }
+  });
+};
 
 // Configure multer (in-memory) for file uploads
 const upload = multer({
@@ -132,6 +311,49 @@ router.get('/', auth, [
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching tickets'
+    });
+  }
+});
+
+// @desc    Download ticket attachment with original filename
+// @route   GET /api/support/:ticketId/attachments/:attachmentId/download
+// @access  Private
+router.get('/:ticketId/attachments/:attachmentId/download', auth, async (req, res) => {
+  try {
+    const { ticketId, attachmentId } = req.params;
+
+    const ticket = await SupportTicket.findOne({
+      _id: ticketId,
+      user_id: req.user._id
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Ticket not found'
+      });
+    }
+
+    const attachment = findAttachmentById(ticket, attachmentId);
+
+    if (!attachment) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Attachment not found'
+      });
+    }
+
+    streamAttachmentFromUrl(
+      res,
+      attachment.file_url,
+      attachment.file_name,
+      resolveMimeType(attachment)
+    );
+  } catch (error) {
+    console.error('Download attachment error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error downloading attachment'
     });
   }
 });
@@ -312,6 +534,7 @@ router.post('/', auth, upload.array('attachments', 5), [
 
         attachments.push({
           file_name: file.originalname,
+          mimetype: file.mimetype,
           file_url: uploadResult.url,
           file_type: fileType,
           file_size: file.size
@@ -546,6 +769,7 @@ router.post('/:id/messages', auth, upload.fields([
 
         attachments.push({
           file_name: file.originalname,
+          mimetype: file.mimetype,
           file_url: uploadResult.url,
           file_type: fileType,
           file_size: file.size
@@ -628,13 +852,31 @@ router.patch('/:id/status', auth, [
     const statusMessage = `Ticket status changed from "${previousStatus}" to "${status}"${reason ? `. Reason: ${reason}` : ''}`;
     await ticket.addMessage('system', 'System', statusMessage, [], true);
 
+    // Fetch fresh ticket data for response (exclude internal messages)
+    const updatedTicket = await SupportTicket.findOne({
+      _id: ticket._id,
+      user_id: req.user._id
+    }).lean();
+
+    if (!updatedTicket) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Ticket not found after update'
+      });
+    }
+
+    // Get latest status counts for the client
+    const stats = await SupportTicket.getTicketStats(req.user._id, null, null);
+    const statusCounts = formatStatusCounts(stats);
+
     res.json({
       status: 'success',
       message: 'Ticket status updated successfully',
       data: {
-        ticket_id: ticket.ticket_id,
+        ticket: sanitizeTicketForClient(updatedTicket),
+        status_counts: statusCounts,
         previous_status: previousStatus,
-        current_status: ticket.status
+        current_status: status
       }
     });
 
@@ -741,11 +983,14 @@ router.get('/statistics/overview', auth, async (req, res) => {
       summary.avg_resolution_time = stats.reduce((acc, stat) => acc + (stat.avg_resolution_time || 0), 0) / stats.length;
     }
 
+    const statusCounts = formatStatusCounts(stats);
+
     res.json({
       status: 'success',
       data: {
         period_days: parseInt(period),
         summary,
+        status_counts: statusCounts,
         detailed_stats: stats
       }
     });

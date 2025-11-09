@@ -150,6 +150,20 @@
 .message-attachments {
   margin-top: 10px;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.attachments-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.attachments-list {
+  display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -165,10 +179,17 @@
   color: #374151;
   font-size: 12px;
   transition: background 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
 .attachment-link:hover {
   background: #d1d5db;
+}
+
+.attachment-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .no-messages {
