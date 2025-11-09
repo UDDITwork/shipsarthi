@@ -116,6 +116,14 @@ const normalizeShippingMode = (value) => {
   return normalized === 'express' ? 'Express' : 'Surface';
 };
 
+const normalizeWarehouseIdentifier = (value) => {
+  const normalized = normalizeString(value);
+  if (!normalized) {
+    return '';
+  }
+  return normalized.toLowerCase().replace(/\s+/g, ' ').trim();
+};
+
 // NOTE: Zone calculation removed - now using Delhivery API to get zone
 // Zone is fetched from Delhivery invoice/charges API response
 
@@ -346,6 +354,38 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
       details: []
     };
 
+    const userWarehouses = await Warehouse.find({
+      user_id: req.user._id,
+      is_active: true
+    }).lean();
+
+    const warehouseLookup = new Map();
+    userWarehouses.forEach((warehouseDoc) => {
+      if (!warehouseDoc) {
+        return;
+      }
+
+      const candidateKeys = [
+        warehouseDoc.name,
+        warehouseDoc.title,
+        warehouseDoc.warehouse_code
+      ];
+
+      candidateKeys.forEach((candidate) => {
+        const normalizedKey = normalizeWarehouseIdentifier(candidate);
+        if (normalizedKey && !warehouseLookup.has(normalizedKey)) {
+          warehouseLookup.set(normalizedKey, warehouseDoc);
+        }
+      });
+    });
+
+    if (warehouseLookup.size === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No active warehouses found. Please create a warehouse before using bulk import.'
+      });
+    }
+
     const requiredFields = [
       'customer_name',
       'customer_phone',
@@ -353,7 +393,6 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
       'delivery_city',
       'delivery_state',
       'delivery_pincode',
-      'pickup_name',
       'pickup_phone',
       'pickup_address',
       'pickup_city',
@@ -396,6 +435,8 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
         return '';
       };
 
+      const sheetWarehouseName = normalizeString(getCell('pickup_name', 'warehouse_name', 'warehouse'));
+
       const missingFields = [];
       requiredFields.forEach((field) => {
         const value = normalizeString(getCell(field));
@@ -422,6 +463,10 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
       const pickupPincode = normalizePincode(getCell('pickup_pincode'));
       if (!pickupPincode || pickupPincode.length !== 6) {
         missingFields.push('pickup_pincode (6 digits required)');
+      }
+
+      if (!sheetWarehouseName) {
+        missingFields.push('pickup_name (must match saved warehouse name)');
       }
 
       const quantity = Math.max(parseInteger(getCell('product_quantity'), 1), 1);
@@ -458,6 +503,21 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
         continue;
       }
 
+      const warehouseKey = normalizeWarehouseIdentifier(sheetWarehouseName);
+      const selectedWarehouse = warehouseLookup.get(warehouseKey);
+
+      if (!selectedWarehouse) {
+        importResults.failed += 1;
+        importResults.errors.push({
+          row: rowNumber,
+          error: `Warehouse "${sheetWarehouseName}" is not found in your saved warehouses. Please ensure the sheet uses a saved warehouse name.`
+        });
+        continue;
+      }
+
+      const warehouseAddress = selectedWarehouse.address || {};
+      const warehouseContact = selectedWarehouse.contact_person || {};
+
       const paymentMode = normalizePaymentMode(getCell('payment_mode'));
       const shippingMode = normalizeShippingMode(getCell('shipping_mode'));
       const orderDate = normalizeDate(getCell('order_date'));
@@ -488,14 +548,14 @@ router.post('/bulk-import', auth, upload.single('file'), async (req, res) => {
           country: normalizeString(getCell('delivery_country'), 'India')
         },
         pickup_address: {
-          warehouse_id: '',
-          name: normalizeString(getCell('pickup_name')),
-          full_address: normalizeString(getCell('pickup_address')),
-          city: normalizeString(getCell('pickup_city')),
-          state: normalizeString(getCell('pickup_state')),
-          pincode: pickupPincode,
-          phone: pickupPhone,
-          country: normalizeString(getCell('pickup_country'), 'India')
+          warehouse_id: selectedWarehouse._id ? selectedWarehouse._id.toString() : '',
+          name: normalizeString(selectedWarehouse.name || sheetWarehouseName),
+          full_address: normalizeString(warehouseAddress.full_address || getCell('pickup_address')),
+          city: normalizeString(warehouseAddress.city || getCell('pickup_city')),
+          state: normalizeString(warehouseAddress.state || getCell('pickup_state')),
+          pincode: normalizePincode(warehouseAddress.pincode || pickupPincode),
+          phone: normalizePhone(warehouseContact.phone || pickupPhone),
+          country: normalizeString(warehouseAddress.country || getCell('pickup_country'), 'India')
         },
         products: [
           {
