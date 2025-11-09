@@ -224,6 +224,7 @@
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
+  color: #111827;
   }
   
   .status-badge.open {
@@ -231,6 +232,21 @@
     color: #856404;
   }
   
+.status-badge.in_progress {
+  background-color: #E0E7FF;
+  color: #111827;
+}
+
+.status-badge.waiting_customer {
+  background-color: #FEF3C7;
+  color: #111827;
+}
+
+.status-badge.escalated {
+  background-color: #FECACA;
+  color: #111827;
+}
+
   .status-badge.resolved {
     background-color: #D4EDDA;
     color: #155724;
