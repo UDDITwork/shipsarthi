@@ -5601,3 +5601,109 @@
 [2025-11-09T13:50:58.635Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
   "clientId": "client_1762696208564_r67i6f3fs"
 }
+[2025-11-09T13:51:13.638Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:51:28.651Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:51:43.663Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:51:58.682Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:51:59.559Z] [INFO] [PID:25568] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T13:51:59.604Z] [DEBUG] [PID:25568] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T13:52:04.436Z] [INFO] [PID:25568] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T13:52:04.475Z] [DEBUG] [PID:25568] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T13:52:13.697Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:52:28.698Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:52:43.701Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:52:58.701Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:53:13.708Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:53:17.790Z] [INFO] [PID:25568] 🔌 Message broadcasted to clients | Data: {
+  "message": {
+    "type": "message_received",
+    "title": "New Message Received",
+    "message": "New message in ticket TKT176269596941571327",
+    "ticket_id": "TKT176269596941571327",
+    "client_name": "uddit",
+    "created_at": "2025-11-09T13:53:17.790Z",
+    "data": {
+      "ticket": {
+        "ticket_id": "TKT176269596941571327",
+        "_id": "69109b217e6c6cc8f7253be8",
+        "client_name": "uddit"
+      },
+      "message": {
+        "message": "Hello , you ticket is in progress",
+        "sender": "udditalerts247@gmail.com",
+        "timestamp": "2025-11-09T13:53:17.790Z"
+      }
+    }
+  },
+  "successCount": 1,
+  "errorCount": 0,
+  "totalClients": 1
+}
+[2025-11-09T13:53:17.791Z] [INFO] [PID:25568] 🔔 New message notification sent | Data: {
+  "ticketData": {
+    "ticket_id": "TKT176269596941571327",
+    "_id": "69109b217e6c6cc8f7253be8",
+    "client_name": "uddit"
+  },
+  "messageData": {
+    "message": "Hello , you ticket is in progress",
+    "sender": "udditalerts247@gmail.com",
+    "timestamp": "2025-11-09T13:53:17.790Z"
+  }
+}
+[2025-11-09T13:53:17.793Z] [INFO] [PID:25568] 🔔 Notification sent to client | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "successCount": 1,
+  "errorCount": 0,
+  "notification_type": "admin_reply"
+}
+[2025-11-09T13:53:28.710Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:53:43.714Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:53:58.721Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:54:13.723Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:54:28.733Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
+[2025-11-09T13:54:43.745Z] [DEBUG] [PID:25568] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762696208564_r67i6f3fs"
+}
