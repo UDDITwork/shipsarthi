@@ -60,7 +60,11 @@ class CloudinaryService {
         streamifier.createReadStream(fileBuffer).pipe(uploadStream);
       });
     } catch (error) {
-      throw new Error('Failed to upload file');
+      console.error('Cloudinary upload error:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(typeof error === 'string' ? error : 'Failed to upload file');
     }
   }
 

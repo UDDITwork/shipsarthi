@@ -126,13 +126,13 @@ class TicketService {
         ticketData.awb_numbers.forEach(awb => {
           const trimmedAwb = awb?.trim();
           if (trimmedAwb) {
-            formData.append('awb_numbers[]', trimmedAwb);
+            formData.append('awb_numbers', trimmedAwb);
           }
         });
-      } else if (ticketData.awb_numbers) {
+      } else if (typeof ticketData.awb_numbers === 'string') {
         const trimmedAwb = ticketData.awb_numbers.trim();
         if (trimmedAwb) {
-          formData.append('awb_numbers[]', trimmedAwb);
+          formData.append('awb_numbers', trimmedAwb);
         }
       }
     }

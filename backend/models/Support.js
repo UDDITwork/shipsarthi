@@ -273,25 +273,33 @@ supportTicketSchema.index({ created_at: -1 });
 supportTicketSchema.index({ awb_numbers: 1 });
 
 // Pre-save middleware
-supportTicketSchema.pre('save', async function(next) {
-  // Generate ticket ID if new
-  if (this.isNew && !this.ticket_id) {
-    let ticketId;
-    let isUnique = false;
+supportTicketSchema.pre('validate', async function(next) {
+  if (!this.ticket_id) {
+    try {
+      let ticketId;
+      let isUnique = false;
 
-    while (!isUnique) {
-      const randomNum = Math.floor(Math.random() * 100000);
-      ticketId = `TKT${Date.now()}${randomNum.toString().padStart(5, '0')}`;
-      const existingTicket = await this.constructor.findOne({ ticket_id: ticketId });
-      if (!existingTicket) {
-        isUnique = true;
+      while (!isUnique) {
+        const randomNum = Math.floor(Math.random() * 100000);
+        ticketId = `TKT${Date.now()}${randomNum.toString().padStart(5, '0')}`;
+        const existingTicket = await this.constructor.exists({ ticket_id: ticketId });
+        if (!existingTicket) {
+          isUnique = true;
+        }
       }
-    }
 
-    this.ticket_id = ticketId;
+      this.ticket_id = ticketId;
+    } catch (error) {
+      return next(error);
+    }
   }
 
-  // Set SLA deadlines for new tickets
+  next();
+});
+
+supportTicketSchema.pre('save', async function(next) {
+  // Generate SLA deadlines for new tickets
+
   if (this.isNew) {
     const now = new Date();
 

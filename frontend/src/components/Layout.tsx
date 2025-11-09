@@ -24,11 +24,17 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+const RATE_LIMIT_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
+const WALLET_REFRESH_INTERVAL_MS = 3 * 60 * 1000; // 3 minutes
+const PROFILE_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const userIdRef = useRef<string | null>(null);
+  const lastWalletFetchRef = useRef<number>(0);
+  const lastProfileFetchRef = useRef<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -112,7 +118,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
 
-  const fetchUserProfile = useCallback(async () => {
+  const fetchUserProfile = useCallback(async (force = false): Promise<boolean> => {
+    const now = Date.now();
+    if (!force && lastProfileFetchRef.current && now - lastProfileFetchRef.current < RATE_LIMIT_WINDOW_MS) {
+      return false;
+    }
+    lastProfileFetchRef.current = now;
+
+    let fetched = false;
     try {
       // Try to load from cache first for instant display
       const cachedProfile = DataCache.get<UserProfile>('userProfile');
@@ -122,7 +135,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         console.log('👤 USER PROFILE LOADED FROM CACHE:', cachedProfile);
       }
 
-      setLoading(true);
+      if (!userProfile) {
+        setLoading(true);
+      }
       console.log('👤 LOADING USER PROFILE FROM MONGODB...');
 
       // Always fetch fresh from MongoDB (independent of WebSocket)
@@ -139,6 +154,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (response.data._id) {
         notificationService.connect(response.data._id);
       }
+      fetched = true;
     } catch (error: any) {
       console.error('❌ ERROR LOADING USER PROFILE:', error);
 
@@ -158,9 +174,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+    return fetched;
+  }, [navigate, userProfile]);
 
-  const fetchWalletBalance = useCallback(async () => {
+  const fetchWalletBalance = useCallback(async (force = false): Promise<boolean> => {
+    const now = Date.now();
+    if (!force && lastWalletFetchRef.current && now - lastWalletFetchRef.current < RATE_LIMIT_WINDOW_MS) {
+      return false;
+    }
+    lastWalletFetchRef.current = now;
+
+    let fetched = false;
     // Load from cache first - instant display, no freezing
     const cached = DataCache.get<WalletBalance>('walletBalance');
     if (cached) {
@@ -173,6 +197,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       const balance = await walletService.getWalletBalance(false); // Force fresh fetch
       setWalletBalance(balance);
       console.log('💰 Fresh wallet balance loaded:', balance);
+      fetched = true;
     } catch (error) {
       console.error('❌ ERROR LOADING WALLET BALANCE:', error);
       // Use stale cache if fresh fetch fails
@@ -181,6 +206,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         setWalletBalance((prev) => prev ?? stale);
       }
     }
+    return fetched;
   }, []);
 
   // Load user profile and wallet balance on component mount
@@ -194,7 +220,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (connected) {
         // When WebSocket reconnects (e.g., after page refresh), refresh critical data
         console.log('🔄 WebSocket reconnected - refreshing data...');
-        fetchWalletBalance();
+        fetchWalletBalance(true);
         // Trigger a custom event that pages can listen to
         window.dispatchEvent(new CustomEvent('websocket-reconnected'));
       } else {
@@ -241,38 +267,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Auto-refresh wallet balance every 2 minutes as fallback (reduced frequency to prevent rate limits)
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        // Refresh in background - uses cache if API fails
-        const balance = await walletService.getWalletBalance(false);
-        setWalletBalance(balance);
-        DataCache.set('walletBalance', balance);
-      } catch (error) {
-        console.error('❌ Auto-refresh wallet balance failed:', error);
-        // Keep using current state or cached value - don't clear
-      }
-    }, 2 * 60 * 1000); // 2 minutes (reduced from 30 seconds to prevent rate limit hits)
+    const interval = setInterval(() => {
+      fetchWalletBalance();
+    }, WALLET_REFRESH_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchWalletBalance]);
 
   // Auto-refresh user profile from MongoDB every 60 seconds (no WebSocket dependency)
   // This ensures profile picture and data stay fresh without rate limiting
   useEffect(() => {
     const profileInterval = setInterval(async () => {
       try {
-        console.log('🔄 Auto-refreshing user profile from MongoDB...');
-        const response = await userService.getUserProfile();
-        // Cache the updated profile for persistence
-        DataCache.set('userProfile', response.data);
-        setUserProfile(response.data);
-        userIdRef.current = response.data._id ?? null;
-        // Also refresh AuthContext user
-        await refreshUser();
-        console.log('✅ User profile auto-refreshed from MongoDB:', response.data);
+        const fetched = await fetchUserProfile();
+        if (fetched) {
+          await refreshUser();
+        }
       } catch (error) {
         console.error('❌ Auto-refresh user profile failed:', error);
-        // Keep using current state or cached value - don't clear
         const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
         if (cachedProfile) {
           setUserProfile((prev) => prev ?? cachedProfile);
@@ -281,10 +293,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           }
         }
       }
-    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
+    }, PROFILE_REFRESH_INTERVAL_MS);
 
     return () => clearInterval(profileInterval);
-  }, [refreshUser]);
+  }, [fetchUserProfile, refreshUser]);
 
   // Refresh wallet balance when page becomes visible (user switches back to tab)
   // No WebSocket dependency - fetch directly from MongoDB
@@ -331,32 +343,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   useEffect(() => {
     const pollInterval = setInterval(async () => {
       try {
-        // Refresh wallet balance from MongoDB
-        const balance = await walletService.refreshBalance();
-        setWalletBalance(balance);
-        DataCache.set('walletBalance', balance);
-        
-        // Refresh user profile from MongoDB
-        const profileResponse = await userService.getUserProfile();
-        DataCache.set('userProfile', profileResponse.data);
-        setUserProfile(profileResponse.data);
-        
-        // Also refresh AuthContext user
-        await refreshUser();
-        
-        console.log('✅ Data refreshed from MongoDB (polling):', { balance, profile: profileResponse.data });
+        const walletFetched = await fetchWalletBalance();
+        const profileFetched = await fetchUserProfile();
+
+        if (walletFetched) {
+          const latest = DataCache.get<WalletBalance>('walletBalance');
+          if (latest) {
+            setWalletBalance(latest);
+          }
+        }
+
+        if (profileFetched) {
+          const latestProfile = DataCache.get<UserProfile>('userProfile');
+          if (latestProfile) {
+            setUserProfile(latestProfile);
+          }
+          await refreshUser();
+        }
       } catch (error) {
         console.error('❌ Error polling data from MongoDB:', error);
-        // Use cached data if API fails
         const cachedBalance = DataCache.getStale<WalletBalance>('walletBalance');
         const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
         if (cachedBalance) setWalletBalance(cachedBalance);
         if (cachedProfile) setUserProfile(cachedProfile);
       }
-    }, 60000); // Poll every 60 seconds (1 minute) to avoid rate limiting
+    }, PROFILE_REFRESH_INTERVAL_MS);
 
     return () => clearInterval(pollInterval);
-  }, [refreshUser]);
+  }, [fetchWalletBalance, fetchUserProfile, refreshUser]);
 
   const menuItems = [
     { path: '/dashboard', icon: '🏠', label: 'Dashboard', svgIcon: group1Icon },

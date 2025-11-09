@@ -1,0 +1,545 @@
+[2025-11-09T13:00:01.471Z] [ERROR] [PID:18796] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693201471_oqe3ma0r1",
+  "timestamp": "2025-11-09T13:00:01.471Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693201464-757378346.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693201464-757378346.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryRYpPu29TdrNMonxa"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:00:02.527Z] [ERROR] [PID:18796] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693202527_vkbufiu08",
+  "timestamp": "2025-11-09T13:00:02.527Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693202526-281622580.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693202526-281622580.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryoyNo4FsByE5A71rc"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:00:04.576Z] [ERROR] [PID:18796] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693204576_q0agzuon4",
+  "timestamp": "2025-11-09T13:00:04.576Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693204575-741614304.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693204575-741614304.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundary4CiIsnv4v82EnTUX"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:00:08.614Z] [ERROR] [PID:18796] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693208614_a4fc15hq9",
+  "timestamp": "2025-11-09T13:00:08.614Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693208613-93986070.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693208613-93986070.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundary20sg2p5Sq2EBNzp3"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:00:59.913Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693259913_8g864c98n",
+  "timestamp": "2025-11-09T13:00:59.913Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693259909-979674406.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693259909-979674406.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryr3H8i9H2KAnorhlx"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:01:00.958Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693260958_19ttpf4fk",
+  "timestamp": "2025-11-09T13:01:00.958Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693260956-699680762.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693260956-699680762.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarycDF0Q3XRJjVRVrfn"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:01:03.008Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693263008_tt2pvgxef",
+  "timestamp": "2025-11-09T13:01:03.008Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693263003-174415290.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693263003-174415290.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryDxv5bQsrwzlSDJb5"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:01:07.071Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693267070_zx85kdmp5",
+  "timestamp": "2025-11-09T13:01:07.070Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693267067-740225459.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693267067-740225459.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarygBCDQIjAh5wNcQy9"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:02:37.788Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693357788_s28c6kfi1",
+  "timestamp": "2025-11-09T13:02:37.788Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693357785-751818626.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693357785-751818626.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarybgfOxtGIxFJ8Y9TG"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:02:38.851Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693358851_awaetvu5a",
+  "timestamp": "2025-11-09T13:02:38.851Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693358848-867276493.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693358848-867276493.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarySDLXPsyXwJnutpzO"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:02:40.912Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693360912_p96rk5duz",
+  "timestamp": "2025-11-09T13:02:40.912Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693360909-17135278.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693360909-17135278.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarylT8WX8SjKlTUjzhL"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:02:44.977Z] [ERROR] [PID:23288] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693364976_lhz7ww7kq",
+  "timestamp": "2025-11-09T13:02:44.976Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693364975-594733476.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693364975-594733476.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryqVoMefBVHeYie9uv"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:09:53.403Z] [ERROR] [PID:3848] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693793403_drfg8znvv",
+  "timestamp": "2025-11-09T13:09:53.403Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693793399-285047335.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693793399-285047335.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryt4rbkoED3yLA1QgS"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:09:54.467Z] [ERROR] [PID:3848] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693794467_zra5qtt78",
+  "timestamp": "2025-11-09T13:09:54.467Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693794466-364912025.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693794466-364912025.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryHMD3HUSMjzXYBrj9"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:09:56.529Z] [ERROR] [PID:3848] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693796528_1p5ptz75e",
+  "timestamp": "2025-11-09T13:09:56.528Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693796526-568011745.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693796526-568011745.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryHHJMtQJs9PVAPXd7"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:10:00.637Z] [ERROR] [PID:3848] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762693800636_g0fctlh7r",
+  "timestamp": "2025-11-09T13:10:00.636Z",
+  "errorName": "Error",
+  "errorMessage": "ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693800632-31267559.png'",
+  "errorStack": "Error: ENOENT: no such file or directory, open 'C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\uploads\\support\\attachments-1762693800632-31267559.png'",
+  "errorCode": "ENOENT",
+  "requestDetails": {
+    "url": "/api/support",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryAQgZ1FeveAP541Zh"
+  },
+  "body": {
+    "category": "finance",
+    "subject": "Support Request - finance",
+    "description": "Delivery partner collected cash on delivery payment but failed to remit funds to company account promptly causing significant financial reconciliation discrepancies and customer complaints today."
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:47:08.629Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696028628_m4xqmubqq",
+  "timestamp": "2025-11-09T13:47:08.628Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryb5ytALXUQZaf4Nwo"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:47:09.692Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696029691_dg8gunfyc",
+  "timestamp": "2025-11-09T13:47:09.691Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarypEOV4AFTDhxHYoLX"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:47:11.752Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696031752_6m7la39m9",
+  "timestamp": "2025-11-09T13:47:11.752Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryFc9HMYRNZ4LnimHi"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:47:15.802Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696035802_h6wl4v0wy",
+  "timestamp": "2025-11-09T13:47:15.802Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryi6D02ElOKvmzFiZR"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:49:45.107Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696185107_qm33i2hpx",
+  "timestamp": "2025-11-09T13:49:45.107Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryr4MHSRYNVGVQMn4X"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:49:46.172Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696186172_pitg99074",
+  "timestamp": "2025-11-09T13:49:46.172Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundaryGk8glRbpeSgfDD7A"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}
+[2025-11-09T13:49:48.218Z] [ERROR] [PID:716] 💥 UNHANDLED ERROR OCCURRED | Data: {
+  "errorId": "err_1762696188218_58sc66z1c",
+  "timestamp": "2025-11-09T13:49:48.218Z",
+  "errorName": "MulterError",
+  "errorMessage": "Unexpected field",
+  "errorStack": "MulterError: Unexpected field\n    at wrappedFileFilter (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\index.js:40:19)\n    at Multipart.<anonymous> (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\multer\\lib\\make-middleware.js:132:7)\n    at Multipart.emit (node:events:518:28)\n    at HeaderParser.cb (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:358:14)\n    at HeaderParser.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:394:37)\n    at feed (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:248:10)\n    at SBMH.push (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\streamsearch\\lib\\sbmh.js:104:16)\n    at Multipart._write (C:\\Users\\USER\\Downloads\\SHIPSARTHI\\backend\\node_modules\\busboy\\lib\\types\\multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)",
+  "errorCode": "LIMIT_UNEXPECTED_FILE",
+  "requestDetails": {
+    "url": "/api/support/69109b3f7e6c6cc8f7253bf0/messages",
+    "method": "POST",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "origin": "http://localhost:3000",
+    "referer": "http://localhost:3000/",
+    "contentType": "multipart/form-data; boundary=----WebKitFormBoundarySfOA9L1zzPWQNPAB"
+  },
+  "body": {
+    "comment": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET ",
+    "message": "HELLO UDDIT , WHAT IS TH E STATUS OF MY TICKET "
+  },
+  "query": {},
+  "params": {}
+}

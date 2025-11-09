@@ -14,6 +14,13 @@ interface Category {
   description: string;
 }
 
+const DEFAULT_STATUS_COUNTS: TicketStats['status_counts'] = {
+  open: 0,
+  resolved: 0,
+  closed: 0,
+  all: 0
+};
+
 const Support: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TicketTab>('tickets');
   const [activeStatus, setActiveStatus] = useState<TicketStatus>('open');
@@ -29,12 +36,7 @@ const Support: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   // Statistics
-  const [stats, setStats] = useState<TicketStats['status_counts']>({
-    open: 0,
-    resolved: 0,
-    closed: 0,
-    all: 0
-  });
+  const [stats, setStats] = useState<TicketStats['status_counts']>(DEFAULT_STATUS_COUNTS);
 
   const categories: Category[] = [
     {
@@ -125,9 +127,23 @@ const Support: React.FC = () => {
   const fetchStats = useCallback(async () => {
     try {
       const response = await ticketService.getStats();
-      setStats(response.status_counts);
+      const statusCounts =
+        response?.status_counts ||
+        (response as any)?.data?.status_counts;
+
+      if (statusCounts) {
+        setStats({
+          open: Number(statusCounts.open ?? 0),
+          resolved: Number(statusCounts.resolved ?? 0),
+          closed: Number(statusCounts.closed ?? 0),
+          all: Number(statusCounts.all ?? 0)
+        });
+      } else {
+        setStats(DEFAULT_STATUS_COUNTS);
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
+      setStats(DEFAULT_STATUS_COUNTS);
     }
   }, []);
 

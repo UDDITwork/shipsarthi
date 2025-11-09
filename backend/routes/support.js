@@ -2,46 +2,35 @@ const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const moment = require('moment');
 const multer = require('multer');
-const path = require('path');
 const { auth } = require('../middleware/auth');
 const SupportTicket = require('../models/Support');
 const websocketService = require('../services/websocketService');
+const cloudinaryService = require('../services/cloudinaryService');
 
 const router = express.Router();
+const isDev = process.env.NODE_ENV !== 'production';
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/support/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  // Allow images, documents, audio, and video files
-  const allowedTypes = [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-    'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'audio/mpeg', 'audio/wav', 'audio/ogg',
-    'video/mp4', 'video/mpeg', 'video/quicktime'
-  ];
-
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type'), false);
-  }
-};
-
+// Configure multer (in-memory) for file uploads
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024 // 5MB per file
   },
-  fileFilter: fileFilter
+  fileFilter: (req, file, cb) => {
+    // Allow images, documents, audio, and video files
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'audio/mpeg', 'audio/wav', 'audio/ogg',
+      'video/mp4', 'video/mpeg', 'video/quicktime'
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'), false);
+    }
+  }
 });
 
 // @desc    Get all tickets with filters and pagination
@@ -198,7 +187,26 @@ router.post('/', auth, upload.array('attachments', 5), [
   body('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
   body('subject').trim().notEmpty().isLength({ max: 200 }).withMessage('Subject is required and must be less than 200 characters'),
   body('description').trim().notEmpty().isLength({ max: 5000 }).withMessage('Description is required and must be less than 5000 characters'),
-  body('awb_numbers').optional().isArray({ max: 10 }),
+  body('awb_numbers')
+    .optional({ checkFalsy: true })
+    .customSanitizer(value => {
+      if (Array.isArray(value)) {
+        return value.map(item => (typeof item === 'string' ? item.trim() : item)).filter(Boolean);
+      }
+      if (typeof value === 'string') {
+        return [value.trim()].filter(Boolean);
+      }
+      return [];
+    })
+    .custom(value => {
+      if (!Array.isArray(value)) {
+        throw new Error('AWB numbers must be an array');
+      }
+      if (value.length > 10) {
+        throw new Error('Maximum 10 AWB numbers allowed');
+      }
+      return true;
+    }),
   body('contact_preference').optional().isIn(['email', 'phone', 'whatsapp', 'portal'])
 ], async (req, res) => {
   try {
@@ -213,23 +221,102 @@ router.post('/', auth, upload.array('attachments', 5), [
 
     const userId = req.user._id;
     const user = req.user;
+    const awbNumbers = Array.isArray(req.body.awb_numbers)
+      ? req.body.awb_numbers
+      : [];
 
-    // Process file attachments
-    const attachments = [];
-    if (req.files) {
-      req.files.forEach(file => {
-        let fileType = 'document';
-        if (file.mimetype.startsWith('image/')) fileType = 'image';
-        else if (file.mimetype.startsWith('audio/')) fileType = 'audio';
-        else if (file.mimetype.startsWith('video/')) fileType = 'video';
+    // Process file attachments (upload to Cloudinary)
+    let attachments = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const validation = cloudinaryService.validateFile(file);
+        if (!validation.valid) {
+          return res.status(400).json({
+            status: 'error',
+            message: validation.error
+          });
+        }
+
+        console.log('[Support Upload] Processing file', {
+          name: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        });
+
+        let uploadResult;
+        try {
+          uploadResult = await cloudinaryService.uploadFile(file.buffer, {
+            folder: 'shipsarthi/support',
+            mimetype: file.mimetype
+          });
+        } catch (uploadError) {
+          console.error('[Support Upload] Failed to upload file', {
+            name: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            error: uploadError
+          });
+
+          const debugPayload = isDev
+            ? {
+                debug: {
+                  file_name: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size,
+                  error_message: uploadError?.message,
+                  error_stack: uploadError?.stack
+                }
+              }
+            : {};
+
+          return res.status(500).json({
+            status: 'error',
+            message: 'Failed to upload attachment to cloud storage',
+            ...debugPayload
+          });
+        }
+
+        if (!uploadResult || !uploadResult.success) {
+          console.error('[Support Upload] Unexpected upload response', {
+            name: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            uploadResult
+          });
+
+          const debugPayload = isDev
+            ? {
+                debug: {
+                  file_name: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size,
+                  upload_result: uploadResult
+                }
+              }
+            : {};
+
+          return res.status(500).json({
+            status: 'error',
+            message: 'Failed to upload attachment to cloud storage',
+            ...debugPayload
+          });
+        }
+
+        console.log('[Support Upload] Upload successful', {
+          name: file.originalname,
+          public_id: uploadResult.public_id,
+          resource_type: uploadResult.resource_type
+        });
+
+        const fileType = cloudinaryService.getFileType(file.mimetype);
 
         attachments.push({
           file_name: file.originalname,
-          file_url: file.path,
+          file_url: uploadResult.url,
           file_type: fileType,
           file_size: file.size
         });
-      });
+      }
     }
 
     // Create ticket
@@ -243,14 +330,15 @@ router.post('/', auth, upload.array('attachments', 5), [
         company_name: user.company_name
       },
       attachments,
-      awb_numbers: req.body.awb_numbers || []
+      awb_numbers: awbNumbers
     };
 
     const ticket = new SupportTicket(ticketData);
     await ticket.save();
 
     // Add initial message to conversation
-    await ticket.addMessage('user', user.your_name, req.body.description, attachments);
+    const senderName = user.your_name || user.company_name || user.email || 'Client';
+    await ticket.addMessage('user', senderName, req.body.description, attachments);
 
     // Log ticket creation for admin notifications
     console.log(`🔔 NEW TICKET CREATED: ${ticket.ticket_id} by ${user.your_name} (${user.email})`);
@@ -292,10 +380,30 @@ router.post('/', auth, upload.array('attachments', 5), [
     });
 
   } catch (error) {
-    console.error('Create ticket error:', error);
+    console.error('Create ticket error:', {
+      message: error?.message,
+      stack: error?.stack,
+      userId: req?.user?._id,
+      payloadKeys: Object.keys(req.body || {}),
+      hasFiles: Array.isArray(req.files) ? req.files.length : 0,
+      error
+    });
+
+    const debugPayload = isDev
+      ? {
+          debug: {
+            error_message: error?.message,
+            error_stack: error?.stack,
+            payload_keys: Object.keys(req.body || {}),
+            has_files: Array.isArray(req.files) ? req.files.length : 0
+          }
+        }
+      : {};
+
     res.status(500).json({
       status: 'error',
-      message: 'Server error creating ticket'
+      message: 'Server error creating ticket',
+      ...debugPayload
     });
   }
 });
@@ -303,7 +411,10 @@ router.post('/', auth, upload.array('attachments', 5), [
 // @desc    Add message to ticket conversation
 // @route   POST /api/support/:id/messages
 // @access  Private
-router.post('/:id/messages', auth, upload.array('attachments', 5), [
+router.post('/:id/messages', auth, upload.fields([
+  { name: 'attachments', maxCount: 5 },
+  { name: 'files', maxCount: 5 }
+]), [
   body('message')
     .optional({ checkFalsy: true })
     .trim(),
@@ -342,22 +453,104 @@ router.post('/:id/messages', auth, upload.array('attachments', 5), [
       });
     }
 
-    // Process file attachments
+    // Normalize Multer files (support both attachments and files fields)
+    const uploadedFileGroups = req.files || {};
+    const normalizedFiles = Array.isArray(uploadedFileGroups)
+      ? uploadedFileGroups
+      : Object.values(uploadedFileGroups).flat();
+
+    // Process file attachments (upload to Cloudinary)
     const attachments = [];
-    if (req.files) {
-      req.files.forEach(file => {
-        let fileType = 'document';
-        if (file.mimetype.startsWith('image/')) fileType = 'image';
-        else if (file.mimetype.startsWith('audio/')) fileType = 'audio';
-        else if (file.mimetype.startsWith('video/')) fileType = 'video';
+    if (normalizedFiles.length > 0) {
+      for (const file of normalizedFiles) {
+        const validation = cloudinaryService.validateFile(file);
+        if (!validation.valid) {
+          return res.status(400).json({
+            status: 'error',
+            message: validation.error
+          });
+        }
+
+        console.log('[Support Message Upload] Processing file', {
+          name: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        });
+
+        let uploadResult;
+        try {
+          uploadResult = await cloudinaryService.uploadFile(file.buffer, {
+            folder: 'shipsarthi/support/messages',
+            mimetype: file.mimetype
+          });
+        } catch (uploadError) {
+          console.error('[Support Message Upload] Failed to upload file', {
+            name: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            error: uploadError
+          });
+
+          const debugPayload = isDev
+            ? {
+                debug: {
+                  file_name: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size,
+                  error_message: uploadError?.message,
+                  error_stack: uploadError?.stack
+                }
+              }
+            : {};
+
+          return res.status(500).json({
+            status: 'error',
+            message: 'Failed to upload attachment to cloud storage',
+            ...debugPayload
+          });
+        }
+
+        if (!uploadResult || !uploadResult.success) {
+          console.error('[Support Message Upload] Unexpected upload response', {
+            name: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            uploadResult
+          });
+
+          const debugPayload = isDev
+            ? {
+                debug: {
+                  file_name: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size,
+                  upload_result: uploadResult
+                }
+              }
+            : {};
+
+          return res.status(500).json({
+            status: 'error',
+            message: 'Failed to upload attachment to cloud storage',
+            ...debugPayload
+          });
+        }
+
+        console.log('[Support Message Upload] Upload successful', {
+          name: file.originalname,
+          public_id: uploadResult.public_id,
+          resource_type: uploadResult.resource_type
+        });
+
+        const fileType = cloudinaryService.getFileType(file.mimetype);
 
         attachments.push({
           file_name: file.originalname,
-          file_url: file.path,
+          file_url: uploadResult.url,
           file_type: fileType,
           file_size: file.size
         });
-      });
+      }
     }
 
     const messageContent = (req.body.message || req.body.comment || '').trim();
