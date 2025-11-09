@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
-import { ticketService, Ticket, TicketStatusCounts } from '../services/ticketService';
+import { ticketService, Ticket, TicketStatusCounts, TicketFilters } from '../services/ticketService';
 import './Support.css';
 
-type TicketStatus = 'open' | 'resolved' | 'closed' | 'all';
+type TicketStatus = 'open' | 'in_progress' | 'waiting_customer' | 'escalated' | 'resolved' | 'closed' | 'all';
 type TicketTab = 'tickets' | 'training';
 
 // Remove duplicate Ticket interface - using from ticketService
@@ -26,6 +26,30 @@ const DEFAULT_STATUS_COUNTS: ClientStatusCounts = {
   closed: 0,
   escalated: 0,
   all: 0
+};
+
+const STATUS_TABS: Array<{ key: TicketStatus; label: string; icon: string }> = [
+  { key: 'open', label: 'Open', icon: '📧' },
+  { key: 'in_progress', label: 'In Progress', icon: '⏳' },
+  { key: 'waiting_customer', label: 'Waiting Customer', icon: '🕒' },
+  { key: 'escalated', label: 'Escalated', icon: '⚠️' },
+  { key: 'resolved', label: 'Resolved', icon: '✅' },
+  { key: 'closed', label: 'Closed', icon: '🔒' },
+  { key: 'all', label: 'All', icon: '📋' }
+];
+
+const formatStatusLabel = (status: string) => {
+  return status
+    .split('_')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const getStatusCount = (counts: ClientStatusCounts, status: TicketStatus) => {
+  if (status === 'all') {
+    return counts.all;
+  }
+  return counts[status] ?? 0;
 };
 
 const Support: React.FC = () => {
@@ -121,7 +145,11 @@ const Support: React.FC = () => {
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await ticketService.getTickets({ status: activeStatus });
+      const filters: TicketFilters = {};
+      if (activeStatus !== 'all') {
+        filters.status = activeStatus;
+      }
+      const response = await ticketService.getTickets(filters);
       setTickets(response.tickets);
     } catch (error) {
       console.error('Error fetching tickets:', error);
@@ -157,6 +185,19 @@ const Support: React.FC = () => {
   useEffect(() => {
     fetchTickets();
     fetchStats();
+  }, [fetchTickets, fetchStats]);
+
+  useEffect(() => {
+    const POLL_INTERVAL_MS = 30000;
+
+    const intervalId = window.setInterval(() => {
+      fetchTickets();
+      fetchStats();
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [fetchTickets, fetchStats]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -300,30 +341,18 @@ const Support: React.FC = () => {
           <>
             {/* Status Tabs */}
             <div className="ticket-status-tabs">
-              <button
-                className={`status-tab ${activeStatus === 'open' ? 'active' : ''}`}
-                onClick={() => setActiveStatus('open')}
-              >
-                📧 Open ({stats.open})
-              </button>
-              <button
-                className={`status-tab ${activeStatus === 'resolved' ? 'active' : ''}`}
-                onClick={() => setActiveStatus('resolved')}
-              >
-                ✅ Resolved ({stats.resolved})
-              </button>
-              <button
-                className={`status-tab ${activeStatus === 'closed' ? 'active' : ''}`}
-                onClick={() => setActiveStatus('closed')}
-              >
-                🔒 Closed ({stats.closed})
-              </button>
-              <button
-                className={`status-tab ${activeStatus === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveStatus('all')}
-              >
-                📋 All ({stats.all})
-              </button>
+              {STATUS_TABS.map((tab) => {
+                const count = getStatusCount(stats, tab.key);
+                return (
+                  <button
+                    key={tab.key}
+                    className={`status-tab ${activeStatus === tab.key ? 'active' : ''}`}
+                    onClick={() => setActiveStatus(tab.key)}
+                  >
+                    {tab.icon} {tab.label} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {/* Filters and Actions */}
@@ -379,7 +408,7 @@ const Support: React.FC = () => {
                         <td>{ticket.awb_numbers && ticket.awb_numbers.length > 0 ? ticket.awb_numbers.join(', ') : 'N/A'}</td>
                         <td>
                           <span className={`status-badge ${ticket.status}`}>
-                            {ticket.status}
+                            {formatStatusLabel(ticket.status)}
                           </span>
                         </td>
                         <td>{(ticket.createdAt || ticket.created_at) ? new Date(ticket.createdAt || ticket.created_at || '').toLocaleDateString() : 'N/A'}</td>

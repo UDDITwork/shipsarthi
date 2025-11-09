@@ -40,6 +40,7 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminClients from './pages/AdminClients';
 import AdminClientTickets from './pages/AdminClientTickets';
+import AdminTicketSummary from './pages/AdminTicketSummary';
 import AdminWalletRecharge from './pages/AdminWalletRecharge';
 import AdminWeightDiscrepancies from './pages/AdminWeightDiscrepancies';
 import AdminBilling from './pages/AdminBilling';
@@ -250,6 +251,14 @@ function App() {
               element={
                 <AdminLayout>
                   <AdminClients />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/tickets" 
+              element={
+                <AdminLayout>
+                  <AdminTicketSummary />
                 </AdminLayout>
               } 
             />

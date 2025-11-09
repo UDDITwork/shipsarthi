@@ -398,7 +398,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             ☰
           </button>
           <Link to="/dashboard" className="logo" aria-label="Shipsarthi home">
-            <img src="/NEW LOGO.PNG" alt="Shipsarthi" className="logo-image" />
+            <img src="/NEW LOGO.png" alt="Shipsarthi" className="logo-image" />
           </Link>
         </div>
 

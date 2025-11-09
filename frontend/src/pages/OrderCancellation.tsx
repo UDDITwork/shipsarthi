@@ -11,7 +11,7 @@ const OrderCancellation: React.FC = () => {
       <header className="header">
         <div className="header-container">
           <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <img src="/NEW LOGO.PNG" alt="Shipsarthi" className="logo-img" />
+            <img src="/NEW LOGO.png" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">Shipsarthi</span>
           </div>
         </div>

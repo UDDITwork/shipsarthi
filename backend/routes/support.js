@@ -218,7 +218,7 @@ const upload = multer({
 router.get('/', auth, [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
-  query('status').optional().isIn(['open', 'in_progress', 'waiting_customer', 'resolved', 'closed', 'escalated']),
+  query('status').optional().isIn(['open', 'in_progress', 'waiting_customer', 'resolved', 'closed', 'escalated', 'all']),
   query('category').optional(),
   query('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
   query('date_from').optional().isISO8601(),

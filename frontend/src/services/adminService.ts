@@ -138,6 +138,45 @@ export interface AdminTicketsResponse {
   };
 }
 
+export interface AdminTicketSummaryTotals {
+  all: number;
+  open: number;
+  in_progress: number;
+  waiting_customer: number;
+  resolved: number;
+  closed: number;
+  escalated: number;
+}
+
+export interface AdminTicketSummaryClient {
+  clientMongoId: string;
+  clientId: string | null;
+  companyName: string;
+  contactName: string;
+  email: string;
+  phoneNumber: string;
+  totalTickets: number;
+  statusCounts: {
+    open: number;
+    in_progress: number;
+    waiting_customer: number;
+    resolved: number;
+    closed: number;
+    escalated: number;
+  };
+  latestUpdatedAt: string | null;
+}
+
+export interface AdminTicketSummaryData {
+  totals: AdminTicketSummaryTotals;
+  clients: AdminTicketSummaryClient[];
+}
+
+export interface AdminTicketSummaryResponse {
+  success: boolean;
+  data: AdminTicketSummaryData;
+}
+
 export interface AdminTicketUpdateData {
   ticket?: AdminTicket;
   previous_status?: string;
@@ -457,6 +496,13 @@ class AdminService {
       headers: this.getAdminHeaders()
     });
     return response;
+  }
+
+  async getTicketSummary(): Promise<AdminTicketSummaryData> {
+    const response = await apiService.get<AdminTicketSummaryResponse>('/admin/tickets/summary', {
+      headers: this.getAdminHeaders()
+    });
+    return response.data;
   }
 
   // Ticket management methods

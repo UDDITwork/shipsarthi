@@ -830,6 +830,104 @@ router.get('/clients/:id/tickets', async (req, res) => {
   }
 });
 
+// @desc    Get ticket summary across all clients
+// @route   GET /api/admin/tickets/summary
+// @access  Admin
+router.get('/tickets/summary', async (req, res) => {
+  try {
+    const statusGroupStage = STATUS_KEYS.reduce((acc, statusKey) => {
+      acc[statusKey] = {
+        $sum: {
+          $cond: [
+            { $eq: ['$status', statusKey] },
+            1,
+            0
+          ]
+        }
+      };
+      return acc;
+    }, {});
+
+    const groupStage = {
+      _id: '$user_id',
+      totalTickets: { $sum: 1 },
+      latestUpdatedAt: { $max: '$updated_at' },
+      ...statusGroupStage
+    };
+
+    const aggregationPipeline = [
+      { $group: groupStage },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'client'
+        }
+      },
+      {
+        $unwind: {
+          path: '$client',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ];
+
+    const summaryResults = await SupportTicket.aggregate(aggregationPipeline);
+
+    const overallTotals = STATUS_KEYS.reduce((acc, key) => {
+      acc[key] = 0;
+      return acc;
+    }, {});
+
+    let overallTotalTickets = 0;
+
+    const clients = summaryResults.map((result) => {
+      const statusCounts = STATUS_KEYS.reduce((acc, key) => {
+        const value = result[key] || 0;
+        acc[key] = value;
+        overallTotals[key] += value;
+        return acc;
+      }, {});
+
+      const totalTickets = result.totalTickets || 0;
+      overallTotalTickets += totalTickets;
+
+      return {
+        clientMongoId: result._id,
+        clientId: result.client?.client_id || null,
+        companyName: result.client?.company_name || 'Unknown',
+        contactName: result.client?.your_name || '',
+        email: result.client?.email || '',
+        phoneNumber: result.client?.phone_number || '',
+        statusCounts,
+        totalTickets,
+        latestUpdatedAt: result.latestUpdatedAt || null
+      };
+    });
+
+    const totalsResponse = {
+      all: overallTotalTickets,
+      ...overallTotals
+    };
+
+    res.json({
+      success: true,
+      data: {
+        totals: totalsResponse,
+        clients
+      }
+    });
+  } catch (error) {
+    logger.error('Error generating ticket summary:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating ticket summary',
+      error: error.message
+    });
+  }
+});
+
 // @desc    Get all tickets across all clients (admin dashboard)
 // @route   GET /api/admin/tickets
 // @access  Admin

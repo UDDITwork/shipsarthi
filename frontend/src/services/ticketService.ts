@@ -79,7 +79,7 @@ export interface TicketStats {
 }
 
 export interface TicketFilters {
-  status?: 'open' | 'resolved' | 'closed' | 'all';
+  status?: 'open' | 'in_progress' | 'waiting_customer' | 'resolved' | 'closed' | 'escalated' | 'all';
   category?: string;
   search?: string;
   page?: number;
@@ -116,7 +116,7 @@ class TicketService {
   }> {
     const params = new URLSearchParams();
     
-    if (filters.status) params.append('status', filters.status);
+    if (filters.status && filters.status !== 'all') params.append('status', filters.status);
     if (filters.category) params.append('category', filters.category);
     if (filters.search) params.append('search', filters.search);
     if (filters.page) params.append('page', filters.page.toString());

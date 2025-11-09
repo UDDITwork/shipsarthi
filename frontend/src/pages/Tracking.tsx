@@ -93,7 +93,7 @@ const Tracking: React.FC = () => {
       <header className="tracking-header">
         <div className="header-container">
           <div className="logo">
-            <img src="/NEW LOGO.PNG" alt="Shipsarthi" className="logo-img" />
+            <img src="/NEW LOGO.png" alt="Shipsarthi" className="logo-img" />
             <span className="logo-text">
               <span className="logo-ship">Ship</span>
               <span className="logo-sarthi">sarthi</span>
