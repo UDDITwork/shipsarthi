@@ -10168,3 +10168,417 @@
 }
 [2025-11-09T17:26:52.728Z] [INFO] [PID:11764] 🛑 SIGINT received, shutting down gracefully
 [2025-11-09T17:26:52.731Z] [INFO] [PID:11764] 🔌 Cleaning up WebSocket service...
+[2025-11-09T17:28:08.287Z] [INFO] [PID:20816] ✅ Tracking service started - will run every 3 hours
+[2025-11-09T17:28:09.379Z] [INFO] [PID:20816] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-09T17:28:09.379Z"
+}
+[2025-11-09T17:28:09.393Z] [INFO] [PID:20816] 🔌 WebSocket server initialized
+[2025-11-09T17:28:09.901Z] [INFO] [PID:20816] ✅ Connected to MongoDB
+[2025-11-09T17:28:09.914Z] [INFO] [PID:20816] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-09T17:28:10.009Z] [INFO] [PID:20816] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1762709290009_2oytpjf71",
+  "totalClients": 1
+}
+[2025-11-09T17:28:10.014Z] [INFO] [PID:20816] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-09T17:28:10.017Z] [INFO] [PID:20816] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1762709290009_2oytpjf71",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-09T17:28:11.216Z] [INFO] [PID:20816] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-09T17:28:11.216Z"
+}
+[2025-11-09T17:28:23.424Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T17:28:23.460Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T17:28:24.394Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:28:39.405Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:28:54.085Z] [INFO] [PID:20816] 🔌 Message broadcasted to clients | Data: {
+  "message": {
+    "type": "message_received",
+    "title": "New Message Received",
+    "message": "New message in ticket TKT176270899258444701",
+    "ticket_id": "TKT176270899258444701",
+    "client_name": "uddit",
+    "created_at": "2025-11-09T17:28:54.085Z",
+    "data": {
+      "ticket": {
+        "ticket_id": "TKT176270899258444701",
+        "_id": "6910ce00cd1d1da33f82e066",
+        "client_name": "uddit"
+      },
+      "message": {
+        "message": "jeol",
+        "sender": "udditalerts247@gmail.com",
+        "timestamp": "2025-11-09T17:28:54.085Z"
+      }
+    }
+  },
+  "successCount": 1,
+  "errorCount": 0,
+  "totalClients": 1
+}
+[2025-11-09T17:28:54.086Z] [INFO] [PID:20816] 🔔 New message notification sent | Data: {
+  "ticketData": {
+    "ticket_id": "TKT176270899258444701",
+    "_id": "6910ce00cd1d1da33f82e066",
+    "client_name": "uddit"
+  },
+  "messageData": {
+    "message": "jeol",
+    "sender": "udditalerts247@gmail.com",
+    "timestamp": "2025-11-09T17:28:54.085Z"
+  }
+}
+[2025-11-09T17:28:54.087Z] [INFO] [PID:20816] 🔔 Notification sent to client | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "successCount": 1,
+  "errorCount": 0,
+  "notification_type": "admin_reply"
+}
+[2025-11-09T17:28:54.409Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:29:09.419Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:29:24.424Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:29:39.438Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:29:54.446Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:30:09.443Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:30:24.453Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:30:39.464Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:30:54.477Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:31:09.489Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:31:24.500Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:31:39.503Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:31:53.098Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T17:31:53.128Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T17:31:54.517Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:32:09.524Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:32:24.536Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:32:39.547Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:32:54.554Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:33:09.567Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:33:24.571Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:33:39.575Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:33:54.581Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:34:09.579Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:34:24.593Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:34:39.595Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:34:54.603Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:35:09.601Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:35:24.605Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:35:39.619Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:35:54.625Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:36:09.632Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:36:24.636Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:36:39.650Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:36:54.125Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T17:36:54.158Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T17:36:54.658Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:37:09.662Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:37:24.663Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:37:39.673Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:37:54.681Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:38:09.698Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:38:24.706Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:38:39.712Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:38:54.724Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:39:09.726Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762709290009_2oytpjf71"
+}
+[2025-11-09T17:39:12.526Z] [INFO] [PID:20816] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1762709290009_2oytpjf71",
+  "code": 1006,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-09T18:01:55.675Z] [INFO] [PID:20816] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1762711315675_ikl6059cn",
+  "totalClients": 1
+}
+[2025-11-09T18:01:59.258Z] [INFO] [PID:20816] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-09T18:01:59.260Z] [INFO] [PID:20816] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1762711315675_ikl6059cn",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-09T18:01:59.348Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T18:01:59.383Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T18:02:03.560Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:02:18.569Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:02:33.576Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:02:48.587Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:03:03.600Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:03:18.609Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:03:33.612Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:03:48.614Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:04:03.630Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:04:18.634Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:04:33.644Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:04:48.644Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:05:03.662Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:05:18.673Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:05:33.684Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:05:48.687Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:06:03.689Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:06:18.696Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:06:33.700Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:06:48.714Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:07:00.132Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T18:07:00.164Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T18:07:03.715Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:07:18.717Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:07:33.719Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:07:48.722Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:08:03.730Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:08:18.737Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:08:33.752Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:08:48.756Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:09:03.754Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:09:18.754Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:09:33.757Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:09:48.762Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:10:03.774Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:10:18.784Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:10:33.794Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:10:48.797Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:11:03.810Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:11:18.812Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:11:33.825Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:11:48.836Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:12:01.094Z] [INFO] [PID:20816] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-09T18:12:01.126Z] [DEBUG] [PID:20816] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T18:12:03.840Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:12:18.854Z] [DEBUG] [PID:20816] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1762711315675_ikl6059cn"
+}
+[2025-11-09T18:12:18.913Z] [INFO] [PID:20816] 🛑 SIGINT received, shutting down gracefully
+[2025-11-09T18:12:18.916Z] [INFO] [PID:20816] 🔌 Cleaning up WebSocket service...
