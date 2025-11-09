@@ -107,7 +107,7 @@ const Support: React.FC = () => {
     if (!requiresAWB && awbNumbers.trim()) {
       setAwbNumbers('');
     }
-  }, [selectedCategory]); // Only depend on selectedCategory, not requiresAWB to avoid loops
+  }, [requiresAWB, awbNumbers]);
 
   const fetchTickets = useCallback(async () => {
     setLoading(true);
@@ -281,25 +281,25 @@ const Support: React.FC = () => {
                 className={`status-tab ${activeStatus === 'open' ? 'active' : ''}`}
                 onClick={() => setActiveStatus('open')}
               >
-                📧 Open
+                📧 Open ({stats.open})
               </button>
               <button
                 className={`status-tab ${activeStatus === 'resolved' ? 'active' : ''}`}
                 onClick={() => setActiveStatus('resolved')}
               >
-                ✅ Resolved
+                ✅ Resolved ({stats.resolved})
               </button>
               <button
                 className={`status-tab ${activeStatus === 'closed' ? 'active' : ''}`}
                 onClick={() => setActiveStatus('closed')}
               >
-                🔒 Closed
+                🔒 Closed ({stats.closed})
               </button>
               <button
                 className={`status-tab ${activeStatus === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveStatus('all')}
               >
-                📋 All
+                📋 All ({stats.all})
               </button>
             </div>
 

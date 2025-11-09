@@ -357,7 +357,7 @@ const AccountSettings: React.FC = () => {
       setLoading(true);
 
       // API call to reset password
-      const response = await userService.resetPassword({
+      await userService.resetPassword({
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       });

@@ -223,10 +223,6 @@ const NDR: React.FC = () => {
     setFilters(prev => ({ ...prev, page }));
   };
 
-  const handleFilterChange = (newFilters: Partial<NDRFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
-  };
-
   return (
     <Layout>
       <div className="ndr-container">
