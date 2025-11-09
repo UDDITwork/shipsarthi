@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { userService, UserProfile } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
@@ -28,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
+  const userIdRef = useRef<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -111,77 +112,80 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
 
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      // Try to load from cache first for instant display
+      const cachedProfile = DataCache.get<UserProfile>('userProfile');
+      if (cachedProfile) {
+        setUserProfile(cachedProfile);
+        userIdRef.current = cachedProfile._id ?? null;
+        console.log('👤 USER PROFILE LOADED FROM CACHE:', cachedProfile);
+      }
+
+      setLoading(true);
+      console.log('👤 LOADING USER PROFILE FROM MONGODB...');
+
+      // Always fetch fresh from MongoDB (independent of WebSocket)
+      const response = await userService.getUserProfile();
+      console.log('👤 USER PROFILE LOADED FROM MONGODB:', response.data);
+
+      // Cache the profile for persistence
+      DataCache.set('userProfile', response.data);
+      setUserProfile(response.data);
+      userIdRef.current = response.data._id ?? null;
+
+      // Connect to WebSocket with user ID after profile is loaded
+      // WebSocket connection is SEPARATE from profile fetching
+      if (response.data._id) {
+        notificationService.connect(response.data._id);
+      }
+    } catch (error: any) {
+      console.error('❌ ERROR LOADING USER PROFILE:', error);
+
+      // Try to use cached profile if API fails
+      const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
+      if (cachedProfile) {
+        console.log('⚠️ Using cached profile due to API error');
+        setUserProfile(cachedProfile);
+        userIdRef.current = cachedProfile._id ?? null;
+      }
+
+      // If user is not authenticated, redirect to login
+      if (error.response?.status === 401) {
+        console.log('🔐 UNAUTHORIZED - Redirecting to login');
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  const fetchWalletBalance = useCallback(async () => {
+    // Load from cache first - instant display, no freezing
+    const cached = DataCache.get<WalletBalance>('walletBalance');
+    if (cached) {
+      setWalletBalance(cached);
+      console.log('💰 Wallet balance loaded from cache:', cached);
+    }
+
+    // Fetch fresh data in background - doesn't block UI
+    try {
+      const balance = await walletService.getWalletBalance(false); // Force fresh fetch
+      setWalletBalance(balance);
+      console.log('💰 Fresh wallet balance loaded:', balance);
+    } catch (error) {
+      console.error('❌ ERROR LOADING WALLET BALANCE:', error);
+      // Use stale cache if fresh fetch fails
+      const stale = DataCache.getStale<WalletBalance>('walletBalance');
+      if (stale) {
+        setWalletBalance((prev) => prev ?? stale);
+      }
+    }
+  }, []);
+
   // Load user profile and wallet balance on component mount
   // Profile is ALWAYS fetched from MongoDB independently of WebSocket
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        // Try to load from cache first for instant display
-        const cachedProfile = DataCache.get<UserProfile>('userProfile');
-        if (cachedProfile) {
-          setUserProfile(cachedProfile);
-          console.log('👤 USER PROFILE LOADED FROM CACHE:', cachedProfile);
-        }
-        
-        setLoading(true);
-        console.log('👤 LOADING USER PROFILE FROM MONGODB...');
-        
-        // Always fetch fresh from MongoDB (independent of WebSocket)
-        const response = await userService.getUserProfile();
-        console.log('👤 USER PROFILE LOADED FROM MONGODB:', response.data);
-        
-        // Cache the profile for persistence
-        DataCache.set('userProfile', response.data);
-        setUserProfile(response.data);
-        
-        // Connect to WebSocket with user ID after profile is loaded
-        // WebSocket connection is SEPARATE from profile fetching
-        if (response.data._id) {
-          notificationService.connect(response.data._id);
-        }
-      } catch (error: any) {
-        console.error('❌ ERROR LOADING USER PROFILE:', error);
-        
-        // Try to use cached profile if API fails
-        const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
-        if (cachedProfile) {
-          console.log('⚠️ Using cached profile due to API error');
-          setUserProfile(cachedProfile);
-        }
-        
-        // If user is not authenticated, redirect to login
-        if (error.response?.status === 401) {
-          console.log('🔐 UNAUTHORIZED - Redirecting to login');
-          navigate('/login');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchWalletBalance = async () => {
-      // Load from cache first - instant display, no freezing
-      const cached = DataCache.get<WalletBalance>('walletBalance');
-      if (cached) {
-        setWalletBalance(cached);
-        console.log('💰 Wallet balance loaded from cache:', cached);
-      }
-
-      // Fetch fresh data in background - doesn't block UI
-      try {
-        const balance = await walletService.getWalletBalance(false); // Force fresh fetch
-        setWalletBalance(balance);
-        console.log('💰 Fresh wallet balance loaded:', balance);
-      } catch (error) {
-        console.error('❌ ERROR LOADING WALLET BALANCE:', error);
-        // Use stale cache if fresh fetch fails
-        const stale = DataCache.getStale<WalletBalance>('walletBalance');
-        if (stale && !walletBalance) {
-          setWalletBalance(stale);
-        }
-      }
-    };
-
     // Listen for WebSocket connection state changes and refresh data when reconnected
     // CRITICAL: Auto-reconnect WebSocket when disconnected (even for code 1001)
     const unsubscribeConnection = notificationService.onConnectionChange((connected) => {
@@ -196,14 +200,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       } else {
         // WebSocket disconnected - AUTO-RECONNECT if we have userId
         // This fixes the issue where code 1001 disconnects but Layout doesn't reconnect
-        if (userProfile?._id) {
+        const userId = userIdRef.current;
+        if (userId) {
           console.log('🔌 WebSocket disconnected - auto-reconnecting...');
           // Wait a bit then reconnect (gives time for network to stabilize)
           setTimeout(() => {
             const currentState = notificationService.getConnectionState();
             if (!currentState) {
               console.log('🔄 Auto-reconnecting WebSocket after disconnect...');
-              notificationService.connect(userProfile._id);
+              notificationService.connect(userId);
             }
           }, 2000); // 2 second delay to avoid rapid reconnect loops
         }
@@ -216,22 +221,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => {
       unsubscribeConnection();
     };
-  }, [navigate]);
+  }, [fetchUserProfile, fetchWalletBalance]);
 
   // Periodic WebSocket health check and auto-reconnect (runs every 5 seconds)
   useEffect(() => {
     const healthCheckInterval = setInterval(() => {
       const isConnected = notificationService.getConnectionState();
-      
-      if (!isConnected && userProfile?._id) {
+      const userId = userIdRef.current;
+
+      if (!isConnected && userId) {
         console.log('🔌 Periodic check: WebSocket disconnected, attempting reconnect...');
         // Check if it's a manual disconnect before reconnecting
-        notificationService.connect(userProfile._id);
+        notificationService.connect(userId);
       }
     }, 5000); // Check every 5 seconds
 
     return () => clearInterval(healthCheckInterval);
-  }, [userProfile?._id]);
+  }, []);
 
   // Auto-refresh wallet balance every 2 minutes as fallback (reduced frequency to prevent rate limits)
   useEffect(() => {
@@ -260,6 +266,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         // Cache the updated profile for persistence
         DataCache.set('userProfile', response.data);
         setUserProfile(response.data);
+        userIdRef.current = response.data._id ?? null;
         // Also refresh AuthContext user
         await refreshUser();
         console.log('✅ User profile auto-refreshed from MongoDB:', response.data);
@@ -267,14 +274,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         console.error('❌ Auto-refresh user profile failed:', error);
         // Keep using current state or cached value - don't clear
         const cachedProfile = DataCache.getStale<UserProfile>('userProfile');
-        if (cachedProfile && !userProfile) {
-          setUserProfile(cachedProfile);
+        if (cachedProfile) {
+          setUserProfile((prev) => prev ?? cachedProfile);
+          if (!userIdRef.current) {
+            userIdRef.current = cachedProfile._id ?? null;
+          }
         }
       }
     }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
 
     return () => clearInterval(profileInterval);
-  }, [userProfile, refreshUser]);
+  }, [refreshUser]);
 
   // Refresh wallet balance when page becomes visible (user switches back to tab)
   // No WebSocket dependency - fetch directly from MongoDB
@@ -302,7 +312,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [userProfile?._id]);
+  }, []);
 
   // Subscribe to wallet balance updates - this syncs across all components
   useEffect(() => {

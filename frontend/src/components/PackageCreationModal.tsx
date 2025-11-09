@@ -90,7 +90,7 @@ const PackageCreationModal: React.FC<PackageCreationModalProps> = ({
       
       if (response.ok) {
         try {
-          const result = JSON.parse(responseText);
+          JSON.parse(responseText);
           alert('Test package created successfully!');
         } catch (error) {
           alert('Test succeeded but got invalid JSON response');

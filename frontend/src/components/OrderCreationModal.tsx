@@ -60,7 +60,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   // Form State
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [calculatingShipping, setCalculatingShipping] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
@@ -494,28 +493,23 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     }));
   };
 
-  // Helper function to determine zone from pincodes
-  // NOTE: Zone calculation removed - zone is now fetched from Delhivery API
-  // This function is kept for backward compatibility but should not be used
-  // Zone will be determined by Delhivery API response
-  const determineZone = (pickupPincode: string, deliveryPincode: string): string => {
-    // This function is deprecated - zone should come from Delhivery API
-    // Returning empty string so that zone calculation happens via API
-    return '';
-  };
-
-  // REMOVED: Auto-calculate shipping charges on field changes
-  // Shipping charges are now manual input only until final step (step 6)
-  // Final calculation is done in calculateFinalShippingCharges() before save/assign buttons
-
-  const calculateTotals = () => {
-    const orderValue = formData.products.reduce((sum, product) => 
-      sum + (product.unit_price * product.quantity), 0
+  useEffect(() => {
+    const orderValue = formData.products.reduce(
+      (sum, product) => sum + product.unit_price * product.quantity,
+      0
     );
     const shippingCharges = formData.payment_info.shipping_charges || 0;
     const grandTotal = orderValue + shippingCharges;
 
-    setFormData(prev => ({
+    if (
+      formData.payment_info.order_value === orderValue &&
+      formData.payment_info.total_amount === orderValue &&
+      formData.payment_info.grand_total === grandTotal
+    ) {
+      return;
+    }
+
+    setFormData((prev) => ({
       ...prev,
       payment_info: {
         ...prev.payment_info,
@@ -524,11 +518,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         grand_total: grandTotal
       }
     }));
-  };
-
-  useEffect(() => {
-    calculateTotals();
-  }, [formData.products, formData.payment_info.shipping_charges]);
+  }, [formData.products, formData.payment_info.shipping_charges, formData.payment_info.grand_total, formData.payment_info.order_value, formData.payment_info.total_amount]);
 
   // MANDATORY: Calculate shipping charges when reaching Step 6 (final step before buttons)
   useEffect(() => {

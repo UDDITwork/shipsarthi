@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { ticketService, Ticket, TicketStats } from '../services/ticketService';
 import './Support.css';
@@ -101,11 +101,6 @@ const Support: React.FC = () => {
   // Check if current category requires AWB
   const requiresAWB = selectedCategory && categoriesRequiringAWB.includes(selectedCategory);
 
-  useEffect(() => {
-    fetchTickets();
-    fetchStats();
-  }, [activeStatus]);
-
   // Reset AWB numbers and adjust form when category changes
   useEffect(() => {
     // Clear AWB numbers if switching to a category that doesn't require it
@@ -114,7 +109,7 @@ const Support: React.FC = () => {
     }
   }, [selectedCategory]); // Only depend on selectedCategory, not requiresAWB to avoid loops
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
       const response = await ticketService.getTickets({ status: activeStatus });
@@ -125,16 +120,21 @@ const Support: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeStatus]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await ticketService.getStats();
       setStats(response.status_counts);
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTickets();
+    fetchStats();
+  }, [fetchTickets, fetchStats]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

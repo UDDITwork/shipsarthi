@@ -20,12 +20,6 @@ const PickupRequestModal: React.FC<PickupRequestModalProps> = ({
   warehouseName,
   loading = false
 }) => {
-  // Calculate minimum date (today)
-  const getMinDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
   // Calculate default date (tomorrow)
   const getDefaultDate = () => {
     const tomorrow = new Date();

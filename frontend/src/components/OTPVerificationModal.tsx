@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, RotateCcw, Phone } from 'lucide-react';
 import { otpService } from '../services/otpService';
 import './OTPVerificationModal.css';
@@ -28,12 +28,6 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   const [retryType, setRetryType] = useState<'sms' | 'voice'>('sms');
 
   useEffect(() => {
-    if (isOpen && phoneNumber) {
-      sendOTP();
-    }
-  }, [isOpen, phoneNumber]);
-
-  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (resendCooldown > 0) {
       interval = setInterval(() => {
@@ -43,11 +37,11 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     return () => clearInterval(interval);
   }, [resendCooldown]);
 
-  const sendOTP = async () => {
+  const sendOTP = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await otpService.sendOTP(phoneNumber);
+      await otpService.sendOTP(phoneNumber);
       setOtpSent(true);
       setResendCooldown(60); // 60 seconds cooldown
     } catch (err: any) {
@@ -56,7 +50,13 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [phoneNumber, onVerificationError]);
+
+  useEffect(() => {
+    if (isOpen && phoneNumber) {
+      sendOTP();
+    }
+  }, [isOpen, phoneNumber, sendOTP]);
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +85,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     try {
       setResendLoading(true);
       setError(null);
-      const response = await otpService.resendOTP(phoneNumber, retryType);
+      await otpService.resendOTP(phoneNumber, retryType);
       setResendCooldown(60); // Reset cooldown
       setOtp('');
     } catch (err: any) {

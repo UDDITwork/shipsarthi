@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { userService, type User } from '../services/userService';
 import { DataCache } from '../utils/dataCache';
@@ -13,6 +13,7 @@ interface EditMode {
 
 const AccountSettings: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const userRef = React.useRef<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState<EditMode>({
     userDetails: false,
@@ -60,10 +61,10 @@ const AccountSettings: React.FC = () => {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    userRef.current = user;
+  }, [user]);
 
-  const fetchUserData = async (retryCount = 0) => {
+  const fetchUserData = useCallback(async (retryCount = 0) => {
     // Load from cache FIRST - instant display, no freezing
     const cachedUser = DataCache.get<User>('userProfile');
     if (cachedUser) {
@@ -177,7 +178,7 @@ const AccountSettings: React.FC = () => {
       
       // On error, use stale cache or localStorage - app continues working!
       const staleUser = DataCache.getStale<User>('userProfile');
-      if (staleUser && !user) {
+      if (staleUser && !userRef.current) {
         console.log('📦 Using cached user data due to API error');
         setUser(staleUser);
         setFormData({
@@ -206,14 +207,18 @@ const AccountSettings: React.FC = () => {
       }
 
       // Only show error if we truly have no data at all
-      if (!user && !staleUser) {
+      if (!userRef.current && !staleUser) {
         const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load user data. Please check if you are logged in and try again.';
         alert(errorMessage);
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleInputChange = (section: string, field: string, value: string) => {
     if (section === 'address' || section === 'bank_details') {

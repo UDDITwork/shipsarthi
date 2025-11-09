@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Clock, User, Phone, Mail, Building, Filter, Search, Send } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Phone, Mail, Building, Filter, Search, Send } from 'lucide-react';
 import { adminService, AdminTicket, AdminClient } from '../services/adminService';
 import './AdminClientTickets.css';
 
@@ -41,20 +41,6 @@ const AdminClientTickets: React.FC = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch client details
-  useEffect(() => {
-    if (clientId) {
-      fetchClientDetails();
-    }
-  }, [clientId]);
-
-  // Fetch tickets when filters change or component mounts
-  useEffect(() => {
-    if (clientId) {
-      fetchTickets();
-    }
-  }, [clientId, filters.status, filters.category, filters.search, filters.page]);
-
   // Fetch selected ticket details when ticketId changes
   useEffect(() => {
     if (ticketId && clientId) {
@@ -74,7 +60,7 @@ const AdminClientTickets: React.FC = () => {
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
-  const fetchClientDetails = async () => {
+  const fetchClientDetails = useCallback(async () => {
     try {
       const clientData = await adminService.getClientDetails(clientId!);
       setClient(clientData);
@@ -82,9 +68,9 @@ const AdminClientTickets: React.FC = () => {
       console.error('Error fetching client details:', err);
       setError(err.message || 'Failed to fetch client details');
     }
-  };
+  }, [clientId]);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -121,7 +107,7 @@ const AdminClientTickets: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clientId, filters, navigate, ticketId]);
 
   const fetchTicketDetails = async (ticketIdParam: string) => {
     try {
@@ -169,6 +155,20 @@ const AdminClientTickets: React.FC = () => {
       setSendingMessage(false);
     }
   };
+
+  // Fetch client details
+  useEffect(() => {
+    if (clientId) {
+      fetchClientDetails();
+    }
+  }, [clientId, fetchClientDetails]);
+
+  // Fetch tickets when filters change or component mounts
+  useEffect(() => {
+    if (clientId) {
+      fetchTickets();
+    }
+  }, [clientId, filters.status, filters.category, filters.search, filters.page, fetchTickets]);
 
   const updateTicketStatus = async (ticketIdParam: string, status: string) => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { ndrService, NDROrder, NDRFilters, NDRStats, NDRActionData, BulkNDRActionData } from '../services/ndrService';
 import './NDR.css';
@@ -10,10 +10,10 @@ const NDR: React.FC = () => {
   const [ndrOrders, setNdrOrders] = useState<NDROrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState({
+  const dateRange = {
     from: '28-05-2025',
     to: '28-06-2025'
-  });
+  };
 
   // Tab counts
   const [tabCounts, setTabCounts] = useState<NDRStats>({
@@ -42,13 +42,7 @@ const NDR: React.FC = () => {
   // Time recommendation
   const [timeRecommendation, setTimeRecommendation] = useState('');
 
-  useEffect(() => {
-    fetchNDROrders();
-    fetchNDRStats();
-    setTimeRecommendation(ndrService.getTimeRecommendation());
-  }, [activeTab, filters]);
-
-  const fetchNDROrders = async () => {
+  const fetchNDROrders = useCallback(async () => {
     setLoading(true);
     try {
       const updatedFilters = { ...filters, status: activeTab };
@@ -61,16 +55,22 @@ const NDR: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, activeTab]);
 
-  const fetchNDRStats = async () => {
+  const fetchNDRStats = useCallback(async () => {
     try {
       const stats = await ndrService.getNDRStats();
       setTabCounts(stats);
     } catch (error) {
       console.error('Error fetching NDR stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchNDROrders();
+    fetchNDRStats();
+    setTimeRecommendation(ndrService.getTimeRecommendation());
+  }, [fetchNDROrders, fetchNDRStats, activeTab]);
 
   const handleSelectOrder = (orderId: string) => {
     if (selectedOrders.includes(orderId)) {

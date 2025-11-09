@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { environmentConfig } from '../config/environment';
 import './AdminWeightDiscrepancies.css';
 
@@ -36,13 +36,9 @@ const AdminWeightDiscrepancies: React.FC = () => {
   const [processed, setProcessed] = useState('all');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [limit, setLimit] = useState(50);
+  const limit = 50;
 
-  useEffect(() => {
-    fetchDiscrepancies();
-  }, [page, limit, search, processed]);
-
-  const fetchDiscrepancies = async () => {
+  const fetchDiscrepancies = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -68,7 +64,11 @@ const AdminWeightDiscrepancies: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, search, processed]);
+
+  useEffect(() => {
+    fetchDiscrepancies();
+  }, [fetchDiscrepancies]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

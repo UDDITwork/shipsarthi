@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apiService } from '../services/api';
 import './TrackingModal.css';
 
@@ -30,17 +30,7 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb, ord
   const [trackingData, setTrackingData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && awb) {
-      fetchTrackingData();
-    } else {
-      // Reset state when modal closes
-      setTrackingData(null);
-      setError(null);
-    }
-  }, [isOpen, awb, orderId]);
-
-  const fetchTrackingData = async () => {
+  const fetchTrackingData = useCallback(async () => {
     const sanitizedAwb = (awb || '').trim();
 
     if (!sanitizedAwb) {
@@ -90,7 +80,17 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ isOpen, onClose, awb, ord
     } finally {
       setLoading(false);
     }
-  };
+  }, [awb, orderId]);
+
+  useEffect(() => {
+    if (isOpen && awb) {
+      fetchTrackingData();
+    } else {
+      // Reset state when modal closes
+      setTrackingData(null);
+      setError(null);
+    }
+  }, [isOpen, awb, orderId, fetchTrackingData]);
 
   if (!isOpen) return null;
 

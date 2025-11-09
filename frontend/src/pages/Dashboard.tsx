@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import RechargeModal from '../components/RechargeModal';
-import { userService, DashboardData } from '../services/userService';
+import { DashboardData } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
 import { apiService } from '../services/api';
 import { DataCache } from '../utils/dataCache';
@@ -28,47 +28,6 @@ import './Dashboard.css';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface DashboardMetrics {
-  todaysOrders: {
-    current: number;
-    previous: number;
-  };
-  todaysRevenue: {
-    current: number;
-    previous: number;
-  };
-  averageShippingCost: {
-    amount: number;
-    totalOrders: number;
-  };
-}
-
-interface ShipmentStatus {
-  totalOrder: number;
-  newOrder: number;
-  pickupPending: number;
-  inTransit: number;
-  delivered: number;
-  ndrPending: number;
-  rto: number;
-}
-
-interface NDRStatus {
-  totalNDR: number;
-  yourReattempt: number;
-  buyerReattempt: number;
-  ndrDelivered: number;
-  ndrUndelivered: number;
-  rtoTransit: number;
-  rtoDelivered: number;
-}
-
-interface CODStatus {
-  totalCOD: number;
-  lastCODRemitted: number;
-  nextCODAvailable: number;
-}
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -105,6 +64,11 @@ const Dashboard: React.FC = () => {
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const dateIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
+  const dashboardDataRef = useRef<DashboardData | null>(null);
+
+  useEffect(() => {
+    dashboardDataRef.current = dashboardData;
+  }, [dashboardData]);
 
   // Fetch fresh wallet balance DIRECTLY from MongoDB (no WebSocket dependency)
   // This function is called from multiple places and always fetches fresh data
@@ -147,7 +111,7 @@ const Dashboard: React.FC = () => {
 
   // Fetch all dashboard data DIRECTLY from MongoDB via REST APIs (no WebSocket dependency)
   // This ensures dashboard data is always accurate and not affected by WebSocket connections
-  const fetchAllDashboardData = async (showLoading: boolean = false) => {
+  const fetchAllDashboardData = useCallback(async (showLoading: boolean = false, overrideRange?: { startDate: string; endDate: string }) => {
     // Try to load from cache first - show data immediately, no freezing
     const cachedDashboard = DataCache.get<DashboardData>('dashboard');
     const cachedNdr = DataCache.get<any>('ndrStatus');
@@ -178,7 +142,9 @@ const Dashboard: React.FC = () => {
       };
 
       // Build date filter query parameters
-      const dateParams = `date_from=${dateFilter.startDate}&date_to=${dateFilter.endDate}`;
+      const startDate = overrideRange?.startDate ?? dateFilter.startDate;
+      const endDate = overrideRange?.endDate ?? dateFilter.endDate;
+      const dateParams = `date_from=${startDate}&date_to=${endDate}`;
       
       // Start all requests with staggered delays (0ms, 800ms, 1600ms, 2400ms, 3200ms, 4000ms)
       // Increased delays to prevent hitting rate limits - requests spread over 4 seconds
@@ -269,7 +235,7 @@ const Dashboard: React.FC = () => {
       console.error('❌ Error fetching dashboard data:', error);
       // On error, use stale cache if available - app still works!
       const staleDashboard = DataCache.getStale<DashboardData>('dashboard');
-      if (staleDashboard && !dashboardData) {
+      if (staleDashboard && !dashboardDataRef.current) {
         setDashboardData(staleDashboard);
         setNdrStatus(DataCache.getStale('ndrStatus'));
         setCodStatus(DataCache.getStale('codStatus'));
@@ -280,7 +246,7 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoading(false); // Always unblock UI
     }
-  };
+  }, [dateFilter.startDate, dateFilter.endDate]);
 
   useEffect(() => {
     // Try to load wallet balance from cache first (instant display)
@@ -316,7 +282,7 @@ const Dashboard: React.FC = () => {
       }
       clearInterval(walletRefreshInterval);
     };
-  }, [dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
+  }, [fetchAllDashboardData, dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
 
   const handleRecharge = (amount: number, promoCode?: string) => {
     console.log('Recharge initiated:', { amount, promoCode });
@@ -358,7 +324,7 @@ const Dashboard: React.FC = () => {
     setDateFilter({ startDate, endDate });
     setShowDatePicker(false);
     // Refresh dashboard data with new date range
-    fetchAllDashboardData();
+    fetchAllDashboardData(false, { startDate, endDate });
   };
 
   // Reset date filter to default (last 30 days)

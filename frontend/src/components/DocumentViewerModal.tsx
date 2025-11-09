@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adminService, ClientDocument } from '../services/adminService';
 import './DocumentViewerModal.css';
 
@@ -25,13 +25,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
   const [verificationNotes, setVerificationNotes] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && clientId) {
-      fetchDocuments();
-    }
-  }, [isOpen, clientId]);
-
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -43,7 +37,13 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [clientId]);
+
+  useEffect(() => {
+    if (isOpen && clientId) {
+      fetchDocuments();
+    }
+  }, [isOpen, clientId, fetchDocuments]);
 
   const handleVerifyKYC = async () => {
     if (!clientInfo) return;

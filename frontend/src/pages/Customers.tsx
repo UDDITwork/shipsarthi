@@ -1,5 +1,5 @@
 // Location: frontend/src/pages/Customers.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import customerService, { Customer, CustomerSearchParams, CustomerStats } from '../services/customerService';
 import './Customers.css';
@@ -19,24 +19,19 @@ const Customers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'blocked' | 'all'>('active');
   const [channelFilter, setChannelFilter] = useState<'custom' | 'order_creation' | 'import' | 'api' | 'all'>('all');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState(-1);
+  const sortBy = 'createdAt';
+  const sortOrder = -1;
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  useEffect(() => {
-    fetchCustomers();
-    fetchStats();
-  }, [searchTerm, statusFilter, channelFilter, sortBy, sortOrder]);
-
-  const fetchCustomers = async (page = 1) => {
+  const fetchCustomers = useCallback(async (pageNumber = 1) => {
     try {
       setLoading(true);
       const params: CustomerSearchParams = {
-        page,
+        page: pageNumber,
         limit: 10,
         search: searchTerm,
         status: statusFilter,
@@ -54,16 +49,21 @@ const Customers: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, statusFilter, channelFilter, sortBy, sortOrder]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const statsData = await customerService.getCustomerStats();
       setStats(statsData);
     } catch (error) {
       console.error('Error fetching customer stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCustomers();
+    fetchStats();
+  }, [fetchCustomers, fetchStats]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService, AdminClient, AdminClientsResponse } from '../services/adminService';
 import DocumentViewerModal from '../components/DocumentViewerModal';
@@ -44,20 +44,7 @@ const AdminClients: React.FC = () => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<AdminClient | null>(null);
 
-  useEffect(() => {
-    // Only fetch data if admin is authenticated
-    const isAuthenticated = localStorage.getItem('admin_authenticated');
-    console.log('🔐 Admin authentication check:', isAuthenticated);
-    if (isAuthenticated) {
-      console.log('✅ Admin authenticated, fetching clients...');
-      fetchClients();
-    } else {
-      console.log('❌ Admin not authenticated, skipping fetch');
-      setLoading(false);
-    }
-  }, [page, filters]);
-
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoading(true);
       console.log('🔍 Fetching clients with params:', { page, limit, ...filters });
@@ -79,7 +66,20 @@ const AdminClients: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, filters]);
+
+  useEffect(() => {
+    // Only fetch data if admin is authenticated
+    const isAuthenticated = localStorage.getItem('admin_authenticated');
+    console.log('🔐 Admin authentication check:', isAuthenticated);
+    if (isAuthenticated) {
+      console.log('✅ Admin authenticated, fetching clients...');
+      fetchClients();
+    } else {
+      console.log('❌ Admin not authenticated, skipping fetch');
+      setLoading(false);
+    }
+  }, [page, filters, fetchClients]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));

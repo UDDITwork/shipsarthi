@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import PackageCreationModal from '../components/PackageCreationModal';
 import { environmentConfig } from '../config/environment';
@@ -67,11 +67,7 @@ const Packages: React.FC = () => {
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
 
   // Fetch Packages on component mount and when filters change
-  useEffect(() => {
-    fetchPackages();
-  }, [activeTab, filters]);
-
-  const fetchPackages = async () => {
+  const fetchPackages = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -96,7 +92,11 @@ const Packages: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, filters]);
+
+  useEffect(() => {
+    fetchPackages();
+  }, [fetchPackages]);
 
   const handleAddPackage = () => {
     setIsAddPackageModalOpen(true);
@@ -152,14 +152,6 @@ const Packages: React.FC = () => {
       setSelectedPackages(selectedPackages.filter(id => id !== packageId));
     } else {
       setSelectedPackages([...selectedPackages, packageId]);
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selectedPackages.length === packages.length) {
-      setSelectedPackages([]);
-    } else {
-      setSelectedPackages(packages.map(pkg => pkg._id));
     }
   };
 

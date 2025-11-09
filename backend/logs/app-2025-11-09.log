@@ -1,0 +1,160 @@
+[2025-11-09T08:46:30.125Z] [INFO] [PID:13492] ✅ Tracking service started - will run every 3 hours
+[2025-11-09T08:46:32.939Z] [INFO] [PID:13492] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-09T08:46:32.939Z"
+}
+[2025-11-09T08:46:33.026Z] [INFO] [PID:13492] 🔌 WebSocket server initialized
+[2025-11-09T08:46:34.030Z] [INFO] [PID:13492] ✅ Connected to MongoDB
+[2025-11-09T08:46:34.047Z] [INFO] [PID:13492] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-09T08:46:34.457Z] [INFO] [PID:13492] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-09T08:46:34.607Z] [DEBUG] [PID:13492] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-09T08:46:35.557Z] [INFO] [PID:13492] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-09T08:46:35.557Z"
+}
+[2025-11-09T08:57:45.313Z] [INFO] [PID:13492] ✅ Delhivery API Key validation passed | Data: {
+  "apiKeyLength": 40,
+  "apiKeyPreview": "216cb0f07e...",
+  "apiURL": "https://track.delhivery.com/api"
+}
+[2025-11-09T08:57:45.318Z] [INFO] [PID:13492] 🌍 Getting zone from Delhivery invoice/charges API | Data: {
+  "pickupPincode": "302017",
+  "deliveryPincode": "243001",
+  "chargeableWeight": 3000,
+  "shippingMode": "S",
+  "shipmentStatus": "Delivered",
+  "paymentType": "COD",
+  "url": "https://track.delhivery.com/api/kinko/v1/invoice/charges/.json",
+  "params": {
+    "md": "S",
+    "ss": "Delivered",
+    "d_pin": "243001",
+    "o_pin": "302017",
+    "cgm": 3000,
+    "pt": "COD"
+  }
+}
+[2025-11-09T08:57:45.803Z] [INFO] [PID:13492] 📦 Delhivery zone API response received | Data: {
+  "pickupPincode": "302017",
+  "deliveryPincode": "243001",
+  "status": 200,
+  "responseKeys": [
+    "charge_ROV",
+    "charge_REATTEMPT",
+    "charge_RTO",
+    "charge_MPS",
+    "charge_pickup",
+    "charge_CWH",
+    "tax_data",
+    "charge_DEMUR",
+    "charge_AWB",
+    "zone",
+    "wt_rule_id",
+    "charge_AIR",
+    "charge_FSC",
+    "charge_LABEL",
+    "charge_COD",
+    "status",
+    "charge_PEAK",
+    "charge_POD",
+    "charge_LM",
+    "adhoc_data",
+    "charge_CCOD",
+    "gross_amount",
+    "charge_E2E",
+    "charge_DTO",
+    "charge_COVID",
+    "zonal_cl",
+    "charge_DL",
+    "total_amount",
+    "charge_DPH",
+    "charge_FOD",
+    "charge_DOCUMENT",
+    "charge_WOD",
+    "charge_INS",
+    "charge_FS",
+    "charge_CNC",
+    "charge_FOV",
+    "charge_QC",
+    "charged_weight"
+  ],
+  "hasData": true
+}
+[2025-11-09T08:57:45.805Z] [INFO] [PID:13492] ✅ Zone extracted and normalized from Delhivery response | Data: {
+  "pickupPincode": "302017",
+  "deliveryPincode": "243001",
+  "raw_zone": "B",
+  "normalized_zone": "B",
+  "fullResponse": {
+    "charge_ROV": 0,
+    "charge_REATTEMPT": 0,
+    "charge_RTO": 0,
+    "charge_MPS": 0,
+    "charge_pickup": 0,
+    "charge_CWH": 0,
+    "tax_data": {
+      "swacch_bharat_tax": 0,
+      "IGST": 0,
+      "SGST": 10.26,
+      "service_tax": 0,
+      "krishi_kalyan_cess": 0,
+      "CGST": 10.26
+    },
+    "charge_DEMUR": 0,
+    "charge_AWB": 0,
+    "zone": "B",
+    "wt_rule_id": null,
+    "charge_AIR": 0,
+    "charge_FSC": 0,
+    "charge_LABEL": 0,
+    "charge_COD": 20,
+    "status": "Delivered",
+    "charge_PEAK": 1,
+    "charge_POD": 0,
+    "charge_LM": 0,
+    "adhoc_data": {},
+    "charge_CCOD": 0,
+    "gross_amount": 114,
+    "charge_E2E": 0,
+    "charge_DTO": 0,
+    "charge_COVID": 0,
+    "zonal_cl": null,
+    "charge_DL": 93,
+    "total_amount": 134.52,
+    "charge_DPH": 0,
+    "charge_FOD": 0,
+    "charge_DOCUMENT": 0,
+    "charge_WOD": 0,
+    "charge_INS": 0,
+    "charge_FS": 0,
+    "charge_CNC": 0,
+    "charge_FOV": 0,
+    "charge_QC": 0,
+    "charged_weight": 3000
+  }
+}
+[2025-11-09T08:57:45.806Z] [INFO] [PID:13492] 🌍 Zone retrieved and normalized from Delhivery for public rate calculation | Data: {
+  "pickup_pincode": "302017",
+  "delivery_pincode": "243001",
+  "raw_zone": "B",
+  "normalized_zone": "B",
+  "chargeableWeightGrams": 3000
+}
+[2025-11-09T08:57:53.433Z] [INFO] [PID:13492] 🛑 SIGINT received, shutting down gracefully
+[2025-11-09T08:57:53.436Z] [INFO] [PID:13492] 🔌 Cleaning up WebSocket service...

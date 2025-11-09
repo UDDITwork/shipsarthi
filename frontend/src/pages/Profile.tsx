@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { userService, UserProfile } from '../services/userService';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -12,18 +12,7 @@ const Profile: React.FC = () => {
   const [showApiKeys, setShowApiKeys] = useState(false);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  // Refresh profile when navigating back to this page (e.g., from settings)
-  useEffect(() => {
-    if (location.pathname === '/profile') {
-      fetchUserProfile();
-    }
-  }, [location.pathname]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       const response = await userService.getUserProfile();
@@ -36,7 +25,18 @@ const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
+  // Refresh profile when navigating back to this page (e.g., from settings)
+  useEffect(() => {
+    if (location.pathname === '/profile') {
+      fetchUserProfile();
+    }
+  }, [location.pathname, fetchUserProfile]);
 
   const generateInitials = (name: string): string => {
     if (!name) return 'U';

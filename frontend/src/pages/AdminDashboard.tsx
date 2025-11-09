@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminService, AdminDashboard as AdminDashboardType, AdminClient } from '../services/adminService';
+import { adminService, AdminDashboard as AdminDashboardType } from '../services/adminService';
 import './AdminDashboard.css';
 
 const AdminDashboard: React.FC = () => {

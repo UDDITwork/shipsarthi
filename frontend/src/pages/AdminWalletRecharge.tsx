@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adminService, AdminClient } from '../services/adminService';
 import { walletService } from '../services/walletService';
 import './AdminWalletRecharge.css';
@@ -225,11 +225,7 @@ const AdminWalletRecharge: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
-  useEffect(() => {
-    fetchClients();
-  }, [page, filters]);
-
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoading(true);
       const response = await adminService.getClients({
@@ -245,7 +241,11 @@ const AdminWalletRecharge: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, filters]);
+
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));

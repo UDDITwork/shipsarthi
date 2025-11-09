@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
@@ -43,6 +43,7 @@ const Orders: React.FC = () => {
   const [activeTab, setActiveTab] = useState<OrderStatus>('new');
   const [orderType, setOrderType] = useState<OrderType>('forward');
   const [orders, setOrders] = useState<Order[]>([]);
+  const ordersRef = useRef<Order[]>([]);
   
   // Debug orders state changes
   useEffect(() => {
@@ -50,6 +51,9 @@ const Orders: React.FC = () => {
       count: orders.length,
       orders: orders
     });
+  }, [orders]);
+  useEffect(() => {
+    ordersRef.current = orders;
   }, [orders]);
   const [loading, setLoading] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -100,58 +104,7 @@ const Orders: React.FC = () => {
     warehouseName: null
   });
 
-  // Fetch Orders on component mount and when filters change
-  // NO WEBSOCKET DEPENDENCY - Orders fetched directly from MongoDB only
-  useEffect(() => {
-    fetchOrders();
-    
-    // Poll orders from MongoDB (no WebSocket dependency)
-    // Refresh every 60 seconds to avoid rate limiting while keeping orders fresh
-    const refreshInterval = setInterval(() => {
-      console.log('🔄 Polling orders from MongoDB (no WebSocket)...', { activeTab });
-      // Refresh in background without blocking UI
-      const orderFilters: any = {};
-      // When activeTab is 'all', don't set status filter
-      if (activeTab !== 'all') {
-        orderFilters.status = activeTab;
-      }
-      if (orderType) orderFilters.order_type = orderType;
-      if (filters.dateFrom) orderFilters.date_from = filters.dateFrom;
-      if (filters.dateTo) orderFilters.date_to = filters.dateTo;
-      if (filters.searchQuery) orderFilters.search = filters.searchQuery;
-      if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
-      
-      const cacheKey = `orders_${activeTab}_${orderType}_${JSON.stringify(orderFilters)}`;
-      
-      // Fetch directly from MongoDB (no cache, no WebSocket)
-      orderService.getOrders(orderFilters, false).then(fetchedOrders => {
-        if (fetchedOrders && fetchedOrders.length >= 0) {
-          setOrders(fetchedOrders);
-          // Cache the refreshed orders
-          DataCache.set(cacheKey, fetchedOrders, 5 * 60 * 1000);
-          console.log(`✅ Orders refreshed from MongoDB: ${fetchedOrders.length} orders for tab: ${activeTab}`);
-        }
-      }).catch(err => {
-        console.warn('⚠️ Orders refresh failed, keeping current data:', err);
-        // Keep existing orders on screen - don't clear them
-        // Use cached data if available
-        const cached = DataCache.getStale<Order[]>(cacheKey);
-        if (cached && cached.length > 0) {
-          setOrders(cached);
-          console.log(`📦 Using cached orders: ${cached.length} orders for tab: ${activeTab}`);
-        } else if (orders.length > 0) {
-          // Keep existing orders - don't clear them
-          console.log(`⚠️ Keeping existing ${orders.length} orders on screen despite refresh error`);
-        }
-      });
-    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
-    
-    return () => {
-      clearInterval(refreshInterval);
-    };
-  }, [activeTab, orderType, filters]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async (): Promise<void> => {
     // Build filters object - when activeTab is 'all', don't set status filter
     const orderFilters: any = {};
     if (activeTab !== 'all') {
@@ -225,9 +178,9 @@ const Orders: React.FC = () => {
       if (staleOrders && staleOrders.length > 0) {
         console.log(`⚠️ Using stale cached orders due to error (${staleOrders.length} orders) for tab: ${activeTab}`);
         setOrders(staleOrders);
-      } else if (orders.length > 0) {
+      } else if (ordersRef.current.length > 0) {
         // Keep existing orders on screen - don't clear them on error
-        console.log(`⚠️ API error but keeping existing ${orders.length} orders on screen`);
+        console.log(`⚠️ API error but keeping existing ${ordersRef.current.length} orders on screen`);
       } else {
         // No cache and no existing orders - show empty state
         console.warn('⚠️ No orders available (cache or API)');
@@ -236,7 +189,22 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, orderType, filters]);
+
+  // Fetch Orders on component mount and when filters change
+  // NO WEBSOCKET DEPENDENCY - Orders fetched directly from MongoDB only
+  useEffect(() => {
+    fetchOrders();
+
+    const refreshInterval = setInterval(() => {
+      console.log('🔄 Polling orders from MongoDB (no WebSocket)...', { activeTab });
+      fetchOrders();
+    }, 60000); // Every 60 seconds (1 minute) to avoid rate limiting
+    
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [fetchOrders, activeTab]);
 
   const handleSyncOrders = async () => {
     setLoading(true);
@@ -430,11 +398,6 @@ const Orders: React.FC = () => {
     
     // Refresh orders from MongoDB
     fetchOrders();
-  };
-
-  const handleAssignCourier = (orderId: string) => {
-    // Navigate to assign courier page
-    navigate(`/orders/assign-courier/${orderId}`);
   };
 
   const handleSelectOrder = (orderId: string) => {
@@ -812,19 +775,6 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Header functionality handlers
-  const handleRecharge = () => {
-    setIsRechargeModalOpen(true);
-  };
-
-  const handleTickets = () => {
-    navigate('/tickets');
-  };
-
-  const handleNotifications = () => {
-    setIsNotificationsOpen(!isNotificationsOpen);
   };
 
   const handleRechargeSubmit = async (amount: number) => {

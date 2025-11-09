@@ -1,5 +1,5 @@
 // Location: frontend/src/components/ProfileDropdown.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserProfile } from '../services/userService';
 import './ProfileDropdown.css';

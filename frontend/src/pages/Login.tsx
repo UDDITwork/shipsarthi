@@ -42,7 +42,7 @@ const Login: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await login(data.email, data.password, data.remember_me);
+      await login(data.email, data.password, data.remember_me);
       
       // Handle Remember Me functionality - SECURE: Only store email, not password
       if (data.remember_me) {

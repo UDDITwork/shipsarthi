@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiService } from '../services/api';
@@ -60,38 +60,16 @@ const AssignCourier: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [shipping, setShipping] = useState(false);
 
-  useEffect(() => {
-    if (orderId) {
-      fetchOrderDetails();
-      fetchCourierOptions();
-    }
-  }, [orderId]);
-
-  const fetchOrderDetails = async () => {
+  const fetchCourierOptions = useCallback(async (orderData: Order) => {
     try {
-      const response = await apiService.get<{ 
-        status: string;
-        data: Order 
-      }>(`/orders/order/${orderId}`);
-      setOrder(response.data);
-    } catch (error) {
-      console.error('Error fetching order details:', error);
-      alert('Failed to fetch order details');
-    }
-  };
-
-  const fetchCourierOptions = async () => {
-    try {
-      if (!order) return;
-
       // Calculate shipping cost using Delhivery API
       const costData = {
         billing_mode: 'S', // Surface
         shipment_status: 'Delivered',
-        destination_pincode: order.delivery_address.pincode,
-        origin_pincode: order.pickup_address.pincode,
+        destination_pincode: orderData.delivery_address.pincode,
+        origin_pincode: orderData.pickup_address.pincode,
         chargeable_weight: 5000, // 5kg in grams (default weight)
-        payment_type: order.payment_info.payment_mode === 'COD' ? 'COD' : 'Pre-paid'
+        payment_type: orderData.payment_info.payment_mode === 'COD' ? 'COD' : 'Pre-paid'
       };
 
       const costResponse = await apiService.post<{
@@ -159,7 +137,29 @@ const AssignCourier: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const fetchOrderDetails = useCallback(async () => {
+    if (!orderId) return;
+    try {
+      setLoading(true);
+      const response = await apiService.get<{ 
+        status: string;
+        data: Order 
+      }>(`/orders/order/${orderId}`);
+      const orderData = response.data;
+      setOrder(orderData);
+      await fetchCourierOptions(orderData);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      alert('Failed to fetch order details');
+      setLoading(false);
+    }
+  }, [orderId, fetchCourierOptions]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const handleShipNow = async () => {
     if (!selectedCourier || !order) return;
@@ -355,7 +355,13 @@ Courier will be notified for pickup.`);
                         Pickup cut-off time: <span className="cutoff-time">{courier.pickup_cutoff_time}</span>
                       </div>
                       {courier.more_options && (
-                        <a href="#" className="more-options">{courier.more_options}</a>
+                        <button
+                          type="button"
+                          className="more-options"
+                          onClick={() => alert('More shipping options will be available soon.')}
+                        >
+                          {courier.more_options}
+                        </button>
                       )}
                     </div>
                   </div>

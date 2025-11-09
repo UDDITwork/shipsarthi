@@ -21,7 +21,6 @@ const detectEnvironment = (): EnvironmentConfig => {
   
   // Auto-detect environment
   const isDevelopment = isLocalhost && isDevPort;
-  const isProduction = !isDevelopment;
   
   // Override with manual environment if set
   const manualEnv = process.env.REACT_APP_ENVIRONMENT;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, CheckCircle, AlertCircle, Clock, MessageSquare } from 'lucide-react';
+import { Bell, X, AlertCircle, Clock, MessageSquare } from 'lucide-react';
 import { adminService } from '../services/adminService';
-import { notificationService } from '../services/notificationService';
 
 interface Notification {
   _id: string;
@@ -105,23 +104,6 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ onTicketClick }) =>
         return <span className="text-lg">💸</span>;
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'new_ticket':
-        return 'bg-blue-50 border-blue-200';
-      case 'ticket_update':
-        return 'bg-yellow-50 border-yellow-200';
-      case 'message_received':
-        return 'bg-green-50 border-green-200';
-      case 'wallet_recharge':
-        return 'bg-green-50 border-green-200';
-      case 'wallet_deduction':
-        return 'bg-red-50 border-red-200';
-      default:
-        return 'bg-gray-50 border-gray-200';
     }
   };
 
