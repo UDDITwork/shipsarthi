@@ -113,11 +113,12 @@ const Login: React.FC = () => {
 
                 {/* Email or Phone */}
                 <div className="form-group">
-                  <label className="form-label">
+                  <label className="form-label" htmlFor="login-email">
                     Email or Phone
                   </label>
                   <div className="input-container">
                     <input
+                      id="login-email"
                       type="text"
                       {...register('email', { 
                         required: 'Email or phone is required',
@@ -141,11 +142,12 @@ const Login: React.FC = () => {
 
                 {/* Password */}
                 <div className="form-group">
-                  <label className="form-label">
+                  <label className="form-label" htmlFor="login-password">
                     Password
                   </label>
                   <div className="input-container">
                     <input
+                      id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       {...register('password', { required: 'Password is required' })}
                       className="form-input"
@@ -155,6 +157,7 @@ const Login: React.FC = () => {
                       type="button"
                       className="password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
                         <EyeOff className="toggle-icon" />
@@ -170,22 +173,22 @@ const Login: React.FC = () => {
 
                 {/* Remember Me and Forgot Password */}
                 <div className="form-options">
-                  <div className="remember-me">
+                  <label htmlFor="remember" className="remember-me">
                     <input
                       type="checkbox"
                       {...register('remember_me')}
                       className="checkbox"
                       id="remember"
                     />
-                    <label htmlFor="remember" className="checkbox-label">
+                    <span className="checkbox-label">
                       Remember me
-                    </label>
-                  </div>
+                    </span>
+                  </label>
                   <Link
                     to="/forgot-password"
                     className="forgot-password-link"
                   >
-                    Forgot Password ?
+                    Forgot password?
                   </Link>
                 </div>
 
