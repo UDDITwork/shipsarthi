@@ -9,6 +9,7 @@ import {
 import './AdminTicketSummary.css';
 
 type StatusFilter = AdminTicket['status'] | 'all';
+type PriorityFilter = AdminTicket['priority'] | 'all';
 
 const STATUS_ORDER: AdminTicket['status'][] = [
   'open',
@@ -26,6 +27,20 @@ const STATUS_CONFIG: Record<AdminTicket['status'], { label: string; icon: string
   escalated: { label: 'Escalated', icon: '⚠️', className: 'escalated' },
   resolved: { label: 'Resolved', icon: '✅', className: 'resolved' },
   closed: { label: 'Closed', icon: '🔒', className: 'closed' }
+};
+
+const PRIORITY_ORDER: AdminTicket['priority'][] = [
+  'urgent',
+  'high',
+  'medium',
+  'low'
+];
+
+const PRIORITY_CONFIG: Record<AdminTicket['priority'], { label: string; icon: string; className: string; description: string }> = {
+  urgent: { label: 'Urgent', icon: '🚨', className: 'urgent', description: 'Immediate attention required' },
+  high: { label: 'High', icon: '⚡', className: 'high', description: 'Action needed soon' },
+  medium: { label: 'Medium', icon: '📌', className: 'medium', description: 'Normal attention level' },
+  low: { label: 'Low', icon: '🕘', className: 'low', description: 'Can be scheduled later' }
 };
 
 const formatNumber = (value: number | undefined | null) => {
@@ -58,6 +73,7 @@ const AdminTicketSummary: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
   const navigate = useNavigate();
 
   const loadSummary = async () => {
@@ -68,8 +84,28 @@ const AdminTicketSummary: React.FC = () => {
       const sortedClients = [...(data.clients || [])].sort(
         (a, b) => (b.totalTickets || 0) - (a.totalTickets || 0)
       );
+
+      const computedPriorityTotals = PRIORITY_ORDER.reduce((acc, key) => {
+        acc[key] = sortedClients.reduce((sum, client) => {
+          const clientCount = client.priorityCounts?.[key] ?? 0;
+          return sum + clientCount;
+        }, 0);
+        return acc;
+      }, {
+        urgent: 0,
+        high: 0,
+        medium: 0,
+        low: 0
+      } as Record<AdminTicket['priority'], number>);
+
       setSummary({
         totals: data.totals,
+        priorityTotals: {
+          urgent: data.priorityTotals?.urgent ?? computedPriorityTotals.urgent,
+          high: data.priorityTotals?.high ?? computedPriorityTotals.high,
+          medium: data.priorityTotals?.medium ?? computedPriorityTotals.medium,
+          low: data.priorityTotals?.low ?? computedPriorityTotals.low
+        },
         clients: sortedClients
       });
     } catch (err: any) {
@@ -94,26 +130,38 @@ const AdminTicketSummary: React.FC = () => {
       const meetsStatus =
         statusFilter === 'all' ||
         (client.statusCounts?.[statusFilter] ?? 0) > 0;
-      return meetsSearch && meetsStatus;
+      const meetsPriority =
+        priorityFilter === 'all' ||
+        (client.priorityCounts?.[priorityFilter] ?? 0) > 0;
+      return meetsSearch && meetsStatus && meetsPriority;
     });
-  }, [summary, searchTerm, statusFilter]);
+  }, [summary, searchTerm, statusFilter, priorityFilter]);
 
-  const handleCardFilter = (status: AdminTicket['status']) => {
+  const handleStatusCardFilter = (status: AdminTicket['status']) => {
     setStatusFilter((current) => (current === status ? 'all' : status));
   };
 
-  const handleViewTickets = (client: AdminTicketSummaryClient, status?: AdminTicket['status']) => {
+  const handlePriorityCardFilter = (priority: AdminTicket['priority']) => {
+    setPriorityFilter((current) => (current === priority ? 'all' : priority));
+  };
+
+  const handleViewTickets = (
+    client: AdminTicketSummaryClient,
+    status?: AdminTicket['status'],
+    priority?: AdminTicket['priority']
+  ) => {
     const path = `/admin/clients/${client.clientMongoId}/tickets`;
-    if (status) {
-      navigate(`${path}?status=${encodeURIComponent(status)}`);
-    } else {
-      navigate(path);
-    }
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (priority) params.set('priority', priority);
+    const query = params.toString();
+    navigate(query ? `${path}?${query}` : path);
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
+    setPriorityFilter('all');
   };
 
   return (
@@ -178,7 +226,7 @@ const AdminTicketSummary: React.FC = () => {
                 <span className="status-icon">{config.icon}</span>
                 <button
                   className="status-card-action"
-                  onClick={() => handleCardFilter(statusKey)}
+                  onClick={() => handleStatusCardFilter(statusKey)}
                 >
                   {statusFilter === statusKey ? 'Show All' : 'View Clients'}
                 </button>
@@ -189,6 +237,38 @@ const AdminTicketSummary: React.FC = () => {
             </div>
           );
         })}
+      </div>
+
+      <div className="priority-cards">
+        <div className="priority-header">
+          <h2>Priority Overview</h2>
+          <span className="priority-subtitle">Understand workload urgency across clients</span>
+        </div>
+        <div className="priority-grid">
+          {PRIORITY_ORDER.map((priorityKey) => {
+            const config = PRIORITY_CONFIG[priorityKey];
+            const totalForPriority = summary?.priorityTotals?.[priorityKey] ?? 0;
+            return (
+              <div
+                key={priorityKey}
+                className={`priority-card ${config.className} ${priorityFilter === priorityKey ? 'active' : ''}`}
+              >
+                <div className="priority-card-header">
+                  <span className="priority-icon">{config.icon}</span>
+                  <button
+                    className="priority-card-action"
+                    onClick={() => handlePriorityCardFilter(priorityKey)}
+                  >
+                    {priorityFilter === priorityKey ? 'Show All' : 'View Clients'}
+                  </button>
+                </div>
+                <p className="priority-label">{config.label}</p>
+                <p className="priority-count">{formatNumber(totalForPriority)}</p>
+                <span className="priority-meta">{config.description}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="ticket-summary-filters">
@@ -212,6 +292,21 @@ const AdminTicketSummary: React.FC = () => {
               {STATUS_ORDER.map((statusKey) => (
                 <option key={statusKey} value={statusKey}>
                   {STATUS_CONFIG[statusKey].label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="select-field">
+            <label htmlFor="ticket-priority-filter">Priority</label>
+            <select
+              id="ticket-priority-filter"
+              value={priorityFilter}
+              onChange={(event) => setPriorityFilter(event.target.value as PriorityFilter)}
+            >
+              <option value="all">All priorities</option>
+              {PRIORITY_ORDER.map((priorityKey) => (
+                <option key={priorityKey} value={priorityKey}>
+                  {PRIORITY_CONFIG[priorityKey].label}
                 </option>
               ))}
             </select>
@@ -272,10 +367,11 @@ const AdminTicketSummary: React.FC = () => {
 
                   const handleViewTicketsClick = (
                     event: React.MouseEvent<HTMLButtonElement>,
-                    status?: AdminTicket['status']
+                    status?: AdminTicket['status'],
+                    priority?: AdminTicket['priority']
                   ) => {
                     event.stopPropagation();
-                    handleViewTickets(client, status);
+                    handleViewTickets(client, status, priority);
                   };
 
                   const handleClientsListClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -320,7 +416,8 @@ const AdminTicketSummary: React.FC = () => {
                             onClick={(event) =>
                               handleViewTicketsClick(
                                 event,
-                                statusFilter === 'all' ? undefined : (statusFilter as AdminTicket['status'])
+                                statusFilter === 'all' ? undefined : (statusFilter as AdminTicket['status']),
+                                priorityFilter === 'all' ? undefined : (priorityFilter as AdminTicket['priority'])
                               )
                             }
                           >

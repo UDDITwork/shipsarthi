@@ -188,19 +188,24 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
   // Filter warehouses based on search query
   useEffect(() => {
-    const q = (searchQuery || '').trim().toLowerCase();
+    const normalize = (value: unknown): string => {
+      if (value === null || value === undefined) return '';
+      return String(value).toLowerCase();
+    };
+
+    const q = normalize(searchQuery).trim();
     if (!q) {
       setFilteredWarehouses(warehouses);
       return;
     }
 
     const filtered = warehouses.filter((warehouse) => {
-      const name = (warehouse.name || '').toLowerCase();
-      const title = ((warehouse as any).title || '').toLowerCase();
-      const city = (warehouse.address?.city || '').toLowerCase();
-      const state = (warehouse.address?.state || '').toLowerCase();
-      const pincode = (warehouse.address?.pincode || '').toLowerCase();
-      const fullAddress = (warehouse.address?.full_address || '').toLowerCase();
+      const name = normalize(warehouse.name);
+      const title = normalize((warehouse as any).title);
+      const city = normalize(warehouse.address?.city);
+      const state = normalize(warehouse.address?.state);
+      const pincode = normalize(warehouse.address?.pincode);
+      const fullAddress = normalize(warehouse.address?.full_address);
 
       return (
         name.includes(q) ||

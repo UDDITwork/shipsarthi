@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
 import TrackingModal from '../components/TrackingModal';
@@ -36,8 +36,11 @@ interface BulkImportSummary {
   details: Array<{ row: number; order_id: string | null }>;
 }
 
+type OrderSearchType = 'reference' | 'awb' | 'order';
+
 const Orders: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // State Management
   const [activeTab, setActiveTab] = useState<OrderStatus>('new');
@@ -103,6 +106,25 @@ const Orders: React.FC = () => {
     orderNumber: null,
     warehouseName: null
   });
+
+  const applyGlobalSearch = useCallback((query: string, type: OrderSearchType) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return;
+    }
+
+    setFilters((prev) => {
+      if (prev.searchQuery === trimmedQuery && prev.searchType === type) {
+        return prev;
+      }
+      return {
+        ...prev,
+        searchQuery: trimmedQuery,
+        searchType: type,
+      };
+    });
+    setActiveTab((prev) => (prev === 'all' ? prev : 'all'));
+  }, []);
 
   const fetchOrders = useCallback(async (): Promise<void> => {
     // Build filters object - when activeTab is 'all', don't set status filter
@@ -190,6 +212,47 @@ const Orders: React.FC = () => {
       setLoading(false);
     }
   }, [activeTab, orderType, filters]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search') || '';
+    const typeParam = params.get('search_type') as OrderSearchType | null;
+    const stateData = location.state as { searchQuery?: string; searchType?: OrderSearchType } | null;
+    const stateQuery = stateData?.searchQuery || '';
+    const stateType = stateData?.searchType;
+
+    const effectiveQuery = (searchParam || stateQuery || '').trim();
+    const effectiveType: OrderSearchType =
+      typeParam && ['order', 'awb', 'reference'].includes(typeParam)
+        ? typeParam
+        : stateType && ['order', 'awb', 'reference'].includes(stateType)
+        ? stateType
+        : 'order';
+
+    if (effectiveQuery) {
+      applyGlobalSearch(effectiveQuery, effectiveType);
+    } else {
+      setFilters((prev) => {
+        if (!prev.searchQuery) {
+          return prev;
+        }
+        return { ...prev, searchQuery: '', searchType: prev.searchType };
+      });
+    }
+  }, [location.search, location.state, applyGlobalSearch]);
+
+  useEffect(() => {
+    const handleHeaderSearch = (event: Event) => {
+      const custom = event as CustomEvent<{ searchQuery: string; searchType: OrderSearchType }>;
+      if (!custom?.detail) return;
+      applyGlobalSearch(custom.detail.searchQuery, custom.detail.searchType);
+    };
+
+    window.addEventListener('order-global-search', handleHeaderSearch);
+    return () => {
+      window.removeEventListener('order-global-search', handleHeaderSearch);
+    };
+  }, [applyGlobalSearch]);
 
   // Fetch Orders on component mount and when filters change
   // NO WEBSOCKET DEPENDENCY - Orders fetched directly from MongoDB only

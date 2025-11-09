@@ -26,6 +26,7 @@ const AdminClientTickets: React.FC = () => {
     status: searchParams.get('status') || '',
     category: searchParams.get('category') || '',
     search: searchParams.get('search') || '',
+    priority: searchParams.get('priority') || '',
     page: parseInt(searchParams.get('page') || '1'),
     limit: 10
   });
@@ -61,6 +62,7 @@ const AdminClientTickets: React.FC = () => {
     const params = new URLSearchParams();
     if (filters.status) params.set('status', filters.status);
     if (filters.category) params.set('category', filters.category);
+    if (filters.priority) params.set('priority', filters.priority);
     if (filters.search) params.set('search', filters.search);
     if (filters.page > 1) params.set('page', filters.page.toString());
     setSearchParams(params, { replace: true });
@@ -85,7 +87,8 @@ const AdminClientTickets: React.FC = () => {
         page: filters.page,
         limit: filters.limit,
         status: filters.status || undefined,
-        category: filters.category || undefined
+        category: filters.category || undefined,
+        priority: filters.priority || undefined
       });
       
       // Filter by search query on client side if provided
@@ -97,6 +100,10 @@ const AdminClientTickets: React.FC = () => {
           ticket.ticket_id?.toLowerCase().includes(searchLower) ||
           ticket.description?.toLowerCase().includes(searchLower)
         );
+      }
+
+      if (filters.priority) {
+        filteredTickets = filteredTickets.filter(ticket => ticket.priority === filters.priority);
       }
       
       setTickets(filteredTickets);
@@ -176,7 +183,7 @@ const AdminClientTickets: React.FC = () => {
     if (clientId) {
       fetchTickets();
     }
-  }, [clientId, filters.status, filters.category, filters.search, filters.page, fetchTickets]);
+  }, [clientId, filters.status, filters.category, filters.priority, filters.search, filters.page, fetchTickets]);
 
   useEffect(() => {
     if (selectedTicket) {
@@ -422,6 +429,18 @@ const AdminClientTickets: React.FC = () => {
           </select>
 
           <select
+            value={filters.priority}
+            onChange={(e) => handleFilterChange('priority', e.target.value)}
+            className="filter-select"
+          >
+            <option value="">All Priorities</option>
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <select
             value={filters.category}
             onChange={(e) => handleFilterChange('category', e.target.value)}
             className="filter-select"
@@ -440,7 +459,7 @@ const AdminClientTickets: React.FC = () => {
           </select>
 
           <button
-            onClick={() => setFilters({ ...filters, status: '', category: '', search: '', page: 1 })}
+            onClick={() => setFilters({ ...filters, status: '', category: '', priority: '', search: '', page: 1 })}
             className="clear-filters-btn"
           >
             Clear Filters

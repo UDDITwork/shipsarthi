@@ -703,7 +703,10 @@ const Tools: React.FC = () => {
                 <div className="calculator-form-container">
                   <div className="calculator-tabs">
                     <button className={`mode-tab active`}>Domestic</button>
-                    <button className={`mode-tab`}>International</button>
+                    <button className="mode-tab disabled" type="button">
+                      International
+                      <span className="coming-soon-badge">Coming Soon</span>
+                    </button>
                   </div>
 
                   <div className="calculator-form">

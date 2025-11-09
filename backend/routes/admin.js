@@ -17,6 +17,7 @@ const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
 const STATUS_KEYS = ['open', 'in_progress', 'waiting_customer', 'resolved', 'closed', 'escalated'];
+const PRIORITY_KEYS = ['urgent', 'high', 'medium', 'low'];
 
 const formatStatusCounts = (stats = []) => {
   const counts = STATUS_KEYS.reduce((acc, key) => {
@@ -771,11 +772,12 @@ router.get('/clients/:id/tickets', async (req, res) => {
       });
     }
 
-    const { page = 1, limit = 10, status = '', category = '' } = req.query;
+    const { page = 1, limit = 10, status = '', category = '', priority = '' } = req.query;
     const skip = (page - 1) * limit;
 
     // Build filter query
     const filterQuery = { user_id: new mongoose.Types.ObjectId(req.params.id) };
+    const normalizedPriority = typeof priority === 'string' ? priority.trim().toLowerCase() : '';
 
     if (status && status !== 'all') {
       filterQuery.status = status;
@@ -783,6 +785,10 @@ router.get('/clients/:id/tickets', async (req, res) => {
 
     if (category && category !== 'all') {
       filterQuery.category = category;
+    }
+
+    if (normalizedPriority && normalizedPriority !== 'all') {
+      filterQuery.priority = normalizedPriority;
     }
 
     // Get tickets with pagination
@@ -848,11 +854,38 @@ router.get('/tickets/summary', async (req, res) => {
       return acc;
     }, {});
 
+    const priorityGroupStage = PRIORITY_KEYS.reduce((acc, priorityKey) => {
+      acc[priorityKey] = {
+        $sum: {
+          $cond: [
+            {
+              $eq: [
+                {
+                  $trim: {
+                    input: {
+                      $toLower: {
+                        $ifNull: ['$priority', '']
+                      }
+                    }
+                  }
+                },
+                priorityKey
+              ]
+            },
+            1,
+            0
+          ]
+        }
+      };
+      return acc;
+    }, {});
+
     const groupStage = {
       _id: '$user_id',
       totalTickets: { $sum: 1 },
       latestUpdatedAt: { $max: '$updated_at' },
-      ...statusGroupStage
+      ...statusGroupStage,
+      ...priorityGroupStage
     };
 
     const aggregationPipeline = [
@@ -880,6 +913,11 @@ router.get('/tickets/summary', async (req, res) => {
       return acc;
     }, {});
 
+    const overallPriorityTotals = PRIORITY_KEYS.reduce((acc, key) => {
+      acc[key] = 0;
+      return acc;
+    }, {});
+
     let overallTotalTickets = 0;
 
     const clients = summaryResults.map((result) => {
@@ -887,6 +925,13 @@ router.get('/tickets/summary', async (req, res) => {
         const value = result[key] || 0;
         acc[key] = value;
         overallTotals[key] += value;
+        return acc;
+      }, {});
+
+      const priorityCounts = PRIORITY_KEYS.reduce((acc, key) => {
+        const value = result[key] || 0;
+        acc[key] = value;
+        overallPriorityTotals[key] += value;
         return acc;
       }, {});
 
@@ -901,6 +946,7 @@ router.get('/tickets/summary', async (req, res) => {
         email: result.client?.email || '',
         phoneNumber: result.client?.phone_number || '',
         statusCounts,
+        priorityCounts,
         totalTickets,
         latestUpdatedAt: result.latestUpdatedAt || null
       };
@@ -911,10 +957,15 @@ router.get('/tickets/summary', async (req, res) => {
       ...overallTotals
     };
 
+    const priorityTotalsResponse = {
+      ...overallPriorityTotals
+    };
+
     res.json({
       success: true,
       data: {
         totals: totalsResponse,
+        priorityTotals: priorityTotalsResponse,
         clients
       }
     });
@@ -956,8 +1007,10 @@ router.get('/tickets', async (req, res) => {
       filterQuery.category = category;
     }
 
-    if (priority && priority !== 'all') {
-      filterQuery.priority = priority;
+    const normalizedPriority = typeof priority === 'string' ? priority.trim().toLowerCase() : '';
+
+    if (normalizedPriority && normalizedPriority !== 'all') {
+      filterQuery.priority = normalizedPriority;
     }
 
     if (assigned_to && assigned_to !== 'all') {
@@ -1297,7 +1350,9 @@ router.patch('/tickets/:id/priority', async (req, res) => {
     const { priority, reason = '' } = req.body;
     const validPriorities = ['low', 'medium', 'high', 'urgent'];
 
-    if (!priority || !validPriorities.includes(priority)) {
+    const normalizedPriorityValue = typeof priority === 'string' ? priority.trim().toLowerCase() : '';
+
+    if (!normalizedPriorityValue || !validPriorities.includes(normalizedPriorityValue)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid priority value'
@@ -1315,7 +1370,7 @@ router.patch('/tickets/:id/priority', async (req, res) => {
 
     const previousPriority = ticket.priority;
 
-    if (previousPriority === priority) {
+    if (previousPriority === normalizedPriorityValue) {
       return res.json({
         success: true,
         message: 'Priority unchanged',
@@ -1327,9 +1382,9 @@ router.patch('/tickets/:id/priority', async (req, res) => {
       });
     }
 
-    ticket.priority = priority;
+    ticket.priority = normalizedPriorityValue;
 
-    const priorityMessage = `Ticket priority changed from "${previousPriority}" to "${priority}"${reason ? `. Reason: ${reason}` : ''}`;
+    const priorityMessage = `Ticket priority changed from "${previousPriority}" to "${normalizedPriorityValue}"${reason ? `. Reason: ${reason}` : ''}`;
     await ticket.addMessage('system', 'System', priorityMessage, [], true);
 
     const updatedTicket = await SupportTicket.findById(ticket._id)
@@ -1350,7 +1405,7 @@ router.patch('/tickets/:id/priority', async (req, res) => {
       data: {
         ticket: updatedTicket,
         previous_priority: previousPriority,
-        current_priority: priority,
+        current_priority: normalizedPriorityValue,
         status_counts: clientStatusCounts
       }
     });

@@ -148,6 +148,13 @@ export interface AdminTicketSummaryTotals {
   escalated: number;
 }
 
+export interface AdminTicketPriorityTotals {
+  urgent: number;
+  high: number;
+  medium: number;
+  low: number;
+}
+
 export interface AdminTicketSummaryClient {
   clientMongoId: string;
   clientId: string | null;
@@ -164,11 +171,18 @@ export interface AdminTicketSummaryClient {
     closed: number;
     escalated: number;
   };
+  priorityCounts: {
+    urgent: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
   latestUpdatedAt: string | null;
 }
 
 export interface AdminTicketSummaryData {
   totals: AdminTicketSummaryTotals;
+  priorityTotals?: AdminTicketPriorityTotals;
   clients: AdminTicketSummaryClient[];
 }
 
@@ -511,6 +525,7 @@ class AdminService {
     limit?: number;
     status?: string;
     category?: string;
+    priority?: string;
   } = {}): Promise<AdminTicketsResponse> {
     const queryParams = new URLSearchParams();
     
@@ -518,6 +533,7 @@ class AdminService {
     if (params.limit) queryParams.append('limit', params.limit.toString());
     if (params.status) queryParams.append('status', params.status);
     if (params.category) queryParams.append('category', params.category);
+    if (params.priority) queryParams.append('priority', params.priority);
 
     const response = await apiService.get<AdminTicketsResponse>(`/admin/clients/${clientId}/tickets?${queryParams.toString()}`, {
       headers: this.getAdminHeaders()

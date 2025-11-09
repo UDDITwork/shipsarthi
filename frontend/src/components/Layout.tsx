@@ -36,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const lastWalletFetchRef = useRef<number>(0);
   const lastProfileFetchRef = useRef<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchType, setSearchType] = useState<'order' | 'awb' | 'reference'>('order');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
@@ -45,8 +46,31 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle search functionality
-    console.log('Searching for:', searchQuery);
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set('search', trimmedQuery);
+    params.set('search_type', searchType);
+
+    const targetUrl = `/orders?${params.toString()}`;
+    const searchPayload = {
+      searchQuery: trimmedQuery,
+      searchType,
+    } as const;
+
+    navigate(targetUrl, { state: searchPayload });
+
+    // Emit global event so Orders page can react immediately (also handles same-route searches)
+    setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent('order-global-search', {
+          detail: searchPayload,
+        })
+      );
+    }, 0);
   };
 
   const handleRecharge = () => {
@@ -404,7 +428,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         <div className="header-center">
           <form onSubmit={handleSearch} className="search-form">
-            <select className="search-select">
+            <select
+              className="search-select"
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as 'order' | 'awb' | 'reference')}
+            >
               <option value="order">Order ID</option>
               <option value="awb">AWB</option>
               <option value="reference">Reference ID</option>
