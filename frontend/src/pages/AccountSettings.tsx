@@ -59,6 +59,8 @@ const AccountSettings: React.FC = () => {
   // Avatar upload state
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     userRef.current = user;
@@ -633,6 +635,57 @@ const AccountSettings: React.FC = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    logoInputRef.current?.click();
+  };
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG, PNG, JPG, and SVG images are allowed for the company logo');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      e.target.value = '';
+      return;
+    }
+
+    setUploadingLogo(true);
+
+    try {
+      const response = await userService.updateCompanyLogo(file);
+
+      if (userRef.current) {
+        const updatedUser: User = {
+          ...userRef.current,
+          company_logo_url: response.company_logo_url,
+          company_logo_public_id: response.company_logo_public_id,
+          company_logo_uploaded_at: response.company_logo_uploaded_at
+        };
+        setUser(updatedUser);
+        DataCache.set('userProfile', updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      } else {
+        await fetchUserData();
+      }
+
+      alert(response.message || 'Company logo updated successfully!');
+    } catch (error: any) {
+      console.error('Error uploading company logo:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to upload company logo';
+      alert(errorMessage);
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = '';
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'uploaded':
@@ -758,6 +811,35 @@ const AccountSettings: React.FC = () => {
             <h2>{user?.company_name || 'Loading...'}</h2>
             <p className="client-id">Client ID: {user?.client_id || 'Loading...'}</p>
           </div>
+        <div className="company-logo-section">
+          <div className="company-logo-preview">
+            {user?.company_logo_url ? (
+              <img 
+                src={user.company_logo_url} 
+                alt={`${user?.company_name || 'Company'} logo`} 
+              />
+            ) : (
+              <span className="company-logo-placeholder">
+                Upload your logo to show on shipping labels
+              </span>
+            )}
+          </div>
+          <button 
+            className="upload-logo-btn"
+            onClick={handleLogoClick}
+            disabled={uploadingLogo}
+          >
+            {uploadingLogo ? 'Uploading...' : user?.company_logo_url ? 'Change Logo' : 'Upload Logo'}
+          </button>
+          <p className="company-logo-hint">Supports PNG, JPG, JPEG, SVG (max 5MB)</p>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+            onChange={handleLogoChange}
+            style={{ display: 'none' }}
+          />
+        </div>
         </div>
 
         {/* User Details Card */}
@@ -768,7 +850,7 @@ const AccountSettings: React.FC = () => {
               className="edit-btn"
               onClick={() => toggleEditMode('userDetails')}
             >
-              ✏️
+              Edit
             </button>
           </div>
           <div className="card-body">
@@ -878,7 +960,7 @@ const AccountSettings: React.FC = () => {
               className="edit-btn"
               onClick={() => toggleEditMode('address')}
             >
-              ✏️
+              Edit
             </button>
           </div>
           <div className="card-body">
@@ -965,7 +1047,7 @@ const AccountSettings: React.FC = () => {
               className="edit-btn"
               onClick={() => toggleEditMode('bankDetails')}
             >
-              ✏️
+              Edit
             </button>
           </div>
           <div className="card-body">

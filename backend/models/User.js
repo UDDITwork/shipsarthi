@@ -233,6 +233,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  company_logo_url: {
+    type: String,
+    default: null
+  },
+  company_logo_public_id: {
+    type: String,
+    default: null
+  },
+  company_logo_uploaded_at: {
+    type: Date,
+    default: null
+  },
 
   // Timestamps
   created_at: {

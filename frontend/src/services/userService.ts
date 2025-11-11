@@ -11,6 +11,9 @@ export interface User {
   gstin: string;
   joined_date: string;
   avatar_url?: string;
+  company_logo_url?: string;
+  company_logo_public_id?: string;
+  company_logo_uploaded_at?: string;
   address: {
     full_address: string;
     landmark: string;
@@ -158,6 +161,38 @@ class UserService {
     throw new Error(response.message || 'Failed to update avatar');
   }
 
+  // Update company logo
+  async updateCompanyLogo(file: File): Promise<{
+    message: string;
+    company_logo_url: string;
+    company_logo_public_id?: string;
+    company_logo_uploaded_at?: string;
+  }> {
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    const response = await apiService.post<{
+      status: string;
+      message: string;
+      data?: {
+        company_logo_url: string;
+        company_logo_public_id?: string;
+        company_logo_uploaded_at?: string;
+      };
+    }>('/users/company-logo', formData);
+
+    if (response.status === 'success' && response.data?.company_logo_url) {
+      return {
+        message: response.message || 'Company logo updated successfully',
+        company_logo_url: response.data.company_logo_url,
+        company_logo_public_id: response.data.company_logo_public_id,
+        company_logo_uploaded_at: response.data.company_logo_uploaded_at
+      };
+    }
+
+    throw new Error(response.message || 'Failed to update company logo');
+  }
+
   // Get API documentation
   async getApiDocumentation(): Promise<{ version: string; download_url: string }> {
     const response = await apiService.get<{ data: { version: string; download_url: string } }>('/users/api-docs');
@@ -263,6 +298,9 @@ export interface UserProfile {
   walletBalance?: number;
   wallet_balance?: number;
   initials?: string;
+  company_logo_url?: string;
+  company_logo_public_id?: string;
+  company_logo_uploaded_at?: string;
 }
 
 export interface DashboardData {

@@ -917,7 +917,7 @@ router.get('/:id/print', auth, async (req, res) => {
     const order = await Order.findOne({
       _id: req.params.id,
       user_id: req.user._id
-    }).populate('user_id', 'company_name your_name email phone_number')
+    }).populate('user_id', 'company_name your_name email phone_number company_logo_url company_logo_public_id company_logo_uploaded_at')
       .lean();
 
     if (!order) {
@@ -2661,6 +2661,8 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
   const sellerGst = order.seller_info?.gst_number || order.user_id?.gst_number || '';
   const sellerPhone = order.pickup_address?.phone || order.user_id?.phone_number || '';
   const sellerEmail = order.user_id?.email || '';
+  const companyLogoUrl = order.user_id?.company_logo_url || '';
+  const headerLogosClass = companyLogoUrl ? 'header-logos' : 'header-logos only-carrier';
 
   // Product list & notes
   const products = Array.isArray(order.products) ? order.products : [];
@@ -2714,10 +2716,25 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       padding-bottom: 8px;
       margin-bottom: 10px;
     }
-    .logo {
-      max-width: 120px;
-      height: auto;
+    .header-logos {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       margin-bottom: 5px;
+    }
+    .header-logos.only-carrier {
+      justify-content: center;
+    }
+    .company-logo {
+      max-width: 110px;
+      max-height: 45px;
+      object-fit: contain;
+    }
+    .carrier-logo {
+      max-width: 120px;
+      max-height: 45px;
+      object-fit: contain;
     }
     .awb-section {
       text-align: center;
@@ -2816,7 +2833,10 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
   <div class="label-container">
     <!-- Header with Logo -->
     <div class="header">
-      ${delhiveryLogo ? `<img src="${delhiveryLogo}" class="logo" alt="Delhivery">` : '<div style="font-size: 14px; font-weight: bold;">DELHIVERY</div>'}
+      <div class="${headerLogosClass}">
+        ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo" alt="Company Logo">` : ''}
+        ${delhiveryLogo ? `<img src="${delhiveryLogo}" class="carrier-logo" alt="Delhivery">` : '<div style="font-size: 14px; font-weight: bold;">DELHIVERY</div>'}
+      </div>
       <div style="margin-top: 5px; font-size: 10px; font-weight: bold;">SHIPPING LABEL</div>
     </div>
 
@@ -2833,14 +2853,6 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <img src="${barcodeImage}" class="barcode-image" alt="Barcode">
     </div>
     ` : ''}
-
-    <!-- Origin Info -->
-    <div class="info-section">
-      <div class="info-title">FROM (ORIGIN)</div>
-      <div class="info-row"><strong>${originName}</strong></div>
-      <div class="info-row">${originAddress}</div>
-      <div class="info-row">${originCity}, ${originState} - ${originPincode}</div>
-    </div>
 
     <div class="info-section">
       <div class="info-title">SELLER / CONTACT</div>
@@ -2859,8 +2871,6 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <div class="info-row">${deliveryAddress}</div>
       ${deliveryLandmark ? `<div class="info-row">Landmark: ${deliveryLandmark}</div>` : ''}
       <div class="info-row"><strong>${deliveryCity}, ${deliveryState} - ${deliveryPincode}</strong></div>
-      <div class="info-row">Phone: ${customerPhone}</div>
-      ${customerEmail ? `<div class="info-row">Email: ${customerEmail}</div>` : ''}
     </div>
 
     <!-- Package Details -->
@@ -2875,9 +2885,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       ${dimensions !== 'N/A' ? `<div class="info-row"><strong>Dimensions:</strong> ${dimensions}</div>` : ''}
       <div class="info-row"><strong>Payment:</strong> ${paymentMode} ${codAmount > 0 ? `- COD: ${formatCurrency(codAmount)}` : ''}</div>
       <div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>
-      ${shippingCharges > 0 ? `<div class="info-row"><strong>Shipping Charges:</strong> ${formatCurrency(shippingCharges)}</div>` : ''}
       ${totalAmount > 0 ? `<div class="info-row"><strong>Total Amount:</strong> ${formatCurrency(totalAmount)}</div>` : ''}
-      ${grandTotal > 0 ? `<div class="info-row"><strong>Grand Total:</strong> ${formatCurrency(grandTotal)}</div>` : ''}
       <div class="info-row"><strong>Mode:</strong> ${shippingMode}</div>
     </div>
 
@@ -2916,20 +2924,10 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
             <td>Order Value</td>
             <td class="amount">${formatCurrency(orderValue)}</td>
           </tr>
-          ${shippingCharges > 0 ? `
-          <tr>
-            <td>Shipping Charges</td>
-            <td class="amount">${formatCurrency(shippingCharges)}</td>
-          </tr>` : ''}
           ${codAmount > 0 ? `
           <tr>
             <td>COD Amount to Collect</td>
             <td class="amount">${formatCurrency(codAmount)}</td>
-          </tr>` : ''}
-          ${grandTotal > 0 ? `
-          <tr>
-            <td style="font-weight:700;">Grand Total</td>
-            <td class="amount" style="font-weight:700;">${formatCurrency(grandTotal)}</td>
           </tr>` : ''}
         </tbody>
       </table>
@@ -2951,6 +2949,16 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <div class="info-row">${specialInstructions}</div>
     </div>
     ` : ''}
+
+    <!-- Origin Info moved to bottom -->
+    <div class="info-section origin-section">
+      <div class="info-title">FROM (ORIGIN)</div>
+      <div class="info-row"><strong>${originName}</strong></div>
+      <div class="info-row">${originAddress}</div>
+      <div class="info-row">${originCity}, ${originState} - ${originPincode}</div>
+      ${sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
+      ${sellerEmail ? `<div class="info-row">Email: ${sellerEmail}</div>` : ''}
+    </div>
 
     <!-- Footer -->
     <div class="footer">

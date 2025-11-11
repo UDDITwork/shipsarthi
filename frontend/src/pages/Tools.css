@@ -136,6 +136,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .mode-tab.active {
@@ -162,6 +166,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .mode-tab:hover:not(.active) {

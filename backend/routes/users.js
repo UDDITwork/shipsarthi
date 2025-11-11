@@ -37,6 +37,20 @@ const avatarUpload = multer({
   }
 });
 
+// Configure multer for company logo uploads (JPEG/PNG only)
+const logoUpload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/svg+xml'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, JPG, and SVG images are allowed for company logos'));
+    }
+  }
+});
+
 // Get user profile data
 router.get('/profile', auth, async (req, res) => {
   try {
@@ -74,7 +88,10 @@ router.get('/profile', auth, async (req, res) => {
       api_details: user.api_details,
       email_verified: user.email_verified,
       phone_verified: user.phone_verified,
-      avatar_url: user.avatar_url
+      avatar_url: user.avatar_url,
+      company_logo_url: user.company_logo_url,
+      company_logo_public_id: user.company_logo_public_id,
+      company_logo_uploaded_at: user.company_logo_uploaded_at
     };
 
     res.json({
@@ -1125,6 +1142,93 @@ router.post('/avatar', auth, avatarUpload.single('avatar'), async (req, res) => 
     res.status(500).json({
       status: 'error',
       message: 'Server error updating avatar'
+    });
+  }
+});
+
+// @desc    Upload or update company logo
+// @route   POST /api/users/company-logo
+// @access  Private
+router.post('/company-logo', auth, logoUpload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'No logo file uploaded'
+      });
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/svg+xml'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Only JPEG, PNG, JPG, and SVG images are allowed for company logos'
+      });
+    }
+
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    const uploadResult = await cloudinaryService.uploadFile(req.file.buffer, {
+      folder: 'shipsarthi/company-logos',
+      resource_type: 'image',
+      mimetype: req.file.mimetype
+    });
+
+    if (!uploadResult.success) {
+      logger.error('❌ Cloudinary logo upload failed', { uploadResult });
+      return res.status(500).json({
+        status: 'error',
+        message: 'Failed to upload company logo to cloud storage'
+      });
+    }
+
+    if (user.company_logo_public_id) {
+      try {
+        await cloudinaryService.deleteFile(user.company_logo_public_id, 'image');
+      } catch (deleteError) {
+        logger.warn('⚠️ Failed to delete old company logo', {
+          userId,
+          error: deleteError.message
+        });
+      }
+    }
+
+    user.company_logo_url = uploadResult.url;
+    user.company_logo_public_id = uploadResult.public_id;
+    user.company_logo_uploaded_at = new Date();
+    await user.save();
+
+    logger.info('✅ Company logo updated successfully', {
+      userId,
+      companyLogoUrl: uploadResult.url
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Company logo updated successfully',
+      data: {
+        company_logo_url: user.company_logo_url,
+        company_logo_public_id: user.company_logo_public_id,
+        company_logo_uploaded_at: user.company_logo_uploaded_at
+      }
+    });
+  } catch (error) {
+    logger.error('❌ Update company logo error', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?._id || req.user?.id
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error updating company logo'
     });
   }
 });
