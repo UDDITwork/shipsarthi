@@ -76,6 +76,15 @@ class DelhiveryService {
      */
     async createShipment(orderData) {
         try {
+            const parseBool = (v) => {
+                if (typeof v === 'boolean') return v;
+                if (typeof v === 'number') return v === 1;
+                if (typeof v === 'string') {
+                    const n = v.trim().toLowerCase();
+                    return ['y', 'yes', 'true', '1'].includes(n);
+                }
+                return false;
+            };
             const shipmentData = {
                 shipments: [{
                     name: orderData.customer_info.buyer_name,
@@ -232,37 +241,30 @@ class DelhiveryService {
                 packages = responseData.packages;
                 
                 // Check if package has waybill (not empty string)
-                // IMPORTANT: Extract waybill even if package status is "Fail"
                 const firstPackage = packages[0];
                 if (firstPackage.waybill && firstPackage.waybill.trim() !== '') {
                     awbNumber = firstPackage.waybill;
-                    
-                    // Check if package status indicates failure
-                    if (firstPackage.status === 'Fail' || hasError) {
-                        logger.warn('⚠️ AWB generated but package marked as Failed', { 
-                            awbNumber, 
-                            packageCount: packages.length,
+                    // If carrier marks package as Fail or non-serviceable, treat as hard failure
+                    const isServiceablePkg = firstPackage.hasOwnProperty('serviceable') ? parseBool(firstPackage.serviceable) : true;
+                    if (firstPackage.status === 'Fail' || !isServiceablePkg) {
+                        const reason = firstPackage?.remarks || errorMessage || 'Pincode not serviceable by carrier';
+                        logger.error('❌ Carrier returned non-serviceable/failed package, aborting AWB', {
+                            awbNumber,
                             packageStatus: firstPackage.status,
-                            packageRefnum: firstPackage.refnum,
                             serviceable: firstPackage.serviceable,
-                            sortCode: firstPackage.sort_code,
-                            remarks: firstPackage.remarks,
-                            hasError: hasError,
-                            errorMessage: errorMessage
+                            remarks: firstPackage.remarks
                         });
-                        // Still proceed with AWB even if status is Fail
-                        isSuccess = true;
-                    } else {
-                        isSuccess = true;
-                        logger.info('✅ AWB found in packages[0].waybill', { 
-                            awbNumber, 
-                            packageCount: packages.length,
-                            packageStatus: firstPackage.status,
-                            packageRefnum: firstPackage.refnum,
-                            serviceable: firstPackage.serviceable,
-                            sortCode: firstPackage.sort_code
-                        });
+                        throw new Error(typeof reason === 'string' ? reason : 'Pincode not serviceable');
                     }
+                    isSuccess = true;
+                    logger.info('✅ AWB found in packages[0].waybill', { 
+                        awbNumber, 
+                        packageCount: packages.length,
+                        packageStatus: firstPackage.status,
+                        packageRefnum: firstPackage.refnum,
+                        serviceable: firstPackage.serviceable,
+                        sortCode: firstPackage.sort_code
+                    });
                 } else {
                     // Package exists but waybill is empty (failed package)
                     logger.warn('⚠️ Package created but waybill is empty', {
@@ -270,6 +272,7 @@ class DelhiveryService {
                         packageRemarks: firstPackage.remarks,
                         packageRefnum: firstPackage.refnum
                     });
+                    throw new Error(firstPackage?.remarks || 'Carrier failed to create waybill');
                 }
             } else if (responseData.pkgs && Array.isArray(responseData.pkgs) && responseData.pkgs.length > 0) {
                 packages = responseData.pkgs;
@@ -625,126 +628,203 @@ class DelhiveryService {
      * @returns {Promise} Serviceability data
      */
     async getServiceability(pincode) {
-        try {
-            // Use production URL directly as specified
-            const productionURL = 'https://track.delhivery.com';
-            const serviceabilityURL = `${productionURL}/c/api/pin-codes/json/?filter_codes=${pincode}`;
-            
-            logger.info('🔍 Checking serviceability with production URL', {
-                pincode,
-                url: serviceabilityURL,
-                apiKeyLength: this.apiKey?.length || 0
-            });
-
-            // Make direct request to production URL
-            const response = await axios.get(serviceabilityURL, {
-                headers: {
-                    'Authorization': `Token ${this.apiKey}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                timeout: 15000
-            });
-
-            logger.info('✅ Serviceability API response received', {
-                pincode,
-                status: response.status,
-                dataKeys: Object.keys(response.data || {}),
-                responseType: typeof response.data
-            });
-
-            // Check if response is HTML (error page) instead of JSON
-            if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
-                logger.error('❌ Serviceability API returned HTML error page', {
-                    pincode,
-                    responsePreview: response.data.substring(0, 200)
-                });
-                
-                return {
-                    success: false,
-                    error: 'Delhivery API returned error page - serviceability endpoint may be incorrect',
-                    serviceable: false
-                };
+        const productionURL = 'https://track.delhivery.com';
+        const dcUrl = `${productionURL}/api/dc/fetch/serviceability/pincode`;
+        const legacyUrl = `${productionURL}/c/api/pin-codes/json/?filter_codes=${pincode}`;
+        const parseFlag = (value) => {
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'number') return value === 1;
+            if (typeof value === 'string') {
+                const normalized = value.trim().toLowerCase();
+                return ['y', 'yes', 'true', '1'].includes(normalized);
             }
+            return false;
+        };
 
-            // Parse response data
-            if (response.data && typeof response.data === 'object') {
-                if (response.data.delivery_codes && response.data.delivery_codes.length > 0) {
-                    const serviceData = response.data.delivery_codes[0].postal_code;
-                    
-                    // Extract full state name from 'inc' field (format: "City_Location (StateName)")
-                    // Example: "Jaipur_Mansrover_C (Rajasthan)" -> "Rajasthan"
-                    let stateName = serviceData.state_code || 'Unknown';
-                    if (serviceData.inc && typeof serviceData.inc === 'string') {
-                        const stateMatch = serviceData.inc.match(/\(([^)]+)\)/);
-                        if (stateMatch && stateMatch[1]) {
-                            stateName = stateMatch[1].trim();
-                        }
-                    }
-                    
-                    logger.info('✅ Serviceability data found', {
-                        pincode,
-                        serviceable: true,
-                        city: serviceData.city,
-                        state_code: serviceData.state_code,
-                        state_name: stateName,
-                        cod: serviceData.cod
-                    });
+        const normalizeFromPostalCode = (serviceData) => {
+            if (!serviceData) return null;
 
-                    return {
-                        success: true,
-                        serviceable: true,
-                        cash_on_delivery: serviceData.cod === 'Y',
-                        cash_pickup: serviceData.cash === 'Y',
-                        state_code: serviceData.state_code,
-                        state_name: stateName, // Full state name extracted from inc field
-                        district: serviceData.district,
-                        city: serviceData.city,
-                        pre_paid: serviceData.pre_paid === 'Y',
-                        pickup_available: serviceData.pickup === 'Y'
-                    };
-                } else {
-                    logger.info('ℹ️ Pincode not serviceable', {
-                        pincode,
-                        responseData: response.data
-                    });
-
-                    return {
-                        success: true,
-                        serviceable: false,
-                        message: 'Pincode not serviceable',
-                        city: 'Not Serviceable',
-                        state_code: 'Not Serviceable'
-                    };
+            let stateName = serviceData.state_code || 'Unknown';
+            if (serviceData.inc && typeof serviceData.inc === 'string') {
+                const stateMatch = serviceData.inc.match(/\(([^)]+)\)/);
+                if (stateMatch && stateMatch[1]) {
+                    stateName = stateMatch[1].trim();
                 }
-            } else {
-                logger.warn('⚠️ Invalid response format from serviceability API', {
-                    pincode,
-                    responseData: response.data,
-                    responseType: typeof response.data
-                });
-
-                return {
-                    success: false,
-                    error: 'Invalid response format from Delhivery API',
-                    serviceable: false
-                };
             }
-
-        } catch (error) {
-            logger.error('❌ Serviceability check failed', {
-                pincode,
-                error: error.response?.data || error.message,
-                status: error.response?.status,
-                url: error.config?.url
-            });
 
             return {
-                success: false,
-                error: error.response?.data?.message || error.message || 'Failed to check serviceability',
-                serviceable: false
+                success: true,
+                serviceable: serviceData.pre_paid === 'Y' || serviceData.pickup === 'Y' || serviceData.cod === 'Y',
+                cash_on_delivery: serviceData.cod === 'Y',
+                cash_pickup: serviceData.cash === 'Y',
+                state_code: serviceData.state_code,
+                state_name: stateName,
+                district: serviceData.district,
+                city: serviceData.city,
+                pre_paid: serviceData.pre_paid === 'Y',
+                pickup_available: serviceData.pickup === 'Y'
             };
+        };
+
+        const normalizeFromServiceabilityNode = (node) => {
+            if (!node) return null;
+            const serviceable = parseFlag(node.is_serviceable ?? node.serviceable ?? node.delivery);
+            const stateCode = (node.state_code || node.state || node.statecode || 'Unknown').toString();
+            const city = (node.city || node.town || node.postcity || 'Unknown').toString();
+
+            return {
+                success: true,
+                serviceable,
+                cash_on_delivery: parseFlag(node.is_cod ?? node.cod ?? node.cash_on_delivery),
+                cash_pickup: parseFlag(node.is_pickup ?? node.pickup ?? node.cash_pickup),
+                state_code: stateCode,
+                state_name: (node.state || node.state_name || stateCode).toString(),
+                district: (node.district || node.district_name || '').toString(),
+                city,
+                pre_paid: parseFlag(node.pre_paid ?? node.is_prepaid ?? node.prepaid),
+                pickup_available: parseFlag(node.pickup ?? node.is_pickup ?? node.pickup_available)
+            };
+        };
+
+        const normalizeResponse = (payload) => {
+            if (!payload) return null;
+
+            if (payload.serviceability) {
+                const mainNode = payload.serviceability.delivery || payload.serviceability;
+                return normalizeFromServiceabilityNode(mainNode);
+            }
+
+            if (payload.delivery_codes && Array.isArray(payload.delivery_codes) && payload.delivery_codes.length > 0) {
+                return normalizeFromPostalCode(payload.delivery_codes[0].postal_code);
+            }
+
+            if (Array.isArray(payload) && payload.length > 0) {
+                if (payload[0].postal_code) {
+                    return normalizeFromPostalCode(payload[0].postal_code);
+                }
+                if (payload[0].serviceability) {
+                    return normalizeFromServiceabilityNode(payload[0].serviceability);
+                }
+            }
+
+            if (payload.postal_code) {
+                return normalizeFromPostalCode(payload.postal_code);
+            }
+
+            return null;
+        };
+
+        const fetchFromDcApi = async () => {
+            try {
+                logger.info('🔍 Checking serviceability via DC API', {
+                    pincode,
+                    url: dcUrl
+                });
+
+                const response = await axios.get(dcUrl, {
+                    headers: {
+                        'Authorization': `Token ${this.apiKey}`,
+                        'Accept': 'application/json'
+                    },
+                    params: {
+                        product_type: process.env.DELHIVERY_PRODUCT_TYPE || 'Heavy',
+                        pincode
+                    },
+                    timeout: 15000
+                });
+
+                const normalized = normalizeResponse(response.data);
+                if (normalized) {
+                    logger.info('✅ Serviceability data found via DC API', {
+                        pincode,
+                        serviceable: normalized.serviceable,
+                        city: normalized.city,
+                        state: normalized.state_name
+                    });
+                    return normalized;
+                }
+
+                logger.warn('⚠️ Unable to parse DC serviceability response', {
+                    pincode,
+                    responseType: typeof response.data
+                });
+                return null;
+            } catch (error) {
+                logger.warn('⚠️ DC serviceability API failed, will fallback to legacy endpoint', {
+                    pincode,
+                    status: error.response?.status,
+                    message: error.response?.data || error.message
+                });
+                return null;
+            }
+        };
+
+        const fetchFromLegacyApi = async () => {
+            try {
+                logger.info('🔍 Checking serviceability via legacy API', {
+                    pincode,
+                    url: legacyUrl
+                });
+
+                const response = await axios.get(legacyUrl, {
+                    headers: {
+                        'Authorization': `Token ${this.apiKey}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 15000
+                });
+
+                if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+                    logger.error('❌ Serviceability API returned HTML error page', {
+                        pincode,
+                        responsePreview: response.data.substring(0, 200)
+                    });
+                    return {
+                        success: false,
+                        error: 'Delhivery API returned error page - serviceability endpoint may be incorrect',
+                        serviceable: false
+                    };
+                }
+
+                const normalized = normalizeResponse(response.data);
+                if (normalized) {
+                    return normalized;
+                }
+
+                logger.info('ℹ️ Pincode not serviceable (legacy response)', {
+                    pincode
+                });
+
+                return {
+                    success: true,
+                    serviceable: false,
+                    message: 'Pincode not serviceable',
+                    city: 'Not Serviceable',
+                    state_code: 'Not Serviceable'
+                };
+            } catch (error) {
+                logger.error('❌ Legacy serviceability check failed', {
+                    pincode,
+                    error: error.response?.data || error.message,
+                    status: error.response?.status,
+                    url: error.config?.url
+                });
+
+                return {
+                    success: false,
+                    error: error.response?.data?.message || error.message || 'Failed to check serviceability',
+                    serviceable: false
+                };
+            }
+        };
+
+        const dcResult = await fetchFromDcApi();
+        if (dcResult) {
+            return dcResult;
         }
+
+        return await fetchFromLegacyApi();
     }
 
     /**

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { shippingService } from '../services/shippingService';
+import { shippingService, ShippingCalculationRequest } from '../services/shippingService';
 import './ShippingCalculator.css';
 
 interface ShippingCalculatorProps {
@@ -26,21 +26,11 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
     breadth: 0,
     height: 0
   });
-  const [zone, setZone] = useState<string>('A');
   const [pickupPincode, setPickupPincode] = useState<string>('');
   const [deliveryPincode, setDeliveryPincode] = useState<string>('');
   const [codAmount, setCodAmount] = useState<number>(0);
   const [calculationResult, setCalculationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const zones = [
-    { value: 'A', label: 'Zone A - Local within city' },
-    { value: 'B', label: 'Zone B - Within 500 kms Regional' },
-    { value: 'C', label: 'Zone C - Metro to Metro (501-2500 kms)' },
-    { value: 'D', label: 'Zone D - Rest of India (501-2500 kms)' },
-    { value: 'E', label: 'Zone E - Special (NE, J&K, >2500 kms)' },
-    { value: 'F', label: 'Zone F - Special (NE, J&K, >2500 kms)' }
-  ];
 
   const handleCalculate = async () => {
     try {
@@ -56,32 +46,24 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
         return;
       }
 
-      if (isPublic) {
-        if (!/^[1-9][0-9]{5}$/.test(pickupPincode)) {
-          setError('Enter a valid 6-digit pickup pincode');
-          return;
-        }
-        if (!/^[1-9][0-9]{5}$/.test(deliveryPincode)) {
-          setError('Enter a valid 6-digit delivery pincode');
-          return;
-        }
+      if (!/^[1-9][0-9]{5}$/.test(pickupPincode) || !/^[1-9][0-9]{5}$/.test(deliveryPincode)) {
+        setError('Enter valid 6-digit pickup and delivery pincodes');
+        return;
       }
 
-      const result = await (isPublic 
-        ? shippingService.calculatePublicShippingCharges({
-            weight,
-            dimensions,
-            zone: undefined,
-            pickup_pincode: pickupPincode,
-            delivery_pincode: deliveryPincode,
-            cod_amount: codAmount > 0 ? codAmount : undefined
-          })
-        : shippingService.calculateShippingCharges({
+      const requestPayload: ShippingCalculationRequest = {
         weight,
         dimensions,
-        zone,
-        cod_amount: codAmount > 0 ? codAmount : undefined
-          })
+        pickup_pincode: pickupPincode,
+        delivery_pincode: deliveryPincode,
+        payment_mode: codAmount > 0 ? 'COD' : 'Prepaid',
+        cod_amount: codAmount > 0 ? codAmount : undefined,
+        order_type: 'forward'
+      };
+
+      const result = await (isPublic
+        ? shippingService.calculatePublicShippingCharges(requestPayload)
+        : shippingService.calculateShippingCharges(requestPayload)
       );
 
       setCalculationResult(result);
@@ -105,7 +87,6 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
   const resetCalculator = () => {
     setWeight(0);
     setDimensions({ length: 0, breadth: 0, height: 0 });
-    setZone('A');
     setPickupPincode('');
     setDeliveryPincode('');
     setCodAmount(0);
@@ -135,47 +116,28 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
             />
           </div>
 
-          {isPublic ? (
-            <>
-              <div className="form-group">
-                <label htmlFor="pickupPincode">Pickup Pincode</label>
-                <input
-                  type="tel"
-                  id="pickupPincode"
-                  value={pickupPincode}
-                  onChange={(e) => setPickupPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="Pickup pincode"
-                  maxLength={6}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="deliveryPincode">Delivery Pincode</label>
-                <input
-                  type="tel"
-                  id="deliveryPincode"
-                  value={deliveryPincode}
-                  onChange={(e) => setDeliveryPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="Delivery pincode"
-                  maxLength={6}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="form-group">
-              <label htmlFor="zone">Destination Zone</label>
-              <select
-                id="zone"
-                value={zone}
-                onChange={(e) => setZone(e.target.value)}
-              >
-                {zones.map(zoneOption => (
-                  <option key={zoneOption.value} value={zoneOption.value}>
-                    {zoneOption.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="form-group">
+            <label htmlFor="pickupPincode">Pickup Pincode</label>
+            <input
+              type="tel"
+              id="pickupPincode"
+              value={pickupPincode}
+              onChange={(e) => setPickupPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="Pickup pincode"
+              maxLength={6}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="deliveryPincode">Delivery Pincode</label>
+            <input
+              type="tel"
+              id="deliveryPincode"
+              value={deliveryPincode}
+              onChange={(e) => setDeliveryPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="Delivery pincode"
+              maxLength={6}
+            />
+          </div>
         </div>
 
         <div className="form-row">
@@ -250,7 +212,8 @@ const ShippingCalculator: React.FC<ShippingCalculatorProps> = ({
               dimensions.length <= 0 ||
               dimensions.breadth <= 0 ||
               dimensions.height <= 0 ||
-              (isPublic && (!/^[1-9][0-9]{5}$/.test(pickupPincode) || !/^[1-9][0-9]{5}$/.test(deliveryPincode)))
+              !/^[1-9][0-9]{5}$/.test(pickupPincode) ||
+              !/^[1-9][0-9]{5}$/.test(deliveryPincode)
             }
           >
             Calculate Shipping Cost

@@ -124,6 +124,171 @@ const normalizeWarehouseIdentifier = (value) => {
   return normalized.toLowerCase().replace(/\s+/g, ' ').trim();
 };
 
+const SERVICEABILITY_ERROR_CODE = 'PINCODE_NOT_SERVICEABLE';
+
+const normalizeBooleanFlag = (value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value === 'string') {
+    return ['y', 'yes', 'true', '1'].includes(value.trim().toLowerCase());
+  }
+  return false;
+};
+
+async function ensureServiceablePincodes(pickupPincode, deliveryPincode, paymentMode = 'Prepaid') {
+  if (!pickupPincode || !deliveryPincode) {
+    throw new Error('Pickup and delivery pincodes are required to validate serviceability.');
+  }
+
+  const [pickupResult, deliveryResult] = await Promise.all([
+    delhiveryService.getServiceability(pickupPincode),
+    delhiveryService.getServiceability(deliveryPincode)
+  ]);
+
+  if (!pickupResult.success) {
+    throw new Error('Unable to verify pickup pincode serviceability. Please try again.');
+  }
+
+  if (!pickupResult.serviceable || normalizeBooleanFlag(pickupResult.pickup_available) === false) {
+    throw new Error(`Pickup pincode ${pickupPincode} is not serviceable by Delhivery.`);
+  }
+
+  if (!deliveryResult.success) {
+    throw new Error('Unable to verify delivery pincode serviceability. Please try again.');
+  }
+
+  if (!deliveryResult.serviceable) {
+    throw new Error(`Delivery pincode ${deliveryPincode} is not serviceable by Delhivery.`);
+  }
+
+  if (paymentMode === 'COD' && normalizeBooleanFlag(deliveryResult.cash_on_delivery) === false) {
+    throw new Error(`Delivery pincode ${deliveryPincode} does not support COD.`);
+  }
+
+  return {
+    pickup: pickupResult,
+    delivery: deliveryResult
+  };
+}
+
+async function refundShippingChargesToWallet(order, userId) {
+  try {
+    const shippingCharges = order.payment_info?.shipping_charges || 0;
+    if (shippingCharges <= 0) {
+      logger.info('ℹ️ No shipping charges to refund for cancellation', {
+        orderId: order.order_id,
+        shippingCharges
+      });
+      return null;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found for wallet refund');
+    }
+
+    const openingBalance = user.wallet_balance || 0;
+    const closingBalance = openingBalance + shippingCharges;
+
+    user.wallet_balance = closingBalance;
+    await user.save();
+
+    const refundTransaction = new Transaction({
+      transaction_id: `CR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+      user_id: userId,
+      transaction_type: 'credit',
+      transaction_category: 'shipment_cancellation_refund',
+      amount: shippingCharges,
+      description: `Refund for cancelled shipment - Order ${order.order_id}`,
+      related_order_id: order._id,
+      status: 'completed',
+      transaction_date: new Date(),
+      balance_info: {
+        opening_balance: openingBalance,
+        closing_balance: closingBalance
+      },
+      order_info: {
+        order_id: order.order_id,
+        awb_number: order.delhivery_data?.waybill || null,
+        weight: order.package_info?.weight * 1000 || 0,
+        zone: order.delhivery_data?.status_type || null,
+        order_date: order.order_date
+      }
+    });
+
+    await refundTransaction.save();
+
+    try {
+      websocketService.sendNotificationToClient(String(userId), {
+        type: 'wallet_refund',
+        title: 'Wallet Refunded',
+        message: `₹${shippingCharges} refunded for cancelled shipment ${order.order_id}. New balance: ₹${closingBalance}`,
+        client_id: userId,
+        amount: shippingCharges,
+        transaction_type: 'credit',
+        new_balance: closingBalance,
+        order_id: order.order_id,
+        created_at: new Date()
+      });
+
+      websocketService.sendNotificationToClient(String(userId), {
+        type: 'wallet_balance_update',
+        balance: closingBalance,
+        currency: 'INR',
+        previous_balance: openingBalance,
+        amount: shippingCharges,
+        transaction_id: refundTransaction.transaction_id,
+        timestamp: new Date().toISOString()
+      });
+
+      logger.info('📡 Wallet refund notifications sent', {
+        orderId: order.order_id,
+        transactionId: refundTransaction.transaction_id,
+        amount: shippingCharges,
+        closingBalance: closingBalance
+      });
+    } catch (notifError) {
+      logger.error('Failed to send wallet refund notifications:', notifError);
+    }
+
+    logger.info('✅ Wallet refunded successfully', {
+      orderId: order.order_id,
+      transactionId: refundTransaction.transaction_id,
+      amount: shippingCharges,
+      oldBalance: openingBalance,
+      newBalance: closingBalance
+    });
+
+    return refundTransaction;
+  } catch (error) {
+    logger.error('❌ WALLET REFUND FAILED', {
+      orderId: order.order_id,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    return null;
+  }
+}
+
+function applyCancellationMetadata(order, message, statusType = 'CN', delhiveryResponse = null) {
+  if (!order.delhivery_data) {
+    order.delhivery_data = {};
+  }
+
+  order.delhivery_data.cancellation_status = 'cancelled';
+  order.delhivery_data.cancellation_date = new Date();
+  order.delhivery_data.cancellation_message = message;
+  order.delhivery_data.status_type = statusType;
+
+  if (delhiveryResponse) {
+    order.delhivery_data.cancellation_response = delhiveryResponse;
+  }
+
+  order.status = 'cancelled';
+  order.markModified('delhivery_data');
+}
+
 // NOTE: Zone calculation removed - now using Delhivery API to get zone
 // Zone is fetched from Delhivery invoice/charges API response
 
@@ -1421,6 +1586,26 @@ router.post('/', auth, [
     
     // Only call Delhivery API if generate_awb is explicitly true or not provided (for backward compatibility)
     if (generateAWB) {
+      try {
+        await ensureServiceablePincodes(
+          pickupAddress.pincode,
+          order.delivery_address.pincode,
+          order.payment_info.payment_mode
+        );
+      } catch (svcError) {
+        logger.error('❌ Serviceability validation failed before AWB creation', {
+          orderId: order.order_id,
+          pickupPincode: pickupAddress.pincode,
+          deliveryPincode: order.delivery_address.pincode,
+          error: svcError.message
+        });
+        return res.status(400).json({
+          status: 'error',
+          message: svcError.message,
+          error_code: SERVICEABILITY_ERROR_CODE
+        });
+      }
+
       console.log('🔄 CALLING DELHIVERY API (AWB generation requested)');
       // Create shipment with Delhivery API FIRST
       try {
@@ -1941,6 +2126,26 @@ router.post('/:id/generate-awb', auth, async (req, res) => {
         phone: order.pickup_address.phone,
         country: order.pickup_address.country || 'India'
       };
+    }
+
+    try {
+      await ensureServiceablePincodes(
+        pickupAddress.pincode || order.pickup_address?.pincode,
+        order.delivery_address.pincode,
+        order.payment_info.payment_mode
+      );
+    } catch (svcError) {
+      logger.error('❌ Serviceability validation failed before AWB generation', {
+        orderId: order.order_id,
+        pickupPincode: pickupAddress.pincode || order.pickup_address?.pincode,
+        deliveryPincode: order.delivery_address.pincode,
+        error: svcError.message
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: svcError.message,
+        error_code: SERVICEABILITY_ERROR_CODE
+      });
     }
 
     // Prepare order data for Delhivery API
@@ -3166,8 +3371,6 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const orderId = req.params.id;
-
-    // Find order
     const order = await Order.findOne({
       _id: orderId,
       user_id: userId
@@ -3180,24 +3383,35 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
       });
     }
 
-    // Validate AWB exists
-    if (!order.delhivery_data?.waybill) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'AWB number is required to cancel shipment. Order does not have an AWB number.'
-      });
-    }
-
-    const waybill = order.delhivery_data.waybill;
+    const waybill = order.delhivery_data?.waybill || order.shipping_info?.awb_number || order.waybill;
+    const hasWaybill = Boolean(waybill);
 
     logger.info('🚫 Cancelling shipment for order', {
       orderId: order.order_id,
-      waybill: waybill,
+      waybill: waybill || 'N/A',
       userId: userId.toString(),
       currentStatus: order.status
     });
 
-    // Call Delhivery API to cancel shipment
+    if (!hasWaybill) {
+      applyCancellationMetadata(order, 'Shipment cancelled before AWB generation', 'CN');
+      await order.save();
+      await refundShippingChargesToWallet(order, userId);
+
+      return res.json({
+        status: 'success',
+        message: 'Shipment cancelled successfully',
+        data: {
+          order_id: order.order_id,
+          waybill: null,
+          cancellation_status: order.delhivery_data.cancellation_status,
+          cancellation_date: order.delhivery_data.cancellation_date,
+          status_type: order.delhivery_data.status_type,
+          message: order.delhivery_data.cancellation_message
+        }
+      });
+    }
+
     const cancelResult = await delhiveryService.cancelShipment(waybill);
 
     if (!cancelResult.success) {
@@ -3214,26 +3428,20 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
       });
     }
 
-    // Only proceed if Delhivery API confirms successful cancellation
-    // Check Delhivery response data to confirm cancellation
-    // Delhivery response format: { status: true, waybill: "...", remark: "Shipment has been cancelled.", order_id: "..." }
     const delhiveryResponse = cancelResult.data || {};
-    
-    // Log the response for debugging
+
     logger.info('📋 Delhivery cancellation response received', {
       orderId: order.order_id,
       waybill: waybill,
       cancelResultSuccess: cancelResult.success,
       delhiveryResponse: delhiveryResponse,
-      hasStatus: delhiveryResponse.hasOwnProperty('status'),
+      hasStatus: Object.prototype.hasOwnProperty.call(delhiveryResponse, 'status'),
       statusValue: delhiveryResponse.status,
-      hasRemark: delhiveryResponse.hasOwnProperty('remark'),
+      hasRemark: Object.prototype.hasOwnProperty.call(delhiveryResponse, 'remark'),
       remarkValue: delhiveryResponse.remark,
       cancelResultMessage: cancelResult.message
     });
-    
-    // Check if Delhivery API confirms cancellation
-    // Delhivery returns: { status: true, waybill: "...", remark: "Shipment has been cancelled.", order_id: "..." }
+
     const isCancelled = cancelResult.success && (
       delhiveryResponse.status === true ||
       delhiveryResponse.status === 'true' ||
@@ -3250,8 +3458,7 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
         delhiveryResponse: delhiveryResponse,
         cancelResultMessage: cancelResult.message
       });
-      
-      // Still return success if API call was successful, but don't mark as cancelled
+
       return res.status(200).json({
         status: 'success',
         message: cancelResult.message || 'Cancellation request sent, but confirmation pending',
@@ -3264,240 +3471,27 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
       });
     }
 
-    // Update order status based on cancellation result
-    // According to Delhivery docs:
-    // - If Manifested before pickup: status stays Manifested, status_type becomes UD (Undelivered)
-    // - If In Transit or Pending: status stays In Transit, status_type becomes RT (Return to Origin)
-    // - If Scheduled: status updates to Canceled, status_type becomes CN (Cancellation)
-    
-    // Update delhivery_data with cancellation info from Delhivery API response
-    if (!order.delhivery_data) {
-      order.delhivery_data = {};
-    }
-    
-    // Set cancellation status based on Delhivery API response confirmation
-    // Only mark as cancelled if Delhivery API explicitly confirms it
-    order.delhivery_data.cancellation_status = 'cancelled';
-    order.delhivery_data.cancellation_date = new Date();
-    order.delhivery_data.cancellation_message = cancelResult.message || delhiveryResponse.remark || delhiveryResponse.message || 'Shipment cancelled successfully';
-    
-    // Store the full Delhivery response for reference and verification
-    order.delhivery_data.cancellation_response = delhiveryResponse;
-
-    // Update order status based on current status
-    // If order is in pickups_manifests (scheduled), mark as cancelled
+    let statusType = 'CN';
     if (order.status === 'pickups_manifests') {
-      // Could update to a cancelled status, but for now keep it in pickups_manifests
-      // with cancellation flag
-      order.delhivery_data.status_type = 'CN'; // Cancellation
-    } else if (order.status === 'in_transit' || order.status === 'pending') {
-      // Keep status as is, but mark for return
-      order.delhivery_data.status_type = 'RT'; // Return to Origin
-    } else if (order.status === 'ready_to_ship' || order.status === 'new') {
-      // If manifested but not picked up yet
-      order.delhivery_data.status_type = 'UD'; // Undelivered
+      statusType = 'CN';
+    } else if (['in_transit', 'pending', 'pickup_pending'].includes(order.status)) {
+      statusType = 'RT';
+    } else if (['ready_to_ship', 'new'].includes(order.status)) {
+      statusType = 'UD';
     }
 
-    // CRITICAL: Mark nested object as modified so Mongoose detects the change
-    // Mongoose doesn't detect changes to nested objects automatically
-    order.markModified('delhivery_data');
-    
-    // IMPORTANT: Save order FIRST to ensure cancellation_status is persisted
+    const cancellationMessage = cancelResult.message || delhiveryResponse.remark || delhiveryResponse.message || 'Shipment cancelled successfully';
+
+    applyCancellationMetadata(order, cancellationMessage, statusType, delhiveryResponse);
     await order.save();
-    
-    // Reload order from database to verify save was successful
-    const savedOrder = await Order.findById(order._id).lean();
-    if (!savedOrder) {
-      logger.error('❌ Order not found after save', {
-        orderId: order.order_id,
-        orderDbId: order._id
-      });
-      throw new Error('Order not found after save');
-    }
-    
-    // Verify cancellation status was saved
-    if (!savedOrder.delhivery_data || savedOrder.delhivery_data.cancellation_status !== 'cancelled') {
-      logger.error('❌ Order cancellation status not saved correctly', {
-        orderId: order.order_id,
-        savedCancellationStatus: savedOrder.delhivery_data?.cancellation_status,
-        hasDelhiveryData: !!savedOrder.delhivery_data,
-        delhiveryDataKeys: savedOrder.delhivery_data ? Object.keys(savedOrder.delhivery_data) : [],
-        expected: 'cancelled'
-      });
-      
-      // Try alternative save method: Update directly in database using $set
-      try {
-        logger.info('🔄 Attempting direct database update with $set', {
-          orderId: order.order_id,
-          orderDbId: order._id.toString(),
-          cancellationStatus: 'cancelled',
-          statusType: order.delhivery_data.status_type
-        });
 
-        const updateResult = await Order.updateOne(
-          { _id: order._id },
-          { 
-            $set: { 
-              'delhivery_data.cancellation_status': 'cancelled',
-              'delhivery_data.cancellation_date': new Date(),
-              'delhivery_data.cancellation_message': cancelResult.message || delhiveryResponse.remark || delhiveryResponse.message || 'Shipment cancelled successfully',
-              'delhivery_data.cancellation_response': delhiveryResponse,
-              'delhivery_data.status_type': order.delhivery_data.status_type
-            }
-          }
-        );
-
-        logger.info('📊 Direct update result', {
-          orderId: order.order_id,
-          matchedCount: updateResult.matchedCount,
-          modifiedCount: updateResult.modifiedCount,
-          acknowledged: updateResult.acknowledged
-        });
-        
-        // Verify again after direct update
-        const updatedOrder = await Order.findById(order._id).lean();
-        if (updatedOrder?.delhivery_data?.cancellation_status === 'cancelled') {
-          logger.info('✅ Cancellation status saved using direct update method', {
-            orderId: order.order_id,
-            cancellationStatus: updatedOrder.delhivery_data.cancellation_status
-          });
-          // Update the order object for subsequent operations
-          order.delhivery_data = updatedOrder.delhivery_data;
-        } else {
-          // Log detailed error for debugging
-          logger.error('❌ Direct update verification failed', {
-            orderId: order.order_id,
-            hasDelhiveryData: !!updatedOrder?.delhivery_data,
-            cancellationStatus: updatedOrder?.delhivery_data?.cancellation_status,
-            allKeys: updatedOrder?.delhivery_data ? Object.keys(updatedOrder.delhivery_data) : [],
-            updateResult: await Order.findById(order._id).select('delhivery_data.cancellation_status').lean()
-          });
-          throw new Error('Direct update also failed to save cancellation status');
-        }
-      } catch (updateError) {
-        logger.error('❌ Direct update also failed', {
-          orderId: order.order_id,
-          error: updateError.message
-        });
-        throw new Error('Failed to save cancellation status to database after multiple attempts');
-      }
-    } else {
-      logger.info('✅ Cancellation status verified after save', {
-        orderId: order.order_id,
-        cancellationStatus: savedOrder.delhivery_data.cancellation_status
-      });
-    }
-
-    // Refund shipping charges to wallet if order was cancelled
-    // Only refund if shipping charges were deducted earlier
-    try {
-      const shippingCharges = order.payment_info?.shipping_charges || 0;
-      
-      if (shippingCharges > 0) {
-        logger.info('💰 Refunding shipping charges to wallet', {
-          orderId: order.order_id,
-          shippingCharges,
-          userId: userId.toString()
-        });
-
-        // Get current wallet balance
-        const user = await User.findById(userId);
-        if (!user) {
-          throw new Error('User not found for wallet refund');
-        }
-
-        const openingBalance = user.wallet_balance || 0;
-        const closingBalance = openingBalance + shippingCharges;
-
-        // Credit wallet
-        user.wallet_balance = closingBalance;
-        await user.save();
-
-        // Create credit transaction record
-        const refundTransaction = new Transaction({
-          transaction_id: `CR${Date.now()}${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
-          user_id: userId,
-          transaction_type: 'credit',
-          transaction_category: 'shipment_cancellation_refund',
-          amount: shippingCharges,
-          description: `Refund for cancelled shipment - Order ${order.order_id}`,
-          related_order_id: order._id,
-          status: 'completed',
-          transaction_date: new Date(),
-          balance_info: {
-            opening_balance: openingBalance,
-            closing_balance: closingBalance
-          },
-          order_info: {
-            order_id: order.order_id,
-            awb_number: waybill,
-            weight: order.package_info?.weight * 1000 || 0,
-            zone: order.delhivery_data?.status_type || null,
-            order_date: order.order_date
-          }
-        });
-
-        await refundTransaction.save();
-
-        // Send WebSocket notifications for wallet refund
-        try {
-          websocketService.sendNotificationToClient(String(userId), {
-            type: 'wallet_refund',
-            title: 'Wallet Refunded',
-            message: `₹${shippingCharges} refunded for cancelled shipment ${order.order_id}. New balance: ₹${closingBalance}`,
-            client_id: userId,
-            amount: shippingCharges,
-            transaction_type: 'credit',
-            new_balance: closingBalance,
-            order_id: order.order_id,
-            created_at: new Date()
-          });
-
-          websocketService.sendNotificationToClient(String(userId), {
-            type: 'wallet_balance_update',
-            balance: closingBalance,
-            currency: 'INR',
-            previous_balance: openingBalance,
-            amount: shippingCharges,
-            transaction_id: refundTransaction.transaction_id,
-            timestamp: new Date().toISOString()
-          });
-
-          logger.info('📡 Wallet refund notifications sent', {
-            orderId: order.order_id,
-            transactionId: refundTransaction.transaction_id,
-            amount: shippingCharges,
-            closingBalance: closingBalance
-          });
-        } catch (notifError) {
-          logger.error('Failed to send wallet refund notifications:', notifError);
-          // Don't fail refund if notifications fail
-        }
-
-        logger.info('✅ Wallet refunded successfully', {
-          orderId: order.order_id,
-          transactionId: refundTransaction.transaction_id,
-          amount: shippingCharges,
-          oldBalance: openingBalance,
-          newBalance: closingBalance
-        });
-      }
-    } catch (walletError) {
-      logger.error('❌ WALLET REFUND FAILED', {
-        orderId: order.order_id,
-        error: walletError.message,
-        stack: walletError.stack,
-        timestamp: new Date().toISOString()
-      });
-      // Don't fail cancellation if refund fails - log error but continue
-      // Admin can manually process refund if needed
-    }
+    await refundShippingChargesToWallet(order, userId);
 
     logger.info('✅ Shipment cancelled successfully', {
       orderId: order.order_id,
       waybill: waybill,
       statusType: order.delhivery_data.status_type,
-      cancellationMessage: cancelResult.message
+      cancellationMessage: order.delhivery_data.cancellation_message
     });
 
     res.json({

@@ -69,6 +69,18 @@ export interface AdminClientsResponse {
   };
 }
 
+export interface AdminImpersonationResponse {
+  token: string;
+  expires_in: string;
+  client: {
+    _id: string;
+    company_name: string;
+    your_name: string;
+    email: string;
+    user_category?: string;
+  };
+}
+
 export interface AdminTicket {
   _id: string;
   ticket_id: string;
@@ -449,6 +461,17 @@ class AdminService {
     const response = await apiService.get<{ success: boolean; data: AdminClient }>(`/admin/clients/${clientId}`, {
       headers: this.getAdminHeaders()
     });
+    return response.data;
+  }
+
+  async impersonateClient(clientId: string): Promise<AdminImpersonationResponse> {
+    const response = await apiService.post<{ success: boolean; data: AdminImpersonationResponse }>(
+      `/admin/clients/${clientId}/impersonate`,
+      {},
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
     return response.data;
   }
 

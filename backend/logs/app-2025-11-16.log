@@ -1,0 +1,871 @@
+[2025-11-16T12:21:00.631Z] [INFO] [PID:2804] ✅ Tracking service started - will run every 3 hours
+[2025-11-16T12:21:02.911Z] [INFO] [PID:2804] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-16T12:21:02.911Z"
+}
+[2025-11-16T12:21:02.948Z] [INFO] [PID:2804] 🔌 WebSocket server initialized
+[2025-11-16T12:21:03.713Z] [INFO] [PID:2804] ✅ Connected to MongoDB
+[2025-11-16T12:21:03.724Z] [INFO] [PID:2804] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-16T12:21:05.210Z] [INFO] [PID:2804] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-16T12:21:05.210Z"
+}
+[2025-11-16T12:21:29.161Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T12:21:29.225Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T12:21:46.319Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T12:21:46.352Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T12:25:04.262Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T12:25:04.296Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T12:30:00.047Z] [INFO] [PID:2804] 🔄 Starting scheduled shipment tracking...
+[2025-11-16T12:30:00.165Z] [INFO] [PID:2804] 🔍 Found 22 orders to track
+[2025-11-16T12:30:00.167Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:00.170Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:00.173Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000361",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:00.362Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:00.363Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:01.367Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:01.368Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:01.369Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000416",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:01.452Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:01.452Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:02.463Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:02.465Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:02.467Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000641",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:02.549Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:02.550Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:03.559Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:03.561Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:03.568Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001046",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:03.645Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:03.646Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:04.651Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:04.654Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:04.656Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001083",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:04.731Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:04.732Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:05.748Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:05.751Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:05.752Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001120",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:05.848Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:05.849Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:06.855Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:06.856Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:06.857Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001131",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:06.940Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:06.940Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:07.955Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:07.956Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:07.957Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001142",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:08.045Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:08.046Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:09.047Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:09.049Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:09.050Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001153",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:09.139Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:09.141Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:10.148Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:10.149Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:10.149Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001164",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:10.242Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:10.242Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:11.251Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:11.252Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:11.253Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001175",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:11.343Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:11.344Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:12.355Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:12.356Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:12.357Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001186",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:12.440Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:12.442Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:13.449Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:13.465Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:13.466Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001190",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:13.552Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:13.553Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:14.561Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:14.562Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:14.563Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001260",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:14.643Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:14.644Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:15.649Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762719981571059",
+  "waybill": "44800710001470",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:15.649Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001470",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:15.650Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001470",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:15.734Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001470",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:15.738Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762719981571059",
+  "waybill": "44800710001470",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:16.753Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762719982980514",
+  "waybill": "44800710001481",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:16.754Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001481",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:16.756Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001481",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:16.844Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001481",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:16.844Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762719982980514",
+  "waybill": "44800710001481",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-16T12:30:17.864Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762753507295742",
+  "waybill": "44800710001492",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:17.864Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001492",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:17.866Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001492",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:17.964Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001492",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:17.964Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762753507295742",
+  "waybill": "44800710001492",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:18.976Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762841467169306",
+  "waybill": "44800710001503",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:18.977Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001503",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:18.979Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001503",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:19.090Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001503",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:19.092Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762841467169306",
+  "waybill": "44800710001503",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:20.100Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762926746218699",
+  "waybill": "44800710001595",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:20.101Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001595",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:20.102Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001595",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:20.176Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001595",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:20.177Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1762926746218699",
+  "waybill": "44800710001595",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:21.179Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763021938416280",
+  "waybill": "44800710001632",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:21.180Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001632",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:21.181Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001632",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:21.277Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001632",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:21.279Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1763021938416280",
+  "waybill": "44800710001632",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:22.296Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763021512708774",
+  "waybill": "44800710001643",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:22.296Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001643",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:22.297Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001643",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:22.543Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001643",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-16T12:30:22.543Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1763021512708774",
+  "waybill": "44800710001643",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-16T12:30:23.546Z] [INFO] [PID:2804] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763105756105874",
+  "waybill": "44800710001665",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:23.547Z] [INFO] [PID:2804] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001665",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-16T12:30:23.550Z] [INFO] [PID:2804] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001665",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-16T12:30:23.644Z] [INFO] [PID:2804] ✅ Tracking successful | Data: {
+  "waybill": "44800710001665",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-16T12:30:23.645Z] [INFO] [PID:2804] 📊 No status change needed | Data: {
+  "orderId": "ORD1763105756105874",
+  "waybill": "44800710001665",
+  "currentStatus": "new"
+}
+[2025-11-16T12:30:24.648Z] [INFO] [PID:2804] ✅ Completed scheduled shipment tracking
+[2025-11-16T12:55:04.009Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T12:55:04.044Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T13:00:50.725Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T13:00:50.758Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:13:08.689Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:13:08.725Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:14:37.405Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:14:37.453Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:15:36.328Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:15:36.361Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:17:02.003Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:17:02.032Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:17:28.509Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:17:28.541Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:17:49.451Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:17:49.489Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:21:12.191Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:21:12.229Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:23:55.892Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:23:55.925Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:24:35.748Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:24:35.776Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:26:38.163Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:26:38.199Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:36:01.989Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:36:02.019Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:41:33.771Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:41:33.800Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:42:08.865Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:42:08.892Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T14:43:27.705Z] [INFO] [PID:2804] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-16T14:43:27.747Z] [DEBUG] [PID:2804] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-16T15:25:18.006Z] [INFO] [PID:2804] 🛑 SIGINT received, shutting down gracefully
+[2025-11-16T15:25:18.009Z] [INFO] [PID:2804] 🔌 Cleaning up WebSocket service...

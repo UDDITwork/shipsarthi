@@ -319,6 +319,27 @@
   background-color: #2563eb;
 }
 
+.access-portal-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.access-portal-btn:hover:not(:disabled) {
+  background-color: #0f9d75;
+}
+
+.access-portal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .pagination {
   display: flex;
   justify-content: center;

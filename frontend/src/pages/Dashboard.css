@@ -310,6 +310,17 @@
     transform: translateY(-1px);
   }
   
+.wallet-downtime-banner {
+    margin-top: 16px;
+    background: #fff4e5;
+    border: 1px solid #ffd8a8;
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #7c4a03;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  
   .calendar-icon {
     font-size: 18px;
   }

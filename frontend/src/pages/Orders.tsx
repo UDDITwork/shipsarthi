@@ -79,7 +79,6 @@ const Orders: React.FC = () => {
   const [bulkImportSummary, setBulkImportSummary] = useState<BulkImportSummary | null>(null);
   const [bulkImportError, setBulkImportError] = useState<string | null>(null);
   const [isBulkImportLoading, setIsBulkImportLoading] = useState(false);
-  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [viewOrderModal, setViewOrderModal] = useState<{open: boolean, order: Order | null}>({
@@ -703,6 +702,36 @@ const Orders: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+
+      // Quick UI pre-check to avoid unnecessary round-trip
+      try {
+        const targetOrder = orders.find(o => o._id === orderDbId);
+        const pickupPin = targetOrder?.pickup_address?.pincode;
+        const deliveryPin = targetOrder?.pin;
+        if (pickupPin && deliveryPin) {
+          const [pickupInfo, deliveryInfo] = await Promise.all([
+            fetch(`${environmentConfig.apiUrl}/tools/pincode-info/${pickupPin}`, {
+              headers: { 'Authorization': `Bearer ${token || ''}` }
+            }).then(r => r.json()).catch(() => null),
+            fetch(`${environmentConfig.apiUrl}/tools/pincode-info/${deliveryPin}`, {
+              headers: { 'Authorization': `Bearer ${token || ''}` }
+            }).then(r => r.json()).catch(() => null)
+          ]);
+          const isServiceable = (info: any) => {
+            if (!info) return true; // fallback to backend
+            const flag = (info.serviceable ?? info.pre_paid ?? info.cod ?? info.pickup);
+            const norm = typeof flag === 'string' ? flag.toLowerCase() : flag;
+            return norm === true || norm === 'y' || norm === 'yes' || norm === 'true' || norm === 1 || norm === '1';
+          };
+          if (!isServiceable(pickupInfo) || !isServiceable(deliveryInfo)) {
+            alert('PINCODE IS NOT SERVICEABLE');
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // ignore pre-check errors; backend remains the source of truth
+      }
       
       const response = await fetch(`${environmentConfig.apiUrl}/orders/${orderDbId}/generate-awb`, {
         method: 'POST',
@@ -720,7 +749,11 @@ const Orders: React.FC = () => {
         orderService.clearCache();
         fetchOrders();
       } else {
-        throw new Error(data.message || 'Failed to generate AWB');
+        const msg = (data?.message || data?.error || '').toString().toLowerCase();
+        const friendly = data?.error_code === 'PINCODE_NOT_SERVICEABLE' || msg.includes('not serviceable')
+          ? 'PINCODE IS NOT SERVICEABLE'
+          : (data.message || data.error || 'Failed to generate AWB');
+        throw new Error(friendly);
       }
     } catch (error: any) {
       console.error('Generate AWB error:', error);
@@ -730,19 +763,15 @@ const Orders: React.FC = () => {
     }
   };
 
-  const handleCancelShipment = async (orderId: string, orderDbId: string, awb: string) => {
-    if (!awb) {
-      alert('AWB number not available for cancellation');
-      return;
-    }
-
+  const handleCancelShipment = async (orderId: string, orderDbId: string, awb?: string | null) => {
     if (!orderDbId) {
       alert('Order ID not available');
       return;
     }
 
     // Confirm cancellation
-    if (!window.confirm(`Are you sure you want to cancel this shipment?\n\nOrder ID: ${orderId}\nAWB Number: ${awb}\n\nThis action cannot be undone.`)) {
+    const awbText = awb ? `AWB Number: ${awb}` : 'AWB Number: Not generated';
+    if (!window.confirm(`Are you sure you want to cancel this shipment?\n\nOrder ID: ${orderId}\n${awbText}\n\nThis action cannot be undone.`)) {
       return;
     }
 
@@ -762,7 +791,8 @@ const Orders: React.FC = () => {
 
       if (response.ok && data.status === 'success') {
         const cancellationStatus = data.data?.cancellation_status || 'unknown';
-        alert(`✅ Shipment cancelled successfully!\n\nOrder ID: ${data.data.order_id}\nAWB Number: ${data.data.waybill}\nCancellation Status: ${cancellationStatus}\n\n${data.data.message || ''}`);
+        const cancelledWaybill = data.data?.waybill || 'Not Generated';
+        alert(`✅ Shipment cancelled successfully!\n\nOrder ID: ${data.data.order_id}\nAWB Number: ${cancelledWaybill}\nCancellation Status: ${cancellationStatus}\n\n${data.data.message || ''}`);
         
         // Clear cache and refresh orders to show the cancellation badge
         orderService.clearCache();
@@ -835,34 +865,6 @@ const Orders: React.FC = () => {
     } catch (error: any) {
       console.error('Print order error:', error);
       alert(`❌ Failed to generate order print page: ${error.message || 'Unknown error'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRechargeSubmit = async (amount: number) => {
-    try {
-      setLoading(true);
-      // Process recharge
-      const response = await fetch(`${environmentConfig.apiUrl}/billing/recharge`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ amount })
-      });
-
-      if (response.ok) {
-        alert(`Successfully recharged ₹${amount}!`);
-        setIsRechargeModalOpen(false);
-        // Refresh user balance or redirect to payment
-      } else {
-        throw new Error('Recharge failed');
-      }
-    } catch (error) {
-      console.error('Recharge error:', error);
-      alert('Failed to process recharge. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -1438,15 +1440,13 @@ const Orders: React.FC = () => {
                           </button>
                         )}
                         
-                        {/* Cancel Shipment button - only for pickups_manifests status with AWB */}
-                        {order.awb && 
-                         activeTab === 'pickups_manifests' &&
-                         order.status === 'pickups_manifests' &&
+                        {/* Cancel Shipment button */}
+                        {['new', 'ready_to_ship', 'pickups_manifests'].includes(order.status) &&
                          !order.delhivery_data?.cancellation_status && (
                           <button 
                             className="action-btn cancel-shipment-btn"
                             title="Cancel Shipment"
-                            onClick={() => handleCancelShipment(order.orderId, order._id, order.awb || '')}
+                            onClick={() => handleCancelShipment(order.orderId, order._id, order.awb)}
                           >
                             Cancel Shipment
                           </button>
@@ -1648,74 +1648,6 @@ const Orders: React.FC = () => {
                     )}
                   </div>
                 )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Recharge Modal */}
-        {isRechargeModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h3>💰 Recharge Account</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setIsRechargeModalOpen(false)}
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="modal-body">
-                <div className="recharge-options">
-                  <button 
-                    className="recharge-btn"
-                    onClick={() => handleRechargeSubmit(500)}
-                  >
-                    ₹500
-                  </button>
-                  <button 
-                    className="recharge-btn"
-                    onClick={() => handleRechargeSubmit(1000)}
-                  >
-                    ₹1,000
-                  </button>
-                  <button 
-                    className="recharge-btn"
-                    onClick={() => handleRechargeSubmit(2500)}
-                  >
-                    ₹2,500
-                  </button>
-                  <button 
-                    className="recharge-btn"
-                    onClick={() => handleRechargeSubmit(5000)}
-                  >
-                    ₹5,000
-                  </button>
-                </div>
-                <div className="custom-amount">
-                  <input
-                    type="number"
-                    placeholder="Enter custom amount"
-                    className="amount-input"
-                    min="100"
-                    max="50000"
-                  />
-                  <button 
-                    className="custom-recharge-btn"
-                    onClick={() => {
-                      const input = document.querySelector('.amount-input') as HTMLInputElement;
-                      const amount = parseInt(input.value);
-                      if (amount >= 100 && amount <= 50000) {
-                        handleRechargeSubmit(amount);
-                      } else {
-                        alert('Amount must be between ₹100 and ₹50,000');
-                      }
-                    }}
-                  >
-                    Recharge Custom Amount
-                  </button>
-                </div>
               </div>
             </div>
           </div>

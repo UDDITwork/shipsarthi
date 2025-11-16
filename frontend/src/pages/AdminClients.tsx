@@ -27,6 +27,7 @@ const AdminClients: React.FC = () => {
     hasNext: false,
     hasPrev: false
   });
+  const [impersonatingClientId, setImpersonatingClientId] = useState<string | null>(null);
 
   // Filters and search
   const [filters, setFilters] = useState({
@@ -141,6 +142,20 @@ const AdminClients: React.FC = () => {
   const handleDocumentModalKYCUpdate = () => {
     // Refresh the clients list when KYC is updated from the modal
     fetchClients();
+  };
+
+  const handleAccessPortal = async (client: AdminClient) => {
+    try {
+      setError(null);
+      setImpersonatingClientId(client._id);
+      const impersonation = await adminService.impersonateClient(client._id);
+      const portalUrl = `${window.location.origin}?impersonation_token=${encodeURIComponent(impersonation.token)}`;
+      window.open(portalUrl, '_blank', 'noopener,noreferrer');
+    } catch (err: any) {
+      setError(err.message || 'Failed to access client portal');
+    } finally {
+      setImpersonatingClientId(null);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -355,6 +370,13 @@ const AdminClients: React.FC = () => {
                         }}
                       >
                         View
+                      </button>
+                      <button
+                        className="access-portal-btn"
+                        onClick={() => handleAccessPortal(client)}
+                        disabled={impersonatingClientId === client._id}
+                      >
+                        {impersonatingClientId === client._id ? 'Opening…' : 'Access Portal'}
                       </button>
                     </div>
                   </td>

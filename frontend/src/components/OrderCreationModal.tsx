@@ -899,7 +899,11 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
       if (!response.ok) {
         // Handle error response
         const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
-        const errorMessage = errorData.message || errorData.error || `Failed to create order (${response.status})`;
+        let errorMessage = errorData.message || errorData.error || `Failed to create order (${response.status})`;
+        const msg = (errorData?.message || errorData?.error || '').toString().toLowerCase();
+        if (errorData?.error_code === 'PINCODE_NOT_SERVICEABLE' || msg.includes('not serviceable')) {
+          errorMessage = 'PINCODE IS NOT SERVICEABLE';
+        }
         console.error('❌ FRONTEND: Order creation failed', {
           status: response.status,
           error: errorMessage,

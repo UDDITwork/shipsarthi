@@ -72,6 +72,25 @@
   gap: 32px;
 }
 
+.recharge-downtime-banner {
+  flex: 1;
+  width: 100%;
+  background: #fff4e5;
+  border: 1px solid #ffd8a8;
+  border-radius: 12px;
+  padding: 20px;
+  color: #7c4a03;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.recharge-downtime-banner h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #b45309;
+}
+
 .recharge-content {
   flex: 2;
 }
@@ -273,6 +292,11 @@
   margin: 16px 0;
 }
 
+.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 /* Modal Footer */
 .recharge-modal-footer {
   padding: 24px 32px;
@@ -299,6 +323,24 @@
 .cancel-button:hover {
   border-color: #CCCCCC;
   background: #F5F5F5;
+}
+
+.contact-button {
+  padding: 14px 28px;
+  border: 2px solid #2C4563;
+  border-radius: 12px;
+  background: #2C4563;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.contact-button:hover {
+  background: #1f2f44;
+  border-color: #1f2f44;
 }
 
 .continue-button {

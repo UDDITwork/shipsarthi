@@ -284,12 +284,6 @@ const Dashboard: React.FC = () => {
     };
   }, [fetchAllDashboardData, dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
 
-  const handleRecharge = (amount: number, promoCode?: string) => {
-    console.log('Recharge initiated:', { amount, promoCode });
-    // Here you can add the actual recharge logic
-    alert(`Recharge of ₹${amount} ${promoCode ? `with promo code ${promoCode}` : ''} initiated!`);
-  };
-
   const openRechargeModal = () => {
     setIsRechargeModalOpen(true);
   };
@@ -527,6 +521,10 @@ const Dashboard: React.FC = () => {
             <button className="wallet-recharge-btn" onClick={openRechargeModal}>
               Recharge
             </button>
+          </div>
+          <div className="wallet-downtime-banner">
+            <strong>Payment gateway unavailable.</strong> Please contact your Shipsarthi administrator to
+            process manual wallet top-ups. We&apos;re sorry for the inconvenience.
           </div>
         </div>
 
@@ -791,7 +789,6 @@ const Dashboard: React.FC = () => {
         <RechargeModal
           isOpen={isRechargeModalOpen}
           onClose={closeRechargeModal}
-          onRecharge={handleRecharge}
         />
       </div>
     </Layout>

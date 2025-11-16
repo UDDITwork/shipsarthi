@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const XLSX = require('xlsx');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const https = require('https');
 const http = require('http');
@@ -394,6 +395,69 @@ router.get('/clients/:id', async (req, res) => {
       success: false,
       message: 'Error fetching client details',
       error: error.message
+    });
+  }
+});
+
+router.post('/clients/:clientId/impersonate', async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid client ID'
+      });
+    }
+
+    const client = await User.findById(clientId).select('_id company_name your_name email user_category');
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({
+        success: false,
+        message: 'JWT secret is not configured'
+      });
+    }
+
+    const expiresIn = '15m';
+    const token = jwt.sign({ id: client._id }, process.env.JWT_SECRET, { expiresIn });
+
+    logger.info('👤 Admin impersonation token issued', {
+      adminEmail: req.admin?.email,
+      clientId: client._id.toString(),
+      expiresIn
+    });
+
+    res.json({
+      success: true,
+      message: 'Impersonation token generated successfully',
+      data: {
+        token,
+        expires_in: expiresIn,
+        client: {
+          _id: client._id,
+          company_name: client.company_name,
+          your_name: client.your_name,
+          email: client.email,
+          user_category: client.user_category
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('Impersonation token generation failed', {
+      adminEmail: req.admin?.email,
+      clientId: req.params.clientId,
+      error: error.message
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate impersonation token'
     });
   }
 });

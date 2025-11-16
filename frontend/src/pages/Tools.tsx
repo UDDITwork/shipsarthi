@@ -1,25 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
-import { shippingService } from '../services/shippingService';
+import { shippingService, ShippingCalculationRequest } from '../services/shippingService';
 import { apiService } from '../services/api';
 import './Tools.css';
 import RateCalculatorIcon from '../ratecalculator/RATECALCULATOR.svg';
 import ListIcon from '../ratecalculator/List.svg';
 import TruckIcon from '../ratecalculator/truck.svg';
 import MapFillIcon from '../ratecalculator/Map-Fill.svg';
-
-interface ShippingCalculationRequest {
-  weight: number;
-  dimensions: {
-    length: number;
-    breadth: number;
-    height: number;
-  };
-  zone: string;
-  cod_amount?: number;
-  order_type?: 'forward' | 'rto';
-}
 
 interface ShippingCalculationResult {
   user_category: string;
@@ -53,6 +41,7 @@ interface ShippingCalculationResponse {
   totalCharges: number;
   volumetricWeight: number;
   chargeableWeight: number;
+  zone?: string;
 }
 
 type ZoneDefinitionMap = { [key: string]: string[] };
@@ -573,23 +562,6 @@ const Tools: React.FC = () => {
     }
   };
 
-  const determineZone = (pickupPincode: string, deliveryPincode: string): string => {
-    // This is a simplified zone determination
-    // In a real implementation, you'd use distance calculation or zone mapping
-    if (pickupPincode === deliveryPincode) return 'A';
-    
-    // For demo purposes, we'll use a simple logic
-    // In production, integrate with actual zone mapping service
-    const pickupFirstDigit = pickupPincode[0];
-    const deliveryFirstDigit = deliveryPincode[0];
-    
-    if (pickupFirstDigit === deliveryFirstDigit) return 'B';
-    if (['1', '2', '3', '4'].includes(pickupFirstDigit) && ['1', '2', '3', '4'].includes(deliveryFirstDigit)) return 'C';
-    if (['5', '6', '7', '8', '9'].includes(pickupFirstDigit) && ['5', '6', '7', '8', '9'].includes(deliveryFirstDigit)) return 'C';
-    
-    return 'D'; // Default zone
-  };
-
   const calculateShipping = async () => {
     if (!formData.pickupPincode || !formData.deliveryPincode || !formData.actualWeight) {
       setError('Please fill in all required fields');
@@ -608,13 +580,14 @@ const Tools: React.FC = () => {
         height: parseFloat(formData.dimensions.height) || 0
       };
 
-      const zone = determineZone(formData.pickupPincode, formData.deliveryPincode);
       const codAmount = formData.paymentType === 'cod' ? parseFloat(formData.codValue) || 0 : 0;
 
       const calculationRequest: ShippingCalculationRequest = {
         weight, // Now in grams
         dimensions,
-        zone,
+        pickup_pincode: formData.pickupPincode,
+        delivery_pincode: formData.deliveryPincode,
+        payment_mode: formData.paymentType === 'cod' ? 'COD' : 'Prepaid',
         cod_amount: codAmount,
         order_type: formData.shipmentType as 'forward' | 'rto'
       };
@@ -626,7 +599,7 @@ const Tools: React.FC = () => {
         user_category: userCategory,
         weight,
         dimensions,
-        zone,
+        zone: response.zone || 'N/A',
         cod_amount: codAmount,
         calculation_result: response,
         rate_card_info: {

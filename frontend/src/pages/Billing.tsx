@@ -319,6 +319,10 @@ const Billing: React.FC = () => {
             💳 Recharge Wallet
           </button>
         </div>
+        <div className="billing-downtime-banner">
+          <strong>Payment gateway unavailable.</strong> Please contact your Shipsarthi administrator to
+          process manual wallet recharges. We&apos;ll notify you once online payments resume.
+        </div>
 
         {/* Tabs */}
         <div className="billing-tabs">

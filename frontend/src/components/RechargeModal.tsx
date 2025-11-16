@@ -5,45 +5,22 @@ import './RechargeModal.css';
 interface RechargeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRecharge: (amount: number, promoCode?: string) => void;
 }
 
-const RechargeModal: React.FC<RechargeModalProps> = ({ isOpen, onClose, onRecharge }) => {
+const SUPPORT_EMAIL = 'support@shipsarthi.com';
+
+const RechargeModal: React.FC<RechargeModalProps> = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState<string>('');
   const [promoCode, setPromoCode] = useState<string>('');
-  const [isPromoApplied, setIsPromoApplied] = useState<boolean>(false);
-
-  const predefinedAmounts = [500, 1000, 2000, 5000, 10000];
-
-  const handleAmountClick = (value: number) => {
-    setAmount(value.toString());
-  };
-
-  const handlePromoApply = () => {
-    if (promoCode.trim()) {
-      setIsPromoApplied(true);
-      // Here you can add promo code validation logic
-      alert('Promo code applied successfully!');
-    }
-  };
-
-  const handleContinue = () => {
-    const rechargeAmount = parseFloat(amount);
-    
-    if (!rechargeAmount || rechargeAmount < 500) {
-      alert('Minimum recharge amount is ₹500');
-      return;
-    }
-
-    onRecharge(rechargeAmount, promoCode);
-    handleClose();
-  };
 
   const handleClose = () => {
     setAmount('');
     setPromoCode('');
-    setIsPromoApplied(false);
     onClose();
+  };
+
+  const handleContactSupport = () => {
+    window.open(`mailto:${SUPPORT_EMAIL}`, '_blank');
   };
 
   if (!isOpen) return null;
@@ -61,38 +38,33 @@ const RechargeModal: React.FC<RechargeModalProps> = ({ isOpen, onClose, onRechar
 
         {/* Modal Body */}
         <div className="recharge-modal-body">
+          <div className="recharge-downtime-banner">
+            <h3>🚧 Payment Gateway Unavailable</h3>
+            <p>
+              Our payment gateway is currently unavailable. Please contact the administrator for a manual
+              recharge. We apologize for the inconvenience.
+            </p>
+          </div>
+
           <div className="recharge-content">
-            {/* Amount Section */}
-            <div className="amount-section">
+            {/* Amount Section (disabled) */}
+            <div className="amount-section disabled">
               <label className="section-label">Amount</label>
               <div className="amount-input-wrapper">
                 <span className="rupee-icon">₹</span>
                 <input
                   type="number"
                   className="amount-input"
-                  placeholder="Minimum recharge of ₹ 500"
+                  placeholder="Enter amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  min="500"
+                  disabled
                 />
-              </div>
-
-              {/* Predefined Amount Buttons */}
-              <div className="predefined-amounts">
-                {predefinedAmounts.map((value) => (
-                  <button
-                    key={value}
-                    className={`amount-button ${amount === value.toString() ? 'active' : ''}`}
-                    onClick={() => handleAmountClick(value)}
-                  >
-                    ₹ {value.toLocaleString()}
-                  </button>
-                ))}
               </div>
             </div>
 
-            {/* Promo Code Section */}
-            <div className="promo-section">
+            {/* Promo Code Section (disabled) */}
+            <div className="promo-section disabled">
               <label className="section-label">Promo Code</label>
               <div className="promo-input-wrapper">
                 <input
@@ -101,50 +73,36 @@ const RechargeModal: React.FC<RechargeModalProps> = ({ isOpen, onClose, onRechar
                   placeholder="Enter promo code"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                  disabled={isPromoApplied}
+                  disabled
                 />
-                <button
-                  className={`apply-button ${isPromoApplied ? 'applied' : ''}`}
-                  onClick={handlePromoApply}
-                  disabled={isPromoApplied || !promoCode.trim()}
-                >
-                  {isPromoApplied ? '✓ Applied' : 'Apply'}
+                <button className="apply-button" disabled>
+                  Apply
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Summary (Optional) */}
-          <div className="recharge-summary">
+          {/* Right Side - Summary */}
+          <div className="recharge-summary disabled">
             <div className="summary-item">
               <span className="summary-label">Amount:</span>
-              <span className="summary-value">₹ {amount || '0'}</span>
+              <span className="summary-value">₹ 0</span>
             </div>
-            {isPromoApplied && (
-              <div className="summary-item discount">
-                <span className="summary-label">Discount:</span>
-                <span className="summary-value">- ₹ 0</span>
-              </div>
-            )}
             <div className="summary-divider"></div>
             <div className="summary-item total">
               <span className="summary-label">Total:</span>
-              <span className="summary-value">₹ {amount || '0'}</span>
+              <span className="summary-value">₹ 0</span>
             </div>
           </div>
         </div>
 
         {/* Modal Footer */}
         <div className="recharge-modal-footer">
+          <button className="contact-button" onClick={handleContactSupport}>
+            Contact Admin
+          </button>
           <button className="cancel-button" onClick={handleClose}>
             Cancel
-          </button>
-          <button
-            className="continue-button"
-            onClick={handleContinue}
-            disabled={!amount || parseFloat(amount) < 500}
-          >
-            Continue to Payment
           </button>
         </div>
       </div>

@@ -45,34 +45,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      
+      let storedToken = localStorage.getItem('token');
+      let storedUser = localStorage.getItem('user');
+
+      if (typeof window !== 'undefined') {
+        try {
+          const url = new URL(window.location.href);
+          const impersonationToken = url.searchParams.get('impersonation_token');
+
+          if (impersonationToken) {
+            storedToken = impersonationToken;
+            storedUser = null;
+            localStorage.setItem('token', impersonationToken);
+            localStorage.setItem('impersonation_session', 'true');
+            localStorage.removeItem('user');
+            setUser(null);
+            url.searchParams.delete('impersonation_token');
+            window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+          }
+        } catch (error) {
+          console.error('Failed to process impersonation token from URL:', error);
+        }
+      }
+
       if (storedToken) {
         setToken(storedToken);
-        
-        // Load from localStorage for instant display
+
         if (storedUser) {
           try {
             setUser(JSON.parse(storedUser));
           } catch (err) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            storedToken = null;
+            storedUser = null;
           }
         }
-        
-        // Fetch fresh data from MongoDB (source of truth) on mount
-        // This ensures we have the latest user_category if admin assigned it
-        try {
-          await refreshUser(storedToken);
-        } catch (err) {
-          console.error('Failed to fetch fresh user data on mount:', err);
+
+        if (storedToken) {
+          try {
+            await refreshUser(storedToken);
+          } catch (err) {
+            console.error('Failed to fetch fresh user data on mount:', err);
+          }
         }
+      } else {
+        setUser(null);
+        setToken(null);
       }
-      
+
       setLoading(false);
     };
-    
+
     initializeAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
@@ -161,6 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('impersonation_session');
     // DO NOT clear remembered_email and remembered_password on logout
     // These should persist based on user's Remember Me checkbox choice
   };
