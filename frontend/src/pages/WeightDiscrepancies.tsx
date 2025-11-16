@@ -212,9 +212,9 @@ const WeightDiscrepancies: React.FC = () => {
                           {disc.awb_status}
                         </span>
                       </td>
-                      <td>{disc.client_declared_weight} kg</td>
-                      <td>{disc.delhivery_updated_weight} kg</td>
-                      <td className="diff-cell">{disc.weight_discrepancy} kg</td>
+                      <td>{disc.client_declared_weight.toFixed(2)} kg</td>
+                      <td>{disc.delhivery_updated_weight.toFixed(2)} kg</td>
+                      <td className="diff-cell">{disc.weight_discrepancy.toFixed(2)} kg</td>
                       <td className="deduction-cell">-₹{disc.deduction_amount.toFixed(2)}</td>
                       <td className="transaction-id">{disc.transaction_id?.transaction_id || 'N/A'}</td>
                     </tr>

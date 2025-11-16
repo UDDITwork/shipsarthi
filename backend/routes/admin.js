@@ -2285,9 +2285,29 @@ router.post('/weight-discrepancies/bulk-import', upload.single('file'), async (r
 
         // Extract other fields
         const awb_status = String(row['Status of AWB'] || row['awb_status'] || 'Unknown');
-        const client_declared_weight = parseFloat(row['Client Declared Weight'] || row['client_declared_weight'] || 0);
-        const delhivery_updated_weight = parseFloat(row['Delhivery Updated Weight'] || row['delhivery_updated_weight'] || 0);
-        const weight_discrepancy = parseFloat(row['Delhivery Updated chargeable weight - Client Declared chargeable weight'] || row['weight_discrepancy'] || 0);
+
+        // Delhivery exports weights in grams (e.g. 8540 = 8.54kg). Normalize to KG.
+        const normalizeWeight = (raw) => {
+          const n = parseFloat(raw || 0);
+          if (!n || !isFinite(n)) return 0;
+          // Treat clearly large values as grams and convert to kg.
+          // For typical shipments, anything > 50 is considered grams.
+          const valueInKg = n > 50 ? n / 1000 : n;
+          return parseFloat(valueInKg.toFixed(3));
+        };
+
+        const client_declared_weight = normalizeWeight(row['Client Declared Weight'] || row['client_declared_weight']);
+        const delhivery_updated_weight = normalizeWeight(row['Delhivery Updated Weight'] || row['delhivery_updated_weight']);
+
+        let weight_discrepancy = normalizeWeight(
+          row['Delhivery Updated chargeable weight - Client Declared chargeable weight'] ||
+          row['weight_discrepancy']
+        );
+        // If discrepancy column is missing/zero, compute from normalized weights
+        if (!weight_discrepancy && delhivery_updated_weight && client_declared_weight) {
+          weight_discrepancy = parseFloat((delhivery_updated_weight - client_declared_weight).toFixed(3));
+        }
+
         const deduction_amount = parseFloat(row['Latest deduction - Initial manifestation cost'] || row['deduction_amount'] || 0);
 
         // Validate weights
@@ -2371,7 +2391,7 @@ router.post('/weight-discrepancies/bulk-import', upload.single('file'), async (r
             transaction_type: 'debit',
             transaction_category: 'weight_discrepancy_charge',
             amount: deduction_amount,
-            description: `Weight discrepancy charge for AWB: ${parsedAWB}. Discrepancy: ${weight_discrepancy}g`,
+            description: `Weight discrepancy charge for AWB: ${parsedAWB}. Discrepancy: ${weight_discrepancy} kg`,
             related_order_id: order._id,
             related_awb: parsedAWB,
             status: 'completed',
