@@ -405,12 +405,13 @@ router.get('/public/track/:waybill', async (req, res) => {
         );
 
         if (trackingResult.success) {
-            const normalized = normalizeTrackingResponse(
-                trackingResult,
-                waybill
-            );
-
-            if (!normalized) {
+            // Return the complete Delhivery response structure
+            const rawData = trackingResult.data || {};
+            
+            // Extract ShipmentData if it exists
+            const shipmentData = rawData.ShipmentData || [];
+            
+            if (!shipmentData || shipmentData.length === 0) {
                 return res.status(404).json({
                     success: false,
                     message:
@@ -418,11 +419,22 @@ router.get('/public/track/:waybill', async (req, res) => {
                 });
             }
 
+            // Also provide normalized version for backward compatibility
+            const normalized = normalizeTrackingResponse(
+                trackingResult,
+                waybill
+            );
+
             return res.json({
                 success: true,
-                data: normalized,
+                data: {
+                    // Complete Delhivery response structure
+                    ShipmentData: shipmentData,
+                    // Normalized version for backward compatibility
+                    normalized: normalized || null
+                },
                 meta: {
-                    waybill: normalized.AWB,
+                    waybill: waybill,
                     attempts: trackingResult.attempts ?? 1,
                     hasRefIds: Boolean(refIds)
                 }

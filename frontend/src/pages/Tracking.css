@@ -429,6 +429,99 @@
   margin: 0 0 15px 0;
 }
 
+/* Tracking History Table Styles */
+.tracking-table-container {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+.tracking-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tracking-history-table thead {
+  background-color: #002B59;
+  color: white;
+}
+
+.tracking-history-table th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.tracking-history-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.tracking-history-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.tracking-history-table tbody tr.latest-scan {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.tracking-history-table td {
+  padding: 12px 15px;
+  color: #333;
+  vertical-align: top;
+}
+
+.tracking-history-table td:first-child {
+  font-weight: 500;
+  color: #002B59;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-badge.delivered {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.in-transit,
+.status-badge.dispatched {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.manifested {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.status-code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #666;
+}
+
 .scans-timeline {
   position: relative;
   padding-left: 20px;
@@ -579,6 +672,20 @@
 
   .scan-item::before {
     left: -5px;
+  }
+
+  .tracking-table-container {
+    overflow-x: scroll;
+  }
+
+  .tracking-history-table {
+    min-width: 800px;
+  }
+
+  .tracking-history-table th,
+  .tracking-history-table td {
+    padding: 8px 10px;
+    font-size: 12px;
   }
 }
 

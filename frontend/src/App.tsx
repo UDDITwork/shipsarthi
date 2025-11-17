@@ -29,6 +29,7 @@ import ReturnPolicy from './pages/ReturnPolicy';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Tracking from './pages/Tracking';
+import TrackingDetail from './pages/TrackingDetail';
 import PublicRateCalculator from './pages/PublicRateCalculator';
 import Channel from './pages/Channel';
 import AccountSettings from './pages/AccountSettings';
@@ -65,6 +66,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/tracking" element={<Tracking />} />
+            <Route path="/tracking/detail" element={<TrackingDetail />} />
             <Route path="/rate-calculator" element={<PublicRateCalculator />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />

@@ -4,32 +4,78 @@ import axios from 'axios';
 import './Tracking.css';
 import { environmentConfig } from '../config/environment';
 
-// Types for tracking response
-interface TrackingScan {
-  ScanType: string;
-  ScanDateTime: string;
-  ScanLocation: string;
-  Remarks: string;
+// Types for Delhivery tracking response
+interface ScanDetail {
+  ScanDateTime?: string;
+  ScanType?: string;
+  Scan?: string;
+  StatusDateTime?: string;
+  ScannedLocation?: string;
+  StatusCode?: string;
+  Instructions?: string;
+  call_duration?: number;
+  geo_location?: {
+    lat?: number;
+    long?: number;
+  };
 }
 
-interface TrackingData {
-  AWB: string;
-  Status: string;
-  StatusDateTime: string;
-  Origin: string;
-  Destination: string;
-  Scans: TrackingScan[];
+interface Shipment {
+  PickUpDate?: string;
+  Destination?: string;
+  DestRecieveDate?: string;
+  Scans?: Array<{ ScanDetail: ScanDetail }>;
+  Status?: {
+    Status?: string;
+    StatusLocation?: string;
+    StatusDateTime?: string;
+    RecievedBy?: string;
+    StatusCode?: string;
+    StatusType?: string;
+    Instructions?: string;
+  };
+  AWB?: string;
+  Origin?: string;
+  Consignee?: {
+    Name?: string;
+    City?: string;
+    State?: string;
+    PinCode?: number;
+  };
+  ReferenceNo?: string;
+  DeliveryDate?: string;
+  ExpectedDeliveryDate?: string;
+  SenderName?: string;
+  OrderType?: string;
+}
+
+interface ShipmentData {
+  Shipment: Shipment;
+}
+
+interface TrackingResponse {
+  success: boolean;
+  data: {
+    ShipmentData?: ShipmentData[];
+    normalized?: any;
+  };
+  meta?: {
+    waybill?: string;
+    attempts?: number;
+    hasRefIds?: boolean;
+  };
+  message?: string;
 }
 
 const Tracking: React.FC = () => {
   const navigate = useNavigate();
   const [awbNumber, setAwbNumber] = useState('');
   const [loading, setLoading] = useState(false);
-  const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
+  const [trackingData, setTrackingData] = useState<Shipment | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState('');
   const [trackingMeta, setTrackingMeta] = useState<{
-    waybill: string;
+    waybill?: string;
     attempts?: number;
     hasRefIds?: boolean;
   } | null>(null);
@@ -52,7 +98,7 @@ const Tracking: React.FC = () => {
       const trimmedOrderId = orderId.trim();
       const baseApiUrl = environmentConfig.apiUrl.replace(/\/$/, '');
 
-      const response = await axios.get(
+      const response = await axios.get<TrackingResponse>(
         `${baseApiUrl}/shipping/public/track/${encodeURIComponent(trimmedAwb)}`,
         trimmedOrderId
           ? {
@@ -64,8 +110,15 @@ const Tracking: React.FC = () => {
       );
 
       if (response.data?.success && response.data?.data) {
-        setTrackingData(response.data.data);
-        setTrackingMeta(response.data.meta || null);
+        // Extract ShipmentData array
+        const shipmentData = response.data.data.ShipmentData || [];
+        
+        if (shipmentData.length > 0 && shipmentData[0]?.Shipment) {
+          setTrackingData(shipmentData[0].Shipment);
+          setTrackingMeta(response.data.meta || null);
+        } else {
+          setError('No tracking information found for this AWB number.');
+        }
       } else {
         setError(response.data?.message || 'No tracking information found for this AWB number.');
       }
@@ -217,7 +270,7 @@ const Tracking: React.FC = () => {
                 <div className="tracking-results">
                   <div className="results-header">
                     <h3>Tracking Information</h3>
-                    <div className="awb-display">AWB: {trackingData.AWB}</div>
+                    <div className="awb-display">AWB: {trackingData.AWB || 'N/A'}</div>
                   </div>
 
                   {trackingMeta && (
@@ -236,12 +289,12 @@ const Tracking: React.FC = () => {
                       <span className="label">Status:</span>
                       <span
                         className={`status ${
-                          trackingData?.Status
-                            ? trackingData.Status.toLowerCase().replace(/\s+/g, '-')
+                          trackingData?.Status?.Status
+                            ? trackingData.Status.Status.toLowerCase().replace(/\s+/g, '-')
                             : 'unknown'
                         }`}
                       >
-                        {trackingData?.Status || 'Not Available'}
+                        {trackingData?.Status?.Status || 'Not Available'}
                       </span>
                     </div>
                     <div className="info-row">
@@ -255,31 +308,82 @@ const Tracking: React.FC = () => {
                     <div className="info-row">
                       <span className="label">Last Updated:</span>
                       <span className="value">
-                        {trackingData?.StatusDateTime
-                          ? new Date(trackingData.StatusDateTime).toLocaleString()
+                        {trackingData?.Status?.StatusDateTime
+                          ? new Date(trackingData.Status.StatusDateTime).toLocaleString()
                           : 'Not Available'}
                       </span>
                     </div>
                   </div>
 
-                  {trackingData.Scans && trackingData.Scans.length > 0 && (
+                  {/* Complete Tracking History Table */}
+                  {Array.isArray(trackingData.Scans) && trackingData.Scans.length > 0 && (
                     <div className="tracking-scans">
-                      <h4>Tracking History</h4>
-                      <div className="scans-timeline">
-                        {trackingData.Scans.map((scan, index) => (
-                          <div key={index} className="scan-item">
-                            <div className="scan-time">
-                              {new Date(scan.ScanDateTime).toLocaleString()}
-                            </div>
-                            <div className="scan-location">
-                              <strong>{scan.ScanLocation}</strong>
-                            </div>
-                            <div className="scan-type">{scan.ScanType}</div>
-                            {scan.Remarks && (
-                              <div className="scan-remarks">{scan.Remarks}</div>
-                            )}
-                          </div>
-                        ))}
+                      <h4>Complete Tracking History</h4>
+                      <div className="tracking-table-container">
+                        <table className="tracking-history-table">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Time</th>
+                              <th>Location</th>
+                              <th>Status</th>
+                              <th>Instructions</th>
+                              <th>Status Code</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[...trackingData.Scans]
+                              .sort((a, b) => {
+                                const dateA = a?.ScanDetail?.ScanDateTime || a?.ScanDetail?.StatusDateTime || '';
+                                const dateB = b?.ScanDetail?.ScanDateTime || b?.ScanDetail?.StatusDateTime || '';
+                                // Sort in descending order (newest first) - reverse chronological order
+                                return new Date(dateB).getTime() - new Date(dateA).getTime();
+                              })
+                              .map((scanItem, index) => {
+                                const scan = scanItem?.ScanDetail || {};
+                                const scanDateTime = scan.ScanDateTime || scan.StatusDateTime || '';
+                                const formatDate = (dateStr: string) => {
+                                  if (!dateStr) return 'N/A';
+                                  try {
+                                    return new Date(dateStr).toLocaleDateString('en-IN', {
+                                      year: 'numeric',
+                                      month: '2-digit',
+                                      day: '2-digit'
+                                    });
+                                  } catch {
+                                    return dateStr;
+                                  }
+                                };
+                                const formatTime = (dateStr: string) => {
+                                  if (!dateStr) return 'N/A';
+                                  try {
+                                    return new Date(dateStr).toLocaleTimeString('en-IN', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      second: '2-digit',
+                                      hour12: true
+                                    });
+                                  } catch {
+                                    return dateStr;
+                                  }
+                                };
+                                return (
+                                  <tr key={index} className={index === 0 ? 'latest-scan' : ''}>
+                                    <td>{formatDate(scanDateTime)}</td>
+                                    <td>{formatTime(scanDateTime)}</td>
+                                    <td>{scan.ScannedLocation || 'N/A'}</td>
+                                    <td>
+                                      <span className={`status-badge ${(scan.Scan || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                                        {scan.Scan || 'N/A'}
+                                      </span>
+                                    </td>
+                                    <td>{scan.Instructions || 'N/A'}</td>
+                                    <td className="status-code">{scan.StatusCode || 'N/A'}</td>
+                                  </tr>
+                                );
+                              })}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   )}

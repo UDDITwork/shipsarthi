@@ -2249,36 +2249,59 @@ router.post('/weight-discrepancies/bulk-import', upload.single('file'), async (r
 
         const client_id = order.user_id; // CRITICAL: Link to client
 
-        // Parse discrepancy date
-        const dateStr = row['Date of raising the weight mismatch'] || row['discrepancy_date'] || '';
-        let discrepancy_date = new Date(dateStr);
-        
-        if (isNaN(discrepancy_date.getTime())) {
-          // Handle MM/DD/YYYY HH:MM format
-          const parts = dateStr.split(' ');
-          const dateParts = parts[0] ? parts[0].split('/') : [];
-          
-          if (dateParts.length === 3) {
-            // Fix month and day padding
-            const month = dateParts[0].padStart(2, '0');
-            const day = dateParts[1].padStart(2, '0');
-            const year = dateParts[2];
-            const time = parts[1] || '00:00';
-            
-            discrepancy_date = new Date(`${year}-${month}-${day}T${time}`);
-          } else {
-            // Try alternative formats
-            discrepancy_date = new Date(dateStr.replace(/\//g, '-'));
-          }
-        }
+        // Parse discrepancy date using the exact format from Excel
+        const rawDate = row['Date of raising the weight mismatch'] || row['discrepancy_date'] || '';
 
-        if (isNaN(discrepancy_date.getTime())) {
+        const parseDiscrepancyDate = (value) => {
+          if (!value && value !== 0) return null;
+
+          // Handle Excel serial date numbers (e.g. 45218)
+          if (typeof value === 'number') {
+            // Excel epoch starts at 1899-12-30
+            const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+            const ms = value * 24 * 60 * 60 * 1000;
+            return new Date(excelEpoch.getTime() + ms);
+          }
+
+          const str = String(value).trim();
+          if (!str) return null;
+
+          // Try DD-MM-YYYY or DD-MM-YYYY HH:MM (as seen in the Delhivery export)
+          const dashParts = str.split(' ');
+          const dmy = dashParts[0].split('-');
+          if (dmy.length === 3) {
+            const [dd, mm, yyyy] = dmy;
+            const day = dd.padStart(2, '0');
+            const month = mm.padStart(2, '0');
+            const year = yyyy.length === 2 ? `20${yyyy}` : yyyy;
+            const time = dashParts[1] || '00:00';
+            return new Date(`${year}-${month}-${day}T${time}`);
+          }
+
+          // Fallback for MM/DD/YYYY or MM/DD/YYYY HH:MM
+          const parts = str.split(' ');
+          const slashDateParts = parts[0] ? parts[0].split('/') : [];
+          if (slashDateParts.length === 3) {
+            const month = slashDateParts[0].padStart(2, '0');
+            const day = slashDateParts[1].padStart(2, '0');
+            const year = slashDateParts[2];
+            const time = parts[1] || '00:00';
+            return new Date(`${year}-${month}-${day}T${time}`);
+          }
+
+          // Last resort: let JS try to parse
+          return new Date(str);
+        };
+
+        const discrepancy_date = parseDiscrepancyDate(rawDate);
+
+        if (!discrepancy_date || isNaN(discrepancy_date.getTime())) {
           importResults.failed++;
           importResults.errors.push({
             row: rowNumber,
             error: 'Invalid discrepancy date format',
             awb: parsedAWB,
-            date_string: dateStr
+            date_string: rawDate
           });
           continue;
         }

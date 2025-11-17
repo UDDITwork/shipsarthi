@@ -1037,11 +1037,18 @@ router.get('/track/:awb', auth, async (req, res) => {
         hasData: !!trackingResult.data
       });
 
+      // Return the complete Delhivery response structure
+      const rawData = trackingResult.data || {};
+      const shipmentData = rawData.ShipmentData || [];
+
       return res.json({
         status: 'success',
         message: 'Tracking data retrieved successfully',
         data: {
           waybill: sanitizedAwb,
+          // Complete Delhivery response structure
+          ShipmentData: shipmentData,
+          // Full raw data for reference
           tracking_data: trackingResult.data
         }
       });

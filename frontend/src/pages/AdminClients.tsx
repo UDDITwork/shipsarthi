@@ -365,18 +365,11 @@ const AdminClients: React.FC = () => {
                       <button
                         className="view-btn"
                         onClick={() => {
-                          // Navigate to client details
-                          window.location.href = `/admin/clients/${client._id}`;
+                          // Open client portal in a new tab via impersonation
+                          handleAccessPortal(client);
                         }}
                       >
                         View
-                      </button>
-                      <button
-                        className="access-portal-btn"
-                        onClick={() => handleAccessPortal(client)}
-                        disabled={impersonatingClientId === client._id}
-                      >
-                        {impersonatingClientId === client._id ? 'Opening…' : 'Access Portal'}
                       </button>
                     </div>
                   </td>

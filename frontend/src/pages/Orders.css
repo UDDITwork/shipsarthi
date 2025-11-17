@@ -289,7 +289,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid #E0E0E0;
     background-color: #F8F9FA;
   }
@@ -297,7 +297,7 @@
   .date-picker-header h4 {
     margin: 0;
     color: #002B59;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
   }
 
@@ -318,9 +318,9 @@
   }
 
   .date-inputs {
-    padding: 20px;
+    padding: 12px 15px;
     display: flex;
-    gap: 20px;
+    gap: 12px;
   }
 
   .date-input-group {
@@ -329,18 +329,18 @@
 
   .date-input-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 500;
     color: #495057;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .date-input-group input {
     width: 100%;
-    padding: 10px 12px;
+    padding: 6px 10px;
     border: 1px solid #CED4DA;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     transition: border-color 0.2s;
   }
 
@@ -351,15 +351,16 @@
   }
 
   .date-picker-actions {
-    padding: 15px 20px;
+    padding: 10px 15px;
     border-top: 1px solid #E0E0E0;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-end;
+    align-items: center;
   }
 
   .apply-btn, .clear-btn, .quick-filter-btn {
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px !important;
     border-top-left-radius: 20px !important;
     border-top-right-radius: 20px !important;
@@ -370,6 +371,10 @@
     cursor: pointer;
     transition: all 0.2s;
     border: none;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .apply-btn:hover:not(:disabled),
@@ -537,7 +542,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid #E0E0E0;
     background-color: #F8F9FA;
   }
@@ -545,7 +550,7 @@
   .filters-header h4 {
     margin: 0;
     color: #002B59;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
   }
 
@@ -566,10 +571,10 @@
   }
 
   .filters-content {
-    padding: 20px;
+    padding: 12px 15px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 10px;
   }
 
   .filter-group {
@@ -578,18 +583,18 @@
   }
 
   .filter-group label {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 500;
     color: #495057;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .filter-group input,
   .filter-group select {
-    padding: 10px 12px;
+    padding: 6px 10px;
     border: 1px solid #CED4DA;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     transition: border-color 0.2s;
   }
 
@@ -601,22 +606,27 @@
   }
 
   .filters-actions {
-    padding: 15px 20px;
+    padding: 10px 15px;
     border-top: 1px solid #E0E0E0;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-end;
+    align-items: center;
   }
 
   .apply-filters-btn,
   .clear-filters-btn {
-    padding: 8px 16px;
+    padding: 6px 14px;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .apply-filters-btn {
