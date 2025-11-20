@@ -1673,7 +1673,7 @@ router.post('/', auth, [
           unit_price: p.unit_price || 0
         })),
         package_info: {
-          weight: order.package_info.weight, // in kg
+          weight: order.package_info.weight * 1000, // in kg
           dimensions: {
             width: order.package_info.dimensions.width,
             height: order.package_info.dimensions.height,

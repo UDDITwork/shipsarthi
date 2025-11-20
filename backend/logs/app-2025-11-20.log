@@ -1,0 +1,730 @@
+[2025-11-20T15:22:00.436Z] [INFO] [PID:20440] ✅ Tracking service started - will run every 3 hours
+[2025-11-20T15:22:01.050Z] [INFO] [PID:20440] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-20T15:22:01.050Z"
+}
+[2025-11-20T15:22:01.060Z] [INFO] [PID:20440] 🔌 WebSocket server initialized
+[2025-11-20T15:22:02.552Z] [INFO] [PID:20440] ✅ Connected to MongoDB
+[2025-11-20T15:22:02.557Z] [INFO] [PID:20440] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-20T15:22:03.857Z] [INFO] [PID:20440] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-20T15:22:03.857Z"
+}
+[2025-11-20T15:30:00.034Z] [INFO] [PID:20440] 🔄 Starting scheduled shipment tracking...
+[2025-11-20T15:30:00.285Z] [INFO] [PID:20440] 🔍 Found 23 orders to track
+[2025-11-20T15:30:00.287Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:00.289Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:00.290Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000361",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:00.870Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710000361",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:00.871Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1761512735974270",
+  "waybill": "44800710000361",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:01.889Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:01.891Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:01.892Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000416",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:02.197Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710000416",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:02.198Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1761582038956544",
+  "waybill": "44800710000416",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:03.201Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:03.202Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:03.203Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710000641",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:03.342Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710000641",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:03.344Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1761857376594943",
+  "waybill": "44800710000641",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:04.358Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:04.359Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:04.360Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001046",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:04.447Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001046",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:04.449Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762051486659543",
+  "waybill": "44800710001046",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:05.456Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:05.457Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:05.458Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001083",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:05.571Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001083",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:05.572Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762157470162921",
+  "waybill": "44800710001083",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:06.579Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:06.580Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:06.581Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001120",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:06.697Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001120",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:06.698Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762194863766083",
+  "waybill": "44800710001120",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:07.702Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:07.703Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:07.704Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001131",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:07.823Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001131",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:07.824Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762267575814639",
+  "waybill": "44800710001131",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:08.828Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:08.829Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:08.830Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001142",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:08.951Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001142",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:08.952Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762271941560206",
+  "waybill": "44800710001142",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:09.960Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:09.962Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:09.962Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001153",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:10.074Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001153",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:10.075Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762278684433992",
+  "waybill": "44800710001153",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:11.090Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:11.092Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:11.093Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001164",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:11.302Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001164",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:11.303Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762279612936937",
+  "waybill": "44800710001164",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:12.317Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:12.318Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:12.319Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001175",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:12.429Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001175",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:12.430Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762286099660757",
+  "waybill": "44800710001175",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:13.433Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-20T15:30:13.435Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:13.436Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001186",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:13.554Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001186",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:13.555Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762330254227921",
+  "waybill": "44800710001186",
+  "currentStatus": "new"
+}
+[2025-11-20T15:30:14.565Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:14.568Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:14.569Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001190",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:14.692Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001190",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:14.693Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762412179898735",
+  "waybill": "44800710001190",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:15.698Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "cancelled"
+}
+[2025-11-20T15:30:15.700Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:15.700Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001260",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:15.807Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001260",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:15.808Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762494926721267",
+  "waybill": "44800710001260",
+  "currentStatus": "cancelled"
+}
+[2025-11-20T15:30:16.818Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762719981571059",
+  "waybill": "44800710001470",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:16.819Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001470",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:16.820Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001470",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:16.932Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001470",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:16.934Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762719981571059",
+  "waybill": "44800710001470",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:17.936Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762719982980514",
+  "waybill": "44800710001481",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:17.937Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001481",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:17.938Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001481",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:18.058Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001481",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:18.060Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762719982980514",
+  "waybill": "44800710001481",
+  "currentStatus": "ready_to_ship"
+}
+[2025-11-20T15:30:19.067Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762753507295742",
+  "waybill": "44800710001492",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:19.068Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001492",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:19.069Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001492",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:19.201Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001492",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:19.202Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762753507295742",
+  "waybill": "44800710001492",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:20.215Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762841467169306",
+  "waybill": "44800710001503",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:20.216Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001503",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:20.217Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001503",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:20.329Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001503",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:20.330Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762841467169306",
+  "waybill": "44800710001503",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:21.332Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1762926746218699",
+  "waybill": "44800710001595",
+  "currentStatus": "cancelled"
+}
+[2025-11-20T15:30:21.332Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001595",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:21.333Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001595",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:21.438Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001595",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:21.439Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1762926746218699",
+  "waybill": "44800710001595",
+  "currentStatus": "cancelled"
+}
+[2025-11-20T15:30:22.451Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763021938416280",
+  "waybill": "44800710001632",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:22.452Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001632",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:22.453Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001632",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:22.582Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001632",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:22.583Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1763021938416280",
+  "waybill": "44800710001632",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:23.592Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763021512708774",
+  "waybill": "44800710001643",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:23.593Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001643",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:23.594Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001643",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:23.722Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001643",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:23.723Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1763021512708774",
+  "waybill": "44800710001643",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:24.726Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763105756105874",
+  "waybill": "44800710001665",
+  "currentStatus": "new"
+}
+[2025-11-20T15:30:24.727Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001665",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:24.728Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001665",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:24.826Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001665",
+  "attempt": 1,
+  "responseKeys": [
+    "rmk",
+    "Success",
+    "Error"
+  ]
+}
+[2025-11-20T15:30:24.827Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1763105756105874",
+  "waybill": "44800710001665",
+  "currentStatus": "new"
+}
+[2025-11-20T15:30:25.838Z] [INFO] [PID:20440] 🔍 Tracking shipment | Data: {
+  "orderId": "ORD1763359860348926",
+  "waybill": "44800710001982",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:25.840Z] [INFO] [PID:20440] 🔍 Tracking shipment attempt | Data: {
+  "waybill": "44800710001982",
+  "attempt": 1,
+  "maxRetries": 3
+}
+[2025-11-20T15:30:25.840Z] [INFO] [PID:20440] 🔍 Calling Delhivery Tracking API | Data: {
+  "url": "https://track.delhivery.com/api/v1/packages/json/",
+  "params": {
+    "waybill": "44800710001982",
+    "hasRefIds": false
+  },
+  "baseDomain": "https://track.delhivery.com"
+}
+[2025-11-20T15:30:25.951Z] [INFO] [PID:20440] ✅ Tracking successful | Data: {
+  "waybill": "44800710001982",
+  "attempt": 1,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-20T15:30:25.952Z] [INFO] [PID:20440] 📊 No status change needed | Data: {
+  "orderId": "ORD1763359860348926",
+  "waybill": "44800710001982",
+  "currentStatus": "pickups_manifests"
+}
+[2025-11-20T15:30:26.958Z] [INFO] [PID:20440] ✅ Completed scheduled shipment tracking
+[2025-11-20T15:35:01.516Z] [INFO] [PID:20440] 🛑 SIGINT received, shutting down gracefully
+[2025-11-20T15:35:01.516Z] [INFO] [PID:20440] 🔌 Cleaning up WebSocket service...
