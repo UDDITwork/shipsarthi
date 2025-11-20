@@ -1,0 +1,38 @@
+[2025-11-20T19:02:03.326Z] [ERROR] [PID:27580] ❌ Carrier returned non-serviceable/failed package, aborting AWB | Data: {
+  "awbNumber": "44800710002531",
+  "packageStatus": "Fail",
+  "serviceable": true,
+  "remarks": [
+    "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+  ]
+}
+[2025-11-20T19:02:03.328Z] [ERROR] [PID:27580] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1763664847650178",
+  "error": "Pincode not serviceable"
+}
+[2025-11-20T19:02:03.329Z] [ERROR] [PID:27580] ❌ AWB generation failed - no AWB in response | Data: {
+  "orderId": "ORD1763664847650178",
+  "error": "Pincode not serviceable",
+  "hasPackages": false,
+  "hasWaybill": false
+}
+[2025-11-20T19:28:01.027Z] [ERROR] [PID:24372] ❌ Carrier returned non-serviceable/failed package, aborting AWB | Data: {
+  "awbNumber": "44800710002542",
+  "packageStatus": "Fail",
+  "serviceable": true,
+  "remarks": [
+    "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved."
+  ],
+  "extractedError": "Crashing while saving package due to exception 'Prepaid client manifest charge API failed due to insufficient balance'. Package might have been partially saved.",
+  "userFriendlyError": "Insufficient wallet balance in Delhivery account. Please recharge your Delhivery wallet to create shipments."
+}
+[2025-11-20T19:28:01.028Z] [ERROR] [PID:24372] ❌ Delhivery createShipment error | Data: {
+  "orderId": "ORD1763664847650178",
+  "error": "Insufficient wallet balance in Delhivery account. Please recharge your Delhivery wallet to create shipments."
+}
+[2025-11-20T19:28:01.028Z] [ERROR] [PID:24372] ❌ AWB generation failed - no AWB in response | Data: {
+  "orderId": "ORD1763664847650178",
+  "error": "Insufficient wallet balance in Delhivery account. Please recharge your Delhivery wallet to create shipments.",
+  "hasPackages": false,
+  "hasWaybill": false
+}

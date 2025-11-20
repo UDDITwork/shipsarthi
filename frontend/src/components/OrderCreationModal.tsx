@@ -68,6 +68,8 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   const [warehouseError, setWarehouseError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredWarehouses, setFilteredWarehouses] = useState<Warehouse[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
   // Pincode validation states
   const [validatingDeliveryPincode, setValidatingDeliveryPincode] = useState(false);
@@ -219,6 +221,23 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
     setFilteredWarehouses(filtered);
   }, [warehouses, searchQuery]);
+
+  // Close suggestions dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.warehouse-autocomplete-container')) {
+        setShowSuggestions(false);
+      }
+    };
+
+    if (showSuggestions) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showSuggestions]);
 
   const fetchWarehouses = async () => {
     try {
@@ -917,6 +936,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
       if (response.ok) {
         const data = await response.json();
+
+        // Clear any previous validation errors
+        setValidationErrors([]);
+
         console.log('✅ FRONTEND: Order created successfully', {
           order: data.data.order,
           awb: data.data.awb_number,
@@ -924,7 +947,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           auto_pickup: data.data.auto_pickup,
           timestamp: new Date().toISOString()
         });
-        
+
         // Show success message with order details
         let successMessage = '';
         const orderStatus = data.data.order?.status || 'new';
@@ -1024,7 +1047,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         });
         setCurrentStep(1);
       } else {
-        let errorMessage = 'Failed to create order';
         try {
           const error = await response.json();
           console.log('❌ FRONTEND: Order creation failed', {
@@ -1033,20 +1055,24 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
             status: response.status,
             timestamp: new Date().toISOString()
           });
-          
+
           if (error.errors && Array.isArray(error.errors)) {
-            // Show detailed validation errors
-            const validationErrors = error.errors.map((err: any) => `• ${err.msg || err.message}`).join('\n');
-            errorMessage = `Validation failed:\n\n${validationErrors}`;
+            // Extract detailed validation error messages
+            const errorMessages = error.errors.map((err: any) => {
+              const field = err.path || err.param || 'Unknown field';
+              const message = err.msg || err.message || 'Validation error';
+              return `${field}: ${message}`;
+            });
+            setValidationErrors(errorMessages);
           } else if (error.message) {
-            errorMessage = error.message;
+            setValidationErrors([error.message]);
+          } else {
+            setValidationErrors(['Failed to create order. Please check all fields and try again.']);
           }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
-          errorMessage = `Server error (${response.status}): ${response.statusText}`;
+          setValidationErrors([`Server error (${response.status}): ${response.statusText}`]);
         }
-        
-        alert(errorMessage);
       }
     } catch (error) {
       console.log('💥 FRONTEND: Network error', {
@@ -1054,7 +1080,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         timestamp: new Date().toISOString()
       });
       console.error('Error creating order:', error);
-      alert('Failed to create order');
+      setValidationErrors(['Network error: Failed to connect to server. Please check your connection and try again.']);
     } finally {
       setLoading(false);
     }
@@ -1077,6 +1103,29 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           <h2>Create New Order</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
+
+        {/* Validation Errors Display */}
+        {validationErrors.length > 0 && (
+          <div className="validation-errors-container">
+            <div className="validation-errors-header">
+              <strong>❌ Order Creation Failed</strong>
+              <button
+                className="close-errors-btn"
+                onClick={() => setValidationErrors([])}
+                aria-label="Close errors"
+              >
+                ×
+              </button>
+            </div>
+            <div className="validation-errors-list">
+              {validationErrors.map((error, index) => (
+                <div key={index} className="validation-error-item">
+                  • {error}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="modal-body">
           {/* Progress Steps */}
@@ -1550,32 +1599,45 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                   {!showManualAddress ? (
                     <>
                       <div className="form-row">
-                        <div className="form-group">
+                        <div className="form-group warehouse-autocomplete-container">
                           <label>Search and select your warehouse *</label>
-                          <input
-                            type="text"
-                            placeholder="Search warehouses by name, city, or state..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="warehouse-search-input"
-                          />
-                          <select
-                            value={formData.pickup_address.warehouse_id}
-                            onChange={(e) => handleWarehouseChange(e.target.value)}
-                            required
-                            className={warehouseError ? 'error' : ''}
-                          >
-                            <option value="">Select Warehouse</option>
-                            {filteredWarehouses.map(warehouse => (
-                              <option key={warehouse._id} value={warehouse._id}>
-                                {warehouse.name} - {warehouse.address.city}, {warehouse.address.state}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="warehouse-input-wrapper">
+                            <input
+                              type="text"
+                              placeholder="Search warehouses by name, city, or state..."
+                              value={searchQuery}
+                              onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setShowSuggestions(true);
+                              }}
+                              onFocus={() => setShowSuggestions(true)}
+                              className={`warehouse-search-input ${warehouseError ? 'error' : ''}`}
+                            />
+                            {showSuggestions && searchQuery && filteredWarehouses.length > 0 && (
+                              <div className="warehouse-suggestions">
+                                {filteredWarehouses.map(warehouse => (
+                                  <div
+                                    key={warehouse._id}
+                                    className="warehouse-suggestion-item"
+                                    onClick={() => {
+                                      handleWarehouseChange(warehouse._id);
+                                      setSearchQuery(`${warehouse.name} - ${warehouse.address.city}, ${warehouse.address.state}`);
+                                      setShowSuggestions(false);
+                                    }}
+                                  >
+                                    <div className="warehouse-suggestion-name">{warehouse.name}</div>
+                                    <div className="warehouse-suggestion-location">
+                                      {warehouse.address.city}, {warehouse.address.state}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           {warehouseError && (
                             <div className="error-message">{warehouseError}</div>
                           )}
-                          {filteredWarehouses.length === 0 && warehouses.length > 0 && (
+                          {searchQuery && filteredWarehouses.length === 0 && warehouses.length > 0 && (
                             <div className="no-results">No warehouses found matching your search</div>
                           )}
                           {warehouses.length === 0 && (
@@ -1585,7 +1647,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                       </div>
 
                       <div className="or-separator">OR</div>
-                      
+
                       <div className="form-row">
                         <button type="button" className="add-address-btn" onClick={handleAddAddress}>
                           ➕ Add Manual Address

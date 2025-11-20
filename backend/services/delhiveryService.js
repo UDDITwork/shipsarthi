@@ -118,7 +118,7 @@ class DelhiveryService {
                     shipment_width: orderData.package_info.dimensions.width || 10,
                     shipment_height: orderData.package_info.dimensions.height || 10,
                     shipment_length: orderData.package_info.dimensions.length || orderData.package_info.dimensions.width || 10,
-                    weight: orderData.package_info.weight,
+                    weight: orderData.package_info.weight * 1000, // Convert kg to grams for Delhivery API
                     seller_gst_tin: orderData.seller_info?.gst_number || '',
                     shipping_mode: orderData.shipping_mode || 'Surface',
                     address_type: orderData.address_type || 'home'
@@ -247,14 +247,39 @@ class DelhiveryService {
                     // If carrier marks package as Fail or non-serviceable, treat as hard failure
                     const isServiceablePkg = firstPackage.hasOwnProperty('serviceable') ? parseBool(firstPackage.serviceable) : true;
                     if (firstPackage.status === 'Fail' || !isServiceablePkg) {
-                        const reason = firstPackage?.remarks || errorMessage || 'Pincode not serviceable by carrier';
+                        // Extract error message from remarks (could be array or string)
+                        let errorReason = 'Pincode not serviceable by carrier';
+                        if (firstPackage?.remarks) {
+                            if (Array.isArray(firstPackage.remarks) && firstPackage.remarks.length > 0) {
+                                errorReason = firstPackage.remarks[0]; // Get first remark
+                            } else if (typeof firstPackage.remarks === 'string') {
+                                errorReason = firstPackage.remarks;
+                            }
+                        } else if (errorMessage) {
+                            errorReason = errorMessage;
+                        }
+
+                        // Parse common Delhivery errors and make them user-friendly
+                        let userFriendlyError = errorReason;
+                        if (errorReason.includes('insufficient balance')) {
+                            userFriendlyError = 'Insufficient wallet balance in Delhivery account. Please recharge your Delhivery wallet to create shipments.';
+                        } else if (errorReason.includes('not serviceable') || errorReason.includes('PINCODE IS NOT SERVICEABLE')) {
+                            userFriendlyError = 'This pincode is not serviceable by Delhivery. Please try a different courier or contact support.';
+                        } else if (errorReason.includes('Invalid pincode')) {
+                            userFriendlyError = 'Invalid pincode. Please check and enter a valid 6-digit pincode.';
+                        } else if (errorReason.includes('API key') || errorReason.includes('authentication')) {
+                            userFriendlyError = 'Delhivery API authentication failed. Please contact support.';
+                        }
+
                         logger.error('❌ Carrier returned non-serviceable/failed package, aborting AWB', {
                             awbNumber,
                             packageStatus: firstPackage.status,
                             serviceable: firstPackage.serviceable,
-                            remarks: firstPackage.remarks
+                            remarks: firstPackage.remarks,
+                            extractedError: errorReason,
+                            userFriendlyError: userFriendlyError
                         });
-                        throw new Error(typeof reason === 'string' ? reason : 'Pincode not serviceable');
+                        throw new Error(userFriendlyError);
                     }
                     isSuccess = true;
                     logger.info('✅ AWB found in packages[0].waybill', { 
