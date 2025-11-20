@@ -33,7 +33,7 @@ const Contact: React.FC = () => {
         <div className="header-container">
           <div className="logo">
             <img src="/NEW LOGO.png" alt="Shipsarthi" className="logo-img" />
-            <span className="logo-text">Shipsarthi</span>
+            <span className="logo-text"></span>
           </div>
         </div>
       </header>
