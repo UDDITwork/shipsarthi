@@ -1,0 +1,560 @@
+/* Login Page Styles */
+
+.klogin-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.klogin-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  overflow: visible;
+}
+
+.klogin-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: stretch;
+  margin: 2rem 0;
+  min-height: auto;
+  grid-auto-rows: 1fr;
+}
+
+/* Left Side - Steps Section */
+.ksteps-section {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ksteps-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.kbrand-title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.kbrand-ship {
+  color: #ff6b35;
+}
+
+.kbrand-sarthi {
+  color: #004aad;
+}
+
+.kbrand-tagline {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.ktagline-your-trusted {
+  color: #004aad;
+}
+
+.ktagline-sarthi {
+  color: #ff6b35;
+}
+
+.ktagline-in-every {
+  color: #004aad;
+}
+
+.ktagline-shipment {
+  color: #004aad;
+  font-weight: 700;
+}
+
+.ksteps-visualization {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.ksteps-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Right Side - Login Form Section */
+.klogin-form-section {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.klogin-form-container {
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.kform-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.klogin-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #004aad;
+  margin-bottom: 0.5rem;
+}
+
+.klogin-subtitle {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.klogin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Success and Error Messages */
+.ksuccess-message,
+.kerror-message {
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.ksuccess-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.kerror-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.ksuccess-message p,
+.kerror-message p {
+  margin: 0;
+}
+
+/* Form Groups */
+.kform-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kform-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.kinput-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kform-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+}
+
+.kform-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.kform-input::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+/* Password Toggle */
+.kpassword-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.kpassword-toggle:hover {
+  color: #4285f4;
+}
+
+.ktoggle-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Field Error */
+.kfield-error {
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin: 0;
+  margin-top: 0.25rem;
+}
+
+/* Form Options */
+.kform-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.kremember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.kcheckbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4285f4;
+}
+
+.kcheckbox-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.kforgot-password-link {
+  color: #ff6b35;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.kforgot-password-link:hover {
+  color: #e65a2b;
+  text-decoration: underline;
+}
+
+/* Login Button */
+.klogin-button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+}
+
+.klogin-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+}
+
+.klogin-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.klogin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.klogin-button.kloading {
+  position: relative;
+  color: transparent;
+}
+
+.klogin-button.kloading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Register Link */
+.kregister-link-container {
+  text-align: center;
+}
+
+.kregister-text {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.kregister-link {
+  color: #ff6b35;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.kregister-link:hover {
+  color: #e65a2b;
+  text-decoration: underline;
+}
+
+/* Footer Links */
+.kfooter-links {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.kfooter-links-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.kfooter-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.kfooter-link:hover {
+  color: #4285f4;
+  text-decoration: underline;
+}
+
+/* Tablet Styles */
+@media (max-width: 1024px) {
+  .klogin-content {
+    gap: 1.5rem;
+  }
+
+  .ksteps-section,
+  .klogin-form-section {
+    padding: 2rem;
+    min-height: 500px;
+  }
+
+  .kbrand-title {
+    font-size: 2.5rem;
+  }
+
+  .kbrand-tagline {
+    font-size: 1.1rem;
+  }
+
+  .klogin-title {
+    font-size: 1.75rem;
+  }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .klogin-container {
+    padding: 1rem;
+  }
+
+  .klogin-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .ksteps-section {
+    min-height: auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .ksteps-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .kbrand-title {
+    font-size: 2rem;
+  }
+
+  .kbrand-tagline {
+    font-size: 1rem;
+  }
+
+  .ksteps-visualization {
+    max-width: 350px;
+  }
+
+  .klogin-form-section {
+    min-height: auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .klogin-title {
+    font-size: 1.5rem;
+  }
+
+  .klogin-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .kform-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .kfooter-links-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 480px) {
+  .klogin-container {
+    padding: 0.5rem;
+  }
+
+  .ksteps-section,
+  .klogin-form-section {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+  }
+
+  .kbrand-title {
+    font-size: 1.75rem;
+  }
+
+  .kbrand-tagline {
+    font-size: 0.9rem;
+  }
+
+  .klogin-title {
+    font-size: 1.25rem;
+  }
+
+  .kform-input {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .klogin-button {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+
+  .kfooter-link {
+    font-size: 0.85rem;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .klogin-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .ksteps-section,
+  .klogin-form-section {
+    min-height: auto;
+    padding: 1.5rem;
+  }
+
+  .ksteps-visualization {
+    max-width: 250px;
+  }
+
+  .kbrand-title {
+    font-size: 1.5rem;
+  }
+
+  .kbrand-tagline {
+    font-size: 0.85rem;
+  }
+}
+
+/* High Resolution Screens */
+@media (min-width: 1440px) {
+  .klogin-container {
+    max-width: 1600px;
+  }
+
+  .ksteps-section,
+  .klogin-form-section {
+    padding: 4rem;
+  }
+
+  .kbrand-title {
+    font-size: 3.5rem;
+  }
+
+  .kbrand-tagline {
+    font-size: 1.5rem;
+  }
+
+  .klogin-title {
+    font-size: 2.25rem;
+  }
+}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import './Login.css';
 
 interface LoginFormData {
   email: string;
@@ -62,65 +63,65 @@ const Login: React.FC = () => {
 
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-content">
+    <div className="klogin-page">
+      <div className="klogin-container">
+        <div className="klogin-content">
           {/* Left Side - 3 Steps Process */}
-          <div className="steps-section">
-            <div className="steps-header">
-              <h1 className="brand-title">
-                <span className="brand-ship">Ship</span>
-                <span className="brand-sarthi">sarthi</span>
+          <div className="ksteps-section">
+            <div className="ksteps-header">
+              <h1 className="kbrand-title">
+                <span className="kbrand-ship">Ship</span>
+                <span className="kbrand-sarthi">sarthi</span>
               </h1>
-              <p className="brand-tagline">
-                <span className="tagline-your-trusted">Your Trusted </span>
-                <span className="tagline-sarthi">Sarthi </span>
-                <span className="tagline-in-every">in Every </span>
-                <span className="tagline-shipment">Shipment</span>
+              <p className="kbrand-tagline">
+                <span className="ktagline-your-trusted">Your Trusted </span>
+                <span className="ktagline-sarthi">Sarthi </span>
+                <span className="ktagline-in-every">in Every </span>
+                <span className="ktagline-shipment">Shipment</span>
               </p>
             </div>
-            
-            <div className="steps-visualization">
-              <img 
-                src="/3 steps for login 1.svg" 
-                alt="3 Steps Process" 
-                className="steps-image"
+
+            <div className="ksteps-visualization">
+              <img
+                src="/3 steps for login 1.svg"
+                alt="3 Steps Process"
+                className="ksteps-image"
               />
             </div>
           </div>
 
           {/* Right Side - Login Form */}
-          <div className="login-form-section">
-            <div className="login-form-container">
-              <div className="form-header">
-                <h1 className="login-title">Welcome back!</h1>
-                <p className="login-subtitle">Login to Your Account</p>
+          <div className="klogin-form-section">
+            <div className="klogin-form-container">
+              <div className="kform-header">
+                <h1 className="klogin-title">Welcome back!</h1>
+                <p className="klogin-subtitle">Login to Your Account</p>
               </div>
-              
-              <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+
+              <form onSubmit={handleSubmit(onSubmit)} className="klogin-form">
                 {showWelcomeMessage && (
-                  <div className="success-message">
+                  <div className="ksuccess-message">
                     <p>🎉 Welcome! Please login with your credentials.</p>
                   </div>
                 )}
-                
+
                 {error && (
-                  <div className="error-message">
+                  <div className="kerror-message">
                     <p>{error}</p>
                   </div>
                 )}
 
 
                 {/* Email or Phone */}
-                <div className="form-group">
-                  <label className="form-label" htmlFor="login-email">
+                <div className="kform-group">
+                  <label className="kform-label" htmlFor="login-email">
                     Email or Phone
                   </label>
-                  <div className="input-container">
+                  <div className="kinput-container">
                     <input
                       id="login-email"
                       type="text"
-                      {...register('email', { 
+                      {...register('email', {
                         required: 'Email or phone is required',
                         validate: (value) => {
                           const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -131,62 +132,62 @@ const Login: React.FC = () => {
                           return true;
                         }
                       })}
-                      className="form-input"
+                      className="kform-input"
                       placeholder="Enter your email or phone"
                     />
                   </div>
                   {errors.email && (
-                    <p className="field-error">{errors.email.message}</p>
+                    <p className="kfield-error">{errors.email.message}</p>
                   )}
                 </div>
 
                 {/* Password */}
-                <div className="form-group">
-                  <label className="form-label" htmlFor="login-password">
+                <div className="kform-group">
+                  <label className="kform-label" htmlFor="login-password">
                     Password
                   </label>
-                  <div className="input-container">
+                  <div className="kinput-container">
                     <input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       {...register('password', { required: 'Password is required' })}
-                      className="form-input"
+                      className="kform-input"
                       placeholder="Enter your password"
                     />
                     <button
                       type="button"
-                      className="password-toggle"
+                      className="kpassword-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
-                        <EyeOff className="toggle-icon" />
+                        <EyeOff className="ktoggle-icon" />
                       ) : (
-                        <Eye className="toggle-icon" />
+                        <Eye className="ktoggle-icon" />
                       )}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="field-error">{errors.password.message}</p>
+                    <p className="kfield-error">{errors.password.message}</p>
                   )}
                 </div>
 
                 {/* Remember Me and Forgot Password */}
-                <div className="form-options">
-                  <label htmlFor="remember" className="remember-me">
+                <div className="kform-options">
+                  <label htmlFor="remember" className="kremember-me">
                     <input
                       type="checkbox"
                       {...register('remember_me')}
-                      className="checkbox"
+                      className="kcheckbox"
                       id="remember"
                     />
-                    <span className="checkbox-label">
+                    <span className="kcheckbox-label">
                       Remember me
                     </span>
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="forgot-password-link"
+                    className="kforgot-password-link"
                   >
                     Forgot password?
                   </Link>
@@ -196,16 +197,16 @@ const Login: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`login-button ${loading ? 'loading' : ''}`}
+                  className={`klogin-button ${loading ? 'kloading' : ''}`}
                 >
                   {loading ? 'Signing In...' : 'Log in'}
                 </button>
 
                 {/* Register Link */}
-                <div className="register-link-container">
-                  <p className="register-text">
+                <div className="kregister-link-container">
+                  <p className="kregister-text">
                     New to Shipsarthi ?{' '}
-                    <Link to="/register" className="register-link">
+                    <Link to="/register" className="kregister-link">
                       Create an account
                     </Link>
                   </p>
@@ -216,11 +217,11 @@ const Login: React.FC = () => {
         </div>
 
         {/* Footer Links */}
-        <div className="footer-links">
-          <div className="footer-links-container">
-            <Link to="/terms-conditions" className="footer-link">Terms & Condition</Link>
-            <Link to="/order-cancellation" className="footer-link">Refund & Cancellation Policy</Link>
-            <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
+        <div className="kfooter-links">
+          <div className="kfooter-links-container">
+            <Link to="/terms-conditions" className="kfooter-link">Terms & Condition</Link>
+            <Link to="/order-cancellation" className="kfooter-link">Refund & Cancellation Policy</Link>
+            <Link to="/privacy-policy" className="kfooter-link">Privacy Policy</Link>
           </div>
         </div>
       </div>

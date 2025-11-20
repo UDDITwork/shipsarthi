@@ -803,7 +803,7 @@ body {
 }
 
 .contact-info p {
-  color: #2c3e50;
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
@@ -1487,8 +1487,8 @@ body {
   margin-top: 2rem;
 }
 
-.contact-info p {
-  color: #fff5f2;
+.footer .contact-info p {
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
