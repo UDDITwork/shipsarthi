@@ -3,6 +3,11 @@
   "name": "Ship Sarthi - India's Leading Logistics Platform",
   "icons": [
     {
+      "src": "favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "16x16 32x32 48x48"
+    },
+    {
       "src": "LOGO.png",
       "type": "image/png",
       "sizes": "192x192"
