@@ -2,7 +2,25 @@
 # https://www.robotstxt.org/robotstxt.html
 
 User-agent: *
+# Allow all static assets (favicon, images, logos)
+Allow: /favicon.ico
+Allow: /LOGO.png
+Allow: /NEW LOGO.png
+Allow: /shipsarthi-logo.png
+Allow: /Final logo Figma 1.svg
+Allow: /*.svg
+Allow: /*.png
+Allow: /*.ico
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /manifest.json
+Allow: /sitemap.xml
+Allow: /robots.txt
+
+# Allow homepage
 Allow: /
+
+# Disallow private pages
 Disallow: /dashboard
 Disallow: /profile
 Disallow: /orders

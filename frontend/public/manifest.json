@@ -3,6 +3,11 @@
   "name": "Ship Sarthi - India's Leading Logistics Platform",
   "icons": [
     {
+      "src": "Final logo Figma 1.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
       "src": "favicon.ico",
       "type": "image/x-icon",
       "sizes": "16x16 32x32 48x48"
