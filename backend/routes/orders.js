@@ -10,6 +10,7 @@ const Warehouse = require('../models/Warehouse');
 const Customer = require('../models/Customer');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
+const TrackingOrder = require('../models/TrackingOrder');
 const delhiveryService = require('../services/delhiveryService');
 const websocketService = require('../services/websocketService');
 const labelRenderer = require('../services/labelRenderer');
@@ -1673,7 +1674,7 @@ router.post('/', auth, [
           unit_price: p.unit_price || 0
         })),
         package_info: {
-          weight: order.package_info.weight * 1000, // in g
+          weight: order.package_info.weight, // Keep in kg - will be converted to grams in delhiveryService
           dimensions: {
             width: order.package_info.dimensions.width,
             height: order.package_info.dimensions.height,
@@ -3334,6 +3335,23 @@ router.post('/:id/request-pickup', auth, async (req, res) => {
     }
 
     await order.save();
+
+    // Create or update TrackingOrder for automated tracking
+    try {
+      if (order.delhivery_data.waybill && order.delhivery_data.pickup_request_id) {
+        await TrackingOrder.createFromOrder(order);
+        logger.info('✅ TrackingOrder created for automated tracking', {
+          orderId: order.order_id,
+          awb: order.delhivery_data.waybill
+        });
+      }
+    } catch (trackingOrderError) {
+      // Log error but don't fail the pickup request
+      logger.warn('⚠️ Failed to create TrackingOrder (non-critical)', {
+        orderId: order.order_id,
+        error: trackingOrderError.message
+      });
+    }
 
     logger.info('✅ Pickup requested successfully', {
       orderId: order.order_id,

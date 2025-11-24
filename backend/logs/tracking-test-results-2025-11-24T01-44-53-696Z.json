@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-11-24T01:44:45.201Z",
+  "awbNumbers": [
+    "44800710001492",
+    "44800710001643",
+    "44800710001632",
+    "44800710001982"
+  ],
+  "responses": [
+    {
+      "awb": "44800710001492",
+      "success": false,
+      "error": "Login or API Key Required",
+      "statusCode": 401
+    },
+    {
+      "awb": "44800710001643",
+      "success": false,
+      "error": "Login or API Key Required",
+      "statusCode": 401
+    },
+    {
+      "awb": "44800710001632",
+      "success": false,
+      "error": "Login or API Key Required",
+      "statusCode": 401
+    },
+    {
+      "awb": "44800710001982",
+      "success": false,
+      "error": "Login or API Key Required",
+      "statusCode": 401
+    }
+  ],
+  "allFields": [],
+  "allStatusValues": [],
+  "errors": [
+    {
+      "awb": "44800710001492",
+      "error": "Login or API Key Required",
+      "statusCode": 401,
+      "timestamp": "2025-11-24T01:44:45.501Z"
+    },
+    {
+      "awb": "44800710001643",
+      "error": "Login or API Key Required",
+      "statusCode": 401,
+      "timestamp": "2025-11-24T01:44:47.565Z"
+    },
+    {
+      "awb": "44800710001632",
+      "error": "Login or API Key Required",
+      "statusCode": 401,
+      "timestamp": "2025-11-24T01:44:49.621Z"
+    },
+    {
+      "awb": "44800710001982",
+      "error": "Login or API Key Required",
+      "statusCode": 401,
+      "timestamp": "2025-11-24T01:44:51.681Z"
+    }
+  ],
+  "summary": {
+    "totalAWBs": 4,
+    "successful": 0,
+    "failed": 4,
+    "uniqueFields": 0,
+    "uniqueStatusValues": 0
+  },
+  "fieldAnalysis": {
+    "statusFields": [],
+    "locationFields": [],
+    "dateFields": [],
+    "waybillFields": []
+  }
+}

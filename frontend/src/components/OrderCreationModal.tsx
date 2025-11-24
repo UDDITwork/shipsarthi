@@ -8,10 +8,9 @@ import { shippingService, ShippingCalculationRequest } from '../services/shippin
 import { walletService } from '../services/walletService';
 
 interface OrderCreationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   onOrderCreated: (order: any) => void;
   orderType?: 'forward' | 'reverse'; // Optional: defaults to 'forward'
+  onBack?: () => void; // Optional: callback for back navigation
 }
 
 interface Warehouse {
@@ -49,16 +48,14 @@ interface Package {
 }
 
 const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
-  isOpen,
-  onClose,
   onOrderCreated,
-  orderType = 'forward' // Default to forward orders
+  orderType = 'forward', // Default to forward orders
+  onBack
 }) => {
   const { user } = useAuth(); // Get user for category
   const userCategory = user?.user_category || 'Basic User';
   
   // Form State
-  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
@@ -182,11 +179,9 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
   // Fetch warehouses and packages on component mount
   useEffect(() => {
-    if (isOpen) {
-      fetchWarehouses();
-      fetchPackages();
-    }
-  }, [isOpen]);
+    fetchWarehouses();
+    fetchPackages();
+  }, []);
 
   // Filter warehouses based on search query
   useEffect(() => {
@@ -544,30 +539,32 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     }));
   }, [formData.products, formData.payment_info.shipping_charges, formData.payment_info.grand_total, formData.payment_info.order_value, formData.payment_info.total_amount]);
 
-  // MANDATORY: Calculate shipping charges when reaching Step 6 (final step before buttons)
+  // MANDATORY: Calculate shipping charges when form is ready (all required fields filled)
   useEffect(() => {
-    if (currentStep === 6) {
-      // Only calculate if not already calculated or if charges are 0
-      // Use a small delay to ensure form data is updated
-      const timer = setTimeout(() => {
-        if (!finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0) {
-          calculateFinalShippingCharges();
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      // Reset calculation state when leaving Step 6
-      setFinalShippingCalculation({
-        calculating: false,
-        completed: false,
-        error: null,
-        zone: null,
-        walletBalance: null,
-        insufficientBalance: false
-      });
-    }
+    // Auto-calculate when all required fields are filled
+    const timer = setTimeout(() => {
+      if (
+        formData.delivery_address.pincode?.length === 6 &&
+        formData.pickup_address.pincode?.length === 6 &&
+        formData.package_info.weight > 0 &&
+        formData.package_info.dimensions.length > 0 &&
+        formData.package_info.dimensions.width > 0 &&
+        formData.package_info.dimensions.height > 0 &&
+        (!finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0)
+      ) {
+        calculateFinalShippingCharges();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep]);
+  }, [
+    formData.delivery_address.pincode,
+    formData.pickup_address.pincode,
+    formData.package_info.weight,
+    formData.package_info.dimensions.length,
+    formData.package_info.dimensions.width,
+    formData.package_info.dimensions.height
+  ]);
 
   // Mandatory shipping charges calculation before final buttons appear
   const calculateFinalShippingCharges = async () => {
@@ -973,7 +970,9 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         };
         
         onOrderCreated(orderWithAWB);
-        onClose();
+        if (onBack) {
+          onBack();
+        }
         // Reset form
         setFormData({
           order_date: new Date().toISOString().split('T')[0],
@@ -1045,7 +1044,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           },
           shipping_mode: 'Surface'
         });
-        setCurrentStep(1);
       } else {
         try {
           const error = await response.json();
@@ -1086,23 +1084,15 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     }
   };
 
-  const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 6));
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
-          <h2>Create New Order</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
+    <div className="order-creation-page">
+      <div className="page-header">
+        <h2>Create New Order</h2>
+        {onBack && (
+          <button className="back-btn" onClick={onBack}>← Back</button>
+        )}
+      </div>
 
         {/* Validation Errors Display */}
         {validationErrors.length > 0 && (
@@ -1127,38 +1117,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
           </div>
         )}
 
-        <div className="modal-body">
-          {/* Progress Steps */}
-          <div className="progress-steps">
-            <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
-              <span className="step-number">1</span>
-              <span className="step-label">Buyer Details</span>
-            </div>
-            <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
-              <span className="step-number">2</span>
-              <span className="step-label">Order Details</span>
-            </div>
-            <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
-              <span className="step-number">3</span>
-              <span className="step-label">Product Details</span>
-            </div>
-            <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>
-              <span className="step-number">4</span>
-              <span className="step-label">Payment & Shipping</span>
-            </div>
-            <div className={`step ${currentStep >= 5 ? 'active' : ''}`}>
-              <span className="step-number">5</span>
-              <span className="step-label">Weight & Dimensions</span>
-            </div>
-            <div className={`step ${currentStep >= 6 ? 'active' : ''}`}>
-              <span className="step-number">6</span>
-              <span className="step-label">Other Details</span>
-            </div>
-          </div>
-
-          <form>
-            {/* Step 1: Buyer/Receiver Details */}
-            {currentStep === 1 && (
+      <div className="page-body">
+        <form className="single-page-form">
+            {/* Buyer Information Section */}
+            <div className="form-section buyer-section">
               <div className="form-section">
                 <div className="section-header">
                   <h3>👤 Buyer/Receiver Details</h3>
@@ -1313,15 +1275,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     />
                   </div>
                 </div>
-              </div>
-            )}
+            </div>
 
-            {/* Step 2: Order Details */}
-            {currentStep === 2 && (
-              <div className="form-section">
-                <div className="section-header">
-                  <h3>📦 Order Details</h3>
-                </div>
+            {/* Order Information Section */}
+            <div className="form-section order-section">
                 
                 <div className="form-row">
                   <div className="form-group">
@@ -1363,15 +1320,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     />
                   </div>
                 </div>
-              </div>
-            )}
+            </div>
 
-            {/* Step 3: Product Details */}
-            {currentStep === 3 && (
-              <div className="form-section">
-                <div className="section-header">
-                  <h3>🛍️ Product Details</h3>
-                </div>
+            {/* Product Details Section */}
+            <div className="form-section product-section">
                 
                 {formData.products.map((product, index) => (
                   <div key={index} className="product-item">
@@ -1505,15 +1457,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                 <button type="button" onClick={handleAddProduct} className="add-product-btn">
                   ➕ Add Product
                 </button>
-              </div>
-            )}
+            </div>
 
-            {/* Step 4: Payment & Shipping */}
-            {currentStep === 4 && (
-              <div className="form-section">
-                <div className="section-header">
-                  <h3>💳 Payment & Shipping</h3>
-                </div>
+            {/* Payment & Shipping Section */}
+            <div className="form-section payment-section">
                 
                 <div className="payment-summary">
                   <div className="grand-total">
@@ -1590,196 +1537,10 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     <small className="form-note">Enter shipping charges manually. Charges will be calculated automatically in the final step before saving.</small>
                   </div>
                 </div>
+            </div>
 
-                <div className="warehouse-section">
-                  <div className="section-header">
-                    <h3>🏢 Warehouse/Pickup Address</h3>
-                  </div>
-                  
-                  {!showManualAddress ? (
-                    <>
-                      <div className="form-row">
-                        <div className="form-group warehouse-autocomplete-container">
-                          <label>Search and select your warehouse *</label>
-                          <div className="warehouse-input-wrapper">
-                            <input
-                              type="text"
-                              placeholder="Search warehouses by name, city, or state..."
-                              value={searchQuery}
-                              onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setShowSuggestions(true);
-                              }}
-                              onFocus={() => setShowSuggestions(true)}
-                              className={`warehouse-search-input ${warehouseError ? 'error' : ''}`}
-                            />
-                            {showSuggestions && searchQuery && filteredWarehouses.length > 0 && (
-                              <div className="warehouse-suggestions">
-                                {filteredWarehouses.map(warehouse => (
-                                  <div
-                                    key={warehouse._id}
-                                    className="warehouse-suggestion-item"
-                                    onClick={() => {
-                                      handleWarehouseChange(warehouse._id);
-                                      setSearchQuery(`${warehouse.name} - ${warehouse.address.city}, ${warehouse.address.state}`);
-                                      setShowSuggestions(false);
-                                    }}
-                                  >
-                                    <div className="warehouse-suggestion-name">{warehouse.name}</div>
-                                    <div className="warehouse-suggestion-location">
-                                      {warehouse.address.city}, {warehouse.address.state}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          {warehouseError && (
-                            <div className="error-message">{warehouseError}</div>
-                          )}
-                          {searchQuery && filteredWarehouses.length === 0 && warehouses.length > 0 && (
-                            <div className="no-results">No warehouses found matching your search</div>
-                          )}
-                          {warehouses.length === 0 && (
-                            <div className="no-warehouses">No warehouses available. Please add a warehouse first.</div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="or-separator">OR</div>
-
-                      <div className="form-row">
-                        <button type="button" className="add-address-btn" onClick={handleAddAddress}>
-                          ➕ Add Manual Address
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="manual-address-section">
-                        <div className="section-header">
-                          <h4>📝 Manual Address Entry</h4>
-                          <button 
-                            type="button" 
-                            className="back-to-warehouse-btn"
-                            onClick={() => setShowManualAddress(false)}
-                          >
-                            ← Back to Warehouse Selection
-                          </button>
-                        </div>
-                        
-                        <div className="form-row">
-                          <div className="form-group">
-                            <label>Warehouse Name *</label>
-                            <input
-                              type="text"
-                              value={formData.pickup_address.name}
-                              onChange={(e) => handleNestedInputChange('pickup_address', 'name', e.target.value)}
-                              placeholder="Enter warehouse name"
-                              required
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label>Contact Phone *</label>
-                            <input
-                              type="tel"
-                              value={formData.pickup_address.phone}
-                              onChange={(e) => {
-                                // Only allow digits and limit to 10 characters
-                                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                handleNestedInputChange('pickup_address', 'phone', value);
-                              }}
-                              placeholder="Enter 10-digit phone number"
-                              maxLength={10}
-                              required
-                            />
-                            <small className="form-note">Enter 10-digit phone number starting with 6-9</small>
-                          </div>
-                        </div>
-
-                        <div className="form-row">
-                          <div className="form-group full-width">
-                            <label>Full Address *</label>
-                            <textarea
-                              value={formData.pickup_address.full_address}
-                              onChange={(e) => handleNestedInputChange('pickup_address', 'full_address', e.target.value)}
-                              placeholder="Enter complete address"
-                              rows={3}
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <div className="form-row">
-                          <div className="form-group">
-                            <label>Pincode *</label>
-                            <div style={{ position: 'relative' }}>
-                              <input
-                                type="text"
-                                value={formData.pickup_address.pincode}
-                                onChange={(e) => {
-                                  // Only allow digits and limit to 6 characters
-                                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                  handlePickupPincodeChange(value);
-                                }}
-                                placeholder="Enter 6-digit pincode"
-                                maxLength={6}
-                                required
-                                disabled={validatingPickupPincode}
-                              />
-                              {validatingPickupPincode && (
-                                <span style={{ 
-                                  position: 'absolute', 
-                                  right: '10px', 
-                                  top: '50%', 
-                                  transform: 'translateY(-50%)',
-                                  fontSize: '12px',
-                                  color: '#2C4563'
-                                }}>
-                                  Loading...
-                                </span>
-                              )}
-                            </div>
-                            <small className="form-note">Enter 6-digit pincode</small>
-                          </div>
-                          <div className="form-group">
-                            <label>City *</label>
-                            <input
-                              type="text"
-                              value={formData.pickup_address.city}
-                              onChange={(e) => handleNestedInputChange('pickup_address', 'city', e.target.value)}
-                              placeholder="Enter city"
-                              required
-                              readOnly={formData.pickup_address.pincode.length === 6}
-                              style={{ backgroundColor: formData.pickup_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label>State *</label>
-                            <input
-                              type="text"
-                              value={formData.pickup_address.state}
-                              onChange={(e) => handleNestedInputChange('pickup_address', 'state', e.target.value)}
-                              placeholder="Enter state"
-                              required
-                              readOnly={formData.pickup_address.pincode.length === 6}
-                              style={{ backgroundColor: formData.pickup_address.pincode.length === 6 ? '#f5f5f5' : 'white' }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Step 5: Weight & Dimensions */}
-            {currentStep === 5 && (
-              <div className="form-section">
-                <div className="section-header">
-                  <h3>📏 Weight & Dimensions</h3>
-                </div>
+            {/* Package Type & Dimensions Section */}
+            <div className="form-section package-section">
                 
                 <div className="tip-box">
                   <span className="tip-icon">💡</span>
@@ -1907,50 +1668,15 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     </select>
                   </div>
                 </div>
+            </div>
+
+            {/* Warehouse Address Section */}
+            <div className="form-section warehouse-section">
+              <div className="section-header">
+                <h3>🏢 Warehouse Address</h3>
               </div>
-            )}
-
-            {/* Step 6: Other Details */}
-            {currentStep === 6 && (
-              <div className="form-section">
-                <div className="section-header">
-                  <h3>📋 Other Details</h3>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Reseller Name</label>
-                    <input
-                      type="text"
-                      value={formData.seller_info.reseller_name}
-                      onChange={(e) => handleNestedInputChange('seller_info', 'reseller_name', e.target.value)}
-                      placeholder="Reseller Name"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>GSTIN</label>
-                    <input
-                      type="text"
-                      value={formData.seller_info.gst_number}
-                      onChange={(e) => handleNestedInputChange('seller_info', 'gst_number', e.target.value)}
-                      placeholder="GSTIN"
-                    />
-                  </div>
-                </div>
-
-                {/* MANDATORY: Shipping Charges Calculation Section - Before Final Buttons */}
-                <div className="mandatory-shipping-section" style={{
-                  marginTop: '30px',
-                  padding: '20px',
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: '8px',
-                  border: '2px solid #2C4563'
-                }}>
-                  <div className="section-header" style={{ marginBottom: '15px' }}>
-                    <h3 style={{ color: '#2C4563', margin: 0 }}>💰 Shipping Charges Calculation (Required)</h3>
-                  </div>
-                  
-                  {finalShippingCalculation.calculating ? (
+              
+              {!showManualAddress ? (
                     <div style={{ textAlign: 'center', padding: '20px' }}>
                       <div style={{ fontSize: '16px', color: '#666', marginBottom: '10px' }}>
                         🔄 Calculating shipping charges...
@@ -2120,78 +1846,76 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     </div>
                   )}
                 </div>
-              </div>
-            )}
+            </div>
 
-            {/* Navigation Buttons */}
-            <div className="modal-footer">
-              <div className="button-group">
-                {currentStep > 1 && (
-                  <button type="button" onClick={prevStep} className="btn btn-secondary">
-                    ← Previous
+          {/* Action Buttons */}
+          <div className="page-footer">
+            <div className="button-group">
+              {/* Show warning if shipping charges not calculated */}
+              {!finalShippingCalculation.completed && !finalShippingCalculation.insufficientBalance && !finalShippingCalculation.error && (
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: '#fff3cd',
+                  border: '1px solid #ffc107',
+                  borderRadius: '6px',
+                  color: '#856404',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  width: '100%',
+                  marginBottom: '10px'
+                }}>
+                  ⚠️ Please calculate shipping charges above before proceeding
+                </div>
+              )}
+              {finalShippingCalculation.insufficientBalance && (
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: '#fff3cd',
+                  border: '2px solid #ffc107',
+                  borderRadius: '6px',
+                  color: '#856404',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginBottom: '10px'
+                }}>
+                  ⚠️ Insufficient wallet balance detected above. Please recharge your wallet before proceeding.
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '10px', width: '100%', justifyContent: 'flex-end' }}>
+                {onBack && (
+                  <button 
+                    type="button" 
+                    onClick={onBack}
+                    className="btn btn-secondary" 
+                    style={{ flex: 0 }}
+                  >
+                    Cancel
                   </button>
                 )}
-                
-                {currentStep < 6 ? (
-                  <button type="button" onClick={nextStep} className="btn btn-primary">
-                    Next →
-                  </button>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {/* Show warning if shipping charges not calculated */}
-                    {!finalShippingCalculation.completed && !finalShippingCalculation.insufficientBalance && !finalShippingCalculation.error && (
-                      <div style={{
-                        padding: '12px',
-                        backgroundColor: '#fff3cd',
-                        border: '1px solid #ffc107',
-                        borderRadius: '6px',
-                        color: '#856404',
-                        fontSize: '14px',
-                        textAlign: 'center'
-                      }}>
-                        ⚠️ Please calculate shipping charges above before proceeding
-                      </div>
-                    )}
-                    {finalShippingCalculation.insufficientBalance && (
-                      <div style={{
-                        padding: '12px',
-                        backgroundColor: '#fff3cd',
-                        border: '2px solid #ffc107',
-                        borderRadius: '6px',
-                        color: '#856404',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        fontWeight: 'bold'
-                      }}>
-                        ⚠️ Insufficient wallet balance detected above. Please recharge your wallet before proceeding.
-                      </div>
-                    )}
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button 
-                      type="button" 
-                      onClick={handleSave} 
-                      className="btn btn-secondary" 
-                        disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
-                      style={{ flex: 1 }}
-                    >
-                      {loading ? 'Saving...' : 'Save'}
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={handleSaveAndAssign} 
-                      className="btn btn-success" 
-                        disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
-                      style={{ flex: 1 }}
-                    >
-                      {loading ? 'Creating Order...' : 'Save & Assign Order'}
-                    </button>
-                    </div>
-                  </div>
-                )}
+                <button 
+                  type="button" 
+                  onClick={handleSave} 
+                  className="btn btn-secondary" 
+                  disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
+                  style={{ flex: 0 }}
+                >
+                  {loading ? 'Saving...' : 'Save'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handleSaveAndAssign} 
+                  className="btn btn-success" 
+                  disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
+                  style={{ flex: 0 }}
+                >
+                  {loading ? 'Creating Order...' : 'Assign Courier'}
+                </button>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

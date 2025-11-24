@@ -1,0 +1,3236 @@
+[2025-11-24T01:43:21.757Z] [INFO] [PID:11436] ✅ Tracking service started - will run every 3 hours
+[2025-11-24T01:43:23.016Z] [INFO] [PID:11436] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-24T01:43:23.016Z"
+}
+[2025-11-24T01:43:23.043Z] [INFO] [PID:11436] 🔌 WebSocket server initialized
+[2025-11-24T01:43:24.061Z] [INFO] [PID:11436] ✅ Connected to MongoDB
+[2025-11-24T01:43:24.077Z] [INFO] [PID:11436] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-24T01:43:27.213Z] [INFO] [PID:11436] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-24T01:43:27.213Z"
+}
+[2025-11-24T02:44:10.861Z] [INFO] [PID:14992] ✅ Tracking service started - will run every 3 hours
+[2025-11-24T02:44:12.494Z] [INFO] [PID:14992] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-24T02:44:12.494Z"
+}
+[2025-11-24T02:44:12.520Z] [INFO] [PID:14992] 🔌 WebSocket server initialized
+[2025-11-24T02:44:13.249Z] [INFO] [PID:14992] ✅ Connected to MongoDB
+[2025-11-24T02:44:13.260Z] [ERROR] [PID:14992] WebSocket server error: | Data: {
+  "code": "EADDRINUSE",
+  "errno": -4091,
+  "syscall": "listen",
+  "address": "::",
+  "port": 5000
+}
+[2025-11-24T02:44:15.701Z] [INFO] [PID:14992] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-24T02:44:15.701Z"
+}
+[2025-11-24T02:53:41.294Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:53:41.338Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:54:36.050Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:54:36.086Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:54:36.339Z] [INFO] [PID:11436] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-25",
+  "date_to": "2025-11-24"
+}
+[2025-11-24T02:54:36.361Z] [DEBUG] [PID:11436] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-11-24T00:00:00+05:30",
+    "yesterday": "2025-11-23T00:00:00+05:30",
+    "last30Days": "2025-10-25T00:00:00+05:30"
+  }
+}
+[2025-11-24T02:54:36.579Z] [INFO] [PID:11436] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "241ms",
+  "metrics": {
+    "rangeOrders": 10,
+    "previousRangeOrders": 0,
+    "rangeRevenue": 36588.96,
+    "previousRangeRevenue": 0,
+    "avgShippingCost": 218,
+    "walletBalance": 575,
+    "dateFrom": "2025-10-25T00:00:00+05:30",
+    "dateTo": "2025-11-24T23:59:59+05:30"
+  }
+}
+[2025-11-24T02:54:38.562Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:54:38.595Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:54:55.017Z] [INFO] [PID:11436] Login completed | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1216ms",
+  "rememberMe": false
+}
+[2025-11-24T02:54:55.754Z] [INFO] [PID:11436] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-25",
+  "date_to": "2025-11-24"
+}
+[2025-11-24T02:54:55.762Z] [DEBUG] [PID:11436] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-11-24T00:00:00+05:30",
+    "yesterday": "2025-11-23T00:00:00+05:30",
+    "last30Days": "2025-10-25T00:00:00+05:30"
+  }
+}
+[2025-11-24T02:54:55.953Z] [INFO] [PID:11436] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "200ms",
+  "metrics": {
+    "rangeOrders": 10,
+    "previousRangeOrders": 0,
+    "rangeRevenue": 36588.96,
+    "previousRangeRevenue": 0,
+    "avgShippingCost": 218,
+    "walletBalance": 575,
+    "dateFrom": "2025-10-25T00:00:00+05:30",
+    "dateTo": "2025-11-24T23:59:59+05:30"
+  }
+}
+[2025-11-24T02:54:56.213Z] [INFO] [PID:11436] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2",
+  "totalClients": 1
+}
+[2025-11-24T02:54:56.298Z] [INFO] [PID:11436] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-24T02:54:56.305Z] [INFO] [PID:11436] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-24T02:54:56.514Z] [INFO] [PID:11436] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T02:54:56.552Z] [INFO] [PID:11436] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "38ms",
+  "statusCounts": {
+    "total_orders": 10,
+    "new_orders": 4,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-24T02:54:57.318Z] [INFO] [PID:11436] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T02:54:57.354Z] [INFO] [PID:11436] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "37ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-24T02:54:58.107Z] [INFO] [PID:11436] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T02:54:58.199Z] [INFO] [PID:11436] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "92ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-24T02:54:58.895Z] [INFO] [PID:11436] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T02:54:58.929Z] [INFO] [PID:11436] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "34ms",
+  "totalOrders": 10,
+  "distributionCount": 2
+}
+[2025-11-24T02:54:59.736Z] [INFO] [PID:11436] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-11-24T02:54:59.788Z] [INFO] [PID:11436] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "52ms",
+  "transactionCount": 5,
+  "limit": 5
+}
+[2025-11-24T02:55:05.334Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:55:05.334Z"
+}
+[2025-11-24T02:55:10.443Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:55:25.445Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:55:40.449Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:55:55.456Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:56:05.774Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:56:05.774Z"
+}
+[2025-11-24T02:56:10.465Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:56:25.474Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:56:40.482Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:56:40.698Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:56:40.742Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:56:45.644Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:56:45.681Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:56:55.485Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:57:02.695Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T02:57:02.735Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T02:57:03.299Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:57:03.299Z"
+}
+[2025-11-24T02:57:10.494Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:57:25.509Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:57:28.728Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:57:28.728Z"
+}
+[2025-11-24T02:57:40.517Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:57:55.523Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:57:58.769Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:57:58.769Z"
+}
+[2025-11-24T02:58:10.527Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:58:20.748Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:58:20.748Z"
+}
+[2025-11-24T02:58:25.529Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:58:40.536Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:58:55.549Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:59:10.551Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:59:21.727Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T02:59:21.727Z"
+}
+[2025-11-24T02:59:25.551Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:59:40.564Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T02:59:55.569Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:00:10.576Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:00:21.674Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:00:21.674Z"
+}
+[2025-11-24T03:00:25.584Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:00:40.583Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:00:55.596Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:01:10.610Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:01:20.756Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:01:20.756Z"
+}
+[2025-11-24T03:01:21.012Z] [INFO] [PID:11436] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-25",
+  "date_to": "2025-11-24"
+}
+[2025-11-24T03:01:21.014Z] [DEBUG] [PID:11436] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-11-24T00:00:00+05:30",
+    "yesterday": "2025-11-23T00:00:00+05:30",
+    "last30Days": "2025-10-25T00:00:00+05:30"
+  }
+}
+[2025-11-24T03:01:21.210Z] [INFO] [PID:11436] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "198ms",
+  "metrics": {
+    "rangeOrders": 10,
+    "previousRangeOrders": 0,
+    "rangeRevenue": 36588.96,
+    "previousRangeRevenue": 0,
+    "avgShippingCost": 218,
+    "walletBalance": 575,
+    "dateFrom": "2025-10-25T00:00:00+05:30",
+    "dateTo": "2025-11-24T23:59:59+05:30"
+  }
+}
+[2025-11-24T03:01:21.708Z] [INFO] [PID:11436] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T03:01:21.744Z] [INFO] [PID:11436] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "36ms",
+  "statusCounts": {
+    "total_orders": 10,
+    "new_orders": 4,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-24T03:01:22.505Z] [INFO] [PID:11436] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T03:01:22.545Z] [INFO] [PID:11436] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "40ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-24T03:01:23.310Z] [INFO] [PID:11436] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T03:01:23.426Z] [INFO] [PID:11436] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "116ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-24T03:01:23.984Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:01:23.984Z"
+}
+[2025-11-24T03:01:24.119Z] [INFO] [PID:11436] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-24T03:01:24.156Z] [INFO] [PID:11436] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "37ms",
+  "totalOrders": 10,
+  "distributionCount": 2
+}
+[2025-11-24T03:01:24.946Z] [INFO] [PID:11436] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-11-24T03:01:24.989Z] [INFO] [PID:11436] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "43ms",
+  "transactionCount": 5,
+  "limit": 5
+}
+[2025-11-24T03:01:25.616Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:01:40.636Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:01:55.654Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:02:10.652Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:02:24.696Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:02:24.696Z"
+}
+[2025-11-24T03:02:25.661Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:02:40.670Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:02:55.676Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:03:10.684Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:03:13.987Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:03:13.987Z"
+}
+[2025-11-24T03:03:25.687Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:03:40.684Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:03:55.693Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:04:10.696Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:04:14.716Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:04:14.716Z"
+}
+[2025-11-24T03:04:25.704Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:04:40.723Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:04:55.723Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:05:10.736Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:05:14.775Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:05:14.775Z"
+}
+[2025-11-24T03:05:25.746Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:05:40.758Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:05:55.764Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:06:10.764Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:06:14.847Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "new",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:06:14.847Z"
+}
+[2025-11-24T03:06:24.776Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:06:24.811Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:06:25.769Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:06:40.777Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:06:48.228Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:06:48.228Z"
+}
+[2025-11-24T03:06:55.776Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:07:02.501Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:07:02.501Z"
+}
+[2025-11-24T03:07:10.786Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:07:25.798Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:07:40.812Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:07:55.821Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:08:02.755Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:08:02.755Z"
+}
+[2025-11-24T03:08:10.824Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:08:25.826Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:08:40.822Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:08:55.832Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:09:02.723Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:09:02.723Z"
+}
+[2025-11-24T03:09:10.836Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:09:25.840Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:09:40.852Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:09:55.870Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:10:00.324Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "in_transit",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:00.324Z"
+}
+[2025-11-24T03:10:02.046Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "out_for_delivery",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:02.046Z"
+}
+[2025-11-24T03:10:04.672Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:04.672Z"
+}
+[2025-11-24T03:10:07.365Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:07.365Z"
+}
+[2025-11-24T03:10:10.875Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:10:12.057Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "delivered",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:12.057Z"
+}
+[2025-11-24T03:10:15.186Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:15.186Z"
+}
+[2025-11-24T03:10:16.939Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "in_transit",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:16.939Z"
+}
+[2025-11-24T03:10:24.337Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "delivered",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:24.337Z"
+}
+[2025-11-24T03:10:25.776Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "out_for_delivery",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:25.776Z"
+}
+[2025-11-24T03:10:25.889Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:10:26.939Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "in_transit",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:26.939Z"
+}
+[2025-11-24T03:10:28.075Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:10:28.075Z"
+}
+[2025-11-24T03:10:40.899Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:10:55.902Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:11:10.902Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:11:25.905Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:11:25.912Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:11:25.945Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:11:28.082Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:11:28.081Z"
+}
+[2025-11-24T03:11:40.929Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:11:55.938Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:12:10.950Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:12:25.966Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:12:28.082Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 0,
+  "filteredCount": 0,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "pickups_manifests",
+    "delhivery_data.cancellation_status": {
+      "$ne": "cancelled"
+    },
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:12:28.082Z"
+}
+[2025-11-24T03:12:32.495Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:12:32.495Z"
+}
+[2025-11-24T03:12:40.980Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:12:55.981Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:13:10.990Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:13:25.993Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:13:32.790Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:13:32.790Z"
+}
+[2025-11-24T03:13:40.997Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:13:55.997Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:14:11.002Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:14:26.002Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:14:32.768Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:14:32.768Z"
+}
+[2025-11-24T03:14:41.005Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:14:56.014Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:15:11.022Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:15:26.026Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:15:32.931Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:15:32.931Z"
+}
+[2025-11-24T03:15:41.032Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:15:56.039Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:16:11.048Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:16:26.054Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:16:26.751Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:16:26.791Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:16:32.730Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:16:32.730Z"
+}
+[2025-11-24T03:16:41.068Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:16:56.082Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:17:11.093Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:17:26.098Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:17:32.757Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:17:32.757Z"
+}
+[2025-11-24T03:17:41.113Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:17:56.127Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:18:11.129Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:18:26.136Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:18:32.784Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:18:32.784Z"
+}
+[2025-11-24T03:18:41.143Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:18:56.144Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:19:11.151Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:19:26.156Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:19:41.164Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:19:56.164Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:20:11.170Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:20:12.900Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:20:12.900Z"
+}
+[2025-11-24T03:20:26.175Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:20:41.186Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:20:56.190Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:21:11.202Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:21:12.889Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:21:12.889Z"
+}
+[2025-11-24T03:21:26.212Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:21:27.826Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:21:27.861Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:21:41.214Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:21:56.229Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:22:11.233Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:22:12.890Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:22:12.890Z"
+}
+[2025-11-24T03:22:26.234Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:22:41.238Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:22:56.247Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:23:11.251Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:23:12.871Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:23:12.871Z"
+}
+[2025-11-24T03:23:26.265Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:23:41.270Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:23:56.285Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:24:11.293Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:24:12.912Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:24:12.912Z"
+}
+[2025-11-24T03:24:26.308Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:24:41.313Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:24:56.320Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:25:11.322Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:25:12.885Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:25:12.885Z"
+}
+[2025-11-24T03:25:26.336Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:25:41.341Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:25:56.347Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:26:11.363Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:26:12.949Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:26:12.949Z"
+}
+[2025-11-24T03:26:26.376Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:26:28.758Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:26:28.791Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:26:41.382Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:26:56.392Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:27:11.407Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:27:12.859Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:27:12.859Z"
+}
+[2025-11-24T03:27:26.422Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:27:41.435Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:27:56.440Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:28:11.444Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:28:12.904Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:28:12.904Z"
+}
+[2025-11-24T03:28:26.445Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:28:41.459Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:28:56.471Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:29:11.486Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:29:12.859Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:29:12.859Z"
+}
+[2025-11-24T03:29:26.494Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:29:41.498Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:29:56.507Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:30:00.384Z] [INFO] [PID:11436] 🔄 Starting scheduled shipment tracking...
+[2025-11-24T03:30:00.426Z] [INFO] [PID:11436] 🔍 Found 0 orders with pickup requests to track
+[2025-11-24T03:30:00.428Z] [INFO] [PID:11436] ✅ Completed scheduled shipment tracking | Data: {
+  "total": 0,
+  "successful": 0,
+  "failed": 0,
+  "delivered": 0
+}
+[2025-11-24T03:30:11.508Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:30:12.936Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:30:12.936Z"
+}
+[2025-11-24T03:30:26.523Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:30:41.537Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:30:56.552Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:31:11.559Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:31:12.861Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:31:12.861Z"
+}
+[2025-11-24T03:31:26.574Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:31:29.786Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:31:29.824Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:31:41.588Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:31:56.600Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:32:11.610Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:32:12.925Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:32:12.925Z"
+}
+[2025-11-24T03:32:26.616Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:32:41.632Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:32:56.639Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:33:11.648Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:33:12.899Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:33:12.899Z"
+}
+[2025-11-24T03:33:26.656Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:33:41.659Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:33:56.671Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:34:11.684Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:34:12.887Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:34:12.887Z"
+}
+[2025-11-24T03:34:26.684Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:34:41.686Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:34:56.690Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:35:11.692Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:35:12.911Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:35:12.911Z"
+}
+[2025-11-24T03:35:26.702Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:35:41.712Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:35:56.718Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:36:11.733Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:36:12.886Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:36:12.886Z"
+}
+[2025-11-24T03:36:26.736Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:36:30.787Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:36:30.820Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:36:41.743Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:36:56.752Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:37:11.764Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:37:12.895Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:37:12.895Z"
+}
+[2025-11-24T03:37:26.769Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:37:41.780Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:37:56.781Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:38:11.797Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:38:12.890Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:38:12.890Z"
+}
+[2025-11-24T03:38:26.803Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:38:41.808Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:38:56.812Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:39:11.824Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:39:12.897Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:39:12.897Z"
+}
+[2025-11-24T03:39:26.838Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:39:41.852Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:39:56.862Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:40:11.869Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:40:12.923Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:40:12.922Z"
+}
+[2025-11-24T03:40:26.869Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:40:41.882Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:40:56.881Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:41:11.886Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:41:13.114Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:41:13.114Z"
+}
+[2025-11-24T03:41:26.890Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:41:31.801Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:41:31.840Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:41:41.897Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:41:56.898Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:42:11.909Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:42:12.906Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:42:12.906Z"
+}
+[2025-11-24T03:42:26.913Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:42:41.922Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:42:56.937Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:43:11.937Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:43:12.931Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:43:12.931Z"
+}
+[2025-11-24T03:43:26.938Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:43:41.942Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:43:56.952Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:44:11.957Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:44:12.879Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:44:12.879Z"
+}
+[2025-11-24T03:44:26.961Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:44:41.970Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:44:56.980Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:45:11.983Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:45:12.903Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:45:12.903Z"
+}
+[2025-11-24T03:45:26.983Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:45:41.993Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:45:56.994Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:46:12.002Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:46:12.897Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:46:12.897Z"
+}
+[2025-11-24T03:46:27.005Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:46:32.810Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:46:32.852Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:46:42.013Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:46:57.026Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:47:12.032Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:47:12.814Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:47:12.814Z"
+}
+[2025-11-24T03:47:27.043Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:47:42.059Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:47:57.059Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:48:12.065Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:48:12.902Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:48:12.901Z"
+}
+[2025-11-24T03:48:27.067Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:48:42.077Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:48:57.087Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:49:12.096Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:49:12.903Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:49:12.903Z"
+}
+[2025-11-24T03:49:27.097Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:49:42.103Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:49:57.115Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:50:12.116Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:50:12.939Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:50:12.939Z"
+}
+[2025-11-24T03:50:27.122Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:50:42.125Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:50:57.127Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:51:12.134Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:51:12.896Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:51:12.896Z"
+}
+[2025-11-24T03:51:27.140Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:51:33.838Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:51:33.874Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:51:42.145Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:51:57.159Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:52:12.159Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:52:12.896Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:52:12.896Z"
+}
+[2025-11-24T03:52:27.165Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:52:42.167Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:52:57.168Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:53:12.178Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:53:12.902Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:53:12.902Z"
+}
+[2025-11-24T03:53:27.185Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:53:42.198Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:53:57.208Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:54:12.211Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:54:12.829Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:54:12.829Z"
+}
+[2025-11-24T03:54:27.221Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:54:42.234Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:54:57.244Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:55:12.245Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:55:12.928Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:55:12.928Z"
+}
+[2025-11-24T03:55:27.254Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:55:42.263Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:55:57.265Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:56:12.271Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:56:12.944Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:56:12.944Z"
+}
+[2025-11-24T03:56:27.277Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:56:34.869Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T03:56:34.904Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T03:56:42.286Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:56:57.302Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:57:12.301Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:57:12.814Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:57:12.814Z"
+}
+[2025-11-24T03:57:27.313Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:57:42.315Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:57:57.316Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:58:12.321Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:58:12.872Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:58:12.872Z"
+}
+[2025-11-24T03:58:27.323Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:58:42.327Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:58:57.328Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:59:12.340Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:59:12.893Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T03:59:12.893Z"
+}
+[2025-11-24T03:59:27.348Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:59:42.357Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T03:59:57.362Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:00:12.371Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:00:12.919Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:00:12.919Z"
+}
+[2025-11-24T04:00:27.377Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:00:42.388Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:00:57.388Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:01:12.401Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:01:12.888Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:01:12.888Z"
+}
+[2025-11-24T04:01:27.408Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:01:35.873Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:01:35.910Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:01:42.416Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:01:57.433Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:02:12.444Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:02:12.918Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:02:12.918Z"
+}
+[2025-11-24T04:02:27.455Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:02:42.457Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:02:57.472Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:03:12.485Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:03:12.909Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:03:12.909Z"
+}
+[2025-11-24T04:03:27.497Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:03:42.505Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:03:57.521Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:04:12.527Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:04:12.893Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:04:12.893Z"
+}
+[2025-11-24T04:04:27.542Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:04:42.544Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:04:57.549Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:05:12.564Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:05:12.912Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:05:12.912Z"
+}
+[2025-11-24T04:05:27.570Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:05:42.578Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:05:57.592Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:06:12.608Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:06:12.937Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:06:12.937Z"
+}
+[2025-11-24T04:06:27.614Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:06:36.847Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:06:36.882Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:06:42.630Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:06:57.636Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:07:12.646Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:07:12.887Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:07:12.887Z"
+}
+[2025-11-24T04:07:27.656Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:07:42.669Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:07:57.671Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:08:12.756Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:08:12.913Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:08:12.913Z"
+}
+[2025-11-24T04:08:27.698Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:08:42.709Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:08:57.721Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:09:12.731Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:09:12.896Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:09:12.896Z"
+}
+[2025-11-24T04:09:27.740Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:09:42.752Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:09:57.757Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:10:12.764Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:10:12.950Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:10:12.950Z"
+}
+[2025-11-24T04:10:27.773Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:10:42.779Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:10:57.791Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:11:12.798Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:11:12.916Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:11:12.916Z"
+}
+[2025-11-24T04:11:27.802Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:11:37.862Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:11:37.900Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:11:42.805Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:11:57.812Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:12:12.822Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:12:12.900Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:12:12.900Z"
+}
+[2025-11-24T04:12:27.826Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:12:42.831Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:12:57.840Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:13:12.861Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:13:12.897Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:13:12.897Z"
+}
+[2025-11-24T04:13:27.867Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:13:42.871Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:13:57.874Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:14:12.889Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:14:13.213Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:14:13.213Z"
+}
+[2025-11-24T04:14:27.896Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:14:42.899Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:14:57.909Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:15:12.913Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:15:13.064Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:15:13.064Z"
+}
+[2025-11-24T04:15:27.927Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:15:42.936Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:15:57.942Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:16:12.908Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:16:12.908Z"
+}
+[2025-11-24T04:16:12.955Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:16:27.967Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:16:38.877Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:16:38.919Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:16:42.971Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:16:57.978Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:17:12.894Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:17:12.894Z"
+}
+[2025-11-24T04:17:12.980Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:17:27.980Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:17:42.988Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:17:57.995Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:18:12.843Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:18:12.843Z"
+}
+[2025-11-24T04:18:12.996Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:18:28.003Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:18:43.012Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:18:58.017Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:19:12.843Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:19:12.843Z"
+}
+[2025-11-24T04:19:13.029Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:19:28.045Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:19:43.051Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:19:58.059Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:20:12.878Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:20:12.878Z"
+}
+[2025-11-24T04:20:13.067Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:20:28.067Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:20:43.072Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:20:58.071Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:21:12.825Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:21:12.825Z"
+}
+[2025-11-24T04:21:13.086Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:21:28.099Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:21:39.857Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:21:39.899Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:21:43.112Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:21:58.127Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:22:12.830Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:22:12.830Z"
+}
+[2025-11-24T04:22:13.136Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:22:28.141Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:22:43.154Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:22:58.162Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:23:12.791Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:23:12.791Z"
+}
+[2025-11-24T04:23:13.169Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:23:28.173Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:23:43.181Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:23:58.184Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:24:12.973Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:24:12.973Z"
+}
+[2025-11-24T04:24:13.191Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:24:28.205Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:24:43.212Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:24:58.223Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:25:12.826Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:25:12.825Z"
+}
+[2025-11-24T04:25:13.236Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:25:28.247Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:25:43.258Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:25:58.260Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:26:12.831Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:26:12.831Z"
+}
+[2025-11-24T04:26:13.263Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:26:28.266Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:26:40.836Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:26:40.868Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:26:43.270Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:26:58.285Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:27:12.938Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:27:12.938Z"
+}
+[2025-11-24T04:27:13.287Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:27:28.290Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:27:43.296Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:27:58.311Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:28:13.015Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:28:13.015Z"
+}
+[2025-11-24T04:28:13.314Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:28:28.316Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:28:43.316Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:28:58.324Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:29:12.879Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:29:12.879Z"
+}
+[2025-11-24T04:29:13.337Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:29:28.349Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:29:43.355Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:29:58.363Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:30:13.031Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:30:13.031Z"
+}
+[2025-11-24T04:30:13.372Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:30:28.371Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:30:43.388Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:30:58.399Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:31:12.875Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:31:12.875Z"
+}
+[2025-11-24T04:31:13.407Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:31:28.419Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:31:41.884Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:31:41.922Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:31:43.431Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:31:58.433Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:32:12.848Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:32:12.848Z"
+}
+[2025-11-24T04:32:13.447Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:32:28.456Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:32:43.458Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:32:58.458Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:33:12.837Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:33:12.837Z"
+}
+[2025-11-24T04:33:13.466Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:33:28.474Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:33:43.487Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:33:58.492Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:34:12.863Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:34:12.863Z"
+}
+[2025-11-24T04:34:13.494Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:34:28.499Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:34:43.512Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:34:58.519Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:35:12.814Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:35:12.814Z"
+}
+[2025-11-24T04:35:13.522Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:35:28.523Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:35:43.528Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:35:58.538Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:36:12.812Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:36:12.811Z"
+}
+[2025-11-24T04:36:13.553Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:36:28.555Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:36:42.817Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:36:42.849Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:36:43.552Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:36:58.553Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:37:12.811Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:37:12.811Z"
+}
+[2025-11-24T04:37:13.566Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:37:28.570Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2"
+}
+[2025-11-24T04:37:35.670Z] [INFO] [PID:11436] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1763952896213_jop3rf1v2",
+  "code": 1006,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-24T04:40:17.858Z] [INFO] [PID:11436] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q",
+  "totalClients": 1
+}
+[2025-11-24T04:40:19.658Z] [INFO] [PID:11436] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-24T04:40:19.659Z] [INFO] [PID:11436] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-24T04:40:19.911Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:40:19.911Z"
+}
+[2025-11-24T04:40:27.024Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:40:42.039Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:40:57.048Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:41:12.055Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:41:12.888Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:41:12.888Z"
+}
+[2025-11-24T04:41:27.065Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:41:32.738Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:41:32.738Z"
+}
+[2025-11-24T04:41:42.074Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:41:43.923Z] [INFO] [PID:11436] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-24T04:41:43.968Z] [DEBUG] [PID:11436] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-24T04:41:57.082Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:42:12.096Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:42:27.099Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:42:42.102Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:42:57.114Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:43:12.127Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:43:12.921Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:43:12.921Z"
+}
+[2025-11-24T04:43:27.143Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:43:42.153Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:43:57.159Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:44:12.171Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:44:12.873Z] [INFO] [PID:11436] 📦 Orders fetched from MongoDB | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "totalOrders": 4,
+  "filteredCount": 4,
+  "filters": {
+    "user_id": "68f3d3fe88beee992d6ee1f2",
+    "status": "ready_to_ship",
+    "order_type": "forward"
+  },
+  "timestamp": "2025-11-24T04:44:12.873Z"
+}
+[2025-11-24T04:44:27.182Z] [DEBUG] [PID:11436] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q"
+}
+[2025-11-24T04:44:28.375Z] [INFO] [PID:11436] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1763959217857_0ku7tw39q",
+  "code": 1006,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-24T05:05:47.868Z] [INFO] [PID:11436] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1763960747867_s3qw21g0g",
+  "totalClients": 1
+}
+[2025-11-24T05:05:48.330Z] [INFO] [PID:11436] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1763960747867_s3qw21g0g",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-24T05:05:48.331Z] [INFO] [PID:11436] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1763960747867_s3qw21g0g",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-24T05:05:55.320Z] [INFO] [PID:11436] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1763960747867_s3qw21g0g",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}

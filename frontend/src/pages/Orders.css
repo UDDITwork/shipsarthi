@@ -206,7 +206,7 @@
     padding: 8px 14px;
     background-color: #FFFFFF;
     color: #002B59;
-    border: 2px solid transparent;
+    border: 0.5px solid #002B59;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
@@ -217,13 +217,23 @@
   
   .tab-btn:hover {
     background-color: #F5F5F5;
+    border: 0.5px solid #002B59;
+    color: #002B59;
   }
   
   .tab-btn.active {
     background-color: #002B59;
-    color: #FFFFFF;
-    border-bottom: 4px solid #F68723;
+    color: #000000;
+    border: 0.5px solid #002B59;
+    border-bottom: 4px solid #1F4068;
     border-radius: 20px;
+  }
+  
+  .tab-btn.active:hover {
+    background-color: #002B59;
+    color: #000000;
+    border: 0.5px solid #002B59;
+    border-bottom: 4px solid #1F4068;
   }
   
   /* Filters Section */
@@ -1319,8 +1329,8 @@
   
   .create-order-btn {
     padding: 12px 30px;
-    background-color: #F68723;
-    color: #FFFFFF;
+    background-color: #1F4068;
+    color: #000000;
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -1649,7 +1659,7 @@
     color: #1f2937;
     font-size: 16px;
     font-weight: 600;
-    border-bottom: 2px solid #F68723;
+    border-bottom: 2px solid #1F4068;
     padding-bottom: 8px;
   }
 

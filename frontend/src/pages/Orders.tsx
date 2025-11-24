@@ -958,6 +958,15 @@ const Orders: React.FC = () => {
 
   return (
     <Layout>
+      {/* Order Creation Form - Full Page */}
+      {isAddOrderModalOpen ? (
+        <OrderCreationModal
+          onOrderCreated={handleOrderCreated}
+          orderType={orderType}
+          onBack={() => setIsAddOrderModalOpen(false)}
+        />
+      ) : (
+        <>
       <div className="orders-container">
         {/* Top Action Bar */}
         <div className="orders-top-bar">
@@ -1486,14 +1495,6 @@ const Orders: React.FC = () => {
           </table>
         </div>
 
-        {/* Order Creation Modal */}
-        <OrderCreationModal
-          isOpen={isAddOrderModalOpen}
-          onClose={() => setIsAddOrderModalOpen(false)}
-          onOrderCreated={handleOrderCreated}
-          orderType={orderType} // Pass the current order type (forward/reverse)
-        />
-
         {/* Bulk Import Modal */}
         {isBulkImportModalOpen && (
           <div className="modal-overlay">
@@ -1717,6 +1718,8 @@ const Orders: React.FC = () => {
         warehouseName={pickupModal.warehouseName || undefined}
         loading={loading}
       />
+        </>
+      )}
     </Layout>
   );
 };
