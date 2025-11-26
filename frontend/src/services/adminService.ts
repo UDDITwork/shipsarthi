@@ -1360,7 +1360,7 @@ class AdminService {
         headers: this.getAdminHeaders()
       }
     );
-    return response.data;
+    return response;
   }
 
   async getStaff(): Promise<StaffResponse> {
@@ -1370,7 +1370,7 @@ class AdminService {
         headers: this.getAdminHeaders()
       }
     );
-    return response.data;
+    return response;
   }
 
   async updateStaff(staffId: string, updates: { name?: string; email?: string; password?: string; is_active?: boolean }): Promise<StaffResponse> {
@@ -1381,7 +1381,7 @@ class AdminService {
         headers: this.getAdminHeaders()
       }
     );
-    return response.data;
+    return response;
   }
 
   async deleteStaff(staffId: string): Promise<{ success: boolean; message: string }> {
@@ -1391,7 +1391,7 @@ class AdminService {
         headers: this.getAdminHeaders()
       }
     );
-    return response.data;
+    return response;
   }
 
   async verifyStaffCredentials(email: string, password: string): Promise<{ success: boolean; message?: string; staff?: Staff; admin?: { email: string; role: string } }> {
