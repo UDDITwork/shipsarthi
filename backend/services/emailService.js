@@ -334,6 +334,117 @@ class EmailService {
       throw error;
     }
   }
+
+  async sendInvoiceNotification(invoiceData) {
+    try {
+      // Check if email service is connected
+      if (!this.isConnected) {
+        logger.warn('⚠️ EMAIL SERVICE - Skipping invoice email (service not connected)', {
+          reason: 'Email service connection failed',
+          invoiceNumber: invoiceData.invoice_number
+        });
+        return {
+          success: false,
+          message: 'Email service not available',
+          messageId: null
+        };
+      }
+
+      const { invoice_number, invoice_date, due_date, amounts, billing_address, user_email, user_name } = invoiceData;
+
+      const mailOptions = {
+        from: `"Shipsarthi Solutions" <${process.env.EMAIL_USER}>`,
+        to: user_email,
+        subject: `Invoice ${invoice_number} - Shipsarthi`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Invoice ${invoice_number} - Shipsarthi</title>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: #1976d2; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+              .content { background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px; }
+              .invoice-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+              .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+              .detail-label { font-weight: bold; color: #555; }
+              .detail-value { color: #333; }
+              .amount { font-size: 24px; font-weight: bold; color: #1976d2; text-align: center; padding: 20px; }
+              .button { display: inline-block; background: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>📄 Invoice ${invoice_number}</h1>
+                <p>Your shipping invoice is ready</p>
+              </div>
+              
+              <div class="content">
+                <p>Dear ${user_name || 'Valued Customer'},</p>
+                
+                <p>Your invoice for the billing period has been generated. Please find the details below:</p>
+                
+                <div class="invoice-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Invoice Number:</span>
+                    <span class="detail-value">${invoice_number}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Invoice Date:</span>
+                    <span class="detail-value">${new Date(invoice_date).toLocaleDateString('en-GB')}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Due Date:</span>
+                    <span class="detail-value">${new Date(due_date).toLocaleDateString('en-GB')}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Billing Address:</span>
+                    <span class="detail-value">${billing_address?.address || ''} ${billing_address?.city || ''} ${billing_address?.pincode || ''}</span>
+                  </div>
+                </div>
+                
+                <div class="amount">
+                  Total Amount: ₹${amounts?.grand_total?.toFixed(2) || '0.00'}
+                </div>
+                
+                <p>You can view and download your invoice by logging into your Shipsarthi account.</p>
+                
+                <a href="${process.env.FRONTEND_URL || 'https://shipsarthi.com'}/invoices/${invoiceData.invoice_id}" class="button">View Invoice</a>
+                
+                <p>Thank you for using Shipsarthi!</p>
+                
+                <p>Best regards,<br>Shipsarthi Team</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      logger.info('Invoice notification email sent', {
+        to: user_email,
+        invoiceNumber: invoice_number,
+        messageId: result.messageId
+      });
+
+      return {
+        success: true,
+        messageId: result.messageId
+      };
+
+    } catch (error) {
+      logger.error('Failed to send invoice notification email', {
+        error: error.message,
+        invoiceData: invoiceData
+      });
+      throw error;
+    }
+  }
 }
 
 module.exports = new EmailService();

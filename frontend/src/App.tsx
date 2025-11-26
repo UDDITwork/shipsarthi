@@ -17,6 +17,8 @@ import Support from './pages/Support';
 import TicketDetail from './pages/TicketDetail';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
+import Remittances from './pages/Remittances';
+import RemittanceDetail from './pages/RemittanceDetail';
 import WeightDiscrepancies from './pages/WeightDiscrepancies';
 import AddWarehouse from './pages/AddWarehouse';
 import WarehouseManagement from './pages/WarehouseManagement';
@@ -35,6 +37,10 @@ import Channel from './pages/Channel';
 import AccountSettings from './pages/AccountSettings';
 import AssignCourier from './pages/AssignCourier';
 import Customers from './pages/Customers';
+import InvoiceList from './pages/InvoiceList';
+import InvoiceDetail from './pages/InvoiceDetail';
+import CreditNotes from './pages/CreditNotes';
+import DebitNotes from './pages/DebitNotes';
 
 // Admin Components
 import AdminLogin from './pages/AdminLogin';
@@ -42,9 +48,11 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminClients from './pages/AdminClients';
 import AdminClientTickets from './pages/AdminClientTickets';
 import AdminTicketSummary from './pages/AdminTicketSummary';
+import AdminStaffManagement from './pages/AdminStaffManagement';
 import AdminWalletRecharge from './pages/AdminWalletRecharge';
 import AdminWeightDiscrepancies from './pages/AdminWeightDiscrepancies';
 import AdminBilling from './pages/AdminBilling';
+import AdminRemittances from './pages/AdminRemittances';
 import AdminOrders from './pages/AdminOrders';
 import AdminNDR from './pages/AdminNDR';
 import AdminLayout from './components/AdminLayout';
@@ -163,6 +171,54 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Billing />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices" 
+              element={
+                <ProtectedRoute>
+                  <InvoiceList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices/:id" 
+              element={
+                <ProtectedRoute>
+                  <InvoiceDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices/credit-notes" 
+              element={
+                <ProtectedRoute>
+                  <CreditNotes />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices/debit-notes" 
+              element={
+                <ProtectedRoute>
+                  <DebitNotes />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/remittances" 
+              element={
+                <ProtectedRoute>
+                  <Remittances />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/remittances/:remittanceNumber" 
+              element={
+                <ProtectedRoute>
+                  <RemittanceDetail />
                 </ProtectedRoute>
               } 
             />
@@ -313,6 +369,14 @@ function App() {
               } 
             />
             <Route 
+              path="/admin/remittances" 
+              element={
+                <AdminLayout>
+                  <AdminRemittances />
+                </AdminLayout>
+              } 
+            />
+            <Route 
               path="/admin/orders" 
               element={
                 <AdminLayout>
@@ -341,6 +405,14 @@ function App() {
               element={
                 <AdminLayout>
                   <AdminNDR />
+                </AdminLayout>
+              } 
+            />
+            <Route 
+              path="/admin/staff-management" 
+              element={
+                <AdminLayout>
+                  <AdminStaffManagement />
                 </AdminLayout>
               } 
             />

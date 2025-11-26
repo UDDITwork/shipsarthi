@@ -1454,9 +1454,11 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                   </div>
                 ))}
 
-                <button type="button" onClick={handleAddProduct} className="add-product-btn">
-                  ➕ Add Product
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <button type="button" onClick={handleAddProduct} className="add-product-btn">
+                    ➕ Add Product
+                  </button>
+                </div>
             </div>
 
             {/* Payment & Shipping Section */}
@@ -1854,42 +1856,37 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
               {/* Show warning if shipping charges not calculated */}
               {!finalShippingCalculation.completed && !finalShippingCalculation.insufficientBalance && !finalShippingCalculation.error && (
                 <div style={{
-                  padding: '12px',
+                  padding: '12px 16px',
                   backgroundColor: '#fff3cd',
                   border: '1px solid #ffc107',
                   borderRadius: '6px',
                   color: '#856404',
-                  fontSize: '14px',
-                  textAlign: 'center',
-                  width: '100%',
-                  marginBottom: '10px'
+                  fontSize: '11px',
+                  textAlign: 'center'
                 }}>
                   ⚠️ Please calculate shipping charges above before proceeding
                 </div>
               )}
               {finalShippingCalculation.insufficientBalance && (
                 <div style={{
-                  padding: '12px',
+                  padding: '12px 16px',
                   backgroundColor: '#fff3cd',
                   border: '2px solid #ffc107',
                   borderRadius: '6px',
                   color: '#856404',
-                  fontSize: '14px',
+                  fontSize: '11px',
                   textAlign: 'center',
-                  fontWeight: 'bold',
-                  width: '100%',
-                  marginBottom: '10px'
+                  fontWeight: 'bold'
                 }}>
                   ⚠️ Insufficient wallet balance detected above. Please recharge your wallet before proceeding.
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '10px', width: '100%', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
                 {onBack && (
                   <button 
                     type="button" 
                     onClick={onBack}
-                    className="btn btn-secondary" 
-                    style={{ flex: 0 }}
+                    className="btn btn-secondary"
                   >
                     Cancel
                   </button>
@@ -1899,7 +1896,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                   onClick={handleSave} 
                   className="btn btn-secondary" 
                   disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
-                  style={{ flex: 0 }}
                 >
                   {loading ? 'Saving...' : 'Save'}
                 </button>
@@ -1908,7 +1904,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                   onClick={handleSaveAndAssign} 
                   className="btn btn-success" 
                   disabled={loading || !finalShippingCalculation.completed || formData.payment_info.shipping_charges === 0 || finalShippingCalculation.insufficientBalance}
-                  style={{ flex: 0 }}
                 >
                   {loading ? 'Creating Order...' : 'Assign Courier'}
                 </button>

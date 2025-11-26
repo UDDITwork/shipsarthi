@@ -37,6 +37,10 @@ const conversationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  staff_name: {
+    type: String,
+    trim: true
+  },
   message_content: {
     type: String,
     required: true
@@ -137,6 +141,15 @@ const supportTicketSchema = new mongoose.Schema({
     },
     assigned_date: Date,
     assigned_by: String,
+    assigned_by_staff: {
+      type: String,
+      trim: true
+    },
+    assigned_by_staff_name: {
+      type: String,
+      trim: true,
+      default: null
+    },
     department: {
       type: String,
       enum: ['customer_service', 'technical', 'billing', 'operations', 'escalation'],
@@ -188,6 +201,15 @@ const supportTicketSchema = new mongoose.Schema({
         'duplicate_ticket',
         'no_action_required'
       ]
+    },
+    resolved_by_staff: {
+      type: String,
+      trim: true
+    },
+    resolved_by_staff_name: {
+      type: String,
+      trim: true,
+      default: null
     },
     customer_satisfaction: {
       rating: {
@@ -425,10 +447,11 @@ supportTicketSchema.statics.getSLAReport = function() {
 };
 
 // Instance methods
-supportTicketSchema.methods.addMessage = function(messageType, senderName, content, attachments = [], isInternal = false) {
+supportTicketSchema.methods.addMessage = function(messageType, senderName, content, attachments = [], isInternal = false, staffName = null) {
   this.conversation.push({
     message_type: messageType,
     sender_name: senderName,
+    staff_name: staffName,
     message_content: content,
     attachments: attachments,
     is_internal: isInternal
@@ -442,10 +465,11 @@ supportTicketSchema.methods.addMessage = function(messageType, senderName, conte
   return this.save();
 };
 
-supportTicketSchema.methods.assignTo = function(agentName, assignedBy, department = 'customer_service') {
+supportTicketSchema.methods.assignTo = function(agentName, assignedBy, department = 'customer_service', staffName = null) {
   this.assignment_info.assigned_to = agentName;
   this.assignment_info.assigned_date = new Date();
   this.assignment_info.assigned_by = assignedBy;
+  this.assignment_info.assigned_by_staff_name = staffName;
   this.assignment_info.department = department;
 
   if (this.status === 'open') {
@@ -465,12 +489,13 @@ supportTicketSchema.methods.escalate = function(reason, escalatedBy) {
   return this.save();
 };
 
-supportTicketSchema.methods.resolve = function(resolution_summary, resolution_category, internal_notes = '') {
+supportTicketSchema.methods.resolve = function(resolution_summary, resolution_category, internal_notes = '', staffName = null) {
   this.status = 'resolved';
   this.resolution.resolution_date = new Date();
   this.resolution.resolution_summary = resolution_summary;
   this.resolution.resolution_category = resolution_category;
   this.resolution.internal_notes = internal_notes;
+  this.resolution.resolved_by_staff_name = staffName;
 
   // Calculate total response time
   this.sla_info.total_response_time = Math.floor(

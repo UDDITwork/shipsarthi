@@ -11,6 +11,8 @@ const Customer = require('../models/Customer');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const TrackingOrder = require('../models/TrackingOrder');
+const BillingCycle = require('../models/BillingCycle');
+const RateCardService = require('../services/rateCardService');
 const delhiveryService = require('../services/delhiveryService');
 const websocketService = require('../services/websocketService');
 const labelRenderer = require('../services/labelRenderer');
@@ -396,6 +398,96 @@ async function deductWalletForOrder(order, userId, awbNumber = null) {
     });
     
     await transaction.save();
+    
+    // Calculate billing info for invoice tracking
+    try {
+      // Calculate volumetric weight (in grams)
+      const volumetricWeightKg = (order.package_info.dimensions.length * 
+                                order.package_info.dimensions.width * 
+                                order.package_info.dimensions.height) / 5000;
+      const volumetricWeightGrams = volumetricWeightKg * 1000;
+      const actualWeightGrams = order.package_info.weight * 1000;
+      const chargedWeightGrams = Math.max(actualWeightGrams, volumetricWeightGrams);
+      
+      // Calculate charges using RateCardService
+      let billingCharges = {
+        forward_charge: 0,
+        rto_charge: 0,
+        cod_charge: 0,
+        total_charge: shippingCharges
+      };
+      
+      if (zone && user.user_category) {
+        try {
+          const chargeResult = RateCardService.calculateShippingCharges(
+            user.user_category,
+            actualWeightGrams, // weight in grams
+            {
+              length: order.package_info.dimensions.length,
+              breadth: order.package_info.dimensions.width,
+              height: order.package_info.dimensions.height
+            },
+            zone,
+            order.payment_info?.cod_amount || 0,
+            order.order_type || 'forward'
+          );
+          
+          billingCharges = {
+            forward_charge: chargeResult.forwardCharges,
+            rto_charge: chargeResult.rtoCharges,
+            cod_charge: chargeResult.codCharges,
+            total_charge: chargeResult.totalCharges
+          };
+        } catch (rateError) {
+          console.warn('⚠️ Rate calculation failed, using shipping_charges:', rateError.message);
+        }
+      }
+      
+      // Get or create current billing cycle
+      const billingCycle = await BillingCycle.getCurrentCycle(userId);
+      
+      // Update order with billing_info
+      order.billing_info = {
+        zone: zone,
+        declared_weight: actualWeightGrams,
+        volumetric_weight: volumetricWeightGrams,
+        charged_weight: chargedWeightGrams,
+        charges: billingCharges,
+        billing_status: 'unbilled',
+        billing_cycle_id: billingCycle._id,
+        wallet_transaction_id: transaction._id,
+        user_category_at_order: user.user_category,
+        charged_at: new Date()
+      };
+      
+      await order.save();
+      
+      // Add order to billing cycle
+      await billingCycle.addOrder(order, {
+        forwardCharges: billingCharges.forward_charge,
+        rtoCharges: billingCharges.rto_charge,
+        codCharges: billingCharges.cod_charge,
+        totalCharges: billingCharges.total_charge,
+        weight_used: chargedWeightGrams,
+        zone: zone
+      });
+      await billingCycle.save();
+      
+      console.log('✅ BILLING INFO TRACKED', {
+        orderId: order.order_id,
+        billingCycleId: billingCycle._id,
+        zone: zone,
+        charges: billingCharges,
+        timestamp: new Date().toISOString()
+      });
+    } catch (billingError) {
+      console.error('❌ BILLING INFO TRACKING FAILED (non-critical):', {
+        orderId: order.order_id,
+        error: billingError.message,
+        timestamp: new Date().toISOString()
+      });
+      // Don't fail wallet deduction if billing tracking fails
+    }
     
     // Send WebSocket notifications for wallet deduction
     try {

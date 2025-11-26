@@ -636,6 +636,64 @@ const orderSchema = new mongoose.Schema({
   internal_notes: {
     type: String,
     trim: true
+  },
+
+  // Billing Information (NEW - for invoice generation)
+  billing_info: {
+    // Zone determined from Delhivery API
+    zone: {
+      type: String,
+      enum: ['A', 'B', 'C', 'D', 'E', 'F']
+    },
+    
+    // Weight tracking (all in GRAMS to match RateCardService)
+    declared_weight: Number, // Weight user declared (grams)
+    volumetric_weight: Number, // L*B*H/5000 * 1000 (grams)
+    charged_weight: Number, // Max(declared, volumetric) (grams)
+    actual_weight: Number, // If Delhivery measures differently (grams)
+    weight_discrepancy: Number, // actual - charged (grams)
+    
+    // Charge breakdown (from RateCardService)
+    charges: {
+      forward_charge: { type: Number, default: 0 },
+      rto_charge: { type: Number, default: 0 },
+      cod_charge: { type: Number, default: 0 },
+      fuel_surcharge: { type: Number, default: 0 },
+      weight_discrepancy_charge: { type: Number, default: 0 },
+      other_charges: { type: Number, default: 0 },
+      total_charge: { type: Number, default: 0 }
+    },
+    
+    // Billing status tracking
+    billing_status: {
+      type: String,
+      enum: ['unbilled', 'billed', 'disputed', 'adjusted'],
+      default: 'unbilled',
+      index: true
+    },
+    
+    // References
+    billing_cycle_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'BillingCycle'
+    },
+    invoice_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Invoice'
+    },
+    
+    // Wallet transaction reference
+    wallet_transaction_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Transaction'
+    },
+    
+    // Rate card info (for audit)
+    user_category_at_order: String, // "Basic User", etc.
+    
+    // Billing timestamps
+    charged_at: Date, // When wallet was deducted
+    billed_at: Date // When added to invoice
   }
 
 }, {
@@ -650,6 +708,8 @@ orderSchema.index({ user_id: 1, order_date: -1 });
 orderSchema.index({ 'delhivery_data.waybill': 1 });
 orderSchema.index({ order_type: 1, status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ 'billing_info.billing_status': 1, 'billing_info.billing_cycle_id': 1 });
+orderSchema.index({ 'billing_info.zone': 1 });
 
 // Virtual for total products count
 orderSchema.virtual('total_products').get(function() {

@@ -149,7 +149,8 @@ const AdminClients: React.FC = () => {
       setError(null);
       setImpersonatingClientId(client._id);
       const impersonation = await adminService.impersonateClient(client._id);
-      const portalUrl = `${window.location.origin}?impersonation_token=${encodeURIComponent(impersonation.token)}`;
+      // Directly navigate to dashboard with impersonation token
+      const portalUrl = `${window.location.origin}/dashboard?impersonation_token=${encodeURIComponent(impersonation.token)}`;
       window.open(portalUrl, '_blank', 'noopener,noreferrer');
     } catch (err: any) {
       setError(err.message || 'Failed to access client portal');

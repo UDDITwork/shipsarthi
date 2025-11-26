@@ -81,6 +81,23 @@ export interface AdminImpersonationResponse {
   };
 }
 
+export interface Staff {
+  _id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'staff';
+  created_by: string;
+  is_active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StaffResponse {
+  success: boolean;
+  data: Staff | Staff[];
+  message?: string;
+}
+
 export interface AdminTicket {
   _id: string;
   ticket_id: string;
@@ -103,6 +120,7 @@ export interface AdminTicket {
   conversation: Array<{
     message_type: 'user' | 'admin' | 'system';
     sender_name: string;
+    staff_name?: string;
     sender?: string;
     message_content: string;
     message?: string;
@@ -117,6 +135,20 @@ export interface AdminTicket {
       mimetype?: string;
     }>;
   }>;
+  assignment_info?: {
+    assigned_to?: string;
+    assigned_by?: string;
+    assigned_by_staff?: string;
+    assigned_date?: string;
+    department?: string;
+  };
+  resolution?: {
+    resolution_date?: string;
+    resolution_summary?: string;
+    resolution_category?: string;
+    resolved_by_staff?: string;
+    internal_notes?: string;
+  };
   attachments?: Array<{
     _id?: string;
     file_name: string;
@@ -419,9 +451,11 @@ export interface AdminOrderDetails {
 
 class AdminService {
   private getAdminHeaders() {
+    const adminEmail = localStorage.getItem('admin_email') || localStorage.getItem('staff_email') || 'udditalerts247@gmail.com';
+    const adminPassword = localStorage.getItem('admin_password') || 'jpmcA123';
     return {
-      'X-Admin-Email': 'udditalerts247@gmail.com',
-      'X-Admin-Password': 'jpmcA123'
+      'x-admin-email': adminEmail,
+      'x-admin-password': adminPassword
     };
   }
 
@@ -1267,6 +1301,119 @@ class AdminService {
       headers: this.getAdminHeaders()
     });
     return response;
+  }
+
+  /**
+   * Upload remittance Excel file
+   */
+  async uploadRemittanceExcel(file: File): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      total: number;
+      successful: number;
+      failed: number;
+      remittances_created: number;
+      remittances_updated: number;
+      errors: Array<{
+        remittance_number?: string;
+        row?: number;
+        awb?: string;
+        user_id?: string;
+        error: string;
+      }>;
+      details: Array<{
+        remittance_number: string;
+        user_id: string;
+        orders_count: number;
+        total_remittance: number;
+        action: string;
+      }>;
+    };
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${environmentConfig.apiUrl}/admin/remittances/upload`, {
+      method: 'POST',
+      headers: {
+        'x-admin-email': localStorage.getItem('admin_email') || '',
+        'x-admin-password': 'jpmcA123' // TODO: Use secure admin authentication
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload remittance file');
+    }
+
+    return response.json();
+  }
+
+  // Staff Management Methods
+  async createStaff(name: string, email: string, password: string): Promise<StaffResponse> {
+    const response = await apiService.post<StaffResponse>(
+      '/admin/staff',
+      { name, email, password },
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data;
+  }
+
+  async getStaff(): Promise<StaffResponse> {
+    const response = await apiService.get<StaffResponse>(
+      '/admin/staff',
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data;
+  }
+
+  async updateStaff(staffId: string, updates: { name?: string; email?: string; password?: string; is_active?: boolean }): Promise<StaffResponse> {
+    const response = await apiService.patch<StaffResponse>(
+      `/admin/staff/${staffId}`,
+      updates,
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data;
+  }
+
+  async deleteStaff(staffId: string): Promise<{ success: boolean; message: string }> {
+    const response = await apiService.delete<{ success: boolean; message: string }>(
+      `/admin/staff/${staffId}`,
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data;
+  }
+
+  async verifyStaffCredentials(email: string, password: string): Promise<{ success: boolean; message?: string; staff?: Staff; admin?: { email: string; role: string } }> {
+    try {
+      const response = await fetch(`${environmentConfig.apiUrl}/admin/staff/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': email,
+          'x-admin-password': password
+        }
+      });
+
+      if (!response.ok) {
+        return { success: false, message: 'Invalid credentials' };
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      return { success: false, message: error.message || 'Verification failed' };
+    }
   }
 }
 

@@ -1,0 +1,373 @@
+/* Remittances Container */
+.remittances-container {
+  width: 100%;
+  padding: 20px;
+}
+
+/* Header */
+.remittances-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.remittances-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #002B59;
+  margin: 0;
+}
+
+.learn-more-btn {
+  padding: 8px 16px;
+  background-color: #E3F2FD;
+  color: #002B59;
+  border: 1px solid #002B59;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.learn-more-btn:hover {
+  background-color: #002B59;
+  color: white;
+}
+
+/* Filters Section */
+.remittances-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 14px;
+  border: 2px solid #002B59;
+  border-radius: 20px;
+  font-size: 12px;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: #1F4068;
+  box-shadow: 0 0 0 3px rgba(31, 64, 104, 0.1);
+}
+
+.date-filter {
+  position: relative;
+}
+
+.calendar-btn {
+  padding: 8px 14px;
+  background-color: #FFFFFF;
+  color: #002B59;
+  border: 2px solid #002B59;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.calendar-btn:hover {
+  background-color: #F5F5F5;
+  border-color: #1F4068;
+}
+
+/* Date Picker Dropdown */
+.date-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 2px solid #002B59;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 350px;
+  margin-top: 5px;
+  padding: 20px;
+}
+
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.date-picker-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #002B59;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #002B59;
+}
+
+.quick-select-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.quick-select-options button {
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-select-options button:hover {
+  background-color: #F5F5F5;
+  border-color: #002B59;
+}
+
+.custom-date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.custom-date-range label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #002B59;
+}
+
+.custom-date-range input[type="date"] {
+  padding: 8px;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.custom-date-range input[type="date"]:focus {
+  border-color: #002B59;
+  box-shadow: 0 0 0 3px rgba(31, 64, 104, 0.1);
+}
+
+.date-picker-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.date-picker-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-picker-actions button:first-child {
+  background-color: #002B59;
+  color: white;
+}
+
+.date-picker-actions button:first-child:hover:not(:disabled) {
+  background-color: #1F4068;
+}
+
+.date-picker-actions button:first-child:disabled {
+  background-color: #CCCCCC;
+  cursor: not-allowed;
+}
+
+.date-picker-actions button:last-child {
+  background-color: #F5F5F5;
+  color: #002B59;
+}
+
+.date-picker-actions button:last-child:hover {
+  background-color: #E0E0E0;
+}
+
+/* Table Container */
+.remittances-table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Table */
+.remittances-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.remittances-table thead {
+  background-color: #002B59;
+  color: white;
+}
+
+.remittances-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.remittances-table tbody tr {
+  border-bottom: 1px solid #E0E0E0;
+  transition: background-color 0.2s ease;
+}
+
+.remittances-table tbody tr:hover {
+  background-color: #F5F5F5;
+}
+
+.remittances-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.remittances-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #333;
+}
+
+.remittance-link {
+  background: none;
+  border: none;
+  color: #1F4068;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 13px;
+}
+
+.remittance-link:hover {
+  color: #002B59;
+  text-decoration: none;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.pending {
+  background-color: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFEBA3;
+}
+
+.status-badge.completed {
+  background-color: #D4EDDA;
+  color: #155724;
+  border: 1px solid #C3E6CB;
+}
+
+/* Loading and Empty States */
+.loading-state {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.remittances-table td.empty-state {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  padding: 40px;
+  font-style: italic;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination button {
+  padding: 8px 16px;
+  background-color: #002B59;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #1F4068;
+}
+
+.pagination button:disabled {
+  background-color: #CCCCCC;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 13px;
+  color: #666;
+}
+

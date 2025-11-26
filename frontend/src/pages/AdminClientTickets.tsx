@@ -617,6 +617,12 @@ const AdminClientTickets: React.FC = () => {
                       {selectedTicket.updated_at && (
                         <span>Updated: {new Date(selectedTicket.updated_at).toLocaleString()}</span>
                       )}
+                      {selectedTicket.assignment_info?.assigned_by_staff && (
+                        <span className="staff-label">Assigned by: <span className="staff-badge">{selectedTicket.assignment_info.assigned_by_staff}</span></span>
+                      )}
+                      {selectedTicket.resolution?.resolved_by_staff && (
+                        <span className="staff-label">Resolved by: <span className="staff-badge">{selectedTicket.resolution.resolved_by_staff}</span></span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -662,6 +668,9 @@ const AdminClientTickets: React.FC = () => {
                         >
                           <div className="message-header">
                             <span className="message-sender">{message.sender_name || 'Unknown'}</span>
+                            {message.staff_name && (
+                              <span className="staff-badge" title="Staff member">{message.staff_name}</span>
+                            )}
                             <span className="message-time">
                               {message.timestamp ? new Date(message.timestamp).toLocaleString() : 'Unknown time'}
                             </span>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { environmentConfig } from '../config/environment';
 import './AdminLogin.css';
 
 const AdminLogin: React.FC = () => {
@@ -24,16 +25,58 @@ const AdminLogin: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Check admin credentials
-    if (credentials.email === 'udditalerts247@gmail.com' && credentials.password === 'jpmcA123') {
-      // Store admin session
-      localStorage.setItem('admin_authenticated', 'true');
-      localStorage.setItem('admin_email', credentials.email);
-      
-      // Navigate to admin dashboard
-      navigate('/admin/dashboard');
-    } else {
-      setError('Invalid admin credentials');
+    try {
+      // Check admin credentials first
+      if (credentials.email === 'udditalerts247@gmail.com' && credentials.password === 'jpmcA123') {
+        // Store admin session
+        localStorage.setItem('admin_authenticated', 'true');
+        localStorage.setItem('admin_email', credentials.email);
+        localStorage.setItem('admin_password', credentials.password);
+        localStorage.setItem('admin_role', 'admin');
+        localStorage.removeItem('is_staff');
+        localStorage.removeItem('staff_name');
+        localStorage.removeItem('staff_email');
+        
+        // Navigate to admin dashboard
+        navigate('/admin/dashboard');
+        setLoading(false);
+        return;
+      }
+
+      // Check staff credentials via API
+      const response = await fetch(`${environmentConfig.apiUrl}/admin/staff/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': credentials.email,
+          'x-admin-password': credentials.password
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.staff) {
+          // Store staff session
+          localStorage.setItem('admin_authenticated', 'true');
+          localStorage.setItem('is_staff', 'true');
+          localStorage.setItem('staff_name', data.staff.name);
+          localStorage.setItem('staff_email', data.staff.email);
+          localStorage.setItem('admin_email', data.staff.email); // Needed for API calls
+          localStorage.setItem('admin_password', credentials.password); // Store password for API calls
+          localStorage.setItem('admin_role', 'staff');
+          
+          // Navigate to admin dashboard
+          navigate('/admin/dashboard');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // If neither admin nor staff authentication succeeded
+      setError('Invalid credentials');
+    } catch (err: any) {
+      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
     }
     
     setLoading(false);
@@ -44,7 +87,7 @@ const AdminLogin: React.FC = () => {
       <div className="login-container">
         <div className="login-header">
           <h1>Admin Portal</h1>
-          <p>Enter your admin credentials to access the management panel</p>
+          <p>Enter your admin or staff credentials to access the management panel</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -55,28 +98,28 @@ const AdminLogin: React.FC = () => {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Admin Email</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               name="email"
               value={credentials.email}
               onChange={handleInputChange}
-              placeholder="Enter admin email"
+              placeholder="Enter admin or staff email"
               required
               className="form-input"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Admin Password</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               name="password"
               value={credentials.password}
               onChange={handleInputChange}
-              placeholder="Enter admin password"
+              placeholder="Enter password"
               required
               className="form-input"
             />

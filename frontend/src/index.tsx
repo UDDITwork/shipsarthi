@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import './utils/errorHandler'; // Initialize global error handler
+
+// Initialize aggressive logging
+console.log('🚀 Application Starting with Aggressive Logging Enabled');
+console.log('📊 Environment:', {
+  'NODE_ENV': process.env.NODE_ENV,
+  'API URL': process.env.REACT_APP_API_URL || 'Not set',
+  'Timestamp': new Date().toISOString()
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

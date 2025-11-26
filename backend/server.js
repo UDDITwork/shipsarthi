@@ -287,6 +287,8 @@ app.use('/api/ndr', require('./routes/ndr'));
 app.use('/api/support', require('./routes/support'));
 app.use('/api/tickets', require('./routes/tickets'));
 app.use('/api/billing', require('./routes/billing'));
+app.use('/api/invoices', require('./routes/invoices'));
+app.use('/api/remittances', require('./routes/remittances'));
 app.use('/api/tools', require('./routes/tools'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/shipping', require('./routes/shipping'));

@@ -12,9 +12,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if admin is authenticated
+    // Check if admin or staff is authenticated
     const isAuthenticated = localStorage.getItem('admin_authenticated');
-    if (!isAuthenticated) {
+    const isStaff = localStorage.getItem('is_staff') === 'true';
+    if (!isAuthenticated && !isStaff) {
       navigate('/admin/login');
     }
   }, [navigate]);
@@ -22,18 +23,29 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem('admin_authenticated');
     localStorage.removeItem('admin_email');
+    localStorage.removeItem('admin_password');
+    localStorage.removeItem('admin_role');
+    localStorage.removeItem('is_staff');
+    localStorage.removeItem('staff_name');
+    localStorage.removeItem('staff_email');
     navigate('/admin/login');
   };
+
+  // Check if current user is staff (not admin)
+  const isStaff = localStorage.getItem('is_staff') === 'true';
 
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/clients', label: 'Clients', icon: '👥' },
     { path: '/admin/tickets', label: 'Tickets', icon: '🎫' },
     { path: '/admin/billing', label: 'Billing', icon: '💰' },
+    { path: '/admin/remittances', label: 'Remittances', icon: '💸' },
     { path: '/admin/orders', label: 'Orders', icon: '📦' },
     { path: '/admin/ndr', label: 'NDR', icon: '📋' },
     { path: '/admin/wallet-recharge', label: 'Wallet Recharge', icon: '💳' },
     { path: '/admin/weight-discrepancies', label: 'Weight Discrepancies', icon: '⚖️' },
+    // Staff Management - only visible to admins
+    ...(isStaff ? [] : [{ path: '/admin/staff-management', label: 'Staff Management', icon: '👤' }]),
   ];
 
   const isActivePath = (path: string) => {
@@ -89,7 +101,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
           <div className="header-right">
             <span className="admin-email">
-              {localStorage.getItem('admin_email')}
+              {isStaff 
+                ? localStorage.getItem('staff_name') || localStorage.getItem('staff_email') || 'Staff'
+                : localStorage.getItem('admin_email') || 'Admin'}
             </span>
           </div>
         </header>

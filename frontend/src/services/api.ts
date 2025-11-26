@@ -31,73 +31,183 @@ class ApiService {
           delete config.headers['Content-Type'];
         }
         
-        // Enhanced request logging
-        console.log('🚀 FRONTEND API REQUEST:', {
-          method: config.method,
-          baseURL: config.baseURL,
-          data: config.data,
-          headers: config.headers,
-          isFormData: config.data instanceof FormData,
-          timestamp: new Date().toISOString()
-        });
+        // Generate request ID for correlation
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        (config as any).requestId = requestId;
+        (config as any).startTime = Date.now();
+        
+        // Enhanced aggressive request logging
+        const logData = {
+          '🔵 REQUEST ID': requestId,
+          '📤 METHOD': config.method?.toUpperCase(),
+          '🌐 URL': `${config.baseURL}${config.url}`,
+          '📋 FULL URL': config.url,
+          '🔗 BASE URL': config.baseURL,
+          '📦 DATA': config.data,
+          '📏 DATA SIZE': config.data ? JSON.stringify(config.data).length : 0,
+          '🔑 HAS TOKEN': !!token,
+          '📎 IS FORMDATA': config.data instanceof FormData,
+          '⏰ TIMESTAMP': new Date().toISOString(),
+          '📍 STACK TRACE': new Error().stack?.split('\n').slice(1, 5).join('\n')
+        };
+        
+        console.group(`🚀 [${requestId}] FRONTEND API REQUEST`);
+        console.log('📤 Request Details:', logData);
+        console.log('📋 Headers:', config.headers);
+        console.log('🔍 Full Config:', config);
+        console.groupEnd();
         
         return config;
       },
       (error) => {
-        console.error('❌ FRONTEND REQUEST ERROR:', error);
+        console.group('❌ FRONTEND REQUEST SETUP ERROR');
+        console.error('Error:', error);
+        console.error('Stack:', error.stack);
+        console.groupEnd();
         return Promise.reject(error);
       }
     );
 
     this.api.interceptors.response.use(
       (response) => {
-        console.log('✅ FRONTEND API RESPONSE:', {
-          url: response.config.url,
-          status: response.status,
-          data: response.data,
-          timestamp: new Date().toISOString()
-        });
+        const requestId = (response.config as any).requestId || 'unknown';
+        const duration = (response.config as any).startTime ? Date.now() - (response.config as any).startTime : 0;
+        
+        const logData = {
+          '🔵 REQUEST ID': requestId,
+          '✅ STATUS': response.status,
+          '📥 URL': response.config.url,
+          '⏱️ DURATION': `${duration}ms`,
+          '📦 DATA SIZE': response.data ? JSON.stringify(response.data).length : 0,
+          '📋 RESPONSE DATA': response.data,
+          '📏 HEADERS': response.headers,
+          '⏰ TIMESTAMP': new Date().toISOString()
+        };
+        
+        console.group(`✅ [${requestId}] FRONTEND API RESPONSE`);
+        console.log('📥 Response Details:', logData);
+        console.log('📋 Full Response:', response);
+        console.groupEnd();
+        
         return response;
       },
       (error) => {
-        // Enhanced error logging with connection details
-        const errorDetails = {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          message: error.message,
-          code: error.code,
-          timeout: error.code === 'ECONNABORTED',
-          networkError: !error.response,
-          timestamp: new Date().toISOString()
+        const requestId = (error.config as any)?.requestId || 'unknown';
+        const duration = (error.config as any)?.startTime ? Date.now() - (error.config as any).startTime : 0;
+        
+        // Enhanced aggressive error logging with full context
+        const errorDetails: Record<string, any> = {
+          '🔵 REQUEST ID': requestId,
+          '❌ ERROR TYPE': error.name || 'Unknown',
+          '📤 METHOD': error.config?.method?.toUpperCase(),
+          '🌐 URL': error.config ? `${error.config.baseURL}${error.config.url}` : 'N/A',
+          '📋 FULL URL': error.config?.url,
+          '🔗 BASE URL': error.config?.baseURL,
+          '📊 HTTP STATUS': error.response?.status || 'NO RESPONSE',
+          '📝 STATUS TEXT': error.response?.statusText || 'N/A',
+          '💬 ERROR MESSAGE': error.message,
+          '🔢 ERROR CODE': error.code,
+          '⏱️ DURATION': `${duration}ms`,
+          '📦 REQUEST DATA': error.config?.data,
+          '📥 RESPONSE DATA': error.response?.data,
+          '🔑 HAS TOKEN': !!error.config?.headers?.Authorization,
+          '⏰ TIMESTAMP': new Date().toISOString(),
+          '🌐 NETWORK ERROR': !error.response,
+          '⏰ TIMEOUT': error.code === 'ECONNABORTED',
+          '🔌 CONNECTION REFUSED': error.code === 'ECONNREFUSED',
+          '📡 STACK TRACE': error.stack
         };
         
-        console.error('❌ FRONTEND API ERROR:', errorDetails);
+        console.group(`❌ [${requestId}] FRONTEND API ERROR`);
+        console.error('🚨 Error Details:', errorDetails);
+        console.error('📋 Full Error Object:', error);
+        console.error('📤 Request Config:', error.config);
+        console.error('📥 Response Data:', error.response?.data);
+        console.error('📏 Response Headers:', error.response?.headers);
+        console.error('📍 Stack Trace:', error.stack);
+        
+        // Database sync issue detection
+        if (error.response?.status === 503) {
+          const serverMessage = error.response.data?.message || 'Service temporarily unavailable';
+          console.error('🔌 DATABASE SYNC ISSUE DETECTED');
+          console.error('📊 Database Status:', {
+            'Status': 'UNAVAILABLE',
+            'Message': serverMessage,
+            'Possible Causes': [
+              'Database connection lost',
+              'Database is initializing',
+              'Database query timeout',
+              'Database connection pool exhausted'
+            ]
+          });
+          errorDetails['🔌 DATABASE ISSUE'] = true;
+        }
+        
+        // Network connectivity issues
+        if (!error.response) {
+          console.error('🌐 NETWORK CONNECTIVITY ISSUE');
+          console.error('📊 Network Status:', {
+            'Backend Reachable': false,
+            'Possible Causes': [
+              'Backend server is down',
+              'Network connection lost',
+              'CORS configuration issue',
+              'Firewall blocking request'
+            ]
+          });
+        }
+        
+        // Backend error analysis
+        if (error.response?.status >= 500) {
+          console.error('🔥 BACKEND SERVER ERROR');
+          console.error('📊 Server Error Details:', {
+            'Status': error.response.status,
+            'Message': error.response.data?.message,
+            'Error Type': 'SERVER_ERROR',
+            'Possible Causes': [
+              'Backend application error',
+              'Database query failed',
+              'Internal server exception',
+              'Service unavailable'
+            ]
+          });
+        }
+        
+        // Client error analysis
+        if (error.response?.status >= 400 && error.response?.status < 500) {
+          console.error('⚠️ CLIENT ERROR');
+          console.error('📊 Client Error Details:', {
+            'Status': error.response.status,
+            'Message': error.response.data?.message,
+            'Error Type': 'CLIENT_ERROR',
+            'Validation Errors': error.response.data?.errors
+          });
+        }
+        
+        console.groupEnd();
         
         // Special handling for timeout and connection errors
         if (error.code === 'ECONNABORTED') {
           console.error('⏰ REQUEST TIMEOUT - Backend might be down or slow');
-          errorDetails.message = 'Request timeout - The server is taking longer than expected. Please try again.';
+          errorDetails['💬 USER MESSAGE'] = 'Request timeout - The server is taking longer than expected. Please try again.';
         } else if (!error.response) {
           console.error('🌐 NETWORK ERROR - Cannot connect to backend');
-          errorDetails.message = 'Network error - Cannot connect to backend server. Please check your connection and try again.';
+          errorDetails['💬 USER MESSAGE'] = 'Network error - Cannot connect to backend server. Please check your connection and try again.';
         } else if (error.response.status === 503) {
-          // Service Unavailable - usually means DB is not ready
           const serverMessage = error.response.data?.message || 'Service temporarily unavailable';
           console.error('🔌 SERVICE UNAVAILABLE - Database may not be ready');
-          errorDetails.message = serverMessage.includes('Database') || serverMessage.includes('database')
+          errorDetails['💬 USER MESSAGE'] = serverMessage.includes('Database') || serverMessage.includes('database')
             ? 'Database is initializing. Please wait a moment and try again.'
             : serverMessage;
         }
         
         if (error.response?.status === 401) {
+          console.error('🔐 UNAUTHORIZED - Clearing auth and redirecting');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
         }
+        
         return Promise.reject(error);
       }
     );
@@ -108,12 +218,26 @@ class ApiService {
     requestFn: () => Promise<AxiosResponse<T>>,
     retries = this.maxRetries
   ): Promise<AxiosResponse<T>> {
+    const attemptNumber = this.maxRetries - retries + 1;
+    const requestId = `retry_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     try {
+      console.log(`🔄 [${requestId}] Retry Attempt ${attemptNumber}/${this.maxRetries}`);
       return await requestFn();
     } catch (error: any) {
+      console.group(`❌ [${requestId}] Retry Attempt ${attemptNumber} Failed`);
+      console.error('Error Details:', {
+        'Status': error.response?.status,
+        'Code': error.code,
+        'Message': error.message,
+        'Will Retry': retries > 0
+      });
+      
       // Don't retry on 401 (auth errors) or 4xx client errors (except 429)
       if (error.response?.status === 401 || 
           (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429)) {
+        console.error('🚫 Not retrying - Client error (4xx)');
+        console.groupEnd();
         throw error;
       }
 
@@ -121,7 +245,12 @@ class ApiService {
       // The rate limit window is 15 minutes, so retrying immediately will just hit the limit again
       if (error.response?.status === 429) {
         console.error('🚫 Rate limit exceeded - NOT retrying. Use cached data or wait before making new requests.');
-        // Don't retry at all - fail immediately and let the app use cached data
+        console.error('📊 Rate Limit Info:', {
+          'Status': 429,
+          'Retry After': error.response?.headers?.['retry-after'],
+          'Message': 'Rate limit window is 15 minutes'
+        });
+        console.groupEnd();
         throw error;
       }
 
@@ -134,12 +263,21 @@ class ApiService {
         error.code === 'ETIMEDOUT'
       )) {
         const delay = this.retryDelay * Math.pow(2, this.maxRetries - retries);
-        console.log(`🔄 Retrying request (${this.maxRetries - retries + 1}/${this.maxRetries}) after ${delay}ms...`);
+        console.log(`⏳ Waiting ${delay}ms before retry ${attemptNumber + 1}/${this.maxRetries}...`);
+        console.log('📊 Retry Strategy:', {
+          'Current Attempt': attemptNumber,
+          'Remaining Retries': retries - 1,
+          'Delay (ms)': delay,
+          'Error Type': error.response ? 'SERVER_ERROR' : 'NETWORK_ERROR'
+        });
+        console.groupEnd();
         
         await new Promise(resolve => setTimeout(resolve, delay));
         return this.retryRequest(requestFn, retries - 1);
       }
       
+      console.error('🚫 No more retries - Failing request');
+      console.groupEnd();
       throw error;
     }
   }

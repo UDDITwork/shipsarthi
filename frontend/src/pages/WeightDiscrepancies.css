@@ -17,7 +17,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background-color: #002B59;
+  background-color: #FFFFFF;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 43, 89, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -31,7 +31,7 @@
 .summary-card-icon {
   width: 42px;
   height: 42px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #F9F9F9;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -49,17 +49,50 @@
   opacity: 0.9;
   margin-bottom: 6px;
   font-weight: 500;
-  color: white;
+  color: #000000;
 }
 
 .summary-card-value {
   font-size: 20px;
   font-weight: 700;
-  color: white;
+  color: #000000;
 }
 
 .summary-card-value.red {
   color: #EF4444;
+}
+
+/* Ticket Message */
+.ticket-message {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.ticket-message.success {
+  background-color: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #10B981;
+}
+
+.ticket-message.error {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #EF4444;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Filters Section */
@@ -99,9 +132,10 @@
 .table-container {
   background-color: #FFFFFF;
   border-radius: 8px;
-  overflow-x: auto;
+  overflow-x: visible;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
+  width: 100%;
 }
 
 /* Loading State */
@@ -138,7 +172,7 @@
 .discrepancies-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  table-layout: fixed;
 }
 
 .discrepancies-table thead {
@@ -150,22 +184,38 @@
 }
 
 .discrepancies-table th {
-  padding: 10px 8px;
+  padding: 8px 4px;
   text-align: left;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   border-bottom: 2px solid #FFFFFF;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.discrepancies-table th:nth-child(1) { width: 10%; } /* AWB NUMBER */
+.discrepancies-table th:nth-child(2) { width: 8%; }  /* ORDER ID */
+.discrepancies-table th:nth-child(3) { width: 12%; }  /* DATE & TIME */
+.discrepancies-table th:nth-child(4) { width: 8%; }   /* AWB STATUS */
+.discrepancies-table th:nth-child(5) { width: 8%; }   /* DECLARED WEIGHT */
+.discrepancies-table th:nth-child(6) { width: 8%; }   /* ACTUAL WEIGHT */
+.discrepancies-table th:nth-child(7) { width: 7%; }   /* DIFFERENCE */
+.discrepancies-table th:nth-child(8) { width: 10%; }  /* DEDUCTION AMOUNT */
+.discrepancies-table th:nth-child(9) { width: 12%; } /* TRANSACTION ID */
+.discrepancies-table th:nth-child(10) { width: 9%; }  /* ACTION */
+
 .discrepancies-table td {
-  padding: 10px 8px;
-  font-size: 11px;
+  padding: 8px 4px;
+  font-size: 10px;
   color: #333333;
   border-bottom: 1px solid #E0E0E0;
-  vertical-align: top;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .discrepancies-table tbody tr:hover {
@@ -177,6 +227,7 @@
   font-family: 'Courier New', monospace;
   color: #002B59;
   font-weight: 600;
+  font-size: 9px;
 }
 
 .diff-cell {
@@ -191,16 +242,52 @@
 
 .transaction-id {
   font-family: 'Courier New', monospace;
-  font-size: 11px;
+  font-size: 9px;
   color: #666666;
+}
+
+/* Action Column */
+.discrepancies-table td:last-child {
+  text-align: center;
+  white-space: normal;
+}
+
+/* Raise Issue Button */
+.raise-issue-btn {
+  padding: 4px 8px;
+  background-color: #F68723;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.raise-issue-btn:hover:not(:disabled) {
+  background-color: #E6781F;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(246, 135, 35, 0.3);
+}
+
+.raise-issue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #F68723;
+}
+
+.raise-issue-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* Status Badges */
 .status-badge {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 8px;
   font-weight: 600;
   text-transform: uppercase;
 }

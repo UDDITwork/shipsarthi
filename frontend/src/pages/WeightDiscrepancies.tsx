@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import { environmentConfig } from '../config/environment';
+import { ticketService } from '../services/ticketService';
 import './WeightDiscrepancies.css';
 
 interface WeightDiscrepancy {
@@ -50,6 +51,10 @@ const WeightDiscrepancies: React.FC = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [total, setTotal] = useState(0);
+  
+  // Ticket creation state
+  const [raisingIssue, setRaisingIssue] = useState<string | null>(null);
+  const [ticketMessage, setTicketMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const fetchDiscrepancies = useCallback(async () => {
     setLoading(true);
@@ -111,6 +116,54 @@ const WeightDiscrepancies: React.FC = () => {
     return `${date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
   };
 
+  const handleRaiseIssue = async (discrepancy: WeightDiscrepancy) => {
+    setRaisingIssue(discrepancy._id);
+    setTicketMessage(null);
+    
+    try {
+      const description = `Weight Discrepancy Issue for AWB: ${discrepancy.awb_number}
+
+Order ID: ${discrepancy.order_id?.order_id || 'N/A'}
+AWB Number: ${discrepancy.awb_number}
+AWB Status: ${discrepancy.awb_status}
+Discrepancy Date: ${formatDate(discrepancy.discrepancy_date)}
+
+Weight Details:
+- Declared Weight: ${discrepancy.client_declared_weight.toFixed(2)} kg
+- Actual Weight: ${discrepancy.delhivery_updated_weight.toFixed(2)} kg
+- Weight Difference: ${discrepancy.weight_discrepancy.toFixed(2)} kg
+
+Deduction Amount: ₹${discrepancy.deduction_amount.toFixed(2)}
+Transaction ID: ${discrepancy.transaction_id?.transaction_id || 'N/A'}
+
+I would like to dispute this weight discrepancy and the associated deduction. Please review and resolve this issue.`;
+
+      await ticketService.createTicket({
+        category: 'shipment_dispute',
+        awb_numbers: [discrepancy.awb_number],
+        comment: description
+      });
+
+      setTicketMessage({ type: 'success', text: 'Issue raised successfully! Ticket created and sent to admin.' });
+      
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        setTicketMessage(null);
+      }, 5000);
+    } catch (error: any) {
+      console.error('Error raising issue:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to raise issue. Please try again.';
+      setTicketMessage({ type: 'error', text: errorMessage });
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setTicketMessage(null);
+      }, 5000);
+    } finally {
+      setRaisingIssue(null);
+    }
+  };
+
   return (
     <Layout>
       <div className="weight-discrepancies-container">
@@ -140,6 +193,13 @@ const WeightDiscrepancies: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Ticket Message */}
+        {ticketMessage && (
+          <div className={`ticket-message ${ticketMessage.type}`}>
+            {ticketMessage.text}
+          </div>
+        )}
 
         {/* Filters Section */}
         <div className="filters-section">
@@ -188,12 +248,13 @@ const WeightDiscrepancies: React.FC = () => {
                   <th>DIFFERENCE</th>
                   <th>DEDUCTION AMOUNT</th>
                   <th>TRANSACTION ID</th>
+                  <th>ACTION</th>
                 </tr>
               </thead>
               <tbody>
                 {discrepancies.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="no-data">
+                    <td colSpan={10} className="no-data">
                       <div className="no-discrepancies">
                         <div className="no-discrepancies-icon">⚖️</div>
                         <h3>No weight discrepancies found</h3>
@@ -217,6 +278,16 @@ const WeightDiscrepancies: React.FC = () => {
                       <td className="diff-cell">{disc.weight_discrepancy.toFixed(2)} kg</td>
                       <td className="deduction-cell">-₹{disc.deduction_amount.toFixed(2)}</td>
                       <td className="transaction-id">{disc.transaction_id?.transaction_id || 'N/A'}</td>
+                      <td>
+                        <button
+                          className="raise-issue-btn"
+                          onClick={() => handleRaiseIssue(disc)}
+                          disabled={raisingIssue === disc._id}
+                          title="Raise issue for this weight discrepancy"
+                        >
+                          {raisingIssue === disc._id ? 'Raising...' : 'Raise Issue'}
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}

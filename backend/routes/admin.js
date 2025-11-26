@@ -13,7 +13,9 @@ const Customer = require('../models/Customer');
 const SupportTicket = require('../models/Support');
 const Transaction = require('../models/Transaction');
 const WeightDiscrepancy = require('../models/WeightDiscrepancy');
+const Remittance = require('../models/Remittance');
 const ShipmentTrackingEvent = require('../models/ShipmentTrackingEvent');
+const Staff = require('../models/Staff');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
@@ -190,20 +192,43 @@ const upload = multer({
 });
 
 // Admin authentication middleware
-const adminAuth = (req, res, next) => {
+const adminAuth = async (req, res, next) => {
   const adminEmail = req.headers['x-admin-email'];
   const adminPassword = req.headers['x-admin-password'];
   
-  // Check for admin credentials
+  // Check for admin credentials first
   if (adminEmail === 'udditalerts247@gmail.com' && adminPassword === 'jpmcA123') {
-    req.admin = { email: adminEmail };
-    next();
-  } else {
-    return res.status(401).json({
-      success: false,
-      message: 'Unauthorized access. Admin credentials required.'
-    });
+    req.admin = { email: adminEmail, role: 'admin' };
+    return next();
   }
+  
+  // Check for staff credentials
+  try {
+    const Staff = require('../models/Staff');
+    const staff = await Staff.findByEmail(adminEmail);
+    
+    if (staff && staff.is_active) {
+      const isPasswordValid = await staff.comparePassword(adminPassword);
+      if (isPasswordValid) {
+        req.staff = { 
+          email: staff.email, 
+          name: staff.name, 
+          role: 'staff',
+          _id: staff._id
+        };
+        return next();
+      }
+    }
+  } catch (error) {
+    // If Staff model doesn't exist or error, continue to fail
+    logger.error('Staff authentication error:', error);
+  }
+  
+  // Neither admin nor staff authentication succeeded
+  return res.status(401).json({
+    success: false,
+    message: 'Unauthorized access. Admin or staff credentials required.'
+  });
 };
 
 // Apply admin auth to all routes
@@ -1255,11 +1280,12 @@ router.post('/tickets/:id/messages', async (req, res) => {
       });
     }
 
-    // Get admin name (use email if name not available)
-    const adminName = req.admin.name || req.admin.email || 'Admin';
+    // Get sender name (staff name or admin email)
+    const senderName = req.staff ? req.staff.name : (req.admin.email || 'Admin');
+    const staffName = req.staff ? req.staff.name : null;
 
-    // Add admin message to conversation
-    await ticket.addMessage('admin', adminName, message, [], is_internal);
+    // Add message to conversation with staff tracking
+    await ticket.addMessage('admin', senderName, message, [], is_internal, staffName);
 
     // Update ticket status if it was waiting for admin response
     if (ticket.status === 'waiting_customer') {
@@ -1277,7 +1303,7 @@ router.post('/tickets/:id/messages', async (req, res) => {
       client_name: ticket.user_id?.your_name || 'Unknown Client'
     }, {
       message: message,
-      sender: adminName,
+      sender: senderName,
       timestamp: new Date().toISOString()
     });
 
@@ -1361,9 +1387,13 @@ router.patch('/tickets/:id/status', async (req, res) => {
     const previousStatus = ticket.status;
     ticket.status = status;
 
-    // Add system message about status change
+    // Get changer name (admin or staff)
+    const changerName = req.staff ? req.staff.name : (req.admin ? req.admin.email : 'System');
+    const staffName = req.staff ? req.staff.name : null;
+    
+    // Add system message about status change with staff tracking
     const statusMessage = `Ticket status changed from "${previousStatus}" to "${status}"${reason ? `. Reason: ${reason}` : ''}`;
-    await ticket.addMessage('system', 'System', statusMessage, [], true);
+    await ticket.addMessage('system', changerName, statusMessage, [], true, staffName);
     
     // Fetch fresh ticket data
     const updatedTicket = await SupportTicket.findById(ticket._id)
@@ -1448,8 +1478,12 @@ router.patch('/tickets/:id/priority', async (req, res) => {
 
     ticket.priority = normalizedPriorityValue;
 
+    // Get changer name (admin or staff)
+    const changerName = req.staff ? req.staff.name : (req.admin ? req.admin.email : 'System');
+    const staffName = req.staff ? req.staff.name : null;
+    
     const priorityMessage = `Ticket priority changed from "${previousPriority}" to "${normalizedPriorityValue}"${reason ? `. Reason: ${reason}` : ''}`;
-    await ticket.addMessage('system', 'System', priorityMessage, [], true);
+    await ticket.addMessage('system', changerName, priorityMessage, [], true, staffName);
 
     const updatedTicket = await SupportTicket.findById(ticket._id)
       .populate('user_id', 'company_name your_name email phone_number client_id')
@@ -1515,8 +1549,12 @@ router.patch('/tickets/:id/assign', async (req, res) => {
       });
     }
 
-    // Assign ticket
-    await ticket.assignTo(assigned_to, req.admin.email, department);
+    // Get assigner name (admin or staff)
+    const assignerName = req.staff ? req.staff.name : req.admin.email;
+    const staffName = req.staff ? req.staff.name : null;
+    
+    // Assign ticket with staff tracking
+    await ticket.assignTo(assigned_to, assignerName, department, staffName);
 
     res.json({
       success: true,
@@ -1525,7 +1563,8 @@ router.patch('/tickets/:id/assign', async (req, res) => {
         ticket_id: ticket.ticket_id,
         assigned_to: ticket.assignment_info.assigned_to,
         assigned_date: ticket.assignment_info.assigned_date,
-        department: ticket.assignment_info.department
+        department: ticket.assignment_info.department,
+        assigned_by_staff_name: ticket.assignment_info.assigned_by_staff_name || null
       }
     });
 
@@ -1570,8 +1609,12 @@ router.post('/tickets/:id/resolve', async (req, res) => {
       });
     }
 
-    // Resolve ticket
-    await ticket.resolve(resolution_summary, resolution_category, internal_notes);
+    // Get resolver name (admin or staff)
+    const resolverName = req.staff ? req.staff.name : req.admin.email;
+    const staffName = req.staff ? req.staff.name : null;
+    
+    // Resolve ticket with staff tracking
+    await ticket.resolve(resolution_summary, resolution_category, internal_notes, staffName);
 
     res.json({
       success: true,
@@ -1579,7 +1622,8 @@ router.post('/tickets/:id/resolve', async (req, res) => {
       data: {
         ticket_id: ticket.ticket_id,
         status: ticket.status,
-        resolution_date: ticket.resolution.resolution_date
+        resolution_date: ticket.resolution.resolution_date,
+        resolved_by_staff_name: ticket.resolution.resolved_by_staff_name || null
       }
     });
 
@@ -2583,6 +2627,458 @@ router.get('/weight-discrepancies', async (req, res) => {
 });
 
 // ============================================================================
+// REMITTANCES ROUTES
+// ============================================================================
+
+// @desc    Bulk import remittances from Excel
+// @route   POST /api/admin/remittances/upload
+// @access  Admin
+router.post('/remittances/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    const file = req.file;
+    const batchId = `REM${Date.now()}`;
+    
+    console.log('📊 REMITTANCE IMPORT STARTED:', {
+      fileName: file.originalname,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      batchId,
+      timestamp: new Date().toISOString()
+    });
+
+    // Parse Excel file
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet);
+
+    console.log('📋 EXCEL PARSED:', {
+      sheetName,
+      rowCount: rows.length,
+      columns: Object.keys(rows[0] || {})
+    });
+
+    if (!rows || rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Uploaded file does not contain any data rows'
+      });
+    }
+
+    // Column mapping with various possible names
+    const getCellValue = (row, possibleKeys) => {
+      for (const key of possibleKeys) {
+        if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+          return row[key];
+        }
+      }
+      return null;
+    };
+
+    const parseDate = (value) => {
+      if (!value) return null;
+      
+      // Handle Excel serial date numbers (e.g. 45218)
+      if (typeof value === 'number') {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const ms = value * 24 * 60 * 60 * 1000;
+        return new Date(excelEpoch.getTime() + ms);
+      }
+      
+      // Handle string dates
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+      
+      return null;
+    };
+
+    const parseAWB = (value) => {
+      if (!value) return null;
+      let parsed = String(value).trim();
+      
+      // Handle Excel scientific notation
+      if (parsed.includes('E+') || parsed.includes('e+')) {
+        parsed = parseFloat(parsed).toFixed(0);
+        parsed = parsed.replace(/\./g, '');
+      }
+      
+      return parsed;
+    };
+
+    // Group rows by REMITTANCE NUMBER
+    const remittanceGroups = {};
+    
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNumber = i + 2; // Excel row number (header is row 1)
+      
+      // Extract remittance number
+      const remittanceNumber = getCellValue(row, [
+        'REMITTANCE NUMBER',
+        'Remittance Number',
+        'remittance_number',
+        'REMITTANCE_NUMBER'
+      ]);
+      
+      if (!remittanceNumber) {
+        console.warn(`⚠️ Row ${rowNumber}: Missing remittance number, skipping`);
+        continue;
+      }
+      
+      if (!remittanceGroups[remittanceNumber]) {
+        // Extract remittance metadata (from first row of this remittance)
+        const date = parseDate(getCellValue(row, ['DATE', 'Date', 'date']));
+        const bankTransactionId = getCellValue(row, [
+          'BANK\'S TRANSACTION ID',
+          'Bank\'s Transaction ID',
+          'BANK TRANSACTION ID',
+          'bank_transaction_id',
+          'BANK_TRANSACTION_ID'
+        ]);
+        const stateStr = getCellValue(row, ['STATE', 'State', 'state', 'STATUS', 'Status']);
+        const state = stateStr ? (String(stateStr).toLowerCase().includes('completed') ? 'completed' : 'pending') : 'pending';
+        const totalRemittance = parseFloat(getCellValue(row, [
+          'TOTAL REMITTANCE',
+          'Total Remittance',
+          'total_remittance',
+          'TOTAL_REMITTANCE'
+        ]) || 0);
+        
+        // Extract account details (optional)
+        const bank = getCellValue(row, ['Bank', 'BANK', 'bank']);
+        const beneficiaryName = getCellValue(row, [
+          'Beneficiary Name',
+          'BENEFICIARY NAME',
+          'beneficiary_name',
+          'Beneficiary'
+        ]);
+        const accountNumber = getCellValue(row, [
+          'A/C Number',
+          'ACCOUNT NUMBER',
+          'account_number',
+          'Account Number'
+        ]);
+        const ifscCode = getCellValue(row, [
+          'IFSC Code',
+          'IFSC CODE',
+          'ifsc_code',
+          'IFSC'
+        ]);
+        
+        remittanceGroups[remittanceNumber] = {
+          remittance_number: String(remittanceNumber).trim(),
+          date: date || new Date(),
+          bank_transaction_id: bankTransactionId || null,
+          state: state,
+          total_remittance: totalRemittance,
+          account_details: {
+            bank: bank || '',
+            beneficiary_name: beneficiaryName || '',
+            account_number: accountNumber || '',
+            ifsc_code: ifscCode || ''
+          },
+          orders: [],
+          errors: []
+        };
+      }
+      
+      // Extract AWB and amount
+      const awbNumber = parseAWB(getCellValue(row, [
+        'AWB NUMBER',
+        'AWB Number',
+        'awb_number',
+        'AWB_NUMBER',
+        'AWB'
+      ]));
+      
+      const amountCollected = parseFloat(getCellValue(row, [
+        'AMOUNT COLLECTED',
+        'Amount Collected',
+        'amount_collected',
+        'AMOUNT_COLLECTED'
+      ]) || 0);
+      
+      if (!awbNumber) {
+        remittanceGroups[remittanceNumber].errors.push({
+          row: rowNumber,
+          error: 'AWB number is missing'
+        });
+        continue;
+      }
+      
+      if (!amountCollected || amountCollected <= 0) {
+        remittanceGroups[remittanceNumber].errors.push({
+          row: rowNumber,
+          error: 'Amount collected is missing or invalid',
+          awb: awbNumber
+        });
+        continue;
+      }
+      
+      remittanceGroups[remittanceNumber].orders.push({
+        awb_number: awbNumber,
+        amount_collected: amountCollected,
+        row_number: rowNumber
+      });
+    }
+
+    console.log(`📊 Grouped into ${Object.keys(remittanceGroups).length} remittances`);
+
+    const importResults = {
+      total: rows.length,
+      successful: 0,
+      failed: 0,
+      remittances_created: 0,
+      remittances_updated: 0,
+      errors: [],
+      details: []
+    };
+
+    // Process each remittance group
+    for (const [remittanceNumber, remittanceData] of Object.entries(remittanceGroups)) {
+      try {
+        // Group orders by client (user_id)
+        const clientGroups = {};
+        
+        for (const order of remittanceData.orders) {
+          // Find order by AWB
+          const orderDoc = await Order.findOne({ 'delhivery_data.waybill': order.awb_number });
+          
+          if (!orderDoc) {
+            importResults.errors.push({
+              remittance_number: remittanceNumber,
+              row: order.row_number,
+              awb: order.awb_number,
+              error: `AWB ${order.awb_number} not found in orders`
+            });
+            continue;
+          }
+          
+          const userId = orderDoc.user_id;
+          
+          if (!clientGroups[userId]) {
+            clientGroups[userId] = {
+              user_id: userId,
+              orders: []
+            };
+          }
+          
+          clientGroups[userId].orders.push({
+            awb_number: order.awb_number,
+            amount_collected: order.amount_collected,
+            order_id: orderDoc.order_id,
+            order_ref: orderDoc._id
+          });
+        }
+        
+        // Create/update remittance for each client
+        for (const [userId, clientData] of Object.entries(clientGroups)) {
+          try {
+            // Calculate total remittance for this client (proportional if multiple clients)
+            const totalOrders = remittanceData.orders.length;
+            const clientOrders = clientData.orders.length;
+            const clientTotalRemittance = clientOrders === totalOrders ? 
+              remittanceData.total_remittance : 
+              clientData.orders.reduce((sum, o) => sum + o.amount_collected, 0);
+            
+            // Check if remittance already exists for this client
+            let remittance = await Remittance.findOne({
+              remittance_number: remittanceNumber,
+              user_id: userId
+            });
+            
+            if (remittance) {
+              // Update existing remittance
+              remittance.date = remittanceData.date;
+              remittance.bank_transaction_id = remittanceData.bank_transaction_id;
+              remittance.state = remittanceData.state;
+              remittance.total_remittance = clientTotalRemittance;
+              remittance.account_details = remittanceData.account_details;
+              remittance.upload_batch_id = batchId;
+              
+              // Clear existing orders and add new ones
+              remittance.remittance_orders = [];
+              for (const order of clientData.orders) {
+                remittance.remittance_orders.push({
+                  awb_number: order.awb_number,
+                  amount_collected: order.amount_collected,
+                  order_id: order.order_id,
+                  order_reference: order.order_ref
+                });
+              }
+              
+              remittance.total_orders = remittance.remittance_orders.length;
+              
+              if (remittanceData.state === 'completed' && !remittance.processed_on) {
+                remittance.processed_on = new Date();
+              }
+              
+              await remittance.save();
+              importResults.remittances_updated++;
+            } else {
+              // Create new remittance
+              remittance = new Remittance({
+                remittance_number: remittanceNumber,
+                user_id: userId,
+                date: remittanceData.date,
+                bank_transaction_id: remittanceData.bank_transaction_id,
+                state: remittanceData.state,
+                total_remittance: clientTotalRemittance,
+                account_details: remittanceData.account_details,
+                remittance_orders: clientData.orders.map(order => ({
+                  awb_number: order.awb_number,
+                  amount_collected: order.amount_collected,
+                  order_id: order.order_id,
+                  order_reference: order.order_ref
+                })),
+                total_orders: clientData.orders.length,
+                upload_batch_id: batchId,
+                uploaded_by: 'admin'
+              });
+              
+              if (remittanceData.state === 'completed') {
+                remittance.processed_on = new Date();
+              }
+              
+              await remittance.save();
+              importResults.remittances_created++;
+            }
+            
+            importResults.successful += clientData.orders.length;
+            
+            importResults.details.push({
+              remittance_number: remittanceNumber,
+              user_id: userId,
+              orders_count: clientData.orders.length,
+              total_remittance: clientTotalRemittance,
+              action: remittance ? 'updated' : 'created'
+            });
+          } catch (clientError) {
+            console.error(`❌ Error processing remittance ${remittanceNumber} for user ${userId}:`, clientError);
+            importResults.failed += clientData.orders.length;
+            importResults.errors.push({
+              remittance_number: remittanceNumber,
+              user_id: userId,
+              error: clientError.message
+            });
+          }
+        }
+        
+        // Add remittance-level errors
+        if (remittanceData.errors && remittanceData.errors.length > 0) {
+          importResults.errors.push(...remittanceData.errors);
+          importResults.failed += remittanceData.errors.length;
+        }
+      } catch (remittanceError) {
+        console.error(`❌ Error processing remittance group ${remittanceNumber}:`, remittanceError);
+        importResults.failed += remittanceData.orders.length;
+        importResults.errors.push({
+          remittance_number: remittanceNumber,
+          error: remittanceError.message
+        });
+      }
+    }
+
+    console.log('✅ REMITTANCE IMPORT COMPLETED:', {
+      batchId,
+      successful: importResults.successful,
+      failed: importResults.failed,
+      remittances_created: importResults.remittances_created,
+      remittances_updated: importResults.remittances_updated
+    });
+
+    res.json({
+      success: true,
+      message: 'Remittance import completed',
+      data: importResults
+    });
+  } catch (error) {
+    console.error('❌ REMITTANCE IMPORT ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing remittance import',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get all remittances (Admin view)
+// @route   GET /api/admin/remittances
+// @access  Admin
+router.get('/remittances', async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '', state = 'all' } = req.query;
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const filterQuery = {};
+
+    // Search filter
+    if (search) {
+      filterQuery.remittance_number = { $regex: search, $options: 'i' };
+    }
+
+    // State filter
+    if (state !== 'all') {
+      filterQuery.state = state;
+    }
+
+    const [remittances, total] = await Promise.all([
+      Remittance.find(filterQuery)
+        .populate('user_id', 'company_name email')
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Remittance.countDocuments(filterQuery)
+    ]);
+
+    const formattedRemittances = remittances.map(r => ({
+      remittance_number: r.remittance_number,
+      user_id: r.user_id?._id,
+      company_name: r.user_id?.company_name || 'N/A',
+      email: r.user_id?.email || 'N/A',
+      date: r.date,
+      processed_on: r.processed_on || r.date,
+      bank_transaction_id: r.bank_transaction_id || '-',
+      state: r.state,
+      total_remittance: r.total_remittance,
+      total_orders: r.total_orders
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        remittances: formattedRemittances,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / parseInt(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get remittances error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching remittances',
+      error: error.message
+    });
+  }
+});
+
+// ============================================================================
 // ADMIN BILLING ROUTES
 // ============================================================================
 
@@ -3569,6 +4065,280 @@ router.get('/ndr/clients/:clientId/stats', async (req, res) => {
       success: false,
       message: 'Error fetching NDR statistics',
       error: error.message
+    });
+  }
+});
+
+// ==================== STAFF MANAGEMENT ROUTES ====================
+
+// Middleware to ensure only admins (not staff) can access staff management
+const adminOnly = (req, res, next) => {
+  if (req.staff) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Staff members cannot access staff management.'
+    });
+  }
+  if (!req.admin) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized access. Admin credentials required.'
+    });
+  }
+  next();
+};
+
+// @desc    Create staff account
+// @route   POST /api/admin/staff
+// @access  Admin only
+router.post('/staff', adminOnly, async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, and password are required'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Check if staff with email already exists
+    const existingStaff = await Staff.findOne({ email: email.toLowerCase().trim() });
+    if (existingStaff) {
+      return res.status(400).json({
+        success: false,
+        message: 'Staff with this email already exists'
+      });
+    }
+
+    // Create staff account
+    const staff = new Staff({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: password,
+      role: 'staff',
+      created_by: req.admin.email,
+      is_active: true
+    });
+
+    await staff.save();
+
+    // Return staff without password
+    const staffData = staff.toObject();
+    delete staffData.password;
+
+    logger.info('Staff account created', {
+      staffEmail: staff.email,
+      createdBy: req.admin.email
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Staff account created successfully',
+      data: staffData
+    });
+
+  } catch (error) {
+    logger.error('Error creating staff account:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating staff account',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get all staff members
+// @route   GET /api/admin/staff
+// @access  Admin only
+router.get('/staff', adminOnly, async (req, res) => {
+  try {
+    const staffList = await Staff.find({})
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
+      success: true,
+      data: staffList
+    });
+
+  } catch (error) {
+    logger.error('Error fetching staff list:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching staff list',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Update staff account
+// @route   PATCH /api/admin/staff/:id
+// @access  Admin only
+router.patch('/staff/:id', adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, is_active } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid staff ID'
+      });
+    }
+
+    const staff = await Staff.findById(id);
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        message: 'Staff not found'
+      });
+    }
+
+    // Update fields
+    if (name) staff.name = name.trim();
+    if (email) {
+      // Check if email is already taken by another staff
+      const existingStaff = await Staff.findOne({ 
+        email: email.toLowerCase().trim(),
+        _id: { $ne: id }
+      });
+      if (existingStaff) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already in use by another staff member'
+        });
+      }
+      staff.email = email.toLowerCase().trim();
+    }
+    if (password) {
+      if (password.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password must be at least 6 characters long'
+        });
+      }
+      staff.password = password; // Will be hashed by pre-save hook
+    }
+    if (typeof is_active === 'boolean') {
+      staff.is_active = is_active;
+    }
+
+    await staff.save();
+
+    const staffData = staff.toObject();
+    delete staffData.password;
+
+    logger.info('Staff account updated', {
+      staffId: id,
+      updatedBy: req.admin.email
+    });
+
+    res.json({
+      success: true,
+      message: 'Staff account updated successfully',
+      data: staffData
+    });
+
+  } catch (error) {
+    logger.error('Error updating staff account:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating staff account',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Delete/Deactivate staff account
+// @route   DELETE /api/admin/staff/:id
+// @access  Admin only
+router.delete('/staff/:id', adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid staff ID'
+      });
+    }
+
+    const staff = await Staff.findById(id);
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        message: 'Staff not found'
+      });
+    }
+
+    // Soft delete - set is_active to false instead of actually deleting
+    staff.is_active = false;
+    await staff.save();
+
+    logger.info('Staff account deactivated', {
+      staffId: id,
+      deactivatedBy: req.admin.email
+    });
+
+    res.json({
+      success: true,
+      message: 'Staff account deactivated successfully'
+    });
+
+  } catch (error) {
+    logger.error('Error deactivating staff account:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deactivating staff account',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Verify staff credentials (for login)
+// @route   POST /api/admin/staff/verify
+// @access  Protected (requires valid admin or staff credentials in headers)
+router.post('/staff/verify', async (req, res) => {
+  try {
+    // This route uses adminAuth middleware, so if we reach here, credentials are valid
+    if (req.staff) {
+      return res.json({
+        success: true,
+        staff: {
+          name: req.staff.name,
+          email: req.staff.email,
+          role: req.staff.role
+        }
+      });
+    } else if (req.admin) {
+      return res.json({
+        success: true,
+        admin: {
+          email: req.admin.email,
+          role: 'admin'
+        }
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+  } catch (error) {
+    logger.error('Staff verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Verification failed'
     });
   }
 });

@@ -403,6 +403,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/ndr', icon: '📦', label: 'NDR', svgIcon: group10Icon },
     { path: '/tools', icon: '🔧', label: 'Tools', svgIcon: vectorIcon },
     { path: '/billing', icon: '💳', label: 'Billing', svgIcon: group1BillingIcon },
+    { path: '/invoices', icon: '📄', label: 'Invoices', svgIcon: null },
+    { path: '/remittances', icon: '💸', label: 'Remittance', svgIcon: null },
     { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies', svgIcon: null }, // Weight Discrepancies icon not specified
     { path: '/warehouse', icon: '🏢', label: 'Warehouse', svgIcon: group19Icon },
     { path: '/channel', icon: '🔗', label: 'Channel', svgIcon: vector1Icon },
@@ -577,7 +579,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
+                className={`sidebar-item ${location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'active' : ''}`}
               >
                 <span className="sidebar-icon">
                   {item.svgIcon ? (
