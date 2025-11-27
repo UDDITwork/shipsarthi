@@ -419,7 +419,7 @@ async function deductWalletForOrder(order, userId, awbNumber = null) {
       
       if (zone && user.user_category) {
         try {
-          const chargeResult = RateCardService.calculateShippingCharges(
+          const chargeResult = await RateCardService.calculateShippingCharges(
             user.user_category,
             actualWeightGrams, // weight in grams
             {

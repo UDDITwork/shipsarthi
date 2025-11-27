@@ -1,4 +1,5 @@
 // Rate Card Service for managing shipping charges based on user categories
+import { apiService } from './api';
 
 export interface ZoneDefinition {
   zone: string;
@@ -346,6 +347,7 @@ export const LITE_USER_RATE_CARD: RateCard = {
 };
 
 // Rate card storage - can be expanded for other user categories
+// NOTE: Hardcoded ratecards are kept as fallback, but primary source is now API
 export const RATE_CARDS: { [key: string]: RateCard } = {
   "New User": NEW_USER_RATE_CARD,
   "Basic User": BASIC_USER_RATE_CARD,
@@ -355,28 +357,50 @@ export const RATE_CARDS: { [key: string]: RateCard } = {
 };
 
 export class RateCardService {
-  // Get rate card for a specific user category
-  static getRateCard(userCategory: string): RateCard | null {
-    return RATE_CARDS[userCategory] || null;
+  // Get rate card for a specific user category (from API)
+  static async getRateCard(userCategory: string): Promise<RateCard | null> {
+    try {
+      // Normalize category name for API
+      let normalizedCategory = userCategory;
+      if (userCategory === 'Advanced User') {
+        normalizedCategory = 'Advanced';
+      }
+      
+      const response = await apiService.get<{ success: boolean; data: RateCard }>(
+        `/shipping/rate-card/${encodeURIComponent(normalizedCategory)}`
+      );
+      
+      if (response.success && response.data) {
+        return response.data;
+      }
+      
+      // Fallback to hardcoded data if API fails
+      console.warn('API ratecard fetch failed, using fallback data');
+      return RATE_CARDS[userCategory] || null;
+    } catch (error) {
+      console.error('Error fetching ratecard from API:', error);
+      // Fallback to hardcoded data
+      return RATE_CARDS[userCategory] || null;
+    }
   }
 
   // Calculate shipping charges based on weight, dimensions, and zone
-  static calculateShippingCharges(
+  static async calculateShippingCharges(
     userCategory: string,
     weight: number, // in grams
     dimensions: { length: number; breadth: number; height: number }, // in cm
     zone: string,
     codAmount?: number,
     orderType: 'forward' | 'rto' = 'forward'
-  ): {
+  ): Promise<{
     forwardCharges: number;
     rtoCharges: number;
     codCharges: number;
     totalCharges: number;
     volumetricWeight: number;
     chargeableWeight: number;
-  } {
-    const rateCard = this.getRateCard(userCategory);
+  }> {
+    const rateCard = await this.getRateCard(userCategory);
     if (!rateCard) {
       throw new Error(`Rate card not found for user category: ${userCategory}`);
     }
@@ -649,9 +673,24 @@ export class RateCardService {
     return zoneMap[zone] || null;
   }
 
-  // Get all available user categories
-  static getAvailableUserCategories(): string[] {
-    return Object.keys(RATE_CARDS);
+  // Get all available user categories (from API)
+  static async getAvailableUserCategories(): Promise<string[]> {
+    try {
+      const response = await apiService.get<{ success: boolean; data: string[] }>(
+        '/shipping/user-categories'
+      );
+      
+      if (response.success && Array.isArray(response.data)) {
+        return response.data;
+      }
+      
+      // Fallback to hardcoded categories
+      return Object.keys(RATE_CARDS);
+    } catch (error) {
+      console.error('Error fetching user categories from API:', error);
+      // Fallback to hardcoded categories
+      return Object.keys(RATE_CARDS);
+    }
   }
 
   // Add or update rate card for a user category

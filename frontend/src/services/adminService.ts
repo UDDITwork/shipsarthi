@@ -98,6 +98,46 @@ export interface StaffResponse {
   message?: string;
 }
 
+export interface ZonePrices {
+  A: number;
+  B: number;
+  C: number;
+  D: number;
+  E: number;
+  F: number;
+}
+
+export interface WeightSlab {
+  condition: string;
+  zones: ZonePrices;
+}
+
+export interface RateCard {
+  _id?: string;
+  userCategory: string;
+  carrier: string;
+  forwardCharges: WeightSlab[];
+  rtoCharges: WeightSlab[];
+  codCharges: {
+    percentage: number;
+    minimumAmount: number;
+    gstAdditional: boolean;
+  };
+  zoneDefinitions: Array<{
+    zone: string;
+    definition: string;
+  }>;
+  termsAndConditions: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RateCardResponse {
+  success: boolean;
+  data: RateCard | string[];
+  message?: string;
+}
+
 export interface AdminTicket {
   _id: string;
   ticket_id: string;
@@ -1414,6 +1454,42 @@ class AdminService {
     } catch (error: any) {
       return { success: false, message: error.message || 'Verification failed' };
     }
+  }
+
+  // Ratecard Management Methods
+  async getRateCardCategories(): Promise<string[]> {
+    const response = await apiService.get<RateCardResponse>(
+      '/admin/ratecard',
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data as string[];
+  }
+
+  async getRateCard(userCategory: string): Promise<RateCard> {
+    // Normalize category for URL
+    const normalizedCategory = userCategory.toLowerCase().replace(/\s+/g, '-');
+    const response = await apiService.get<RateCardResponse>(
+      `/admin/ratecard/${normalizedCategory}`,
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response.data as RateCard;
+  }
+
+  async updateRateCard(userCategory: string, updates: Partial<RateCard>): Promise<RateCardResponse> {
+    // Normalize category for URL
+    const normalizedCategory = userCategory.toLowerCase().replace(/\s+/g, '-');
+    const response = await apiService.patch<RateCardResponse>(
+      `/admin/ratecard/${normalizedCategory}`,
+      updates,
+      {
+        headers: this.getAdminHeaders()
+      }
+    );
+    return response;
   }
 }
 

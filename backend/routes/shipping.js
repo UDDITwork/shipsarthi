@@ -919,7 +919,7 @@ router.post('/public/calculate-rate-card',
             } = req.body;
 
             const userCategory = 'New User';
-            const availableCategories = RateCardService.getAvailableUserCategories();
+            const availableCategories = await RateCardService.getAvailableUserCategories();
 
             if (!availableCategories.includes(userCategory)) {
                 return res.status(500).json({
@@ -929,7 +929,7 @@ router.post('/public/calculate-rate-card',
                 });
             }
 
-            const rateCard = RateCardService.getRateCard(userCategory);
+            const rateCard = await RateCardService.getRateCard(userCategory);
             if (!rateCard) {
                 return res.status(500).json({
                     success: false,
@@ -1046,7 +1046,7 @@ router.post('/public/calculate-rate-card',
                 });
             }
 
-            const result = RateCardService.calculateShippingCharges(
+            const result = await RateCardService.calculateShippingCharges(
                 userCategory,
                 weight,
                 dimensions,
@@ -1106,7 +1106,7 @@ router.post('/calculate-rate-card',
             const userCategory = req.user.user_category || 'Basic User';
 
             // SECURITY: Validate user category exists and is valid
-            const availableCategories = RateCardService.getAvailableUserCategories();
+            const availableCategories = await RateCardService.getAvailableUserCategories();
             
             if (!availableCategories.includes(userCategory)) {
                 return res.status(400).json({
@@ -1118,7 +1118,7 @@ router.post('/calculate-rate-card',
             }
 
             // Validate rate card exists for user category
-            const rateCard = RateCardService.getRateCard(userCategory);
+            const rateCard = await RateCardService.getRateCard(userCategory);
             if (!rateCard) {
                 return res.status(400).json({
                     success: false,
@@ -1255,7 +1255,7 @@ router.post('/calculate-rate-card',
             // NOTE: RateCardService expects weight in GRAMS (as per service implementation)
             // Frontend sends weight in grams, so we pass it directly
             // The service will recalculate volumetric weight internally and use chargeable weight
-            const result = RateCardService.calculateShippingCharges(
+            const result = await RateCardService.calculateShippingCharges(
                 userCategory,
                 weight, // Already in grams from frontend
                 dimensions,
@@ -1321,13 +1321,14 @@ router.get('/rate-card/:userCategory', auth, async (req, res) => {
         const RateCardService = require('../services/rateCardService');
         
         // Use normalized category for rate card lookup
-        const rateCard = RateCardService.getRateCard(normalizedRequestedCategory);
+        const rateCard = await RateCardService.getRateCard(normalizedRequestedCategory);
         
         if (!rateCard) {
+            const availableCategories = await RateCardService.getAvailableUserCategories();
             return res.status(404).json({
                 success: false,
                 message: `Rate card not found for user category: ${userCategory}`,
-                available_categories: RateCardService.getAvailableUserCategories()
+                available_categories: availableCategories
             });
         }
 
@@ -1359,7 +1360,7 @@ router.get('/user-categories', auth, async (req, res) => {
         // Import rate card service
         const RateCardService = require('../services/rateCardService');
         
-        const categories = RateCardService.getAvailableUserCategories();
+        const categories = await RateCardService.getAvailableUserCategories();
 
         res.json({
             success: true,

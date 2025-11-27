@@ -1,0 +1,820 @@
+[2025-11-27T04:09:16.902Z] [INFO] [PID:25352] ✅ Tracking service started - will run every 3 hours
+[2025-11-27T04:09:19.666Z] [INFO] [PID:25352] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-27T04:09:19.666Z"
+}
+[2025-11-27T04:09:19.699Z] [INFO] [PID:25352] 🔌 WebSocket server initialized
+[2025-11-27T04:09:20.511Z] [INFO] [PID:25352] ✅ Connected to MongoDB
+[2025-11-27T04:09:20.522Z] [INFO] [PID:25352] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-27T04:09:21.972Z] [INFO] [PID:25352] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-27T04:09:21.971Z"
+}
+[2025-11-27T04:18:28.029Z] [INFO] [PID:25352] Login completed | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "responseTime": "1374ms",
+  "rememberMe": false
+}
+[2025-11-27T04:18:28.686Z] [INFO] [PID:25352] Dashboard overview request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-28",
+  "date_to": "2025-11-27"
+}
+[2025-11-27T04:18:28.709Z] [DEBUG] [PID:25352] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "dateRange": {
+    "today": "2025-11-27T00:00:00+05:30",
+    "yesterday": "2025-11-26T00:00:00+05:30",
+    "last30Days": "2025-10-28T00:00:00+05:30"
+  }
+}
+[2025-11-27T04:18:28.976Z] [INFO] [PID:25352] Dashboard overview completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "290ms",
+  "metrics": {
+    "rangeOrders": 9,
+    "previousRangeOrders": 1,
+    "rangeRevenue": 35688.96,
+    "previousRangeRevenue": 900,
+    "avgShippingCost": 218,
+    "walletBalance": 575,
+    "dateFrom": "2025-10-28T00:00:00+05:30",
+    "dateTo": "2025-11-27T23:59:59+05:30"
+  }
+}
+[2025-11-27T04:18:29.199Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u",
+  "totalClients": 1
+}
+[2025-11-27T04:18:29.304Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-27T04:18:29.315Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-27T04:18:29.464Z] [INFO] [PID:25352] Shipment status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:18:29.502Z] [INFO] [PID:25352] Shipment status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "38ms",
+  "statusCounts": {
+    "total_orders": 9,
+    "new_orders": 4,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-27T04:18:30.244Z] [INFO] [PID:25352] NDR status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:18:30.284Z] [INFO] [PID:25352] NDR status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "41ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-27T04:18:31.052Z] [INFO] [PID:25352] COD status request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:18:31.193Z] [INFO] [PID:25352] COD status completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "141ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-27T04:18:31.855Z] [INFO] [PID:25352] Shipment distribution request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:18:31.897Z] [INFO] [PID:25352] Shipment distribution completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "42ms",
+  "totalOrders": 10,
+  "distributionCount": 2
+}
+[2025-11-27T04:18:32.641Z] [INFO] [PID:25352] Wallet transactions request started | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-11-27T04:18:32.697Z] [INFO] [PID:25352] Wallet transactions completed successfully | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "responseTime": "56ms",
+  "transactionCount": 5,
+  "limit": 5
+}
+[2025-11-27T04:18:34.957Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u"
+}
+[2025-11-27T04:18:44.723Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:18:44.768Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:18:49.952Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u"
+}
+[2025-11-27T04:18:51.903Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217109199_ixuy72c5u",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-27T04:18:52.589Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:18:52.648Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:18:53.891Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a",
+  "totalClients": 1
+}
+[2025-11-27T04:18:53.919Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-27T04:18:53.922Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-27T04:19:04.963Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:19:19.963Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:19:34.958Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:19:49.963Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:20:04.971Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:20:19.980Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:20:34.989Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:20:49.998Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a"
+}
+[2025-11-27T04:20:53.955Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:20:54.006Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:21:02.399Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217133891_3j0fdva1a",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-27T04:21:03.213Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:21:03.257Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:21:03.887Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217263887_p4kex26ib",
+  "totalClients": 1
+}
+[2025-11-27T04:21:03.924Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-27T04:21:03.928Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217263887_p4kex26ib",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-27T04:21:05.008Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib"
+}
+[2025-11-27T04:21:20.012Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib"
+}
+[2025-11-27T04:21:35.024Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib"
+}
+[2025-11-27T04:21:50.029Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib"
+}
+[2025-11-27T04:22:05.035Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217263887_p4kex26ib"
+}
+[2025-11-27T04:22:19.379Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217263887_p4kex26ib",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-27T04:22:20.096Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:22:20.144Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:22:20.984Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217340984_piow7dtfi",
+  "totalClients": 1
+}
+[2025-11-27T04:22:21.006Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f3d3fe88beee992d6ee1f2"
+  }
+}
+[2025-11-27T04:22:21.008Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217340984_piow7dtfi",
+  "user_id": "68f3d3fe88beee992d6ee1f2"
+}
+[2025-11-27T04:22:35.029Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:22:50.037Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:22:59.534Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "ip": "::1"
+}
+[2025-11-27T04:22:59.574Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f3d3fe88beee992d6ee1f2",
+  "email": "udditalerts247@gmail.com",
+  "company_name": "paneura automations"
+}
+[2025-11-27T04:23:05.039Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:23:20.045Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:23:24.567Z] [INFO] [PID:25352] 👤 Admin impersonation token issued | Data: {
+  "adminEmail": "udditalerts247@gmail.com",
+  "clientId": "68fdf4344ae2f1cbe2878fb3",
+  "expiresIn": "15m"
+}
+[2025-11-27T04:23:26.075Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "ip": "::1"
+}
+[2025-11-27T04:23:26.128Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "company_name": "BLACK EAGLE"
+}
+[2025-11-27T04:23:27.017Z] [INFO] [PID:25352] Dashboard overview request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-28",
+  "date_to": "2025-11-27"
+}
+[2025-11-27T04:23:27.023Z] [DEBUG] [PID:25352] Dashboard overview - calculating metrics | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "dateRange": {
+    "today": "2025-11-27T00:00:00+05:30",
+    "yesterday": "2025-11-26T00:00:00+05:30",
+    "last30Days": "2025-10-28T00:00:00+05:30"
+  }
+}
+[2025-11-27T04:23:27.124Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217407124_0u6k1lad3",
+  "totalClients": 2
+}
+[2025-11-27T04:23:27.240Z] [INFO] [PID:25352] Dashboard overview completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "223ms",
+  "metrics": {
+    "rangeOrders": 0,
+    "previousRangeOrders": 0,
+    "rangeRevenue": 0,
+    "previousRangeRevenue": 0,
+    "avgShippingCost": 0,
+    "walletBalance": 500,
+    "dateFrom": "2025-10-28T00:00:00+05:30",
+    "dateTo": "2025-11-27T23:59:59+05:30"
+  }
+}
+[2025-11-27T04:23:27.420Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217407124_0u6k1lad3",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68fdf4344ae2f1cbe2878fb3"
+  }
+}
+[2025-11-27T04:23:27.421Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217407124_0u6k1lad3",
+  "user_id": "68fdf4344ae2f1cbe2878fb3"
+}
+[2025-11-27T04:23:27.893Z] [INFO] [PID:25352] Shipment status request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:27.931Z] [INFO] [PID:25352] Shipment status completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "38ms",
+  "statusCounts": {
+    "total_orders": 0,
+    "new_orders": 0,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-27T04:23:28.594Z] [INFO] [PID:25352] NDR status request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:28.635Z] [INFO] [PID:25352] NDR status completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "41ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-27T04:23:29.393Z] [INFO] [PID:25352] COD status request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:29.761Z] [INFO] [PID:25352] COD status completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "368ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-27T04:23:30.199Z] [INFO] [PID:25352] Shipment distribution request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:30.239Z] [INFO] [PID:25352] Shipment distribution completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "40ms",
+  "totalOrders": 0,
+  "distributionCount": 0
+}
+[2025-11-27T04:23:31.004Z] [INFO] [PID:25352] Wallet transactions request started | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "email": "mukeshsankhla551@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-11-27T04:23:31.045Z] [INFO] [PID:25352] Wallet transactions completed successfully | Data: {
+  "userId": "68fdf4344ae2f1cbe2878fb3",
+  "responseTime": "41ms",
+  "transactionCount": 1,
+  "limit": 5
+}
+[2025-11-27T04:23:35.056Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:23:35.059Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217407124_0u6k1lad3"
+}
+[2025-11-27T04:23:38.615Z] [INFO] [PID:25352] 👤 Admin impersonation token issued | Data: {
+  "adminEmail": "udditalerts247@gmail.com",
+  "clientId": "68f4541044699cd1408d775a",
+  "expiresIn": "15m"
+}
+[2025-11-27T04:23:39.815Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:23:39.854Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:23:40.280Z] [INFO] [PID:25352] Dashboard overview request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-28",
+  "date_to": "2025-11-27"
+}
+[2025-11-27T04:23:40.283Z] [DEBUG] [PID:25352] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "dateRange": {
+    "today": "2025-11-27T00:00:00+05:30",
+    "yesterday": "2025-11-26T00:00:00+05:30",
+    "last30Days": "2025-10-28T00:00:00+05:30"
+  }
+}
+[2025-11-27T04:23:40.538Z] [INFO] [PID:25352] Dashboard overview completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "259ms",
+  "metrics": {
+    "rangeOrders": 12,
+    "previousRangeOrders": 2,
+    "rangeRevenue": 35344.99,
+    "previousRangeRevenue": 5000,
+    "avgShippingCost": 212.83333333333334,
+    "walletBalance": 1575.92,
+    "dateFrom": "2025-10-28T00:00:00+05:30",
+    "dateTo": "2025-11-27T23:59:59+05:30"
+  }
+}
+[2025-11-27T04:23:40.657Z] [INFO] [PID:25352] 🔌 WebSocket client connected | Data: {
+  "clientId": "client_1764217420656_0pslijs9k",
+  "totalClients": 3
+}
+[2025-11-27T04:23:40.730Z] [INFO] [PID:25352] 🔌 WebSocket message received | Data: {
+  "clientId": "client_1764217420656_0pslijs9k",
+  "data": {
+    "type": "authenticate",
+    "user_id": "68f4541044699cd1408d775a"
+  }
+}
+[2025-11-27T04:23:40.733Z] [INFO] [PID:25352] 🔌 WebSocket client authenticated | Data: {
+  "clientId": "client_1764217420656_0pslijs9k",
+  "user_id": "68f4541044699cd1408d775a"
+}
+[2025-11-27T04:23:41.068Z] [INFO] [PID:25352] Shipment status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:41.111Z] [INFO] [PID:25352] Shipment status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "43ms",
+  "statusCounts": {
+    "total_orders": 12,
+    "new_orders": 2,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-27T04:23:41.866Z] [INFO] [PID:25352] NDR status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:41.921Z] [INFO] [PID:25352] NDR status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "56ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-27T04:23:42.686Z] [INFO] [PID:25352] COD status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:42.817Z] [INFO] [PID:25352] COD status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "131ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-27T04:23:43.514Z] [INFO] [PID:25352] Shipment distribution request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:23:43.563Z] [INFO] [PID:25352] Shipment distribution completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "49ms",
+  "totalOrders": 18,
+  "distributionCount": 4
+}
+[2025-11-27T04:23:43.578Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217420656_0pslijs9k",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 2
+}
+[2025-11-27T04:23:44.281Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217407124_0u6k1lad3",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 1
+}
+[2025-11-27T04:23:50.057Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:24:05.070Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:24:20.075Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:24:35.079Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:24:50.089Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:25:05.103Z] [DEBUG] [PID:25352] 🔌 WebSocket client pong received | Data: {
+  "clientId": "client_1764217340984_piow7dtfi"
+}
+[2025-11-27T04:25:07.434Z] [INFO] [PID:25352] 🔌 WebSocket client disconnected | Data: {
+  "clientId": "client_1764217340984_piow7dtfi",
+  "code": 1001,
+  "reason": "",
+  "totalClients": 0
+}
+[2025-11-27T04:28:54.801Z] [INFO] [PID:25352] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:28:54.893Z] [DEBUG] [PID:25352] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:30:52.445Z] [INFO] [PID:25352] 🛑 SIGINT received, shutting down gracefully
+[2025-11-27T04:30:52.448Z] [INFO] [PID:25352] 🔌 Cleaning up WebSocket service...
+[2025-11-27T04:31:00.106Z] [INFO] [PID:26864] ✅ Tracking service started - will run every 3 hours
+[2025-11-27T04:31:01.651Z] [INFO] [PID:26864] 🔧 EMAIL SERVICE - Testing connection... | Data: {
+  "host": "smtp.gmail.com",
+  "port": "587",
+  "user": "shipsarthisolutions@gmail.com",
+  "timestamp": "2025-11-27T04:31:01.651Z"
+}
+[2025-11-27T04:31:01.703Z] [INFO] [PID:26864] 🔌 WebSocket server initialized
+[2025-11-27T04:31:02.449Z] [INFO] [PID:26864] ✅ Connected to MongoDB
+[2025-11-27T04:31:02.463Z] [INFO] [PID:26864] 🚀 Server started | Data: {
+  "port": "5000",
+  "environment": "production",
+  "healthCheck": "http://localhost:5000/api/health",
+  "websocket": "ws://localhost:5000",
+  "databaseStatus": "connected"
+}
+[2025-11-27T04:31:04.123Z] [INFO] [PID:26864] ✅ EMAIL SERVICE - Connection successful | Data: {
+  "message": "Server is ready to take our messages",
+  "host": "smtp.gmail.com",
+  "timestamp": "2025-11-27T04:31:04.123Z"
+}
+[2025-11-27T04:31:09.574Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:31:09.621Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:31:34.388Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:31:34.440Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:32:20.970Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:32:21.024Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:32:24.812Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:32:24.855Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:32:25.084Z] [INFO] [PID:26864] Dashboard overview request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+  "date_from": "2025-10-28",
+  "date_to": "2025-11-27"
+}
+[2025-11-27T04:32:25.101Z] [DEBUG] [PID:26864] Dashboard overview - calculating metrics | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "dateRange": {
+    "today": "2025-11-27T00:00:00+05:30",
+    "yesterday": "2025-11-26T00:00:00+05:30",
+    "last30Days": "2025-10-28T00:00:00+05:30"
+  }
+}
+[2025-11-27T04:32:25.327Z] [INFO] [PID:26864] Dashboard overview completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "243ms",
+  "metrics": {
+    "rangeOrders": 12,
+    "previousRangeOrders": 2,
+    "rangeRevenue": 35344.99,
+    "previousRangeRevenue": 5000,
+    "avgShippingCost": 212.83333333333334,
+    "walletBalance": 1575.92,
+    "dateFrom": "2025-10-28T00:00:00+05:30",
+    "dateTo": "2025-11-27T23:59:59+05:30"
+  }
+}
+[2025-11-27T04:32:26.650Z] [INFO] [PID:26864] Shipment status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:32:26.690Z] [INFO] [PID:26864] Shipment status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "40ms",
+  "statusCounts": {
+    "total_orders": 12,
+    "new_orders": 2,
+    "pickup_pending": 0,
+    "in_transit": 0,
+    "delivered": 0,
+    "ndr_pending": 0,
+    "rto": 0
+  }
+}
+[2025-11-27T04:32:27.654Z] [INFO] [PID:26864] NDR status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:32:27.697Z] [INFO] [PID:26864] NDR status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "42ms",
+  "ndrCounts": {
+    "total_ndr": 0,
+    "new_reattempt": 0,
+    "buyer_reattempt": 0,
+    "ndr_delivered": 0,
+    "ndr_undelivered": 0,
+    "rto_transit": 0,
+    "rto_delivered": 0
+  }
+}
+[2025-11-27T04:32:27.709Z] [INFO] [PID:26864] COD status request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:32:27.819Z] [INFO] [PID:26864] COD status completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "109ms",
+  "codData": {
+    "total_cod": 0,
+    "last_cod_remitted": 0,
+    "next_cod_available": 0
+  }
+}
+[2025-11-27T04:32:28.641Z] [INFO] [PID:26864] Shipment distribution request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1"
+}
+[2025-11-27T04:32:28.680Z] [INFO] [PID:26864] Shipment distribution completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "39ms",
+  "totalOrders": 18,
+  "distributionCount": 4
+}
+[2025-11-27T04:32:29.644Z] [INFO] [PID:26864] Wallet transactions request started | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "ip": "::1",
+  "limit": "5"
+}
+[2025-11-27T04:32:29.689Z] [INFO] [PID:26864] Wallet transactions completed successfully | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "responseTime": "46ms",
+  "transactionCount": 5,
+  "limit": 5
+}
+[2025-11-27T04:32:31.503Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:32:31.547Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:32:47.821Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:32:47.857Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:34:51.820Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:34:51.865Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}
+[2025-11-27T04:35:15.489Z] [INFO] [PID:26864] Get current user request | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "ip": "::1"
+}
+[2025-11-27T04:35:15.534Z] [DEBUG] [PID:26864] User data retrieved | Data: {
+  "userId": "68f4541044699cd1408d775a",
+  "email": "jaishreesuppliers@gmail.com",
+  "company_name": "Jaishree suppliers"
+}

@@ -46,9 +46,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/weight-discrepancies', label: 'Weight Discrepancies', icon: '⚖️' },
     // Staff Management - only visible to admins
     ...(isStaff ? [] : [{ path: '/admin/staff-management', label: 'Staff Management', icon: '👤' }]),
+    // Rate Card Management - only visible to admins
+    ...(isStaff ? [] : [{ path: '/admin/ratecard', label: 'Rate Card Management', icon: '💲' }]),
   ];
 
+  // Debug: Log menu items to verify they're being added
+  useEffect(() => {
+    console.log('Admin Layout - isStaff:', isStaff);
+    console.log('Admin Layout - menuItems count:', menuItems.length);
+    console.log('Admin Layout - menuItems:', menuItems.map(m => m.label));
+    const rateCardItem = menuItems.find(m => m.path === '/admin/ratecard');
+    console.log('Admin Layout - Rate Card item:', rateCardItem);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStaff, menuItems.length]);
+
   const isActivePath = (path: string) => {
+    if (path === '/admin/ratecard') {
+      return location.pathname.startsWith('/admin/ratecard');
+    }
     return location.pathname === path;
   };
 

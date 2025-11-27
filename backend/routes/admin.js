@@ -16,6 +16,8 @@ const WeightDiscrepancy = require('../models/WeightDiscrepancy');
 const Remittance = require('../models/Remittance');
 const ShipmentTrackingEvent = require('../models/ShipmentTrackingEvent');
 const Staff = require('../models/Staff');
+const RateCard = require('../models/RateCard');
+const RateCardService = require('../services/rateCardService');
 const logger = require('../utils/logger');
 const websocketService = require('../services/websocketService');
 
@@ -4339,6 +4341,224 @@ router.post('/staff/verify', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Verification failed'
+    });
+  }
+});
+
+// ==========================================
+// RATECARD MANAGEMENT ROUTES
+// ==========================================
+
+// @desc    Get all ratecard categories
+// @route   GET /api/admin/ratecard
+// @access  Admin only
+router.get('/ratecard', adminOnly, async (req, res) => {
+  try {
+    const categories = await RateCardService.getAvailableUserCategories();
+    
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    logger.error('Error fetching ratecard categories:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching ratecard categories',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get specific ratecard by user category
+// @route   GET /api/admin/ratecard/:userCategory
+// @access  Admin only
+router.get('/ratecard/:userCategory', adminOnly, async (req, res) => {
+  try {
+    const { userCategory } = req.params;
+    
+    // Normalize category name
+    let normalizedCategory = userCategory;
+    if (userCategory === 'Advanced User' || userCategory === 'advanced-user') {
+      normalizedCategory = 'Advanced';
+    } else if (userCategory === 'New User' || userCategory === 'new-user') {
+      normalizedCategory = 'New User';
+    } else if (userCategory === 'Basic User' || userCategory === 'basic-user') {
+      normalizedCategory = 'Basic User';
+    } else if (userCategory === 'Lite User' || userCategory === 'lite-user') {
+      normalizedCategory = 'Lite User';
+    }
+    
+    const rateCard = await RateCard.findByCategory(normalizedCategory);
+    
+    if (!rateCard) {
+      return res.status(404).json({
+        success: false,
+        message: `Rate card not found for user category: ${userCategory}`,
+        available_categories: await RateCardService.getAvailableUserCategories()
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: rateCard
+    });
+  } catch (error) {
+    logger.error('Error fetching ratecard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching ratecard',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Update ratecard for a user category
+// @route   PATCH /api/admin/ratecard/:userCategory
+// @access  Admin only
+router.patch('/ratecard/:userCategory', adminOnly, async (req, res) => {
+  try {
+    const { userCategory } = req.params;
+    const updates = req.body;
+    
+    // Normalize category name
+    let normalizedCategory = userCategory;
+    if (userCategory === 'Advanced User' || userCategory === 'advanced-user') {
+      normalizedCategory = 'Advanced';
+    } else if (userCategory === 'New User' || userCategory === 'new-user') {
+      normalizedCategory = 'New User';
+    } else if (userCategory === 'Basic User' || userCategory === 'basic-user') {
+      normalizedCategory = 'Basic User';
+    } else if (userCategory === 'Lite User' || userCategory === 'lite-user') {
+      normalizedCategory = 'Lite User';
+    }
+    
+    // Find the ratecard
+    const rateCard = await RateCard.findByCategory(normalizedCategory);
+    
+    if (!rateCard) {
+      return res.status(404).json({
+        success: false,
+        message: `Rate card not found for user category: ${userCategory}`
+      });
+    }
+    
+    // Validate and update forwardCharges if provided
+    if (updates.forwardCharges) {
+      if (!Array.isArray(updates.forwardCharges)) {
+        return res.status(400).json({
+          success: false,
+          message: 'forwardCharges must be an array'
+        });
+      }
+      
+      // Validate each charge entry
+      for (const charge of updates.forwardCharges) {
+        if (!charge.condition || !charge.zones) {
+          return res.status(400).json({
+            success: false,
+            message: 'Each forwardCharge must have condition and zones'
+          });
+        }
+        
+        // Validate zones object
+        const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+        for (const zone of validZones) {
+          if (charge.zones[zone] === undefined || typeof charge.zones[zone] !== 'number') {
+            return res.status(400).json({
+              success: false,
+              message: `Zone ${zone} must be a number in forwardCharges`
+            });
+          }
+        }
+      }
+      
+      rateCard.forwardCharges = updates.forwardCharges;
+    }
+    
+    // Validate and update rtoCharges if provided
+    if (updates.rtoCharges) {
+      if (!Array.isArray(updates.rtoCharges)) {
+        return res.status(400).json({
+          success: false,
+          message: 'rtoCharges must be an array'
+        });
+      }
+      
+      // Validate each charge entry
+      for (const charge of updates.rtoCharges) {
+        if (!charge.condition || !charge.zones) {
+          return res.status(400).json({
+            success: false,
+            message: 'Each rtoCharge must have condition and zones'
+          });
+        }
+        
+        // Validate zones object
+        const validZones = ['A', 'B', 'C', 'D', 'E', 'F'];
+        for (const zone of validZones) {
+          if (charge.zones[zone] === undefined || typeof charge.zones[zone] !== 'number') {
+            return res.status(400).json({
+              success: false,
+              message: `Zone ${zone} must be a number in rtoCharges`
+            });
+          }
+        }
+      }
+      
+      rateCard.rtoCharges = updates.rtoCharges;
+    }
+    
+    // Update codCharges if provided
+    if (updates.codCharges) {
+      if (updates.codCharges.percentage !== undefined) {
+        if (typeof updates.codCharges.percentage !== 'number' || updates.codCharges.percentage < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'COD percentage must be a non-negative number'
+          });
+        }
+        rateCard.codCharges.percentage = updates.codCharges.percentage;
+      }
+      
+      if (updates.codCharges.minimumAmount !== undefined) {
+        if (typeof updates.codCharges.minimumAmount !== 'number' || updates.codCharges.minimumAmount < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'COD minimum amount must be a non-negative number'
+          });
+        }
+        rateCard.codCharges.minimumAmount = updates.codCharges.minimumAmount;
+      }
+      
+      if (updates.codCharges.gstAdditional !== undefined) {
+        rateCard.codCharges.gstAdditional = Boolean(updates.codCharges.gstAdditional);
+      }
+    }
+    
+    // Save the updated ratecard
+    await rateCard.save();
+    
+    // Clear cache for this category
+    RateCardService.clearCache(normalizedCategory);
+    
+    logger.info('Ratecard updated', {
+      userCategory: normalizedCategory,
+      updatedBy: req.admin?.email || req.staff?.email || 'unknown',
+      timestamp: new Date().toISOString()
+    });
+    
+    res.json({
+      success: true,
+      message: 'Rate card updated successfully',
+      data: rateCard
+    });
+  } catch (error) {
+    logger.error('Error updating ratecard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating ratecard',
+      error: error.message
     });
   }
 });

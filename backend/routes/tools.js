@@ -105,7 +105,7 @@ router.post('/rate-calculator',
             // SECURITY: Validate user category before calculating rates
             const userCategory = req.user.user_category || 'Basic User';
             const RateCardService = require('../services/rateCardService');
-            const availableCategories = RateCardService.getAvailableUserCategories();
+            const availableCategories = await RateCardService.getAvailableUserCategories();
             
             if (!availableCategories.includes(userCategory)) {
                 return res.status(400).json({
@@ -207,7 +207,7 @@ router.post('/rate-calculator',
             });
             
             // Calculate using rate card with zone from Delhivery
-            const rateResult = RateCardService.calculateShippingCharges(
+            const rateResult = await RateCardService.calculateShippingCharges(
                 userCategory,
                 chargeableWeight, // Pass in kg (service expects grams but we'll handle conversion)
                 { length, breadth: width, height },
