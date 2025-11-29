@@ -294,6 +294,36 @@ class OrderService {
     // Fetch fresh data
     return this.getOrders(filters, false);
   }
+
+  /**
+   * Sync TrackingOrder statuses to Order models
+   * This fixes any existing orders that have status mismatches
+   */
+  async syncOrders(): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await apiService.post<{ status: string; message: string; data: any }>('/orders/sync-statuses');
+      
+      if (response.status === 'success') {
+        // Clear all caches after sync
+        this.clearCache();
+        return {
+          success: true,
+          data: response.data
+        };
+      }
+      
+      return {
+        success: false,
+        error: 'Failed to sync orders'
+      };
+    } catch (error: any) {
+      console.error('Error syncing orders:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to sync orders'
+      };
+    }
+  }
 }
 
 export const orderService = new OrderService();

@@ -1,0 +1,76 @@
+
+================================================================================
+DELHIVERY RAW STATUS FETCH SUMMARY
+================================================================================
+
+Timestamp: 2025-11-29T09:51:38.544Z
+Total AWB Numbers: 20
+Successful: 20
+Failed: 0
+
+Output File: C:\Users\USER\Downloads\SHIPSARTHI\backend\logs\delhivery-raw-responses\raw-responses-2025-11-29T09-51-38-544Z.json
+
+================================================================================
+SAMPLE RESPONSE STRUCTURE
+================================================================================
+
+{
+  "ShipmentData": [
+    {
+      "Shipment": {
+        "PickUpDate": "2025-11-01T13:52:29",
+        "Destination": "Anand",
+        "DestRecieveDate": "2025-11-08T09:56:37.304",
+        "Scans": [
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:27.969",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:27.969",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-UCI",
+              "Instructions": "Manifest uploaded"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:32.458",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:32.458",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "DTUP-219",
+              "Instructions": "Pincode updated by Addfix"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:59",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:59",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "FMPUR-101",
+              "Instructions": "Pickup scheduled"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T13:52:29",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-01T13:52:29",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-PPOM",
+              "Instructions": "Shipment picked up"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T17:29:02.957",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+             
+
+================================================================================

@@ -1233,4 +1233,144 @@ router.post('/company-logo', auth, logoUpload.single('logo'), async (req, res) =
   }
 });
 
+// @desc    Get label settings for authenticated user
+// @route   GET /api/users/label-settings
+// @access  Private
+router.get('/label-settings', auth, async (req, res) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId).select('label_settings company_logo_url');
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    // Return label settings, defaulting to company_logo_url if logo_url not set
+    const labelSettings = user.label_settings || {};
+    if (!labelSettings.logo_url && user.company_logo_url) {
+      labelSettings.logo_url = user.company_logo_url;
+    }
+
+    res.json({
+      status: 'success',
+      data: labelSettings
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching label settings:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error fetching label settings'
+    });
+  }
+});
+
+// @desc    Update label settings for authenticated user
+// @route   POST /api/users/label-settings
+// @access  Private
+router.post('/label-settings', auth, async (req, res) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    const {
+      label_types,
+      use_order_channel_logo,
+      component_visibility,
+      logo_url
+    } = req.body;
+
+    // Initialize label_settings if it doesn't exist
+    if (!user.label_settings) {
+      user.label_settings = {
+        label_types: ['Standard'],
+        use_order_channel_logo: false,
+        component_visibility: {
+          logo: true,
+          customer_phone: false,
+          dimensions: false,
+          weight: false,
+          payment_type: true,
+          invoice_number: true,
+          invoice_date: true,
+          company_name: false,
+          company_gstin: false,
+          pickup_address: true,
+          company_phone: false,
+          sku: false,
+          product_name: true,
+          shipping_charges: false,
+          amount_prepaid: true,
+          amount_cod: true,
+          message: true
+        },
+        logo_url: null
+      };
+    }
+
+    // Initialize component_visibility if it doesn't exist
+    if (!user.label_settings.component_visibility) {
+      user.label_settings.component_visibility = {};
+    }
+
+    // Update label types if provided
+    if (label_types !== undefined) {
+      // Validate label types
+      const validTypes = ['Standard', '2 In One', '4 In One', 'Thermal'];
+      const invalidTypes = label_types.filter(type => !validTypes.includes(type));
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({
+          status: 'error',
+          message: `Invalid label types: ${invalidTypes.join(', ')}`
+        });
+      }
+      user.label_settings.label_types = label_types;
+    }
+
+    // Update use_order_channel_logo if provided
+    if (use_order_channel_logo !== undefined) {
+      user.label_settings.use_order_channel_logo = use_order_channel_logo;
+    }
+
+    // Update component visibility if provided
+    if (component_visibility !== undefined) {
+      Object.keys(component_visibility).forEach(key => {
+        if (typeof component_visibility[key] === 'boolean') {
+          user.label_settings.component_visibility[key] = component_visibility[key];
+        }
+      });
+    }
+
+    // Update logo_url if provided
+    if (logo_url !== undefined) {
+      user.label_settings.logo_url = logo_url;
+    }
+
+    await user.save();
+
+    logger.info('✅ Label settings updated successfully', { userId });
+
+    res.json({
+      status: 'success',
+      message: 'Label settings updated successfully',
+      data: user.label_settings
+    });
+  } catch (error) {
+    logger.error('❌ Error updating label settings:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error updating label settings'
+    });
+  }
+});
+
 module.exports = router;

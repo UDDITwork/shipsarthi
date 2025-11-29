@@ -410,6 +410,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/channel', icon: '🔗', label: 'Channel', svgIcon: vector1Icon },
     { path: '/support', icon: '🎧', label: 'Support', svgIcon: vector2Icon },
     { path: '/settings', icon: '⚙️', label: 'Setting', svgIcon: group3Icon },
+    { path: '/settings/manage-label', icon: '🏷️', label: 'Manage Label', svgIcon: null },
   ];
 
   return (

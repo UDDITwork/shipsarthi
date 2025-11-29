@@ -1,0 +1,965 @@
+
+================================================================================
+DELHIVERY RAW STATUS FETCH SUMMARY
+================================================================================
+
+Timestamp: 2025-11-29T09:54:51.066Z
+Total AWB Numbers: 20
+Successful: 20
+Failed: 0
+
+Output File: C:\Users\USER\Downloads\SHIPSARTHI\backend\logs\delhivery-raw-responses\raw-responses-2025-11-29T09-54-51-065Z.json
+
+================================================================================
+STATUS VARIABLES FOUND (Per AWB)
+================================================================================
+
+
+[1] AWB: 44800710000663
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[2] AWB: 44800710000685
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[3] AWB: 44800710000696
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[4] AWB: 44800710000700
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[5] AWB: 44800710000722
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[6] AWB: 44800710000803
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[7] AWB: 44800710000840
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[8] AWB: 44800710001050
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[9] AWB: 44800710000910
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[10] AWB: 44800710001094
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[11] AWB: 44800710000582
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[12] AWB: 44800710001341
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[13] AWB: 44800710001256
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[14] AWB: 44800710001315
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[15] AWB: 44800710001223
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[16] AWB: 44800710001326
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[17] AWB: 44800710001466
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[18] AWB: 44800710001503
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[19] AWB: 44800710000232
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+[20] AWB: 44800710000490
+   Status: Delivered
+   Location: ShipmentData[0].Shipment.Status.Status
+   All Status Paths:
+      1. ShipmentData[0].Shipment.Status.Status: Delivered
+
+
+================================================================================
+SAMPLE RESPONSE STRUCTURE (First Successful)
+================================================================================
+
+{
+  "ShipmentData": [
+    {
+      "Shipment": {
+        "PickUpDate": "2025-11-01T13:52:29",
+        "Destination": "Anand",
+        "DestRecieveDate": "2025-11-08T09:56:37.304",
+        "Scans": [
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:27.969",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:27.969",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-UCI",
+              "Instructions": "Manifest uploaded"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:32.458",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:32.458",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "DTUP-219",
+              "Instructions": "Pincode updated by Addfix"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T10:57:59",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-01T10:57:59",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "FMPUR-101",
+              "Instructions": "Pickup scheduled"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T13:52:29",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-01T13:52:29",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-PPOM",
+              "Instructions": "Shipment picked up"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T17:29:02.957",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-01T17:29:02.957",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-PIOM",
+              "Instructions": "Shipment Recieved at Origin Center"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-01T17:48:54.761",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-01T17:48:54.761",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-DBL1F",
+              "Instructions": "Added to Bag"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-02T06:22:25.151",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-02T06:22:25.151",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-DLL2F",
+              "Instr
+
+================================================================================
+STATUS VARIABLES DETAIL (First Successful)
+================================================================================
+
+{
+  "status": {
+    "value": "Delivered",
+    "location": "ShipmentData[0].Shipment.Status.Status"
+  },
+  "statusType": {
+    "value": "DL",
+    "location": "ShipmentData[0].Shipment.Status.StatusType"
+  },
+  "statusLocation": {
+    "value": "Anand_VitthalUdyogNgr_D (Gujarat)",
+    "location": "ShipmentData[0].Shipment.Status.StatusLocation"
+  },
+  "statusDateTime": {
+    "value": "2025-11-08T17:54:25.002",
+    "location": "ShipmentData[0].Shipment.Status.StatusDateTime"
+  },
+  "scans": [
+    {
+      "index": 0,
+      "scanType": null,
+      "scan": "Manifested",
+      "scanDateTime": "2025-11-01T10:57:27.969",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T10:57:27.969",
+          "ScanType": "UD",
+          "Scan": "Manifested",
+          "StatusDateTime": "2025-11-01T10:57:27.969",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-UCI",
+          "Instructions": "Manifest uploaded"
+        }
+      }
+    },
+    {
+      "index": 1,
+      "scanType": null,
+      "scan": "Manifested",
+      "scanDateTime": "2025-11-01T10:57:32.458",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T10:57:32.458",
+          "ScanType": "UD",
+          "Scan": "Manifested",
+          "StatusDateTime": "2025-11-01T10:57:32.458",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "DTUP-219",
+          "Instructions": "Pincode updated by Addfix"
+        }
+      }
+    },
+    {
+      "index": 2,
+      "scanType": null,
+      "scan": "Manifested",
+      "scanDateTime": "2025-11-01T10:57:59",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T10:57:59",
+          "ScanType": "UD",
+          "Scan": "Manifested",
+          "StatusDateTime": "2025-11-01T10:57:59",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "FMPUR-101",
+          "Instructions": "Pickup scheduled"
+        }
+      }
+    },
+    {
+      "index": 3,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-01T13:52:29",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T13:52:29",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-01T13:52:29",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-PPOM",
+          "Instructions": "Shipment picked up"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-01T17:29:02.957",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T17:29:02.957",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-01T17:29:02.957",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-PIOM",
+          "Instructions": "Shipment Recieved at Origin Center"
+        }
+      }
+    },
+    {
+      "index": 5,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-01T17:48:54.761",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-01T17:48:54.761",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-01T17:48:54.761",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-DBL1F",
+          "Instructions": "Added to Bag"
+        }
+      }
+    },
+    {
+      "index": 6,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T06:22:25.151",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T06:22:25.151",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T06:22:25.151",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-DLL2F",
+          "Instructions": "Bag Added To Trip"
+        }
+      }
+    },
+    {
+      "index": 7,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T06:41:53.949",
+      "scannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T06:41:53.949",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T06:41:53.949",
+          "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+          "StatusCode": "X-OLL4F",
+          "Instructions": "Vehicle Departed"
+        }
+      }
+    },
+    {
+      "index": 8,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T10:59:42.78",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T10:59:42.78",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T10:59:42.78",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-ILL2F",
+          "Instructions": "Trip Arrived"
+        }
+      }
+    },
+    {
+      "index": 9,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T11:39:53.548",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T11:39:53.548",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T11:39:53.548",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-ILL1F",
+          "Instructions": "Bag Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 10,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T15:35:34.257",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T15:35:34.257",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T15:35:34.257",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-IBD3F",
+          "Instructions": "Shipment Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 11,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-02T16:01:01.822",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-02T16:01:01.822",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-02T16:01:01.822",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-DBL1F",
+          "Instructions": "Added to Bag"
+        }
+      }
+    },
+    {
+      "index": 12,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-03T03:53:44.948",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-03T03:53:44.948",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-03T03:53:44.948",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-DLL2F",
+          "Instructions": "Bag Added To Trip"
+        }
+      }
+    },
+    {
+      "index": 13,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-03T05:27:13.151",
+      "scannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-03T05:27:13.151",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-03T05:27:13.151",
+          "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+          "StatusCode": "X-OLL4F",
+          "Instructions": "Vehicle Departed"
+        }
+      }
+    },
+    {
+      "index": 14,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T05:03:46.392",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T05:03:46.392",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T05:03:46.392",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-ILL2F",
+          "Instructions": "Trip Arrived"
+        }
+      }
+    },
+    {
+      "index": 15,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T10:06:50.275",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T10:06:50.275",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T10:06:50.275",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-ILL1F",
+          "Instructions": "Bag Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 16,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T13:18:52",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T13:18:52",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T13:18:52",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-IBD3F",
+          "Instructions": "Shipment Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 17,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T13:18:52",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T13:18:52",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T13:18:52",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-DWS",
+          "Instructions": "weight captured"
+        }
+      }
+    },
+    {
+      "index": 18,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T14:58:52.915",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T14:58:52.915",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T14:58:52.915",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-DBL1F",
+          "Instructions": "Added to Bag"
+        }
+      }
+    },
+    {
+      "index": 19,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-04T21:28:02.906",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-04T21:28:02.906",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-04T21:28:02.906",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-DLL2F",
+          "Instructions": "Bag Added To Trip"
+        }
+      }
+    },
+    {
+      "index": 20,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-05T07:29:06.379",
+      "scannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-05T07:29:06.379",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-05T07:29:06.379",
+          "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+          "StatusCode": "X-OLL4F",
+          "Instructions": "Vehicle Departed"
+        }
+      }
+    },
+    {
+      "index": 21,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-06T02:07:22.969",
+      "scannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-06T02:07:22.969",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-06T02:07:22.969",
+          "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+          "StatusCode": "X-ILL2F",
+          "Instructions": "Trip Arrived"
+        }
+      }
+    },
+    {
+      "index": 22,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-06T04:34:38.339",
+      "scannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-06T04:34:38.339",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-06T04:34:38.339",
+          "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+          "StatusCode": "X-ILL1F",
+          "Instructions": "Bag Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 23,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-06T17:07:56.606",
+      "scannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-06T17:07:56.606",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-06T17:07:56.606",
+          "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+          "StatusCode": "X-DLL2F",
+          "Instructions": "Bag Added To Trip"
+        }
+      }
+    },
+    {
+      "index": 24,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-06T19:16:56.574",
+      "scannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-06T19:16:56.574",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-06T19:16:56.574",
+          "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+          "StatusCode": "X-OLL4F",
+          "Instructions": "Vehicle Departed"
+        }
+      }
+    },
+    {
+      "index": 25,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-06T22:25:20.892",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-06T22:25:20.892",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-06T22:25:20.892",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-ILL2F",
+          "Instructions": "Trip Arrived"
+        }
+      }
+    },
+    {
+      "index": 26,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-07T02:15:09.177",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-07T02:15:09.177",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-07T02:15:09.177",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-ILL1F",
+          "Instructions": "Bag Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 27,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-07T08:12:55.25",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-07T08:12:55.25",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-07T08:12:55.25",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-IBD3F",
+          "Instructions": "Shipment Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 28,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-07T08:46:43.999",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-07T08:46:43.999",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-07T08:46:43.999",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-DBL1F",
+          "Instructions": "Added to Bag"
+        }
+      }
+    },
+    {
+      "index": 29,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-08T03:47:03.822",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T03:47:03.822",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-08T03:47:03.822",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-DLL2F",
+          "Instructions": "Bag Added To Trip"
+        }
+      }
+    },
+    {
+      "index": 30,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-08T04:48:58.069",
+      "scannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T04:48:58.069",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-08T04:48:58.069",
+          "ScannedLocation": "Vadodara_Dashrath_H (Gujarat)",
+          "StatusCode": "X-OLL4F",
+          "Instructions": "Vehicle Departed"
+        }
+      }
+    },
+    {
+      "index": 31,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-08T08:12:10.317",
+      "scannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T08:12:10.317",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-08T08:12:10.317",
+          "ScannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+          "StatusCode": "X-ILL2F",
+          "Instructions": "Trip Arrived"
+        }
+      }
+    },
+    {
+      "index": 32,
+      "scanType": null,
+      "scan": "In Transit",
+      "scanDateTime": "2025-11-08T08:48:29.914",
+      "scannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T08:48:29.914",
+          "ScanType": "UD",
+          "Scan": "In Transit",
+          "StatusDateTime": "2025-11-08T08:48:29.914",
+          "ScannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+          "StatusCode": "X-ILL1F",
+          "Instructions": "Bag Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 33,
+      "scanType": null,
+      "scan": "Pending",
+      "scanDateTime": "2025-11-08T09:56:37.313",
+      "scannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T09:56:37.313",
+          "ScanType": "UD",
+          "Scan": "Pending",
+          "StatusDateTime": "2025-11-08T09:56:37.313",
+          "ScannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+          "StatusCode": "X-IBD3F",
+          "Instructions": "Shipment Received at Facility"
+        }
+      }
+    },
+    {
+      "index": 34,
+      "scanType": null,
+      "scan": "Dispatched",
+      "scanDateTime": "2025-11-08T10:43:57.057",
+      "scannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T10:43:57.057",
+          "ScanType": "UD",
+          "Scan": "Dispatched",
+          "StatusDateTime": "2025-11-08T10:43:57.057",
+          "ScannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+          "StatusCode": "X-DDD3FD",
+          "Instructions": "Out for delivery"
+        }
+      }
+    },
+    {
+      "index": 35,
+      "scanType": null,
+      "scan": "Delivered",
+      "scanDateTime": "2025-11-08T17:54:25.002",
+      "scannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+      "status": null,
+      "fullScan": {
+        "ScanDetail": {
+          "ScanDateTime": "2025-11-08T17:54:25.002",
+          "ScanType": "DL",
+          "Scan": "Delivered",
+          "StatusDateTime": "2025-11-08T17:54:25.002",
+          "geo_location": {
+            "lat": 22.546786,
+            "long": 72.9713616
+          },
+          "ScannedLocation": "Anand_VitthalUdyogNgr_D (Gujarat)",
+          "StatusCode": "EOD-38",
+          "Instructions": "Delivered to consignee"
+        }
+      }
+    }
+  ],
+  "allStatusPaths": [
+    {
+      "path": "ShipmentData[0].Shipment.Status.Status",
+      "value": "Delivered"
+    }
+  ]
+}
+
+================================================================================

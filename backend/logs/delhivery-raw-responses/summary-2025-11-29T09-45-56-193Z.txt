@@ -1,0 +1,75 @@
+
+================================================================================
+DELHIVERY RAW STATUS FETCH SUMMARY
+================================================================================
+
+Timestamp: 2025-11-29T09:45:56.193Z
+Total AWB Numbers: 2
+Successful: 2
+Failed: 0
+
+Output File: C:\Users\USER\Downloads\SHIPSARTHI\backend\logs\delhivery-raw-responses\raw-responses-2025-11-29T09-45-56-193Z.json
+
+================================================================================
+SAMPLE RESPONSE STRUCTURE
+================================================================================
+
+{
+  "ShipmentData": [
+    {
+      "Shipment": {
+        "PickUpDate": "2025-11-17T13:43:00",
+        "Destination": "Lonavala",
+        "DestRecieveDate": "2025-11-24T06:15:06.723",
+        "Scans": [
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-17T11:56:13.308",
+              "ScanType": "UD",
+              "Scan": "Manifested",
+              "StatusDateTime": "2025-11-17T11:56:13.308",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-UCI",
+              "Instructions": "Manifest uploaded"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-17T13:43:00",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-17T13:43:00",
+              "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "StatusCode": "X-PPOM",
+              "Instructions": "Shipment picked up"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-17T13:58:59.758",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-17T13:58:59.758",
+              "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+              "StatusCode": "X-PIOM",
+              "Instructions": "Shipment Recieved at Origin Center"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-18T03:05:47.51",
+              "ScanType": "UD",
+              "Scan": "In Transit",
+              "StatusDateTime": "2025-11-18T03:05:47.51",
+              "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+              "StatusCode": "X-DBL1F",
+              "Instructions": "Added to Bag"
+            }
+          },
+          {
+            "ScanDetail": {
+              "ScanDateTime": "2025-11-18T03:05:47.527",
+              "ScanType": "UD",
+              "Scan": "In T
+
+================================================================================

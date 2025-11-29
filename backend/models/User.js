@@ -246,6 +246,42 @@ const userSchema = new mongoose.Schema({
     default: null
   },
 
+  // Label Settings
+  label_settings: {
+    label_types: {
+      type: [String],
+      enum: ['Standard', '2 In One', '4 In One', 'Thermal'],
+      default: ['Standard']
+    },
+    use_order_channel_logo: {
+      type: Boolean,
+      default: false
+    },
+    component_visibility: {
+      logo: { type: Boolean, default: true },
+      customer_phone: { type: Boolean, default: false },
+      dimensions: { type: Boolean, default: false },
+      weight: { type: Boolean, default: false },
+      payment_type: { type: Boolean, default: true },
+      invoice_number: { type: Boolean, default: true },
+      invoice_date: { type: Boolean, default: true },
+      company_name: { type: Boolean, default: false },
+      company_gstin: { type: Boolean, default: false },
+      pickup_address: { type: Boolean, default: true },
+      company_phone: { type: Boolean, default: false },
+      sku: { type: Boolean, default: false },
+      product_name: { type: Boolean, default: true },
+      shipping_charges: { type: Boolean, default: false },
+      amount_prepaid: { type: Boolean, default: true },
+      amount_cod: { type: Boolean, default: true },
+      message: { type: Boolean, default: true }
+    },
+    logo_url: {
+      type: String,
+      default: null
+    }
+  },
+
   // Timestamps
   created_at: {
     type: Date,

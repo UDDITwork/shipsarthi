@@ -271,10 +271,87 @@ const Orders: React.FC = () => {
   const handleSyncOrders = async () => {
     setLoading(true);
     try {
-      // API call to sync orders with Delhivery
-      // await orderService.syncOrders();
-      alert('Orders synced successfully!');
-      fetchOrders();
+      // First, force refresh all orders (calls Delhivery API to get fresh status)
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Authentication required. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Force refresh - calls Delhivery API for fresh status
+        const refreshResponse = await fetch(`${environmentConfig.apiUrl}/orders/force-refresh`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const refreshData = await refreshResponse.json();
+        
+        if (refreshData.status === 'success') {
+          const refreshed = refreshData.data?.refreshed || 0;
+          const total = refreshData.data?.total || 0;
+          
+          // Then sync the statuses to Order models
+          const syncResult = await orderService.syncOrders();
+          
+          if (syncResult.success) {
+            const synced = syncResult.data?.synced || 0;
+            alert(`Orders refreshed and synced successfully!\n${refreshed} orders refreshed from API\n${synced} orders updated in database.`);
+          } else {
+            alert(`Orders refreshed from API (${refreshed} orders), but sync failed: ${syncResult.error || 'Unknown error'}`);
+          }
+        } else {
+          alert(`Failed to refresh orders: ${refreshData.message || 'Unknown error'}`);
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing orders:', refreshError);
+        // Fallback to just sync if refresh fails
+        const syncResult = await orderService.syncOrders();
+        if (syncResult.success) {
+          const synced = syncResult.data?.synced || 0;
+          const total = syncResult.data?.total || 0;
+          alert(`Orders synced (refresh failed):\n${synced} out of ${total} orders updated.`);
+        } else {
+          alert(`Failed to sync orders: ${syncResult.error || 'Unknown error'}`);
+        }
+      }
+      
+      // Clear ALL caches completely (important!)
+      orderService.clearCache();
+      
+      // Also clear localStorage cache manually
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('orders') || key.includes('dataCache')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      console.log('🗑️ All caches cleared, refreshing orders...');
+      
+      // Force fresh fetch for current tab
+      const currentFilters: any = {};
+      if (activeTab !== 'all') {
+        currentFilters.status = activeTab;
+      }
+      if (orderType) currentFilters.order_type = orderType;
+      if (filters.dateFrom) currentFilters.date_from = filters.dateFrom;
+      if (filters.dateTo) currentFilters.date_to = filters.dateTo;
+      
+      // Force refresh without cache
+      await orderService.refreshOrders(currentFilters);
+      
+      // Also refresh "delivered" tab cache to ensure it shows
+      if (activeTab !== 'delivered') {
+        const deliveredFilters = { ...currentFilters, status: 'delivered' };
+        await orderService.refreshOrders(deliveredFilters);
+      }
+      
+      // Finally, fetch orders for current tab
+      await fetchOrders();
     } catch (error) {
       console.error('Error syncing orders:', error);
       alert('Failed to sync orders');

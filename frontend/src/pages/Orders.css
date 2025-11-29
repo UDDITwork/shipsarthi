@@ -1330,7 +1330,7 @@
   .create-order-btn {
     padding: 12px 30px;
     background-color: #1F4068;
-    color: #000000;
+    color: #FFFFFF; /* make button text white */
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -1344,6 +1344,7 @@
   
   .create-order-btn:hover {
     background-color: #E07612;
+    color: #FFFFFF; /* keep text white on hover */
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(246, 135, 35, 0.3);
   }

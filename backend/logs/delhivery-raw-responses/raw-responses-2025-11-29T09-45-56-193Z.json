@@ -1,0 +1,1012 @@
+{
+  "timestamp": "2025-11-29T09:45:56.193Z",
+  "total_awbs": 2,
+  "successful": 2,
+  "failed": 0,
+  "responses": [
+    {
+      "awb_number": "44800710001982",
+      "order_id": "ORD1763359860348926",
+      "reference_id": "Sky King",
+      "timestamp": "2025-11-29T09:45:56.448Z",
+      "success": true,
+      "error": null,
+      "raw_response": {
+        "ShipmentData": [
+          {
+            "Shipment": {
+              "PickUpDate": "2025-11-17T13:43:00",
+              "Destination": "Lonavala",
+              "DestRecieveDate": "2025-11-24T06:15:06.723",
+              "Scans": [
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-17T11:56:13.308",
+                    "ScanType": "UD",
+                    "Scan": "Manifested",
+                    "StatusDateTime": "2025-11-17T11:56:13.308",
+                    "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+                    "StatusCode": "X-UCI",
+                    "Instructions": "Manifest uploaded"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-17T13:43:00",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-17T13:43:00",
+                    "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+                    "StatusCode": "X-PPOM",
+                    "Instructions": "Shipment picked up"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-17T13:58:59.758",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-17T13:58:59.758",
+                    "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                    "StatusCode": "X-PIOM",
+                    "Instructions": "Shipment Recieved at Origin Center"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-18T03:05:47.51",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-18T03:05:47.51",
+                    "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                    "StatusCode": "X-DBL1F",
+                    "Instructions": "Added to Bag"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-18T03:05:47.527",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-18T03:05:47.527",
+                    "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                    "StatusCode": "X-DLL2F",
+                    "Instructions": "Bag Added To Trip"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-18T05:12:46.116",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-18T05:12:46.116",
+                    "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                    "StatusCode": "X-OLL4F",
+                    "Instructions": "Vehicle Departed"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-19T03:23:45.49",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-19T03:23:45.49",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-ILL2F",
+                    "Instructions": "Trip Arrived"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-19T07:37:04.338",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-19T07:37:04.338",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-ILL1F",
+                    "Instructions": "Bag Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-20T15:40:47.65",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-20T15:40:47.65",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-IBD3F",
+                    "Instructions": "Shipment Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-20T15:40:47.917",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-20T15:40:47.917",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-DWS",
+                    "Instructions": "weight captured"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-20T23:39:08.975",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-20T23:39:08.975",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-DBL1F",
+                    "Instructions": "Added to Bag"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-20T23:39:08.989",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-20T23:39:08.989",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-DLL2F",
+                    "Instructions": "Bag Added To Trip"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-21T05:29:53.218",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-21T05:29:53.218",
+                    "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                    "StatusCode": "X-OLL4F",
+                    "Instructions": "Vehicle Departed"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-21T23:05:14.607",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-21T23:05:14.607",
+                    "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                    "StatusCode": "X-ILL2F",
+                    "Instructions": "Trip Arrived"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-22T03:27:10.859",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-22T03:27:10.859",
+                    "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                    "StatusCode": "X-ILL1F",
+                    "Instructions": "Bag Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-22T06:03:41.764",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-22T06:03:41.764",
+                    "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                    "StatusCode": "X-DLL2F",
+                    "Instructions": "Bag Added To Trip"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-22T14:55:05.199",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-22T14:55:05.199",
+                    "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                    "StatusCode": "X-OLL4F",
+                    "Instructions": "Vehicle Departed"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-23T14:05:50.464",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-23T14:05:50.464",
+                    "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                    "StatusCode": "DLYLH-105",
+                    "Instructions": "Vehicle delayed - Controllable"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-23T20:02:12.901",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-23T20:02:12.901",
+                    "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                    "StatusCode": "X-ILL2F",
+                    "Instructions": "Trip Arrived"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-23T21:56:26.377",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-23T21:56:26.377",
+                    "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                    "StatusCode": "X-ILL1F",
+                    "Instructions": "Bag Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T04:47:05.179",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-24T04:47:05.179",
+                    "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                    "StatusCode": "X-DLL2F",
+                    "Instructions": "Bag Added To Trip"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T04:56:30.064",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-24T04:56:30.064",
+                    "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                    "StatusCode": "X-OLL4F",
+                    "Instructions": "Vehicle Departed"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T05:45:45.095",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-24T05:45:45.095",
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "X-ILL2F",
+                    "Instructions": "Trip Arrived"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T06:15:06.699",
+                    "ScanType": "UD",
+                    "Scan": "In Transit",
+                    "StatusDateTime": "2025-11-24T06:15:06.699",
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "X-ILL1F",
+                    "Instructions": "Bag Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T06:15:06.731",
+                    "ScanType": "UD",
+                    "Scan": "Pending",
+                    "StatusDateTime": "2025-11-24T06:15:06.731",
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "X-IBD3F",
+                    "Instructions": "Shipment Received at Facility"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T11:01:50.94",
+                    "ScanType": "UD",
+                    "Scan": "Dispatched",
+                    "StatusDateTime": "2025-11-24T11:01:50.94",
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "X-DDD3FD",
+                    "Instructions": "Out for delivery"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T15:20:21.002",
+                    "ScanType": "UD",
+                    "Scan": "Dispatched",
+                    "call_duration": 37,
+                    "StatusDateTime": "2025-11-24T15:20:21.002",
+                    "geo_location": {
+                      "lat": 18.7518817,
+                      "long": 73.6770983
+                    },
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "ST-114",
+                    "Instructions": "Call placed to consignee"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T15:22:19.002",
+                    "ScanType": "DL",
+                    "Scan": "Delivered",
+                    "call_duration": 37,
+                    "StatusDateTime": "2025-11-24T15:22:19.002",
+                    "geo_location": {
+                      "lat": 18.7518883,
+                      "long": 73.6770967
+                    },
+                    "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                    "StatusCode": "EOD-38",
+                    "Instructions": "Delivered to consignee"
+                  }
+                }
+              ],
+              "Status": {
+                "Status": "Delivered",
+                "StatusLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                "StatusDateTime": "2025-11-24T15:22:19.002",
+                "RecievedBy": "",
+                "StatusCode": "EOD-38",
+                "StatusType": "DL",
+                "Instructions": "Delivered to consignee"
+              },
+              "ReturnPromisedDeliveryDate": null,
+              "Ewaybill": [],
+              "InvoiceAmount": 1800,
+              "ChargedWeight": null,
+              "PickedupDate": "2025-11-17T13:43:00",
+              "DeliveryDate": "2025-11-24T15:22:19.002",
+              "SenderName": "SHIPSARTHI C2C",
+              "AWB": "44800710001982",
+              "DispatchCount": 1,
+              "OrderType": "Pre-paid",
+              "ReturnedDate": null,
+              "ExpectedDeliveryDate": "2025-11-24T23:59:59",
+              "RTOStartedDate": null,
+              "Extras": "",
+              "FirstAttemptDate": "2025-11-24T11:01:50.94",
+              "ReverseInTransit": false,
+              "Quantity": "1",
+              "Origin": "Bikaner_Pawanpuri_D (Rajasthan)",
+              "Consignee": {
+                "City": "Lonavala",
+                "Name": "Jairaj Java",
+                "Address1": [],
+                "Address2": [],
+                "Address3": "",
+                "PinCode": 410507,
+                "State": "Maharashtra",
+                "Telephone2": "",
+                "Country": "India",
+                "Telephone1": ""
+              },
+              "ReferenceNo": "ORD1763359860348926",
+              "OutDestinationDate": "2025-11-18T03:05:47.483",
+              "CODAmount": 0,
+              "PromisedDeliveryDate": "2025-11-24T23:59:59",
+              "PickupLocation": "AEJS",
+              "OriginRecieveDate": "2025-11-17T13:58:59.758"
+            }
+          }
+        ]
+      },
+      "full_result": {
+        "success": true,
+        "data": {
+          "ShipmentData": [
+            {
+              "Shipment": {
+                "PickUpDate": "2025-11-17T13:43:00",
+                "Destination": "Lonavala",
+                "DestRecieveDate": "2025-11-24T06:15:06.723",
+                "Scans": [
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-17T11:56:13.308",
+                      "ScanType": "UD",
+                      "Scan": "Manifested",
+                      "StatusDateTime": "2025-11-17T11:56:13.308",
+                      "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+                      "StatusCode": "X-UCI",
+                      "Instructions": "Manifest uploaded"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-17T13:43:00",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-17T13:43:00",
+                      "ScannedLocation": "Bikaner_Pawanpuri_D (Rajasthan)",
+                      "StatusCode": "X-PPOM",
+                      "Instructions": "Shipment picked up"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-17T13:58:59.758",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-17T13:58:59.758",
+                      "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                      "StatusCode": "X-PIOM",
+                      "Instructions": "Shipment Recieved at Origin Center"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-18T03:05:47.51",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-18T03:05:47.51",
+                      "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                      "StatusCode": "X-DBL1F",
+                      "Instructions": "Added to Bag"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-18T03:05:47.527",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-18T03:05:47.527",
+                      "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                      "StatusCode": "X-DLL2F",
+                      "Instructions": "Bag Added To Trip"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-18T05:12:46.116",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-18T05:12:46.116",
+                      "ScannedLocation": "Bikaner_MurlidharColony_I (Rajasthan)",
+                      "StatusCode": "X-OLL4F",
+                      "Instructions": "Vehicle Departed"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-19T03:23:45.49",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-19T03:23:45.49",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-ILL2F",
+                      "Instructions": "Trip Arrived"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-19T07:37:04.338",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-19T07:37:04.338",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-ILL1F",
+                      "Instructions": "Bag Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-20T15:40:47.65",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-20T15:40:47.65",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-IBD3F",
+                      "Instructions": "Shipment Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-20T15:40:47.917",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-20T15:40:47.917",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-DWS",
+                      "Instructions": "weight captured"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-20T23:39:08.975",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-20T23:39:08.975",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-DBL1F",
+                      "Instructions": "Added to Bag"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-20T23:39:08.989",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-20T23:39:08.989",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-DLL2F",
+                      "Instructions": "Bag Added To Trip"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-21T05:29:53.218",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-21T05:29:53.218",
+                      "ScannedLocation": "Jaipur_Sez_GW (Rajasthan)",
+                      "StatusCode": "X-OLL4F",
+                      "Instructions": "Vehicle Departed"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-21T23:05:14.607",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-21T23:05:14.607",
+                      "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                      "StatusCode": "X-ILL2F",
+                      "Instructions": "Trip Arrived"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-22T03:27:10.859",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-22T03:27:10.859",
+                      "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                      "StatusCode": "X-ILL1F",
+                      "Instructions": "Bag Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-22T06:03:41.764",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-22T06:03:41.764",
+                      "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                      "StatusCode": "X-DLL2F",
+                      "Instructions": "Bag Added To Trip"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-22T14:55:05.199",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-22T14:55:05.199",
+                      "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                      "StatusCode": "X-OLL4F",
+                      "Instructions": "Vehicle Departed"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-23T14:05:50.464",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-23T14:05:50.464",
+                      "ScannedLocation": "Ahmedabad_Kanera_GW (Gujarat)",
+                      "StatusCode": "DLYLH-105",
+                      "Instructions": "Vehicle delayed - Controllable"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-23T20:02:12.901",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-23T20:02:12.901",
+                      "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                      "StatusCode": "X-ILL2F",
+                      "Instructions": "Trip Arrived"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-23T21:56:26.377",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-23T21:56:26.377",
+                      "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                      "StatusCode": "X-ILL1F",
+                      "Instructions": "Bag Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T04:47:05.179",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-24T04:47:05.179",
+                      "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                      "StatusCode": "X-DLL2F",
+                      "Instructions": "Bag Added To Trip"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T04:56:30.064",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-24T04:56:30.064",
+                      "ScannedLocation": "Pune_Sudhwadi_GW (Maharashtra)",
+                      "StatusCode": "X-OLL4F",
+                      "Instructions": "Vehicle Departed"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T05:45:45.095",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-24T05:45:45.095",
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "X-ILL2F",
+                      "Instructions": "Trip Arrived"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T06:15:06.699",
+                      "ScanType": "UD",
+                      "Scan": "In Transit",
+                      "StatusDateTime": "2025-11-24T06:15:06.699",
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "X-ILL1F",
+                      "Instructions": "Bag Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T06:15:06.731",
+                      "ScanType": "UD",
+                      "Scan": "Pending",
+                      "StatusDateTime": "2025-11-24T06:15:06.731",
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "X-IBD3F",
+                      "Instructions": "Shipment Received at Facility"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T11:01:50.94",
+                      "ScanType": "UD",
+                      "Scan": "Dispatched",
+                      "StatusDateTime": "2025-11-24T11:01:50.94",
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "X-DDD3FD",
+                      "Instructions": "Out for delivery"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T15:20:21.002",
+                      "ScanType": "UD",
+                      "Scan": "Dispatched",
+                      "call_duration": 37,
+                      "StatusDateTime": "2025-11-24T15:20:21.002",
+                      "geo_location": {
+                        "lat": 18.7518817,
+                        "long": 73.6770983
+                      },
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "ST-114",
+                      "Instructions": "Call placed to consignee"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T15:22:19.002",
+                      "ScanType": "DL",
+                      "Scan": "Delivered",
+                      "call_duration": 37,
+                      "StatusDateTime": "2025-11-24T15:22:19.002",
+                      "geo_location": {
+                        "lat": 18.7518883,
+                        "long": 73.6770967
+                      },
+                      "ScannedLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                      "StatusCode": "EOD-38",
+                      "Instructions": "Delivered to consignee"
+                    }
+                  }
+                ],
+                "Status": {
+                  "Status": "Delivered",
+                  "StatusLocation": "Lonavala_TukaramNagar1_D (Maharashtra)",
+                  "StatusDateTime": "2025-11-24T15:22:19.002",
+                  "RecievedBy": "",
+                  "StatusCode": "EOD-38",
+                  "StatusType": "DL",
+                  "Instructions": "Delivered to consignee"
+                },
+                "ReturnPromisedDeliveryDate": null,
+                "Ewaybill": [],
+                "InvoiceAmount": 1800,
+                "ChargedWeight": null,
+                "PickedupDate": "2025-11-17T13:43:00",
+                "DeliveryDate": "2025-11-24T15:22:19.002",
+                "SenderName": "SHIPSARTHI C2C",
+                "AWB": "44800710001982",
+                "DispatchCount": 1,
+                "OrderType": "Pre-paid",
+                "ReturnedDate": null,
+                "ExpectedDeliveryDate": "2025-11-24T23:59:59",
+                "RTOStartedDate": null,
+                "Extras": "",
+                "FirstAttemptDate": "2025-11-24T11:01:50.94",
+                "ReverseInTransit": false,
+                "Quantity": "1",
+                "Origin": "Bikaner_Pawanpuri_D (Rajasthan)",
+                "Consignee": {
+                  "City": "Lonavala",
+                  "Name": "Jairaj Java",
+                  "Address1": [],
+                  "Address2": [],
+                  "Address3": "",
+                  "PinCode": 410507,
+                  "State": "Maharashtra",
+                  "Telephone2": "",
+                  "Country": "India",
+                  "Telephone1": ""
+                },
+                "ReferenceNo": "ORD1763359860348926",
+                "OutDestinationDate": "2025-11-18T03:05:47.483",
+                "CODAmount": 0,
+                "PromisedDeliveryDate": "2025-11-24T23:59:59",
+                "PickupLocation": "AEJS",
+                "OriginRecieveDate": "2025-11-17T13:58:59.758"
+              }
+            }
+          ]
+        },
+        "waybill": "44800710001982",
+        "attempts": 1
+      }
+    },
+    {
+      "awb_number": "44800710002564",
+      "order_id": "ORD1763672521883158",
+      "reference_id": "ORD1763672521883158",
+      "timestamp": "2025-11-29T09:45:57.047Z",
+      "success": true,
+      "error": null,
+      "raw_response": {
+        "ShipmentData": [
+          {
+            "Shipment": {
+              "PickUpDate": "2025-11-21T02:35:17.354",
+              "Destination": "Bareilly",
+              "DestRecieveDate": null,
+              "Scans": [
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-21T02:35:17.401",
+                    "ScanType": "UD",
+                    "Scan": "Manifested",
+                    "StatusDateTime": "2025-11-21T02:35:17.401",
+                    "ScannedLocation": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+                    "StatusCode": "X-UCI",
+                    "Instructions": "Manifest uploaded"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T12:23:29",
+                    "ScanType": "UD",
+                    "Scan": "Manifested",
+                    "StatusDateTime": "2025-11-24T12:23:29",
+                    "ScannedLocation": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+                    "StatusCode": "FMPUR-101",
+                    "Instructions": "Pickup scheduled"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-24T16:09:14",
+                    "ScanType": "UD",
+                    "Scan": "Manifested",
+                    "StatusDateTime": "2025-11-24T16:09:14",
+                    "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                    "StatusCode": "FMEOD-103",
+                    "Instructions": "Shipper unavailable"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-25T19:22:49",
+                    "ScanType": "UD",
+                    "Scan": "Manifested",
+                    "StatusDateTime": "2025-11-25T19:22:49",
+                    "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                    "StatusCode": "FMEOD-103",
+                    "Instructions": "Shipper unavailable"
+                  }
+                },
+                {
+                  "ScanDetail": {
+                    "ScanDateTime": "2025-11-26T18:38:57.898",
+                    "ScanType": "UD",
+                    "Scan": "Not Picked",
+                    "StatusDateTime": "2025-11-26T18:38:57.898",
+                    "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                    "StatusCode": "X-PNP",
+                    "Instructions": "Shipment not received from client"
+                  }
+                }
+              ],
+              "Status": {
+                "Status": "Not Picked",
+                "StatusLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                "StatusDateTime": "2025-11-26T18:38:57.898",
+                "RecievedBy": "",
+                "StatusCode": "X-PNP",
+                "StatusType": "UD",
+                "Instructions": "Shipment not received from client"
+              },
+              "ReturnPromisedDeliveryDate": null,
+              "Ewaybill": [],
+              "InvoiceAmount": 4580,
+              "ChargedWeight": null,
+              "PickedupDate": null,
+              "DeliveryDate": null,
+              "SenderName": "SHIPSARTHI C2C",
+              "AWB": "44800710002564",
+              "DispatchCount": 0,
+              "OrderType": "Pre-paid",
+              "ReturnedDate": null,
+              "ExpectedDeliveryDate": null,
+              "RTOStartedDate": null,
+              "Extras": "",
+              "FirstAttemptDate": null,
+              "ReverseInTransit": false,
+              "Quantity": "1",
+              "Origin": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+              "Consignee": {
+                "City": "Bareilly",
+                "Name": "uddit",
+                "Address1": [],
+                "Address2": [],
+                "Address3": "",
+                "PinCode": 243001,
+                "State": "Uttar Pradesh",
+                "Telephone2": "",
+                "Country": "India",
+                "Telephone1": ""
+              },
+              "ReferenceNo": "ORD1763672521883158",
+              "OutDestinationDate": null,
+              "CODAmount": 0,
+              "PromisedDeliveryDate": null,
+              "PickupLocation": "uddit kant",
+              "OriginRecieveDate": null
+            }
+          }
+        ]
+      },
+      "full_result": {
+        "success": true,
+        "data": {
+          "ShipmentData": [
+            {
+              "Shipment": {
+                "PickUpDate": "2025-11-21T02:35:17.354",
+                "Destination": "Bareilly",
+                "DestRecieveDate": null,
+                "Scans": [
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-21T02:35:17.401",
+                      "ScanType": "UD",
+                      "Scan": "Manifested",
+                      "StatusDateTime": "2025-11-21T02:35:17.401",
+                      "ScannedLocation": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+                      "StatusCode": "X-UCI",
+                      "Instructions": "Manifest uploaded"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T12:23:29",
+                      "ScanType": "UD",
+                      "Scan": "Manifested",
+                      "StatusDateTime": "2025-11-24T12:23:29",
+                      "ScannedLocation": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+                      "StatusCode": "FMPUR-101",
+                      "Instructions": "Pickup scheduled"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-24T16:09:14",
+                      "ScanType": "UD",
+                      "Scan": "Manifested",
+                      "StatusDateTime": "2025-11-24T16:09:14",
+                      "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                      "StatusCode": "FMEOD-103",
+                      "Instructions": "Shipper unavailable"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-25T19:22:49",
+                      "ScanType": "UD",
+                      "Scan": "Manifested",
+                      "StatusDateTime": "2025-11-25T19:22:49",
+                      "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                      "StatusCode": "FMEOD-103",
+                      "Instructions": "Shipper unavailable"
+                    }
+                  },
+                  {
+                    "ScanDetail": {
+                      "ScanDateTime": "2025-11-26T18:38:57.898",
+                      "ScanType": "UD",
+                      "Scan": "Not Picked",
+                      "StatusDateTime": "2025-11-26T18:38:57.898",
+                      "ScannedLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                      "StatusCode": "X-PNP",
+                      "Instructions": "Shipment not received from client"
+                    }
+                  }
+                ],
+                "Status": {
+                  "Status": "Not Picked",
+                  "StatusLocation": "Bareilly_KaramchariNgr_D (Uttar Pradesh)",
+                  "StatusDateTime": "2025-11-26T18:38:57.898",
+                  "RecievedBy": "",
+                  "StatusCode": "X-PNP",
+                  "StatusType": "UD",
+                  "Instructions": "Shipment not received from client"
+                },
+                "ReturnPromisedDeliveryDate": null,
+                "Ewaybill": [],
+                "InvoiceAmount": 4580,
+                "ChargedWeight": null,
+                "PickedupDate": null,
+                "DeliveryDate": null,
+                "SenderName": "SHIPSARTHI C2C",
+                "AWB": "44800710002564",
+                "DispatchCount": 0,
+                "OrderType": "Pre-paid",
+                "ReturnedDate": null,
+                "ExpectedDeliveryDate": null,
+                "RTOStartedDate": null,
+                "Extras": "",
+                "FirstAttemptDate": null,
+                "ReverseInTransit": false,
+                "Quantity": "1",
+                "Origin": "Bareilly_GulzarNagar_D (Uttar Pradesh)",
+                "Consignee": {
+                  "City": "Bareilly",
+                  "Name": "uddit",
+                  "Address1": [],
+                  "Address2": [],
+                  "Address3": "",
+                  "PinCode": 243001,
+                  "State": "Uttar Pradesh",
+                  "Telephone2": "",
+                  "Country": "India",
+                  "Telephone1": ""
+                },
+                "ReferenceNo": "ORD1763672521883158",
+                "OutDestinationDate": null,
+                "CODAmount": 0,
+                "PromisedDeliveryDate": null,
+                "PickupLocation": "uddit kant",
+                "OriginRecieveDate": null
+              }
+            }
+          ]
+        },
+        "waybill": "44800710002564",
+        "attempts": 1
+      }
+    }
+  ]
+}

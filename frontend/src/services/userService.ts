@@ -193,6 +193,127 @@ class UserService {
     throw new Error(response.message || 'Failed to update company logo');
   }
 
+  // Get label settings
+  async getLabelSettings(): Promise<{
+    label_types?: string[];
+    use_order_channel_logo?: boolean;
+    component_visibility?: {
+      logo?: boolean;
+      customer_phone?: boolean;
+      dimensions?: boolean;
+      weight?: boolean;
+      payment_type?: boolean;
+      invoice_number?: boolean;
+      invoice_date?: boolean;
+      company_name?: boolean;
+      company_gstin?: boolean;
+      pickup_address?: boolean;
+      company_phone?: boolean;
+      sku?: boolean;
+      product_name?: boolean;
+      shipping_charges?: boolean;
+      amount_prepaid?: boolean;
+      amount_cod?: boolean;
+      message?: boolean;
+    };
+    logo_url?: string | null;
+  }> {
+    const response = await apiService.get<{
+      status: string;
+      data: any;
+    }>('/users/label-settings');
+
+    if (response.status === 'success' && response.data) {
+      return response.data;
+    }
+
+    // Return default settings if not found
+    return {
+      label_types: ['Standard'],
+      use_order_channel_logo: false,
+      component_visibility: {
+        logo: true,
+        customer_phone: false,
+        dimensions: false,
+        weight: false,
+        payment_type: true,
+        invoice_number: true,
+        invoice_date: true,
+        company_name: false,
+        company_gstin: false,
+        pickup_address: true,
+        company_phone: false,
+        sku: false,
+        product_name: true,
+        shipping_charges: false,
+        amount_prepaid: true,
+        amount_cod: true,
+        message: true
+      },
+      logo_url: null
+    };
+  }
+
+  // Update label settings
+  async updateLabelSettings(settings: {
+    label_types?: string[];
+    use_order_channel_logo?: boolean;
+    component_visibility?: {
+      logo?: boolean;
+      customer_phone?: boolean;
+      dimensions?: boolean;
+      weight?: boolean;
+      payment_type?: boolean;
+      invoice_number?: boolean;
+      invoice_date?: boolean;
+      company_name?: boolean;
+      company_gstin?: boolean;
+      pickup_address?: boolean;
+      company_phone?: boolean;
+      sku?: boolean;
+      product_name?: boolean;
+      shipping_charges?: boolean;
+      amount_prepaid?: boolean;
+      amount_cod?: boolean;
+      message?: boolean;
+    };
+    logo_url?: string | null;
+  }): Promise<{
+    message: string;
+    data: any;
+  }> {
+    const response = await apiService.post<{
+      status: string;
+      message: string;
+      data: any;
+    }>('/users/label-settings', settings);
+
+    if (response.status === 'success') {
+      return {
+        message: response.message || 'Label settings updated successfully',
+        data: response.data
+      };
+    }
+
+    throw new Error(response.message || 'Failed to update label settings');
+  }
+
+  // Upload label logo (reuse company logo upload)
+  async uploadLabelLogo(file: File): Promise<{
+    message: string;
+    company_logo_url: string;
+    company_logo_public_id?: string;
+    company_logo_uploaded_at?: string;
+  }> {
+    // Reuse the company logo upload endpoint
+    const result = await this.updateCompanyLogo(file);
+    
+    // Also update label settings to use this logo
+    await this.updateLabelSettings({ logo_url: result.company_logo_url });
+    
+    return result;
+  }
+
   // Get API documentation
   async getApiDocumentation(): Promise<{ version: string; download_url: string }> {
     const response = await apiService.get<{ data: { version: string; download_url: string } }>('/users/api-docs');

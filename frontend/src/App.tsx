@@ -35,6 +35,7 @@ import TrackingDetail from './pages/TrackingDetail';
 import PublicRateCalculator from './pages/PublicRateCalculator';
 import Channel from './pages/Channel';
 import AccountSettings from './pages/AccountSettings';
+import ManageLabel from './pages/ManageLabel';
 import AssignCourier from './pages/AssignCourier';
 import Customers from './pages/Customers';
 import InvoiceList from './pages/InvoiceList';
@@ -293,6 +294,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AccountSettings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings/manage-label" 
+              element={
+                <ProtectedRoute>
+                  <ManageLabel />
                 </ProtectedRoute>
               } 
             />

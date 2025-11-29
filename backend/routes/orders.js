@@ -15,6 +15,7 @@ const BillingCycle = require('../models/BillingCycle');
 const RateCardService = require('../services/rateCardService');
 const delhiveryService = require('../services/delhiveryService');
 const websocketService = require('../services/websocketService');
+const trackingService = require('../services/trackingService');
 const labelRenderer = require('../services/labelRenderer');
 const logger = require('../utils/logger');
 
@@ -1019,12 +1020,47 @@ router.get('/', auth, [
     }
 
     if (req.query.date_from || req.query.date_to) {
-      filterQuery.createdAt = {};
-      if (req.query.date_from) {
-        filterQuery.createdAt.$gte = new Date(req.query.date_from);
-      }
-      if (req.query.date_to) {
-        filterQuery.createdAt.$lte = new Date(req.query.date_to);
+      // For delivered orders, filter by delivered_date if available, otherwise use createdAt
+      // For other orders, filter by createdAt
+      if (req.query.status === 'delivered') {
+        // For delivered orders: filter by delivered_date OR createdAt (if delivered_date missing)
+        const dateFrom = req.query.date_from ? new Date(req.query.date_from) : null;
+        const dateTo = req.query.date_to ? new Date(req.query.date_to) : null;
+        
+        const dateConditions = [];
+        
+        // Condition 1: Orders with delivered_date in range
+        const deliveredDateFilter = {};
+        if (dateFrom) deliveredDateFilter.$gte = dateFrom;
+        if (dateTo) deliveredDateFilter.$lte = dateTo;
+        if (Object.keys(deliveredDateFilter).length > 0) {
+          dateConditions.push({ delivered_date: deliveredDateFilter });
+        }
+        
+        // Condition 2: Orders without delivered_date - use createdAt
+        const createdAtFilter = {};
+        if (dateFrom) createdAtFilter.$gte = dateFrom;
+        if (dateTo) createdAtFilter.$lte = dateTo;
+        if (Object.keys(createdAtFilter).length > 0) {
+          dateConditions.push({
+            $and: [
+              { $or: [{ delivered_date: { $exists: false } }, { delivered_date: null }] },
+              { createdAt: createdAtFilter }
+            ]
+          });
+        }
+        
+        if (dateConditions.length > 0) {
+          filterQuery.$or = dateConditions;
+        }
+      } else {
+        filterQuery.createdAt = {};
+        if (req.query.date_from) {
+          filterQuery.createdAt.$gte = new Date(req.query.date_from);
+        }
+        if (req.query.date_to) {
+          filterQuery.createdAt.$lte = new Date(req.query.date_to);
+        }
       }
     }
 
@@ -1062,6 +1098,120 @@ router.get('/', auth, [
     res.status(500).json({
       status: 'error',
       message: 'Server error fetching orders'
+    });
+  }
+});
+
+// @desc    Sync TrackingOrder statuses to Order models
+// @route   POST /api/orders/sync-statuses
+// @access  Private
+router.post('/sync-statuses', auth, async (req, res) => {
+  try {
+    logger.info('🔄 Sync statuses endpoint called', {
+      userId: req.user._id.toString()
+    });
+
+    const result = await trackingService.syncAllTrackingOrderStatuses();
+
+    if (result.success) {
+      res.json({
+        status: 'success',
+        message: 'Order statuses synced successfully',
+        data: {
+          total: result.total,
+          synced: result.synced,
+          skipped: result.skipped,
+          errors: result.errors
+        }
+      });
+    } else {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to sync order statuses',
+        error: result.error
+      });
+    }
+  } catch (error) {
+    logger.error('❌ Error in sync-statuses endpoint:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error syncing order statuses',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Sync a specific order by AWB number
+// @route   POST /api/orders/sync-status/:awb
+// @access  Private
+router.post('/sync-status/:awb', auth, async (req, res) => {
+  try {
+    const { awb } = req.params;
+    
+    logger.info('🔄 Sync order by AWB endpoint called', {
+      userId: req.user._id.toString(),
+      awb: awb
+    });
+
+    const result = await trackingService.syncOrderByAWB(awb);
+
+    if (result.success) {
+      res.json({
+        status: 'success',
+        message: 'Order status synced successfully',
+        data: result
+      });
+    } else {
+      res.status(404).json({
+        status: 'error',
+        message: result.error || 'Failed to sync order status',
+        error: result.error
+      });
+    }
+  } catch (error) {
+    logger.error('❌ Error in sync-status by AWB endpoint:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error syncing order status',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Force refresh all orders (calls Delhivery API to get fresh status)
+// @route   POST /api/orders/force-refresh
+// @access  Private
+router.post('/force-refresh', auth, async (req, res) => {
+  try {
+    logger.info('🔄 Force refresh endpoint called', {
+      userId: req.user._id.toString()
+    });
+
+    const result = await trackingService.forceRefreshAllOrders();
+
+    if (result.success) {
+      res.json({
+        status: 'success',
+        message: 'Orders refreshed successfully',
+        data: {
+          total: result.total,
+          refreshed: result.refreshed,
+          errors: result.errors
+        }
+      });
+    } else {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to refresh orders',
+        error: result.error
+      });
+    }
+  } catch (error) {
+    logger.error('❌ Error in force-refresh endpoint:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error refreshing orders',
+      error: error.message
     });
   }
 });
@@ -1182,7 +1332,7 @@ router.get('/:id/print', auth, async (req, res) => {
     const order = await Order.findOne({
       _id: req.params.id,
       user_id: req.user._id
-    }).populate('user_id', 'company_name your_name email phone_number company_logo_url company_logo_public_id company_logo_uploaded_at')
+    }).populate('user_id', 'company_name your_name email phone_number company_logo_url company_logo_public_id company_logo_uploaded_at label_settings')
       .lean();
 
     if (!order) {
@@ -1235,8 +1385,18 @@ router.get('/:id/print', auth, async (req, res) => {
       }
     }
 
+    // Get user's label settings
+    // Since we used .lean(), the populated user_id is a plain object, so we need to fetch user separately
+    const user = await User.findById(req.user._id).select('label_settings company_logo_url').lean();
+    const labelSettings = user?.label_settings ? { ...user.label_settings } : {};
+    
+    // Use company_logo_url as fallback if logo_url not set
+    if (!labelSettings.logo_url && user?.company_logo_url) {
+      labelSettings.logo_url = user.company_logo_url;
+    }
+
     // Generate comprehensive HTML shipping label with all order details + Delhivery data
-    const html = generateShippingLabelHTML(order, delhiveryLabelData, delhiveryLabelPdfUrl);
+    const html = generateShippingLabelHTML(order, delhiveryLabelData, delhiveryLabelPdfUrl, labelSettings);
 
     res.setHeader('Content-Type', 'text/html');
     return res.send(html);
@@ -2881,7 +3041,7 @@ router.get('/:id/label', auth, async (req, res) => {
   }
 });
 
-function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLabelPdfUrl = null) {
+function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLabelPdfUrl = null, labelSettings = {}) {
   // Parse Delhivery label data to extract package information
   let pkg = null;
   if (delhiveryLabelData) {
@@ -2966,8 +3126,16 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
   const sellerGst = order.seller_info?.gst_number || order.user_id?.gst_number || '';
   const sellerPhone = order.pickup_address?.phone || order.user_id?.phone_number || '';
   const sellerEmail = order.user_id?.email || '';
-  const companyLogoUrl = order.user_id?.company_logo_url || '';
+  
+  // Apply label settings for logo
+  const useOrderChannelLogo = labelSettings?.use_order_channel_logo || false;
+  const labelLogoUrl = labelSettings?.logo_url || '';
+  const companyLogoUrl = useOrderChannelLogo ? (order.seller_info?.logo_url || order.user_id?.company_logo_url || '') : (labelLogoUrl || order.user_id?.company_logo_url || '');
   const headerLogosClass = companyLogoUrl ? 'header-logos' : 'header-logos only-carrier';
+  
+  // Get component visibility settings (default to true if not set)
+  const visibility = labelSettings?.component_visibility || {};
+  const showComponent = (component) => visibility[component] !== false; // Default to true if not explicitly set to false
 
   // Product list & notes
   const products = Array.isArray(order.products) ? order.products : [];
@@ -3015,6 +3183,18 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       margin: 0 auto;
       background: white;
     }
+    ${(() => {
+      const labelTypes = labelSettings?.label_types || ['Standard'];
+      const primaryType = labelTypes[0] || 'Standard';
+      if (primaryType === '2 In One') {
+        return '.label-container { width: 4in; min-height: 3in; }';
+      } else if (primaryType === '4 In One') {
+        return '.label-container { width: 2in; min-height: 3in; }';
+      } else if (primaryType === 'Thermal') {
+        return '.label-container { width: 4in; min-height: 6in; }';
+      }
+      return ''; // Standard: default 4in x 6in
+    })()}
     .header {
       text-align: center;
       border-bottom: 2px solid #000;
@@ -3139,7 +3319,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
     <!-- Header with Logo -->
     <div class="header">
       <div class="${headerLogosClass}">
-        ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo" alt="Company Logo">` : ''}
+        ${showComponent('logo') && companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo" alt="Company Logo">` : ''}
         ${delhiveryLogo ? `<img src="${delhiveryLogo}" class="carrier-logo" alt="Delhivery">` : '<div style="font-size: 14px; font-weight: bold;">DELHIVERY</div>'}
       </div>
       <div style="margin-top: 5px; font-size: 10px; font-weight: bold;">SHIPPING LABEL</div>
@@ -3161,11 +3341,11 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
 
     <div class="info-section">
       <div class="info-title">SELLER / CONTACT</div>
-      <div class="info-row"><strong>${sellerName}</strong></div>
+      ${showComponent('company_name') ? `<div class="info-row"><strong>${sellerName}</strong></div>` : ''}
       ${sellerContactName ? `<div class="info-row">Contact: ${sellerContactName}</div>` : ''}
-      <div class="info-row">${sellerAddress}</div>
-      ${sellerGst ? `<div class="info-row">GST: ${sellerGst}</div>` : ''}
-      ${sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
+      ${showComponent('pickup_address') ? `<div class="info-row">${sellerAddress}</div>` : ''}
+      ${showComponent('company_gstin') && sellerGst ? `<div class="info-row">GST: ${sellerGst}</div>` : ''}
+      ${showComponent('company_phone') && sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
       ${sellerEmail ? `<div class="info-row">Email: ${sellerEmail}</div>` : ''}
     </div>
 
@@ -3176,6 +3356,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <div class="info-row">${deliveryAddress}</div>
       ${deliveryLandmark ? `<div class="info-row">Landmark: ${deliveryLandmark}</div>` : ''}
       <div class="info-row"><strong>${deliveryCity}, ${deliveryState} - ${deliveryPincode}</strong></div>
+      ${showComponent('customer_phone') && customerPhone !== 'N/A' ? `<div class="info-row">Phone: ${customerPhone}</div>` : ''}
     </div>
 
     <!-- Package Details -->
@@ -3183,13 +3364,16 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <div class="info-title">PACKAGE DETAILS</div>
       <div class="info-row"><strong>Order ID:</strong> ${orderId}</div>
       ${referenceId ? `<div class="info-row"><strong>Reference ID:</strong> ${referenceId}</div>` : ''}
-      <div class="info-row"><strong>Invoice:</strong> ${invoiceRef}</div>
-      <div class="info-row"><strong>Product:</strong> ${productName}</div>
+      ${showComponent('invoice_number') ? `<div class="info-row"><strong>Invoice:</strong> ${invoiceRef}</div>` : ''}
+      ${showComponent('invoice_date') && orderDate ? `<div class="info-row"><strong>Invoice Date:</strong> ${formatDate(orderDate)}</div>` : ''}
+      ${showComponent('product_name') ? `<div class="info-row"><strong>Product:</strong> ${productName}</div>` : ''}
       ${productDescription ? `<div class="info-row">${productDescription}</div>` : ''}
-      <div class="info-row"><strong>Weight:</strong> ${weight} kg | <strong>Qty:</strong> ${quantity}</div>
-      ${dimensions !== 'N/A' ? `<div class="info-row"><strong>Dimensions:</strong> ${dimensions}</div>` : ''}
-      <div class="info-row"><strong>Payment:</strong> ${paymentMode} ${codAmount > 0 ? `- COD: ${formatCurrency(codAmount)}` : ''}</div>
-      <div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>
+      ${showComponent('weight') ? `<div class="info-row"><strong>Weight:</strong> ${weight} kg | <strong>Qty:</strong> ${quantity}</div>` : `<div class="info-row"><strong>Qty:</strong> ${quantity}</div>`}
+      ${showComponent('dimensions') && dimensions !== 'N/A' ? `<div class="info-row"><strong>Dimensions:</strong> ${dimensions}</div>` : ''}
+      ${showComponent('payment_type') ? `<div class="info-row"><strong>Payment:</strong> ${paymentMode} ${codAmount > 0 ? `- COD: ${formatCurrency(codAmount)}` : ''}</div>` : ''}
+      ${showComponent('amount_prepaid') && paymentMode === 'Prepaid' ? `<div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>` : ''}
+      ${showComponent('amount_cod') && codAmount > 0 ? `<div class="info-row"><strong>COD Amount:</strong> ${formatCurrency(codAmount)}</div>` : ''}
+      ${showComponent('shipping_charges') && shippingCharges > 0 ? `<div class="info-row"><strong>Shipping Charges:</strong> ${formatCurrency(shippingCharges)}</div>` : ''}
       ${totalAmount > 0 ? `<div class="info-row"><strong>Total Amount:</strong> ${formatCurrency(totalAmount)}</div>` : ''}
       <div class="info-row"><strong>Mode:</strong> ${shippingMode}</div>
     </div>
@@ -3200,17 +3384,17 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       <table class="products-table">
         <thead>
           <tr>
-            <th style="width: 42%;">Product</th>
-            <th style="width: 18%;">SKU / HSN</th>
-            <th style="width: 20%;">Qty</th>
-            <th style="width: 20%; text-align: right;">Value</th>
+            <th style="width: ${showComponent('sku') ? '42%' : '50%'};">Product</th>
+            ${showComponent('sku') ? '<th style="width: 18%;">SKU / HSN</th>' : ''}
+            <th style="width: ${showComponent('sku') ? '20%' : '25%'};">Qty</th>
+            <th style="width: ${showComponent('sku') ? '20%' : '25%'}; text-align: right;">Value</th>
           </tr>
         </thead>
         <tbody>
           ${products.map(item => `
             <tr>
               <td>${item.product_name || '-'}</td>
-              <td>${item.sku || item.hsn_code || '-'}</td>
+              ${showComponent('sku') ? `<td>${item.sku || item.hsn_code || '-'}</td>` : ''}
               <td>${item.quantity || 0}</td>
               <td style="text-align: right;">${formatCurrency((item.unit_price || 0) * (item.quantity || 0))}</td>
             </tr>
@@ -3248,7 +3432,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
     </div>
     ` : ''}
 
-    ${specialInstructions ? `
+    ${showComponent('message') && specialInstructions ? `
     <div class="info-section">
       <div class="info-title">SPECIAL INSTRUCTIONS</div>
       <div class="info-row">${specialInstructions}</div>
@@ -3272,6 +3456,11 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       ${order.user_id?.company_name ? `<div style="margin-top: 5px; font-size: 8px;">Seller: ${order.user_id.company_name}</div>` : ''}
       ${delhiveryLabelPdfUrl ? `<div style="margin-top: 4px; font-size: 8px;">Official Label PDF: <a href="${delhiveryLabelPdfUrl}" target="_blank">Download</a></div>` : ''}
       <div style="margin-top: 5px; font-size: 7px;">Generated on ${formatDate(new Date())}</div>
+      <div style="margin-top: 8px; font-size: 7px; text-align: left; line-height: 1.4;">
+        <div>1) Shipsarthi is not liable for product issues, delays, loss, or damage, and all claims are governed by the carrier’s policies and decisions.</div>
+        <div>2) Goods once sold will only be taken back as per the store’s exchange/return policy.</div>
+        <div>3) Please refer to www.shipsarthi.com for Terms &amp; Conditions.</div>
+      </div>
     </div>
   </div>
 

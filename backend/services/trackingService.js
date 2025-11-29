@@ -8,6 +8,7 @@ const logger = require('../utils/logger');
 class TrackingService {
     constructor() {
         this.isRunning = false;
+        this.isTrackingInProgress = false; // Prevent overlapping executions
         this.startTracking();
     }
 
@@ -20,17 +21,32 @@ class TrackingService {
             return;
         }
 
-        // Run every 3 hours (0 */3 * * *)
-        this.trackingJob = cron.schedule('0 */3 * * *', async () => {
-            logger.info('🔄 Starting scheduled shipment tracking...');
-            await this.trackAllShipments();
+        // Run every 5 minutes (more reasonable - prevents missed executions)
+        // Format: minute hour day month dayOfWeek
+        // '*/5 * * * *' = every 5 minutes
+        this.trackingJob = cron.schedule('*/5 * * * *', async () => {
+            // Prevent overlapping executions
+            if (this.isTrackingInProgress) {
+                logger.warn('⚠️ Tracking already in progress, skipping this execution');
+                return;
+            }
+
+            this.isTrackingInProgress = true;
+            try {
+                logger.info('🔄 Starting scheduled shipment tracking...');
+                await this.trackAllShipments();
+            } catch (error) {
+                logger.error('❌ Error in scheduled tracking:', error);
+            } finally {
+                this.isTrackingInProgress = false;
+            }
         }, {
             scheduled: true,
             timezone: "Asia/Kolkata"
         });
 
         this.isRunning = true;
-        logger.info('✅ Tracking service started - will run every 3 hours');
+        logger.info('✅ Tracking service started - will run every 5 minutes');
     }
 
     /**
@@ -55,9 +71,15 @@ class TrackingService {
 
             logger.info(`🔍 Found ${trackingOrders.length} orders with pickup requests to track`);
 
+            if (trackingOrders.length === 0) {
+                logger.info('ℹ️ No active orders to track');
+                return;
+            }
+
             let successCount = 0;
             let failureCount = 0;
             let deliveredCount = 0;
+            const startTime = Date.now();
 
             for (const trackingOrder of trackingOrders) {
                 try {
@@ -72,19 +94,21 @@ class TrackingService {
                         failureCount++;
                     }
                     
-                    // Add delay between requests to avoid rate limiting
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // Add delay between requests to avoid rate limiting (reduced to 500ms for faster processing)
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 } catch (error) {
                     logger.error(`❌ Error tracking order ${trackingOrder.order_id}:`, error.message);
                     failureCount++;
                 }
             }
 
+            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
             logger.info('✅ Completed scheduled shipment tracking', {
                 total: trackingOrders.length,
                 successful: successCount,
                 failed: failureCount,
-                delivered: deliveredCount
+                delivered: deliveredCount,
+                duration: `${duration}s`
             });
         } catch (error) {
             logger.error('❌ Error in trackAllShipments:', error);
@@ -152,18 +176,47 @@ class TrackingService {
                             // Map to internal status for classification
                             const mappedStatus = this.mapDelhiveryStatus(statusValue);
                             
-                            if (mappedStatus && mappedStatus !== trackingOrder.current_status) {
-                                const oldStatus = trackingOrder.current_status;
-                                trackingOrder.current_status = mappedStatus;
+                            if (mappedStatus) {
+                                const oldTrackingStatus = trackingOrder.current_status;
+                                const statusChanged = mappedStatus !== oldTrackingStatus;
                                 
-                                logger.info('✅ Status updated', {
-                                    orderId: orderId,
-                                    awb: awbNumber,
-                                    oldStatus: oldStatus,
-                                    newStatus: mappedStatus,
-                                    apiStatus: statusValue,
-                                    category: this.getStatusCategory(mappedStatus)
+                                if (statusChanged) {
+                                    trackingOrder.current_status = mappedStatus;
+                                    
+                                    logger.info('✅ TrackingOrder status updated', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        oldStatus: oldTrackingStatus,
+                                        newStatus: mappedStatus,
+                                        apiStatus: statusValue,
+                                        category: this.getStatusCategory(mappedStatus)
+                                    });
+                                }
+                                
+                                // ALWAYS update Order model when we have a mapped status
+                                // This ensures Order model stays in sync with TrackingOrder
+                                // Even if TrackingOrder status didn't change, Order might be out of sync
+                                const updateResult = await this.updateOrderStatus(orderId, mappedStatus, {
+                                    status_location: statusObj.StatusLocation || extractedStatus.statusLocation,
+                                    status_date_time: statusObj.StatusDateTime || extractedStatus.statusDateTime || new Date(),
+                                    awb_number: awbNumber, // Pass AWB for fallback lookup
+                                    raw_api_status: statusValue, // Pass RAW status from Delhivery API for logging
+                                    api_status: extractedStatus.apiStatus // Also pass extracted API status
                                 });
+                                
+                                if (updateResult) {
+                                    logger.info('✅ Order model updated successfully', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        status: mappedStatus
+                                    });
+                                } else {
+                                    logger.warn('⚠️ Order model update returned false', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        status: mappedStatus
+                                    });
+                                }
                             }
                             
                             // Add to status history
@@ -462,6 +515,14 @@ class TrackingService {
             // Delivered - FINAL STATUS (stops tracking)
             'delivered': 'delivered',
             
+            // Out for Delivery - On the way to customer (still tracking)
+            'out for delivery': 'out_for_delivery',
+            'outfor delivery': 'out_for_delivery',
+            'out-for-delivery': 'out_for_delivery',
+            'out_for_delivery': 'out_for_delivery',
+            'ofd': 'out_for_delivery',
+            'out for delivery (ofd)': 'out_for_delivery',
+            
             // Pending - Waiting at destination facility (still tracking)
             'pending': 'in_transit',
             
@@ -469,6 +530,7 @@ class TrackingService {
             'in transit': 'in_transit',
             'intransit': 'in_transit',
             'in-transit': 'in_transit',
+            'in_transit': 'in_transit',
             
             // Dispatched - Out for delivery (still tracking)
             'dispatched': 'out_for_delivery',
@@ -488,6 +550,7 @@ class TrackingService {
             // NDR - Non-Delivery Report (still tracking)
             'ndr': 'ndr',
             'non-delivery report': 'ndr',
+            'non delivery report': 'ndr',
             
             // Lost (stops tracking)
             'lost': 'lost',
@@ -495,7 +558,12 @@ class TrackingService {
             // Pickup/Manifest (still tracking)
             'pickup': 'pickups_manifests',
             'manifest': 'pickups_manifests',
-            'pickup and manifest': 'pickups_manifests'
+            'pickup and manifest': 'pickups_manifests',
+            'pickups_manifests': 'pickups_manifests',
+            'not picked': 'pickups_manifests',
+            'notpicked': 'pickups_manifests',
+            'not-picked': 'pickups_manifests',
+            'not_picked': 'pickups_manifests'
         };
         
         // Direct lookup (case-insensitive)
@@ -564,8 +632,32 @@ class TrackingService {
      */
     async updateOrderStatus(orderId, status, additionalData = {}) {
         try {
-            const order = await Order.findOne({ order_id: orderId });
+            // Try finding order by order_id first
+            let order = await Order.findOne({ order_id: orderId });
+            
+            // If not found, try finding by AWB (in case order_id doesn't match)
+            if (!order && additionalData.awb_number) {
+                order = await Order.findOne({
+                    $or: [
+                        { 'delhivery_data.waybill': additionalData.awb_number },
+                        { 'shipping_info.awb_number': additionalData.awb_number }
+                    ]
+                });
+                
+                if (order) {
+                    logger.info(`✅ Found order by AWB instead of order_id: ${orderId}`, {
+                        found_order_id: order.order_id,
+                        searched_order_id: orderId
+                    });
+                }
+            }
+            
             if (order) {
+                const oldStatus = order.status;
+                const rawApiStatus = additionalData.raw_api_status || additionalData.api_status || 'UNKNOWN';
+                
+                // ALWAYS update status from Delhivery API (even if same)
+                // This ensures database always has the latest status from API
                 order.status = status;
                 
                 if (status === 'delivered' && additionalData.delivered_at) {
@@ -576,18 +668,49 @@ class TrackingService {
                     order.cancelled_date = new Date();
                 }
                 
-                order.status_history = order.status_history || [];
-                order.status_history.push({
-                    status: status,
-                    timestamp: new Date(),
-                    remarks: `Status updated via automated tracking`,
-                    source: 'automated_tracking'
-                });
+                // Only add to history if status actually changed
+                if (oldStatus !== status) {
+                    order.status_history = order.status_history || [];
+                    order.status_history.push({
+                        status: status,
+                        timestamp: new Date(),
+                        remarks: `Status updated via automated tracking (Delhivery API: ${rawApiStatus})`,
+                        source: 'automated_tracking'
+                    });
+                }
                 
                 await order.save();
+                
+                if (oldStatus !== status) {
+                    logger.info(`✅ Order status updated: ${orderId}`, {
+                        oldStatus,
+                        newStatus: status,
+                        rawApiStatus: rawApiStatus, // Show what Delhivery API actually sent
+                        mappedStatus: status, // Show what we mapped it to
+                        order_id_in_db: order.order_id
+                    });
+                } else {
+                    logger.debug(`ℹ️ Order ${orderId} status confirmed`, {
+                        status: status,
+                        rawApiStatus: rawApiStatus, // Show what Delhivery API actually sent
+                        note: `Delhivery API sent "${rawApiStatus}", mapped to "${status}"`
+                    });
+                }
+                
+                return true;
+            } else {
+                logger.warn(`⚠️ Order not found for order_id: ${orderId}`, {
+                    searched_by: 'order_id',
+                    awb_available: !!additionalData.awb_number
+                });
+                return false;
             }
         } catch (error) {
-            logger.error('❌ Error updating order status:', error);
+            logger.error(`❌ Error updating order status for ${orderId}:`, {
+                error: error.message,
+                stack: error.stack
+            });
+            return false;
         }
     }
 
@@ -606,6 +729,261 @@ class TrackingService {
         } catch (error) {
             logger.error(`❌ Manual tracking failed for order ${orderId}:`, error);
             return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Sync a specific order by AWB number
+     */
+    async syncOrderByAWB(awbNumber) {
+        try {
+            logger.info(`🔄 Syncing order by AWB: ${awbNumber}`);
+            
+            // Find tracking order by AWB
+            const trackingOrder = await TrackingOrder.findOne({ awb_number: awbNumber });
+            
+            if (!trackingOrder) {
+                logger.warn(`⚠️ TrackingOrder not found for AWB: ${awbNumber}`);
+                return {
+                    success: false,
+                    error: 'TrackingOrder not found for this AWB number'
+                };
+            }
+            
+            // Find order by order_id first, then try AWB if not found
+            let order = await Order.findOne({ order_id: trackingOrder.order_id });
+            
+            if (!order) {
+                // Try finding by AWB number as fallback
+                order = await Order.findOne({
+                    $or: [
+                        { 'delhivery_data.waybill': awbNumber },
+                        { 'shipping_info.awb_number': awbNumber }
+                    ]
+                });
+            }
+            
+            if (!order) {
+                logger.warn(`⚠️ Order not found for AWB: ${awbNumber}, order_id: ${trackingOrder.order_id}`);
+                return {
+                    success: false,
+                    error: 'Order not found for this AWB number'
+                };
+            }
+            
+            // Update if status is different
+            if (order.status !== trackingOrder.current_status) {
+                await this.updateOrderStatus(order.order_id, trackingOrder.current_status, {
+                    status_location: trackingOrder.delivery_location || trackingOrder.status_history?.[trackingOrder.status_history.length - 1]?.status_location,
+                    status_date_time: trackingOrder.delivered_at || trackingOrder.last_tracked_at || new Date()
+                });
+                
+                logger.info(`✅ Synced order by AWB ${awbNumber}: ${order.status} → ${trackingOrder.current_status}`);
+                
+                return {
+                    success: true,
+                    order_id: order.order_id,
+                    old_status: order.status,
+                    new_status: trackingOrder.current_status
+                };
+            } else {
+                logger.info(`ℹ️ Order ${order.order_id} already has correct status: ${trackingOrder.current_status}`);
+                return {
+                    success: true,
+                    order_id: order.order_id,
+                    status: trackingOrder.current_status,
+                    message: 'Status already synced'
+                };
+            }
+        } catch (error) {
+            logger.error(`❌ Error syncing order by AWB ${awbNumber}:`, error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Force refresh tracking for all active orders
+     * This calls the Delhivery API to get fresh status and updates both TrackingOrder and Order
+     */
+    async forceRefreshAllOrders() {
+        try {
+            logger.info('🔄 Starting force refresh of all tracking orders...');
+            
+            // Get all tracking orders (including delivered ones that might need status update)
+            // Don't use .lean() - we need Mongoose documents for trackSingleTrackingOrder
+            const trackingOrders = await TrackingOrder.find({
+                pickup_request_id: { $exists: true, $ne: null }
+            });
+            
+            logger.info(`📊 Found ${trackingOrders.length} tracking orders to refresh`);
+            
+            let refreshedCount = 0;
+            let errorCount = 0;
+            const startTime = Date.now();
+            
+            for (const trackingOrder of trackingOrders) {
+                try {
+                    // Force track this order (calls API and updates status)
+                    const result = await this.trackSingleTrackingOrder(trackingOrder);
+                    
+                    if (result.success) {
+                        refreshedCount++;
+                        logger.info(`✅ Refreshed order ${trackingOrder.order_id} (AWB: ${trackingOrder.awb_number})`);
+                    } else {
+                        errorCount++;
+                        logger.warn(`⚠️ Failed to refresh order ${trackingOrder.order_id}: ${result.error}`);
+                    }
+                    
+                    // Small delay to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    logger.error(`❌ Error refreshing order ${trackingOrder.order_id}:`, error.message);
+                    errorCount++;
+                }
+            }
+            
+            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+            logger.info('✅ Completed force refresh of tracking orders', {
+                total: trackingOrders.length,
+                refreshed: refreshedCount,
+                errors: errorCount,
+                duration: `${duration}s`
+            });
+            
+            return {
+                success: true,
+                total: trackingOrders.length,
+                refreshed: refreshedCount,
+                errors: errorCount
+            };
+        } catch (error) {
+            logger.error('❌ Error in forceRefreshAllOrders:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Sync all TrackingOrder statuses to Order models
+     * This fixes any existing orders that have status mismatches
+     */
+    async syncAllTrackingOrderStatuses() {
+        try {
+            logger.info('🔄 Starting sync of TrackingOrder statuses to Order models...');
+            
+            // Get all tracking orders (including delivered ones)
+            const trackingOrders = await TrackingOrder.find({}).lean();
+            
+            logger.info(`📊 Found ${trackingOrders.length} tracking orders to sync`);
+            
+            let syncedCount = 0;
+            let skippedCount = 0;
+            let errorCount = 0;
+            
+            for (const trackingOrder of trackingOrders) {
+                try {
+                    // Try finding order by order_id first
+                    let order = await Order.findOne({ order_id: trackingOrder.order_id });
+                    
+                    // If not found, try finding by AWB number
+                    if (!order && trackingOrder.awb_number) {
+                        order = await Order.findOne({
+                            $or: [
+                                { 'delhivery_data.waybill': trackingOrder.awb_number },
+                                { 'shipping_info.awb_number': trackingOrder.awb_number }
+                            ]
+                        });
+                    }
+                    
+                    if (!order) {
+                        logger.warn(`⚠️ Order not found for tracking order: ${trackingOrder.order_id}, AWB: ${trackingOrder.awb_number}`);
+                        skippedCount++;
+                        continue;
+                    }
+                    
+                    // Normalize statuses for comparison
+                    const orderStatus = (order.status || '').trim().toLowerCase();
+                    const trackingStatus = (trackingOrder.current_status || '').trim().toLowerCase();
+                    
+                    // Check if TrackingOrder says it's delivered but status doesn't match
+                    const shouldBeDelivered = trackingOrder.is_delivered === true;
+                    const isActuallyDelivered = trackingStatus === 'delivered';
+                    
+                    logger.info(`🔍 Comparing statuses for order ${trackingOrder.order_id}:`, {
+                        order_id: trackingOrder.order_id,
+                        awb: trackingOrder.awb_number,
+                        order_status: order.status,
+                        tracking_status: trackingOrder.current_status,
+                        tracking_is_delivered: trackingOrder.is_delivered,
+                        should_be_delivered: shouldBeDelivered,
+                        is_actually_delivered: isActuallyDelivered,
+                        statuses_match: orderStatus === trackingStatus
+                    });
+                    
+                    // Determine the correct status to use
+                    let correctStatus = trackingOrder.current_status;
+                    
+                    // If TrackingOrder says it's delivered but status is wrong, fix it
+                    if (shouldBeDelivered && !isActuallyDelivered) {
+                        logger.warn(`⚠️ TrackingOrder ${trackingOrder.order_id} has is_delivered=true but current_status="${trackingOrder.current_status}" - fixing to "delivered"`);
+                        correctStatus = 'delivered';
+                        
+                        // Update TrackingOrder status
+                        const trackingOrderDoc = await TrackingOrder.findOne({ _id: trackingOrder._id });
+                        if (trackingOrderDoc) {
+                            trackingOrderDoc.current_status = 'delivered';
+                            await trackingOrderDoc.save();
+                        }
+                    }
+                    
+                    // ALWAYS update Order model to match TrackingOrder status
+                    // This ensures Order is always in sync, even if statuses appear to match
+                    // (they might match but Order might be stale)
+                    if (orderStatus !== correctStatus.toLowerCase()) {
+                        await this.updateOrderStatus(order.order_id, correctStatus, {
+                            status_location: trackingOrder.delivery_location || trackingOrder.status_history?.[trackingOrder.status_history.length - 1]?.status_location,
+                            status_date_time: trackingOrder.delivered_at || trackingOrder.last_tracked_at || new Date()
+                        });
+                        
+                        syncedCount++;
+                        logger.info(`✅ Synced order ${trackingOrder.order_id} (AWB: ${trackingOrder.awb_number}): ${order.status} → ${correctStatus}`);
+                    } else {
+                        // Even if statuses match, ensure Order is updated (in case of other field changes)
+                        // But don't count as "synced" if status already matches
+                        logger.info(`ℹ️ Order ${trackingOrder.order_id} already has correct status: ${correctStatus}`);
+                        skippedCount++;
+                    }
+                } catch (error) {
+                    logger.error(`❌ Error syncing order ${trackingOrder.order_id}:`, error.message);
+                    errorCount++;
+                }
+            }
+            
+            logger.info('✅ Completed sync of TrackingOrder statuses', {
+                total: trackingOrders.length,
+                synced: syncedCount,
+                skipped: skippedCount,
+                errors: errorCount
+            });
+            
+            return {
+                success: true,
+                total: trackingOrders.length,
+                synced: syncedCount,
+                skipped: skippedCount,
+                errors: errorCount
+            };
+        } catch (error) {
+            logger.error('❌ Error in syncAllTrackingOrderStatuses:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
