@@ -4,10 +4,10 @@
 User-agent: *
 # Allow all static assets (favicon, images, logos)
 Allow: /favicon.ico
+Allow: /favicon.svg
 Allow: /LOGO.png
 Allow: /NEW LOGO.png
 Allow: /shipsarthi-logo.png
-Allow: /Final logo Figma 1.svg
 Allow: /*.svg
 Allow: /*.png
 Allow: /*.ico
