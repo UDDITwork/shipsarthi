@@ -27,7 +27,7 @@
       ]
     },
     {
-      "source": "/Final logo Figma 1.svg",
+      "source": "/favicon.svg",
       "headers": [
         {
           "key": "Cache-Control",
@@ -63,8 +63,8 @@
       "destination": "/favicon.ico"
     },
     {
-      "source": "/Final logo Figma 1.svg",
-      "destination": "/Final logo Figma 1.svg"
+      "source": "/favicon.svg",
+      "destination": "/favicon.svg"
     },
     {
       "source": "/sitemap.xml",
