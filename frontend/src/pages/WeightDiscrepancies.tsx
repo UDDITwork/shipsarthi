@@ -129,9 +129,9 @@ AWB Status: ${discrepancy.awb_status}
 Discrepancy Date: ${formatDate(discrepancy.discrepancy_date)}
 
 Weight Details:
-- Declared Weight: ${discrepancy.client_declared_weight.toFixed(2)} kg
-- Actual Weight: ${discrepancy.delhivery_updated_weight.toFixed(2)} kg
-- Weight Difference: ${discrepancy.weight_discrepancy.toFixed(2)} kg
+- Declared Weight: ${discrepancy.client_declared_weight.toFixed(2)} g
+- Actual Weight: ${discrepancy.delhivery_updated_weight.toFixed(2)} g
+- Weight Difference: ${discrepancy.weight_discrepancy.toFixed(2)} g
 
 Deduction Amount: ₹${discrepancy.deduction_amount.toFixed(2)}
 Transaction ID: ${discrepancy.transaction_id?.transaction_id || 'N/A'}
@@ -181,7 +181,7 @@ I would like to dispute this weight discrepancy and the associated deduction. Pl
             <div className="summary-card-icon">📊</div>
             <div className="summary-card-content">
               <div className="summary-card-label">Total Weight Difference</div>
-              <div className="summary-card-value">{summary.total_weight_discrepancy.toFixed(1)} kg</div>
+              <div className="summary-card-value">{summary.total_weight_discrepancy.toFixed(1)} g</div>
             </div>
           </div>
           
@@ -273,9 +273,9 @@ I would like to dispute this weight discrepancy and the associated deduction. Pl
                           {disc.awb_status}
                         </span>
                       </td>
-                      <td>{disc.client_declared_weight.toFixed(2)} kg</td>
-                      <td>{disc.delhivery_updated_weight.toFixed(2)} kg</td>
-                      <td className="diff-cell">{disc.weight_discrepancy.toFixed(2)} kg</td>
+                      <td>{disc.client_declared_weight.toFixed(2)} g</td>
+                      <td>{disc.delhivery_updated_weight.toFixed(2)} g</td>
+                      <td className="diff-cell">{disc.weight_discrepancy.toFixed(2)} g</td>
                       <td className="deduction-cell">-₹{disc.deduction_amount.toFixed(2)}</td>
                       <td className="transaction-id">{disc.transaction_id?.transaction_id || 'N/A'}</td>
                       <td>

@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const https = require('https');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
@@ -457,6 +458,559 @@ router.post('/logout', auth, async (req, res) => {
       error: error.message,
       stack: error.stack,
       userId: req.user._id
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
+    });
+  }
+});
+
+// @desc    Send OTP to mobile number for forgot password
+// @route   POST /api/auth/forgot-password/send-otp
+// @access  Public
+router.post('/forgot-password/send-otp', [
+  body('mobile').matches(/^[6-9]\d{9}$/).withMessage('Please provide a valid 10-digit mobile number')
+], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Forgot password - Send OTP request started', {
+    mobile: req.body.mobile,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Forgot password send OTP validation failed', {
+        errors: errors.array(),
+        mobile: req.body.mobile
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { mobile } = req.body;
+    
+    // Check if user exists with this mobile number
+    const user = await User.findOne({ phone_number: mobile });
+    
+    if (!user) {
+      logger.warn('Forgot password send OTP failed - user not found', { mobile });
+      return res.status(404).json({
+        status: 'error',
+        message: 'No account found with this mobile number'
+      });
+    }
+
+    // Format mobile for MSG91 (add country code)
+    const formattedMobile = mobile.length === 10 ? `91${mobile}` : mobile;
+
+    // Get LOGIN_TEMPLATE_ID from environment
+    const loginTemplateId = process.env.LOGIN_TEMPLATE_ID || process.env.MSG91_TEMPLATE_ID;
+    const authKey = process.env.MSG91_AUTH_KEY;
+    const otpExpiry = process.env.MSG91_OTP_EXPIRY || '5';
+
+    if (!authKey) {
+      logger.error('MSG91_AUTH_KEY is not configured');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error'
+      });
+    }
+
+    // Send OTP via MSG91 API (exact format as per user's request)
+    return new Promise((resolve) => {
+      const options = {
+        method: 'POST',
+        hostname: 'control.msg91.com',
+        port: null,
+        path: `/api/v5/otp?otp_expiry=${otpExpiry}&template_id=${loginTemplateId}&mobile=${formattedMobile}&authkey=${authKey}&realTimeResponse=`,
+        headers: {
+          'content-type': 'application/json',
+          'Content-Type': 'application/JSON'
+        }
+      };
+
+      const requestData = {
+        Param1: user.company_name || 'value1',
+        Param2: user.your_name || 'value2',
+        Param3: 'value3'
+      };
+
+      const req_otp = https.request(options, (res_otp) => {
+        const chunks = [];
+
+        res_otp.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+
+        res_otp.on('end', () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const response = JSON.parse(body.toString());
+
+            logger.info('MSG91 Send OTP Response for forgot password', {
+              mobile,
+              status: res_otp.statusCode,
+              response: response
+            });
+
+            if (res_otp.statusCode === 200 && response.type === 'success') {
+              const responseTime = Date.now() - startTime;
+              logger.info('OTP sent successfully for forgot password', {
+                userId: user._id,
+                mobile,
+                responseTime: `${responseTime}ms`
+              });
+
+              res.json({
+                status: 'success',
+                message: 'OTP sent successfully to your mobile number',
+                mobile: mobile
+              });
+              resolve();
+            } else {
+              logger.error('MSG91 Send OTP failed for forgot password', {
+                mobile,
+                error: response.message
+              });
+              res.status(500).json({
+                status: 'error',
+                message: response.message || 'Failed to send OTP. Please try again.'
+              });
+              resolve();
+            }
+          } catch (error) {
+            logger.error('MSG91 Send OTP Parse Error for forgot password', {
+              mobile,
+              error: error.message
+            });
+            res.status(500).json({
+              status: 'error',
+              message: 'Failed to send OTP. Please try again.'
+            });
+            resolve();
+          }
+        });
+      });
+
+      req_otp.on('error', (error) => {
+        logger.error('MSG91 Send OTP Request Error for forgot password', {
+          mobile,
+          error: error.message
+        });
+        res.status(500).json({
+          status: 'error',
+          message: 'Network error. Please try again.'
+        });
+        resolve();
+      });
+
+      req_otp.write(JSON.stringify(requestData));
+      req_otp.end();
+    });
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    logger.error('Forgot password send OTP error occurred', {
+      error: error.message,
+      stack: error.stack,
+      mobile: req.body.mobile,
+      responseTime: `${responseTime}ms`
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
+    });
+  }
+});
+
+// @desc    Verify OTP for forgot password
+// @route   POST /api/auth/forgot-password/verify-otp
+// @access  Public
+router.post('/forgot-password/verify-otp', [
+  body('mobile').matches(/^[6-9]\d{9}$/).withMessage('Please provide a valid 10-digit mobile number'),
+  body('otp').matches(/^\d{4,6}$/).withMessage('OTP must be 4-6 digits')
+], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Forgot password - Verify OTP request started', {
+    mobile: req.body.mobile,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Forgot password verify OTP validation failed', {
+        errors: errors.array(),
+        mobile: req.body.mobile
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { mobile, otp } = req.body;
+    
+    // Check if user exists with this mobile number
+    const user = await User.findOne({ phone_number: mobile });
+    
+    if (!user) {
+      logger.warn('Forgot password verify OTP failed - user not found', { mobile });
+      return res.status(404).json({
+        status: 'error',
+        message: 'No account found with this mobile number'
+      });
+    }
+
+    // Format mobile for MSG91 (add country code)
+    const formattedMobile = mobile.length === 10 ? `91${mobile}` : mobile;
+    const authKey = process.env.MSG91_AUTH_KEY;
+
+    if (!authKey) {
+      logger.error('MSG91_AUTH_KEY is not configured');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error'
+      });
+    }
+
+    // Verify OTP via MSG91 API (exact format as per user's request)
+    return new Promise((resolve) => {
+      const options = {
+        method: 'GET',
+        hostname: 'control.msg91.com',
+        port: null,
+        path: `/api/v5/otp/verify?otp=${otp}&mobile=${formattedMobile}`,
+        headers: {
+          authkey: authKey
+        }
+      };
+
+      const req_verify = https.request(options, (res_verify) => {
+        const chunks = [];
+
+        res_verify.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+
+        res_verify.on('end', () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const response = JSON.parse(body.toString());
+
+            logger.info('MSG91 Verify OTP Response for forgot password', {
+              mobile,
+              status: res_verify.statusCode,
+              response: response
+            });
+
+            if (res_verify.statusCode === 200 && response.type === 'success') {
+              const responseTime = Date.now() - startTime;
+              logger.info('OTP verified successfully for forgot password', {
+                userId: user._id,
+                mobile,
+                responseTime: `${responseTime}ms`
+              });
+
+              res.json({
+                status: 'success',
+                message: 'OTP verified successfully',
+                mobile: mobile,
+                verified: true
+              });
+              resolve();
+            } else {
+              logger.warn('OTP verification failed for forgot password', {
+                mobile,
+                error: response.message
+              });
+              res.status(400).json({
+                status: 'error',
+                message: response.message || 'Invalid OTP'
+              });
+              resolve();
+            }
+          } catch (error) {
+            logger.error('MSG91 Verify OTP Parse Error for forgot password', {
+              mobile,
+              error: error.message
+            });
+            res.status(500).json({
+              status: 'error',
+              message: 'Failed to verify OTP. Please try again.'
+            });
+            resolve();
+          }
+        });
+      });
+
+      req_verify.on('error', (error) => {
+        logger.error('MSG91 Verify OTP Request Error for forgot password', {
+          mobile,
+          error: error.message
+        });
+        res.status(500).json({
+          status: 'error',
+          message: 'Network error. Please try again.'
+        });
+        resolve();
+      });
+
+      req_verify.end();
+    });
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    logger.error('Forgot password verify OTP error occurred', {
+      error: error.message,
+      stack: error.stack,
+      mobile: req.body.mobile,
+      responseTime: `${responseTime}ms`
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
+    });
+  }
+});
+
+// @desc    Resend OTP for forgot password
+// @route   POST /api/auth/forgot-password/resend-otp
+// @access  Public
+router.post('/forgot-password/resend-otp', [
+  body('mobile').matches(/^[6-9]\d{9}$/).withMessage('Please provide a valid 10-digit mobile number'),
+  body('retrytype').optional().isIn(['sms', 'voice']).withMessage('Retry type must be sms or voice')
+], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Forgot password - Resend OTP request started', {
+    mobile: req.body.mobile,
+    retrytype: req.body.retrytype || 'sms',
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Forgot password resend OTP validation failed', {
+        errors: errors.array(),
+        mobile: req.body.mobile
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { mobile, retrytype = 'sms' } = req.body;
+    
+    // Check if user exists with this mobile number
+    const user = await User.findOne({ phone_number: mobile });
+    
+    if (!user) {
+      logger.warn('Forgot password resend OTP failed - user not found', { mobile });
+      return res.status(404).json({
+        status: 'error',
+        message: 'No account found with this mobile number'
+      });
+    }
+
+    // Format mobile for MSG91 (add country code)
+    const formattedMobile = mobile.length === 10 ? `91${mobile}` : mobile;
+    const authKey = process.env.MSG91_AUTH_KEY;
+
+    if (!authKey) {
+      logger.error('MSG91_AUTH_KEY is not configured');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error'
+      });
+    }
+
+    // Resend OTP via MSG91 API (exact format as per user's request)
+    return new Promise((resolve) => {
+      const options = {
+        method: 'GET',
+        hostname: 'control.msg91.com',
+        port: null,
+        path: `/api/v5/otp/retry?authkey=${authKey}&retrytype=${retrytype}&mobile=${formattedMobile}`,
+        headers: {}
+      };
+
+      const req_resend = https.request(options, (res_resend) => {
+        const chunks = [];
+
+        res_resend.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+
+        res_resend.on('end', () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const response = JSON.parse(body.toString());
+
+            logger.info('MSG91 Resend OTP Response for forgot password', {
+              mobile,
+              retrytype,
+              status: res_resend.statusCode,
+              response: response
+            });
+
+            if (res_resend.statusCode === 200 && response.type === 'success') {
+              const responseTime = Date.now() - startTime;
+              logger.info('OTP resent successfully for forgot password', {
+                userId: user._id,
+                mobile,
+                retrytype,
+                responseTime: `${responseTime}ms`
+              });
+
+              res.json({
+                status: 'success',
+                message: 'OTP resent successfully',
+                mobile: mobile,
+                retrytype: retrytype
+              });
+              resolve();
+            } else {
+              logger.error('MSG91 Resend OTP failed for forgot password', {
+                mobile,
+                error: response.message
+              });
+              res.status(500).json({
+                status: 'error',
+                message: response.message || 'Failed to resend OTP. Please try again.'
+              });
+              resolve();
+            }
+          } catch (error) {
+            logger.error('MSG91 Resend OTP Parse Error for forgot password', {
+              mobile,
+              error: error.message
+            });
+            res.status(500).json({
+              status: 'error',
+              message: 'Failed to resend OTP. Please try again.'
+            });
+            resolve();
+          }
+        });
+      });
+
+      req_resend.on('error', (error) => {
+        logger.error('MSG91 Resend OTP Request Error for forgot password', {
+          mobile,
+          error: error.message
+        });
+        res.status(500).json({
+          status: 'error',
+          message: 'Network error. Please try again.'
+        });
+        resolve();
+      });
+
+      req_resend.end();
+    });
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    logger.error('Forgot password resend OTP error occurred', {
+      error: error.message,
+      stack: error.stack,
+      mobile: req.body.mobile,
+      responseTime: `${responseTime}ms`
+    });
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
+    });
+  }
+});
+
+// @desc    Reset password after OTP verification
+// @route   POST /api/auth/forgot-password/reset
+// @access  Public
+router.post('/forgot-password/reset', [
+  body('mobile').matches(/^[6-9]\d{9}$/).withMessage('Please provide a valid 10-digit mobile number'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Forgot password - Reset password request started', {
+    mobile: req.body.mobile,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Forgot password reset validation failed', {
+        errors: errors.array(),
+        mobile: req.body.mobile
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { mobile, password } = req.body;
+
+    logger.debug('Searching for user with mobile', { mobile });
+    const user = await User.findOne({ phone_number: mobile });
+
+    if (!user) {
+      logger.warn('Forgot password reset failed - user not found', {
+        mobile
+      });
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    logger.info('User found for password reset', {
+      userId: user._id,
+      mobile: user.phone_number,
+      accountStatus: user.account_status
+    });
+
+    // Set new password (mongoose will hash it automatically via pre-save hook)
+    user.password = password;
+    // Clear any existing reset tokens
+    user.password_reset_token = undefined;
+    user.password_reset_expires = undefined;
+    await user.save();
+
+    const responseTime = Date.now() - startTime;
+    logger.info('Password reset completed successfully', {
+      userId: user._id,
+      mobile: user.phone_number,
+      responseTime: `${responseTime}ms`
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Password reset successful. You can now login with your new password.'
+    });
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    logger.error('Forgot password reset error occurred', {
+      error: error.message,
+      stack: error.stack,
+      mobile: req.body.mobile,
+      responseTime: `${responseTime}ms`
     });
     res.status(500).json({
       status: 'error',

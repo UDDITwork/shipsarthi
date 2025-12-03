@@ -168,15 +168,40 @@ class TrackingService {
                         const statusObj = shipmentData.Shipment.Status;
                         const statusValue = statusObj.Status || extractedStatus.apiStatus;
                         
+                        // Log raw API status extraction
+                        logger.info('🔍 Extracted status from API response', {
+                            orderId: orderId,
+                            awb: awbNumber,
+                            rawStatusValue: statusValue,
+                            statusObjKeys: Object.keys(statusObj),
+                            extractedStatusApiStatus: extractedStatus.apiStatus,
+                            statusPath: 'ShipmentData[0].Shipment.Status.Status'
+                        });
+                        
                         if (statusValue) {
                             // Store raw API status
                             trackingOrder.api_status = statusValue;
                             trackingOrder.delhivery_status = statusValue;
                             
                             // Map to internal status for classification
+                            logger.debug('🔄 Starting status mapping', {
+                                orderId: orderId,
+                                awb: awbNumber,
+                                rawApiStatus: statusValue
+                            });
+                            
                             const mappedStatus = this.mapDelhiveryStatus(statusValue);
                             
+                            // Log mapping result
                             if (mappedStatus) {
+                                logger.info('✅ Status mapping successful', {
+                                    orderId: orderId,
+                                    awb: awbNumber,
+                                    rawApiStatus: statusValue,
+                                    mappedStatus: mappedStatus,
+                                    category: this.getStatusCategory(mappedStatus)
+                                });
+                                
                                 const oldTrackingStatus = trackingOrder.current_status;
                                 const statusChanged = mappedStatus !== oldTrackingStatus;
                                 
@@ -191,11 +216,26 @@ class TrackingService {
                                         apiStatus: statusValue,
                                         category: this.getStatusCategory(mappedStatus)
                                     });
+                                } else {
+                                    logger.debug('ℹ️ TrackingOrder status unchanged', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        currentStatus: oldTrackingStatus,
+                                        apiStatus: statusValue,
+                                        mappedStatus: mappedStatus
+                                    });
                                 }
                                 
                                 // ALWAYS update Order model when we have a mapped status
                                 // This ensures Order model stays in sync with TrackingOrder
                                 // Even if TrackingOrder status didn't change, Order might be out of sync
+                                logger.debug('🔄 Updating Order model status', {
+                                    orderId: orderId,
+                                    awb: awbNumber,
+                                    mappedStatus: mappedStatus,
+                                    rawApiStatus: statusValue
+                                });
+                                
                                 const updateResult = await this.updateOrderStatus(orderId, mappedStatus, {
                                     status_location: statusObj.StatusLocation || extractedStatus.statusLocation,
                                     status_date_time: statusObj.StatusDateTime || extractedStatus.statusDateTime || new Date(),
@@ -208,14 +248,101 @@ class TrackingService {
                                     logger.info('✅ Order model updated successfully', {
                                         orderId: orderId,
                                         awb: awbNumber,
-                                        status: mappedStatus
+                                        status: mappedStatus,
+                                        rawApiStatus: statusValue
                                     });
                                 } else {
                                     logger.warn('⚠️ Order model update returned false', {
                                         orderId: orderId,
                                         awb: awbNumber,
-                                        status: mappedStatus
+                                        status: mappedStatus,
+                                        rawApiStatus: statusValue,
+                                        note: 'Order may not exist or update failed - check logs above'
                                     });
+                                }
+                            } else {
+                                // MAPPING FAILED - This is the critical issue!
+                                logger.error('❌ Status mapping returned NULL - Order status will NOT be updated!', {
+                                    orderId: orderId,
+                                    awb: awbNumber,
+                                    rawApiStatus: statusValue,
+                                    normalizedStatus: String(statusValue).trim().toLowerCase(),
+                                    issue: 'Status from Delhivery API could not be mapped to internal status',
+                                    impact: 'Order will not appear in correct category on frontend',
+                                    suggestion: 'Check mapDelhiveryStatus() function - may need to add this status variant'
+                                });
+                                
+                                // Fallback handling: Try to intelligently guess the status
+                                let fallbackStatus = null;
+                                
+                                // Try to infer status from raw status value
+                                const lowerRawStatus = String(statusValue).trim().toLowerCase();
+                                
+                                // Heuristic fallback mapping
+                                if (lowerRawStatus.includes('transit') || lowerRawStatus.includes('in transit')) {
+                                    fallbackStatus = 'in_transit';
+                                    logger.warn('⚠️ Using heuristic fallback: detected transit-related status', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        rawApiStatus: statusValue,
+                                        fallbackStatus: fallbackStatus
+                                    });
+                                } else if (lowerRawStatus.includes('deliver')) {
+                                    fallbackStatus = 'delivered';
+                                    logger.warn('⚠️ Using heuristic fallback: detected delivery-related status', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        rawApiStatus: statusValue,
+                                        fallbackStatus: fallbackStatus
+                                    });
+                                } else if (lowerRawStatus.includes('out for delivery') || lowerRawStatus.includes('ofd')) {
+                                    fallbackStatus = 'out_for_delivery';
+                                    logger.warn('⚠️ Using heuristic fallback: detected out for delivery status', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        rawApiStatus: statusValue,
+                                        fallbackStatus: fallbackStatus
+                                    });
+                                } else {
+                                    // Last resort: keep existing status or use safe default
+                                    fallbackStatus = trackingOrder.current_status || 'pickups_manifests';
+                                    logger.warn('⚠️ Using existing/default status as fallback', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        fallbackStatus: fallbackStatus,
+                                        rawApiStatus: statusValue,
+                                        note: 'Could not map status - keeping existing status to avoid breaking order flow'
+                                    });
+                                }
+                                
+                                // If we have a fallback status, try to update (but log it as a fallback)
+                                if (fallbackStatus) {
+                                    logger.info('🔄 Attempting to update with fallback status', {
+                                        orderId: orderId,
+                                        awb: awbNumber,
+                                        fallbackStatus: fallbackStatus,
+                                        rawApiStatus: statusValue,
+                                        note: 'This is a fallback - consider adding proper mapping for this status'
+                                    });
+                                    
+                                    const fallbackUpdateResult = await this.updateOrderStatus(orderId, fallbackStatus, {
+                                        status_location: statusObj.StatusLocation || extractedStatus.statusLocation,
+                                        status_date_time: statusObj.StatusDateTime || extractedStatus.statusDateTime || new Date(),
+                                        awb_number: awbNumber,
+                                        raw_api_status: statusValue,
+                                        api_status: extractedStatus.apiStatus,
+                                        is_fallback: true // Mark as fallback update
+                                    });
+                                    
+                                    if (fallbackUpdateResult) {
+                                        logger.warn('⚠️ Order updated with fallback status (action required)', {
+                                            orderId: orderId,
+                                            awb: awbNumber,
+                                            fallbackStatus: fallbackStatus,
+                                            rawApiStatus: statusValue,
+                                            action: 'Please add proper mapping for this status in mapDelhiveryStatus()'
+                                        });
+                                    }
                                 }
                             }
                             
@@ -446,6 +573,14 @@ class TrackingService {
         let statusType = null;
         let statusLocation = null;
         let statusDateTime = null;
+        let extractionPath = null;
+        
+        logger.debug('🔍 Extracting status from API response', {
+            hasShipmentData: !!(apiResponse.ShipmentData && Array.isArray(apiResponse.ShipmentData)),
+            shipmentDataLength: apiResponse.ShipmentData ? apiResponse.ShipmentData.length : 0,
+            hasRootStatus: !!apiResponse.Status,
+            responseKeys: Object.keys(apiResponse)
+        });
         
         // Primary extraction path: ShipmentData[0].Shipment.Status.Status
         if (apiResponse.ShipmentData && Array.isArray(apiResponse.ShipmentData) && apiResponse.ShipmentData.length > 0) {
@@ -458,8 +593,20 @@ class TrackingService {
                 // Main status field - this is what we use for classification
                 if (statusObj.Status) {
                     apiStatus = statusObj.Status;
+                    extractionPath = 'ShipmentData[0].Shipment.Status.Status';
+                    logger.debug('✅ Status extracted from primary path', {
+                        path: extractionPath,
+                        status: apiStatus,
+                        statusType: statusObj.StatusType,
+                        statusLocation: statusObj.StatusLocation
+                    });
                 } else if (typeof statusObj === 'string') {
                     apiStatus = statusObj;
+                    extractionPath = 'ShipmentData[0].Shipment.Status (string)';
+                    logger.debug('✅ Status extracted from Status object (string)', {
+                        path: extractionPath,
+                        status: apiStatus
+                    });
                 }
                 
                 // Additional status metadata
@@ -472,11 +619,21 @@ class TrackingService {
             if (!apiStatus && shipmentData.Status) {
                 if (shipmentData.Status.Status) {
                     apiStatus = shipmentData.Status.Status;
+                    extractionPath = 'ShipmentData[0].Status.Status';
                     statusType = shipmentData.Status.StatusType || null;
                     statusLocation = shipmentData.Status.StatusLocation || null;
                     statusDateTime = shipmentData.Status.StatusDateTime || null;
+                    logger.debug('✅ Status extracted from fallback path', {
+                        path: extractionPath,
+                        status: apiStatus
+                    });
                 } else if (typeof shipmentData.Status === 'string') {
                     apiStatus = shipmentData.Status;
+                    extractionPath = 'ShipmentData[0].Status (string)';
+                    logger.debug('✅ Status extracted from shipmentData.Status (string)', {
+                        path: extractionPath,
+                        status: apiStatus
+                    });
                 }
             }
         }
@@ -485,17 +642,39 @@ class TrackingService {
         if (!apiStatus && apiResponse.Status) {
             if (apiResponse.Status.Status) {
                 apiStatus = apiResponse.Status.Status;
+                extractionPath = 'Status.Status (root)';
                 statusType = apiResponse.Status.StatusType || null;
+                logger.debug('✅ Status extracted from root level', {
+                    path: extractionPath,
+                    status: apiStatus
+                });
             } else if (typeof apiResponse.Status === 'string') {
                 apiStatus = apiResponse.Status;
+                extractionPath = 'Status (root, string)';
+                logger.debug('✅ Status extracted from root Status (string)', {
+                    path: extractionPath,
+                    status: apiStatus
+                });
             }
+        }
+        
+        if (!apiStatus) {
+            logger.warn('⚠️ Could not extract status from API response', {
+                responseStructure: {
+                    hasShipmentData: !!apiResponse.ShipmentData,
+                    shipmentDataIsArray: Array.isArray(apiResponse.ShipmentData),
+                    hasRootStatus: !!apiResponse.Status,
+                    topLevelKeys: Object.keys(apiResponse)
+                }
+            });
         }
         
         return { 
             apiStatus, 
             statusType, 
             statusLocation, 
-            statusDateTime 
+            statusDateTime,
+            extractionPath
         };
     }
 
@@ -503,17 +682,36 @@ class TrackingService {
      * Map Delhivery status to internal status
      * Based on actual API response structure from tracking test results
      * Status values found: "Delivered", "Pending", "In Transit", "Dispatched", "Manifested"
+     * 
+     * Handles various formats:
+     * - "In Transit" (with space, capitals) → "in_transit"
+     * - "IN TRANSIT" (all caps) → "in_transit"
+     * - "in transit" (lowercase) → "in_transit"
+     * - "In-Transit" (hyphen) → "in_transit"
+     * - "in_transit" (underscore) → "in_transit"
      */
     mapDelhiveryStatus(delhiveryStatus) {
-        if (!delhiveryStatus) return null;
+        if (!delhiveryStatus) {
+            logger.warn('⚠️ mapDelhiveryStatus called with null/undefined status');
+            return null;
+        }
         
         // Normalize status string (case-insensitive matching)
+        // Remove extra whitespace and normalize to lowercase
         const normalizedStatus = String(delhiveryStatus).trim();
         const lowerStatus = normalizedStatus.toLowerCase();
+        
+        // Log raw status for debugging
+        logger.debug('🔄 Mapping Delhivery status', {
+            rawStatus: delhiveryStatus,
+            normalizedStatus: normalizedStatus,
+            lowerStatus: lowerStatus
+        });
         
         const statusMap = {
             // Delivered - FINAL STATUS (stops tracking)
             'delivered': 'delivered',
+            'delivered ': 'delivered', // Extra space
             
             // Out for Delivery - On the way to customer (still tracking)
             'out for delivery': 'out_for_delivery',
@@ -522,52 +720,84 @@ class TrackingService {
             'out_for_delivery': 'out_for_delivery',
             'ofd': 'out_for_delivery',
             'out for delivery (ofd)': 'out_for_delivery',
+            'out for delivery': 'out_for_delivery',
+            'outfordelivery': 'out_for_delivery',
             
             // Pending - Waiting at destination facility (still tracking)
             'pending': 'in_transit',
             
             // In Transit - Shipment is moving (still tracking)
+            // Handle all variations: "In Transit", "IN TRANSIT", "in transit", "In-Transit", etc.
             'in transit': 'in_transit',
             'intransit': 'in_transit',
             'in-transit': 'in_transit',
             'in_transit': 'in_transit',
+            'in  transit': 'in_transit', // Double space
+            'in-transit': 'in_transit', // Hyphen
+            'in_transit': 'in_transit', // Underscore
+            'intransit': 'in_transit', // No space
+            // Common typos/variations
+            'in transist': 'in_transit',
+            'intranist': 'in_transit',
             
             // Dispatched - Out for delivery (still tracking)
             'dispatched': 'out_for_delivery',
             
             // Manifested - Initial status (still tracking)
             'manifested': 'pickups_manifests',
+            'manifest': 'pickups_manifests',
             
             // RTO - Return to Origin (stops tracking)
             'rto': 'rto',
             'return to origin': 'rto',
             'returned': 'rto',
+            'r.t.o': 'rto',
+            'r.t.o.': 'rto',
             
             // Cancelled (stops tracking)
             'cancelled': 'cancelled',
             'canceled': 'cancelled',
+            'cancel': 'cancelled',
             
             // NDR - Non-Delivery Report (still tracking)
             'ndr': 'ndr',
             'non-delivery report': 'ndr',
             'non delivery report': 'ndr',
+            'non delivery': 'ndr',
             
             // Lost (stops tracking)
             'lost': 'lost',
             
             // Pickup/Manifest (still tracking)
             'pickup': 'pickups_manifests',
-            'manifest': 'pickups_manifests',
             'pickup and manifest': 'pickups_manifests',
             'pickups_manifests': 'pickups_manifests',
             'not picked': 'pickups_manifests',
             'notpicked': 'pickups_manifests',
             'not-picked': 'pickups_manifests',
-            'not_picked': 'pickups_manifests'
+            'not_picked': 'pickups_manifests',
+            'ready to ship': 'ready_to_ship',
+            'ready_to_ship': 'ready_to_ship'
         };
         
         // Direct lookup (case-insensitive)
-        return statusMap[lowerStatus] || null;
+        const mappedStatus = statusMap[lowerStatus] || null;
+        
+        if (!mappedStatus) {
+            logger.warn('⚠️ Unmapped Delhivery status', {
+                rawStatus: delhiveryStatus,
+                normalizedStatus: normalizedStatus,
+                lowerStatus: lowerStatus,
+                suggestion: 'Status not found in mapping table - may need to add it'
+            });
+        } else {
+            logger.debug('✅ Status mapped successfully', {
+                rawStatus: delhiveryStatus,
+                mappedStatus: mappedStatus
+            });
+        }
+        
+        return mappedStatus;
     }
 
     /**
@@ -655,6 +885,24 @@ class TrackingService {
             if (order) {
                 const oldStatus = order.status;
                 const rawApiStatus = additionalData.raw_api_status || additionalData.api_status || 'UNKNOWN';
+                const isFallback = additionalData.is_fallback || false;
+                
+                // Validate status against Order model enum before updating
+                const validStatuses = [
+                    'new', 'ready_to_ship', 'pickups_manifests', 'in_transit',
+                    'out_for_delivery', 'delivered', 'ndr', 'rto', 'cancelled', 'lost'
+                ];
+                
+                if (!validStatuses.includes(status)) {
+                    logger.error('❌ Invalid status for Order model', {
+                        orderId: orderId,
+                        invalidStatus: status,
+                        validStatuses: validStatuses,
+                        rawApiStatus: rawApiStatus,
+                        note: 'Status update blocked - status not in Order model enum'
+                    });
+                    return false;
+                }
                 
                 // ALWAYS update status from Delhivery API (even if same)
                 // This ensures database always has the latest status from API
@@ -687,13 +935,19 @@ class TrackingService {
                         newStatus: status,
                         rawApiStatus: rawApiStatus, // Show what Delhivery API actually sent
                         mappedStatus: status, // Show what we mapped it to
-                        order_id_in_db: order.order_id
+                        order_id_in_db: order.order_id,
+                        isFallback: isFallback,
+                        ...(isFallback && { 
+                            warning: 'This is a fallback update - consider adding proper mapping',
+                            actionRequired: 'Add status mapping for: ' + rawApiStatus
+                        })
                     });
                 } else {
                     logger.debug(`ℹ️ Order ${orderId} status confirmed`, {
                         status: status,
                         rawApiStatus: rawApiStatus, // Show what Delhivery API actually sent
-                        note: `Delhivery API sent "${rawApiStatus}", mapped to "${status}"`
+                        note: `Delhivery API sent "${rawApiStatus}", mapped to "${status}"`,
+                        isFallback: isFallback
                     });
                 }
                 
@@ -999,4 +1253,7 @@ class TrackingService {
     }
 }
 
-module.exports = new TrackingService();
+// Export both the class (for testing) and an instance (for production use)
+const trackingServiceInstance = new TrackingService();
+module.exports = trackingServiceInstance;
+module.exports.TrackingService = TrackingService; // Export class for testing

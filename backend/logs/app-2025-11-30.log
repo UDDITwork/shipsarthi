@@ -1,0 +1,223 @@
+[2025-11-30T02:52:25.147Z] [INFO] [PID:7604] ✅ Tracking service started - will run every 5 minutes
+[2025-11-30T02:55:00.039Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T02:55:00.057Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:00:00.041Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:00:00.047Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:05:00.079Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:05:00.081Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:10:00.040Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:10:00.044Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:15:00.036Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:15:00.045Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:20:00.031Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:20:00.035Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:25:00.027Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:25:00.030Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:30:00.037Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:30:00.040Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:35:00.035Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:35:00.038Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:40:00.039Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:40:00.044Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:45:00.028Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:45:00.030Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:50:00.033Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:50:00.035Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T03:55:00.035Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T03:55:00.038Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:00:00.042Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:00:00.048Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:05:00.060Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:05:00.063Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:10:00.044Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:10:00.046Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:15:00.015Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:15:00.017Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:20:00.026Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:20:00.029Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:25:00.094Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:25:00.097Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:30:00.043Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:30:00.048Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:35:00.040Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:35:00.045Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:40:00.024Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:40:00.027Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:45:00.062Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:45:00.066Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:50:00.047Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:50:00.051Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T04:55:00.035Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T04:55:00.041Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:00:00.037Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T05:00:00.040Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:05:00.060Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T05:05:00.063Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:10:00.031Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T05:10:00.033Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:15:00.043Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T05:15:00.047Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:20:00.053Z] [INFO] [PID:7604] 🔄 Starting scheduled shipment tracking...
+[2025-11-30T05:20:00.065Z] [ERROR] [PID:7604] ❌ Error in trackAllShipments: | Data: {
+  "errorLabelSet": {}
+}
+[2025-11-30T05:23:50.245Z] [INFO] [PID:28100] ✅ Tracking service started - will run every 5 minutes
+[2025-11-30T05:23:50.733Z] [INFO] [PID:28100] 🛑 Tracking service stopped
+[2025-11-30T05:23:50.738Z] [DEBUG] [PID:28100] 🔍 Extracting status from API response | Data: {
+  "hasShipmentData": true,
+  "shipmentDataLength": 1,
+  "hasRootStatus": false,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-30T05:23:50.740Z] [DEBUG] [PID:28100] ✅ Status extracted from primary path | Data: {
+  "path": "ShipmentData[0].Shipment.Status.Status",
+  "status": "In Transit",
+  "statusType": "UD",
+  "statusLocation": "Bikaner_MurlidharColony_I (Rajasthan)"
+}
+[2025-11-30T05:23:50.742Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "In Transit",
+  "normalizedStatus": "In Transit",
+  "lowerStatus": "in transit"
+}
+[2025-11-30T05:23:50.743Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "In Transit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.744Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "IN TRANSIT",
+  "normalizedStatus": "IN TRANSIT",
+  "lowerStatus": "in transit"
+}
+[2025-11-30T05:23:50.745Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "IN TRANSIT",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.746Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "in transit",
+  "normalizedStatus": "in transit",
+  "lowerStatus": "in transit"
+}
+[2025-11-30T05:23:50.747Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "in transit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.747Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "In-Transit",
+  "normalizedStatus": "In-Transit",
+  "lowerStatus": "in-transit"
+}
+[2025-11-30T05:23:50.748Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "In-Transit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.749Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "in_transit",
+  "normalizedStatus": "in_transit",
+  "lowerStatus": "in_transit"
+}
+[2025-11-30T05:23:50.749Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "in_transit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.750Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "In  Transit",
+  "normalizedStatus": "In  Transit",
+  "lowerStatus": "in  transit"
+}
+[2025-11-30T05:23:50.751Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "In  Transit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:50.752Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "Intransit",
+  "normalizedStatus": "Intransit",
+  "lowerStatus": "intransit"
+}
+[2025-11-30T05:23:50.752Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "Intransit",
+  "mappedStatus": "in_transit"
+}
+[2025-11-30T05:23:51.082Z] [DEBUG] [PID:28100] 🔍 Extracting status from API response | Data: {
+  "hasShipmentData": true,
+  "shipmentDataLength": 1,
+  "hasRootStatus": false,
+  "responseKeys": [
+    "ShipmentData"
+  ]
+}
+[2025-11-30T05:23:51.088Z] [DEBUG] [PID:28100] ✅ Status extracted from primary path | Data: {
+  "path": "ShipmentData[0].Shipment.Status.Status",
+  "status": "In Transit",
+  "statusType": "UD",
+  "statusLocation": "Bikaner_MurlidharColony_I (Rajasthan)"
+}
+[2025-11-30T05:23:51.093Z] [DEBUG] [PID:28100] 🔄 Mapping Delhivery status | Data: {
+  "rawStatus": "In Transit",
+  "normalizedStatus": "In Transit",
+  "lowerStatus": "in transit"
+}
+[2025-11-30T05:23:51.097Z] [DEBUG] [PID:28100] ✅ Status mapped successfully | Data: {
+  "rawStatus": "In Transit",
+  "mappedStatus": "in_transit"
+}

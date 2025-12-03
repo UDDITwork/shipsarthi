@@ -10,15 +10,37 @@ class WebhookService {
   /**
    * Map Delhivery status to internal status
    */
-  mapDelhiveryStatus(delhiveryStatus) {
+  /**
+   * Map Delhivery status to internal status
+   * Based on Delhivery B2C webhook status tables
+   * StatusType: UD (Update), DL (Delivered), RT (Return), PP (Pickup), PU (Pickup Shipment), CN (Canceled)
+   */
+  mapDelhiveryStatus(delhiveryStatus, statusType = null) {
+    // Normalize status string
+    const normalizedStatus = String(delhiveryStatus || '').trim();
+    
+    // Forward Shipment Statuses (StatusType: UD or DL)
     const statusMapping = {
+      // UD - Update statuses (Forward Shipment)
       'Manifested': 'pickups_manifests',
-      'Pickup Exception': 'pickups_manifests',
+      'Not Picked': 'pickups_manifests',
       'In Transit': 'in_transit',
+      'Pending': 'in_transit', // Reached destination city, not yet dispatched
+      'Dispatched': 'out_for_delivery', // Dispatched for delivery
       'Reached at destination': 'in_transit',
       'Reached Destination City': 'in_transit',
       'Out for Delivery': 'out_for_delivery',
+      'Pickup Exception': 'pickups_manifests',
+      
+      // DL - Delivered statuses (Forward Shipment)
       'Delivered': 'delivered',
+      
+      // RT - Return statuses (Return Shipment)
+      'RTO': 'rto', // When forward shipment is returned to origin
+      'RTO Initiated': 'rto',
+      'RTO Delivered': 'rto',
+      
+      // NDR statuses (Undelivered reasons)
       'Undelivered': 'ndr',
       'Customer not available': 'ndr',
       'Customer refused': 'ndr',
@@ -26,15 +48,68 @@ class WebhookService {
       'Cash not ready': 'ndr',
       'Consignee not available': 'ndr',
       'Delivery attempted': 'ndr',
-      'RTO': 'rto',
-      'RTO Initiated': 'rto',
-      'RTO Delivered': 'rto',
+      
+      // PP - Pickup statuses (Reverse Shipment - Pickup Request)
+      'Open': 'pickups_manifests', // Pickup request created
+      'Scheduled': 'pickups_manifests', // Pickup request scheduled
+      
+      // PU - Pickup Shipment statuses (Reverse Shipment - After Pickup)
+      // Note: These are already mapped above as 'In Transit', 'Pending', 'Dispatched'
+      
+      // DL - DTO status (Reverse Shipment - Delivered to Origin)
+      'DTO': 'delivered', // Pickup shipment accepted by client, POD received
+      
+      // CN - Canceled statuses
+      'Canceled': 'cancelled',
+      'Cancelled': 'cancelled',
+      'Closed': 'cancelled', // Reverse pickup canceled and closed
+      
+      // Other statuses
       'Lost': 'lost',
-      'Damaged': 'lost',
-      'Cancelled': 'cancelled'
+      'Damaged': 'lost'
     };
 
-    return statusMapping[delhiveryStatus] || 'in_transit';
+    // First try exact match
+    if (statusMapping[normalizedStatus]) {
+      return statusMapping[normalizedStatus];
+    }
+
+    // Try case-insensitive match
+    const lowerStatus = normalizedStatus.toLowerCase();
+    for (const [key, value] of Object.entries(statusMapping)) {
+      if (key.toLowerCase() === lowerStatus) {
+        return value;
+      }
+    }
+
+    // Use StatusType as fallback for better categorization
+    if (statusType) {
+      const normalizedType = String(statusType).trim().toUpperCase();
+      switch (normalizedType) {
+        case 'UD': // Update - forward shipment in progress
+          return 'in_transit';
+        case 'DL': // Delivered
+          if (normalizedStatus.toLowerCase().includes('rto')) {
+            return 'rto';
+          }
+          return 'delivered';
+        case 'RT': // Return shipment
+          return 'rto';
+        case 'PP': // Pickup request
+          return 'pickups_manifests';
+        case 'PU': // Pickup shipment
+          return 'in_transit';
+        case 'CN': // Canceled
+          return 'cancelled';
+      }
+    }
+
+    // Final fallback
+    logger.warn('⚠️ Unknown status, defaulting to in_transit', {
+      status: normalizedStatus,
+      statusType: statusType
+    });
+    return 'in_transit';
   }
 
   /**
@@ -120,7 +195,11 @@ class WebhookService {
           }
 
           if (order) {
-            const mappedStatus = this.mapDelhiveryStatus(statusData?.Status || '');
+            // Map status using both Status and StatusType for accurate mapping
+            const mappedStatus = this.mapDelhiveryStatus(
+              statusData?.Status || '', 
+              statusData?.StatusType || null
+            );
             
             // Update order status if changed
             if (order.status !== mappedStatus) {
