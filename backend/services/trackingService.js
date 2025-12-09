@@ -21,10 +21,10 @@ class TrackingService {
             return;
         }
 
-        // Run every 5 minutes (more reasonable - prevents missed executions)
+        // Run every 6 hours (webhooks are primary, polling is fallback only)
         // Format: minute hour day month dayOfWeek
-        // '*/5 * * * *' = every 5 minutes
-        this.trackingJob = cron.schedule('*/5 * * * *', async () => {
+        // '0 */6 * * *' = every 6 hours at minute 0
+        this.trackingJob = cron.schedule('0 */6 * * *', async () => {
             // Prevent overlapping executions
             if (this.isTrackingInProgress) {
                 logger.warn('⚠️ Tracking already in progress, skipping this execution');
@@ -46,7 +46,7 @@ class TrackingService {
         });
 
         this.isRunning = true;
-        logger.info('✅ Tracking service started - will run every 5 minutes');
+        logger.info('✅ Tracking service started - will run every 6 hours (webhooks are primary)');
     }
 
     /**

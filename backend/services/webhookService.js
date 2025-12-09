@@ -1,6 +1,7 @@
 // Location: backend/services/webhookService.js
 const mongoose = require('mongoose');
 const Order = require('../models/Order');
+const TrackingOrder = require('../models/TrackingOrder');
 const ShipmentTrackingEvent = require('../models/ShipmentTrackingEvent');
 const ShipmentDocument = require('../models/ShipmentDocument');
 const logger = require('../utils/logger');
@@ -16,30 +17,114 @@ class WebhookService {
    * StatusType: UD (Update), DL (Delivered), RT (Return), PP (Pickup), PU (Pickup Shipment), CN (Canceled)
    */
   mapDelhiveryStatus(delhiveryStatus, statusType = null) {
-    // Normalize status string
+    // Normalize status string and type
     const normalizedStatus = String(delhiveryStatus || '').trim();
-    
-    // Forward Shipment Statuses (StatusType: UD or DL)
+    const normalizedType = statusType ? String(statusType).trim().toUpperCase() : null;
+
+    // IMPORTANT: Check StatusType FIRST for ambiguous statuses like "Dispatched", "Pending", "In Transit"
+    // These statuses mean different things depending on whether it's forward (UD) or reverse (PP/PU) shipment
+
+    // Handle StatusType-specific mappings first (for reverse shipments)
+    if (normalizedType) {
+      // PP - Pickup Request statuses (Reverse Shipment - Before physical pickup)
+      if (normalizedType === 'PP') {
+        const ppMapping = {
+          'Open': 'pickups_manifests',      // Pickup request created in system
+          'Scheduled': 'pickups_manifests', // Pickup scheduled, moved from open
+          'Dispatched': 'out_for_delivery'  // Field executive out to collect package from customer
+        };
+        const lowerStatus = normalizedStatus.toLowerCase();
+        for (const [key, value] of Object.entries(ppMapping)) {
+          if (key.toLowerCase() === lowerStatus) {
+            return value;
+          }
+        }
+        // Fallback for PP type
+        return 'pickups_manifests';
+      }
+
+      // PU - Pickup Shipment statuses (Reverse Shipment - After physical pickup)
+      if (normalizedType === 'PU') {
+        const puMapping = {
+          'In Transit': 'in_transit',       // Pickup shipment in transit to RPC from DC
+          'Pending': 'in_transit',          // Reached RPC but not yet dispatched for delivery
+          'Dispatched': 'out_for_delivery'  // Dispatched for delivery to client from RPC
+        };
+        const lowerStatus = normalizedStatus.toLowerCase();
+        for (const [key, value] of Object.entries(puMapping)) {
+          if (key.toLowerCase() === lowerStatus) {
+            return value;
+          }
+        }
+        // Fallback for PU type
+        return 'in_transit';
+      }
+
+      // RT - Return statuses (Forward shipment converted to return)
+      if (normalizedType === 'RT') {
+        const rtMapping = {
+          'In Transit': 'rto',   // Return shipment in transit back to origin
+          'Pending': 'rto',      // Return reached DC nearest to origin
+          'Dispatched': 'rto'    // Return dispatched for delivery to origin
+        };
+        const lowerStatus = normalizedStatus.toLowerCase();
+        for (const [key, value] of Object.entries(rtMapping)) {
+          if (key.toLowerCase() === lowerStatus) {
+            return value;
+          }
+        }
+        // Fallback for RT type
+        return 'rto';
+      }
+
+      // CN - Canceled statuses
+      if (normalizedType === 'CN') {
+        return 'cancelled';
+      }
+
+      // DL - Delivered statuses (both forward and reverse)
+      if (normalizedType === 'DL') {
+        const dlMapping = {
+          'Delivered': 'delivered',  // Forward shipment delivered to customer
+          'RTO': 'rto',              // Forward shipment returned to origin
+          'DTO': 'delivered'         // Reverse pickup delivered to origin (client accepted)
+        };
+        const lowerStatus = normalizedStatus.toLowerCase();
+        for (const [key, value] of Object.entries(dlMapping)) {
+          if (key.toLowerCase() === lowerStatus) {
+            return value;
+          }
+        }
+        // Check if it contains 'rto'
+        if (lowerStatus.includes('rto')) {
+          return 'rto';
+        }
+        return 'delivered';
+      }
+    }
+
+    // UD (Update) and general status mapping for forward shipments
     const statusMapping = {
       // UD - Update statuses (Forward Shipment)
       'Manifested': 'pickups_manifests',
       'Not Picked': 'pickups_manifests',
       'In Transit': 'in_transit',
-      'Pending': 'in_transit', // Reached destination city, not yet dispatched
-      'Dispatched': 'out_for_delivery', // Dispatched for delivery
+      'Pending': 'in_transit',
+      'Dispatched': 'out_for_delivery',
       'Reached at destination': 'in_transit',
       'Reached Destination City': 'in_transit',
       'Out for Delivery': 'out_for_delivery',
       'Pickup Exception': 'pickups_manifests',
-      
-      // DL - Delivered statuses (Forward Shipment)
+
+      // DL - Delivered statuses
       'Delivered': 'delivered',
-      
-      // RT - Return statuses (Return Shipment)
-      'RTO': 'rto', // When forward shipment is returned to origin
+      'DTO': 'delivered',
+
+      // RT - Return statuses
+      'RTO': 'rto',
       'RTO Initiated': 'rto',
       'RTO Delivered': 'rto',
-      
+
       // NDR statuses (Undelivered reasons)
       'Undelivered': 'ndr',
       'Customer not available': 'ndr',
@@ -48,28 +133,22 @@ class WebhookService {
       'Cash not ready': 'ndr',
       'Consignee not available': 'ndr',
       'Delivery attempted': 'ndr',
-      
-      // PP - Pickup statuses (Reverse Shipment - Pickup Request)
-      'Open': 'pickups_manifests', // Pickup request created
-      'Scheduled': 'pickups_manifests', // Pickup request scheduled
-      
-      // PU - Pickup Shipment statuses (Reverse Shipment - After Pickup)
-      // Note: These are already mapped above as 'In Transit', 'Pending', 'Dispatched'
-      
-      // DL - DTO status (Reverse Shipment - Delivered to Origin)
-      'DTO': 'delivered', // Pickup shipment accepted by client, POD received
-      
+
+      // PP - Pickup Request statuses (fallback if no statusType)
+      'Open': 'pickups_manifests',
+      'Scheduled': 'pickups_manifests',
+
       // CN - Canceled statuses
       'Canceled': 'cancelled',
       'Cancelled': 'cancelled',
-      'Closed': 'cancelled', // Reverse pickup canceled and closed
-      
+      'Closed': 'cancelled',
+
       // Other statuses
       'Lost': 'lost',
       'Damaged': 'lost'
     };
 
-    // First try exact match
+    // Try exact match
     if (statusMapping[normalizedStatus]) {
       return statusMapping[normalizedStatus];
     }
@@ -82,24 +161,20 @@ class WebhookService {
       }
     }
 
-    // Use StatusType as fallback for better categorization
-    if (statusType) {
-      const normalizedType = String(statusType).trim().toUpperCase();
+    // Use StatusType as final fallback
+    if (normalizedType) {
       switch (normalizedType) {
-        case 'UD': // Update - forward shipment in progress
+        case 'UD':
           return 'in_transit';
-        case 'DL': // Delivered
-          if (normalizedStatus.toLowerCase().includes('rto')) {
-            return 'rto';
-          }
+        case 'DL':
           return 'delivered';
-        case 'RT': // Return shipment
+        case 'RT':
           return 'rto';
-        case 'PP': // Pickup request
+        case 'PP':
           return 'pickups_manifests';
-        case 'PU': // Pickup shipment
+        case 'PU':
           return 'in_transit';
-        case 'CN': // Canceled
+        case 'CN':
           return 'cancelled';
       }
     }
@@ -265,6 +340,52 @@ class WebhookService {
                   logger.warn('WebSocket broadcast failed', { error: wsError.message });
                 }
               });
+
+              // Also update TrackingOrder if it exists (keeps both models in sync)
+              const trackingOrder = await TrackingOrder.findOne({ awb_number: waybill }).session(session);
+              if (trackingOrder) {
+                trackingOrder.current_status = mappedStatus;
+                trackingOrder.delhivery_status = statusData?.Status;
+                trackingOrder.api_status = statusData?.Status;
+                trackingOrder.last_tracked_at = new Date();
+
+                // Add to tracking order's status history
+                if (!trackingOrder.status_history) {
+                  trackingOrder.status_history = [];
+                }
+                trackingOrder.status_history.push({
+                  status: statusData?.Status,
+                  status_type: statusData?.StatusType,
+                  status_date_time: statusData?.StatusDateTime ? new Date(statusData.StatusDateTime) : new Date(),
+                  status_location: statusData?.StatusLocation || '',
+                  instructions: statusData?.Instructions || '',
+                  tracked_at: new Date()
+                });
+
+                // Update final status flags
+                if (mappedStatus === 'delivered') {
+                  trackingOrder.is_delivered = true;
+                  trackingOrder.is_tracking_active = false;
+                  trackingOrder.delivered_at = new Date();
+                  trackingOrder.delivery_location = statusData?.StatusLocation || '';
+                } else if (mappedStatus === 'cancelled') {
+                  trackingOrder.is_tracking_active = false;
+                  trackingOrder.cancelled_at = new Date();
+                } else if (mappedStatus === 'rto') {
+                  trackingOrder.is_tracking_active = false;
+                  trackingOrder.rto_at = new Date();
+                } else if (mappedStatus === 'lost') {
+                  trackingOrder.is_tracking_active = false;
+                }
+
+                await trackingOrder.save({ session });
+
+                logger.info('✅ TrackingOrder synced with webhook update', {
+                  orderId: order.order_id,
+                  waybill,
+                  trackingOrderStatus: mappedStatus
+                });
+              }
             } else {
               logger.debug('Order status unchanged', {
                 orderId: order.order_id,
