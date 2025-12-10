@@ -85,6 +85,11 @@ router.get('/wallet-transactions', auth, async (req, res) => {
         // Build filter query
         const filterQuery = { user_id: req.user._id };
 
+        // IMPORTANT: Only show completed transactions by default
+        // Pending/failed wallet recharges should not appear in the transaction list
+        // as they don't affect the wallet balance
+        filterQuery.status = 'completed';
+
         // Filter by transaction type if provided
         if (req.query.type && req.query.type !== 'all') {
             filterQuery.transaction_type = req.query.type;
