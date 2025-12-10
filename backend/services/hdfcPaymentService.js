@@ -23,15 +23,37 @@ const initializeJuspay = () => {
     throw new Error('HDFC SmartGateway credentials not configured. Missing MERCHANT_ID or KEY_UUID');
   }
 
-  // Read keys from files
+  // Read keys - try environment variables first (for cloud deployment), then files
   let privateKey, publicKey;
-  try {
-    const basePath = path.join(__dirname, '..');
-    privateKey = fs.readFileSync(path.join(basePath, privateKeyPath), 'utf8');
-    publicKey = fs.readFileSync(path.join(basePath, publicKeyPath), 'utf8');
-  } catch (err) {
-    logger.error('Failed to read HDFC JWT keys', { error: err.message });
-    throw new Error(`Failed to read HDFC JWT keys: ${err.message}`);
+
+  // Check for keys in environment variables (base64 encoded for multiline support)
+  if (process.env.HDFC_PRIVATE_KEY && process.env.HDFC_PUBLIC_KEY) {
+    try {
+      // Keys can be stored as base64 or raw (with \n escaped)
+      privateKey = process.env.HDFC_PRIVATE_KEY.includes('-----BEGIN')
+        ? process.env.HDFC_PRIVATE_KEY.replace(/\\n/g, '\n')
+        : Buffer.from(process.env.HDFC_PRIVATE_KEY, 'base64').toString('utf8');
+      publicKey = process.env.HDFC_PUBLIC_KEY.includes('-----BEGIN')
+        ? process.env.HDFC_PUBLIC_KEY.replace(/\\n/g, '\n')
+        : Buffer.from(process.env.HDFC_PUBLIC_KEY, 'base64').toString('utf8');
+      logger.info('HDFC keys loaded from environment variables');
+    } catch (err) {
+      logger.error('Failed to parse HDFC keys from environment variables', { error: err.message });
+      throw new Error(`Failed to parse HDFC keys from environment variables: ${err.message}`);
+    }
+  } else if (privateKeyPath && publicKeyPath) {
+    // Fallback to reading from files (for local development)
+    try {
+      const basePath = path.join(__dirname, '..');
+      privateKey = fs.readFileSync(path.join(basePath, privateKeyPath), 'utf8');
+      publicKey = fs.readFileSync(path.join(basePath, publicKeyPath), 'utf8');
+      logger.info('HDFC keys loaded from files');
+    } catch (err) {
+      logger.error('Failed to read HDFC JWT keys from files', { error: err.message });
+      throw new Error(`Failed to read HDFC JWT keys: ${err.message}. For cloud deployment, set HDFC_PRIVATE_KEY and HDFC_PUBLIC_KEY environment variables.`);
+    }
+  } else {
+    throw new Error('HDFC keys not configured. Set HDFC_PRIVATE_KEY/HDFC_PUBLIC_KEY env vars or HDFC_PRIVATE_KEY_PATH/HDFC_PUBLIC_KEY_PATH file paths.');
   }
 
   // Initialize with JWT/JWE authentication
