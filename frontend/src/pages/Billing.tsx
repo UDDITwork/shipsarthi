@@ -216,12 +216,46 @@ const Billing: React.FC = () => {
     }
   }, [activeTab, page, limit, dateFrom, dateTo, transactionType, applyTransactionData]);
 
-  // Handle payment redirect from HDFC
+  // Handle payment redirect from HDFC (via backend)
   const handlePaymentRedirect = useCallback(async () => {
+    const paymentStatusParam = searchParams.get('payment_status');
     const orderId = searchParams.get('order_id') || localStorage.getItem('hdfc_order_id');
-    const isRedirect = searchParams.get('payment_redirect');
+    const isOldRedirect = searchParams.get('payment_redirect');
 
-    if (isRedirect && orderId) {
+    // Handle new backend redirect (payment_status param)
+    if (paymentStatusParam) {
+      switch (paymentStatusParam) {
+        case 'success':
+          setPaymentStatus('success');
+          setPaymentMessage('Payment successful! Your wallet has been credited.');
+          fetchWalletBalance();
+          fetchTransactions({ forceRefresh: true });
+          break;
+        case 'failed':
+          setPaymentStatus('failed');
+          setPaymentMessage('Payment failed. Please try again.');
+          break;
+        case 'pending':
+          setPaymentStatus('pending');
+          setPaymentMessage('Payment is being processed. Please wait...');
+          break;
+        case 'error':
+          setPaymentStatus('failed');
+          setPaymentMessage('An error occurred while processing payment.');
+          break;
+        default:
+          setPaymentStatus('failed');
+          setPaymentMessage('Payment status unknown. Please check your wallet balance.');
+      }
+
+      // Clear URL params
+      localStorage.removeItem('hdfc_order_id');
+      setSearchParams({});
+      return;
+    }
+
+    // Legacy: Handle old redirect style (payment_redirect param)
+    if (isOldRedirect && orderId) {
       setPaymentStatus('processing');
       setPaymentMessage('Verifying payment...');
 

@@ -198,6 +198,95 @@ router.get('/wallet-transactions', auth, async (req, res) => {
 // ============================================
 
 /**
+ * Handle HDFC payment gateway return/callback
+ * This endpoint receives POST/GET from HDFC after payment and redirects to frontend
+ * GET/POST /api/billing/wallet/payment-return
+ */
+const handlePaymentReturn = async (req, res) => {
+    try {
+        // HDFC sends order_id in the response (could be in body or query)
+        const orderId = req.body?.order_id || req.query?.order_id ||
+                        req.body?.orderId || req.query?.orderId;
+        const status = req.body?.status || req.query?.status || 'unknown';
+
+        console.log('HDFC Payment Return:', { orderId, status, body: req.body, query: req.query });
+
+        // Determine frontend URL
+        const frontendUrl = process.env.NODE_ENV === 'production'
+            ? 'https://shipsarthi.com'
+            : 'http://localhost:3000';
+
+        // If we have an order ID, process and redirect with status
+        if (orderId) {
+            // Find the transaction
+            const transaction = await Transaction.findOne({
+                'payment_info.gateway_order_id': orderId
+            });
+
+            if (transaction) {
+                try {
+                    // Get order status from HDFC
+                    const orderStatus = await hdfcPaymentService.getOrderStatus(orderId);
+                    const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
+                    const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
+
+                    // Update transaction
+                    transaction.payment_info.payment_status = internalStatus;
+                    transaction.payment_info.gateway_transaction_id = orderStatus.txnId;
+                    transaction.payment_info.bank_ref_no = orderStatus.bankRefNo;
+                    transaction.payment_info.payment_method = orderStatus.paymentMethod;
+                    transaction.payment_info.payment_date = new Date();
+                    transaction.updated_at = new Date();
+
+                    if (isSuccess) {
+                        transaction.status = 'completed';
+
+                        // Credit wallet
+                        const user = await User.findById(transaction.user_id);
+                        if (user) {
+                            const openingBalance = user.wallet_balance || 0;
+                            user.wallet_balance = openingBalance + transaction.amount;
+                            await user.save();
+
+                            transaction.balance_info = {
+                                opening_balance: openingBalance,
+                                closing_balance: user.wallet_balance
+                            };
+                        }
+                        transaction.transaction_date = new Date();
+                    } else if (internalStatus === 'failed') {
+                        transaction.status = 'failed';
+                        transaction.notes = orderStatus.errorMessage || 'Payment failed';
+                    }
+
+                    await transaction.save();
+
+                    // Redirect to frontend with status
+                    const redirectStatus = isSuccess ? 'success' : (internalStatus === 'failed' ? 'failed' : 'pending');
+                    return res.redirect(`${frontendUrl}/billing?payment_status=${redirectStatus}&order_id=${orderId}`);
+                } catch (statusError) {
+                    console.error('Error checking order status:', statusError);
+                    return res.redirect(`${frontendUrl}/billing?payment_status=error&order_id=${orderId}`);
+                }
+            }
+        }
+
+        // Fallback redirect if no order ID
+        return res.redirect(`${frontendUrl}/billing?payment_status=unknown`);
+    } catch (error) {
+        console.error('Payment return error:', error);
+        const frontendUrl = process.env.NODE_ENV === 'production'
+            ? 'https://shipsarthi.com'
+            : 'http://localhost:3000';
+        return res.redirect(`${frontendUrl}/billing?payment_status=error`);
+    }
+};
+
+// Handle both GET and POST from HDFC
+router.get('/wallet/payment-return', handlePaymentReturn);
+router.post('/wallet/payment-return', handlePaymentReturn);
+
+/**
  * Initiate wallet recharge via HDFC SmartGateway
  * POST /api/billing/wallet/initiate-payment
  */
