@@ -47,6 +47,16 @@ interface Package {
   weight_per_box?: number;
 }
 
+// Box entry for Multi-Package B2C
+interface BoxEntry {
+  id: number;
+  quantity: number;
+  weight_per_box: number;
+  length: number;
+  width: number;
+  height: number;
+}
+
 const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   onOrderCreated,
   orderType = 'forward', // Default to forward orders
@@ -88,6 +98,11 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     walletBalance: null,
     insufficientBalance: false
   });
+
+  // Multi-Package B2C: Box entries state
+  const [boxEntries, setBoxEntries] = useState<BoxEntry[]>([
+    { id: 1, quantity: 1, weight_per_box: 0, length: 0, width: 0, height: 0 }
+  ]);
 
   // Form Data
   const [formData, setFormData] = useState({
@@ -506,11 +521,76 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
   const handleProductChange = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      products: prev.products.map((product, i) => 
+      products: prev.products.map((product, i) =>
         i === index ? { ...product, [field]: value } : product
       )
     }));
   };
+
+  // ============================================
+  // MULTI-PACKAGE B2C: Box Entry Handlers
+  // ============================================
+
+  // Handle package type change - initialize/clear boxes
+  const handlePackageTypeChange = (packageType: string) => {
+    handleNestedInputChange('package_info', 'package_type', packageType);
+
+    if (packageType === 'Multiple Package (B2C)') {
+      // Initialize with one empty box entry
+      setBoxEntries([
+        { id: 1, quantity: 1, weight_per_box: 0, length: 0, width: 0, height: 0 }
+      ]);
+      // Reset weight to 0 (will be auto-calculated)
+      handleNestedInputChange('package_info', 'weight', 0);
+    } else {
+      // Clear boxes for single package
+      setBoxEntries([]);
+    }
+  };
+
+  // Add new box entry
+  const handleAddBoxEntry = () => {
+    const newId = boxEntries.length > 0 ? Math.max(...boxEntries.map(b => b.id)) + 1 : 1;
+    setBoxEntries(prev => [
+      ...prev,
+      { id: newId, quantity: 1, weight_per_box: 0, length: 0, width: 0, height: 0 }
+    ]);
+  };
+
+  // Remove box entry
+  const handleRemoveBoxEntry = (id: number) => {
+    if (boxEntries.length <= 1) return; // Keep at least one entry
+    setBoxEntries(prev => prev.filter(box => box.id !== id));
+  };
+
+  // Update box entry field
+  const handleBoxEntryChange = (id: number, field: keyof BoxEntry, value: number) => {
+    setBoxEntries(prev => prev.map(box =>
+      box.id === id ? { ...box, [field]: value } : box
+    ));
+  };
+
+  // Auto-calculate total weight when box entries change (Multi-Package B2C)
+  useEffect(() => {
+    if (formData.package_info.package_type === 'Multiple Package (B2C)' && boxEntries.length > 0) {
+      // Calculate total weight: sum of (quantity × weight_per_box) for all entries
+      const totalWeight = boxEntries.reduce(
+        (sum, box) => sum + (box.quantity * box.weight_per_box),
+        0
+      );
+
+      // Only update if weight actually changed to avoid infinite loop
+      if (formData.package_info.weight !== totalWeight) {
+        setFormData(prev => ({
+          ...prev,
+          package_info: {
+            ...prev.package_info,
+            weight: totalWeight
+          }
+        }));
+      }
+    }
+  }, [boxEntries, formData.package_info.package_type, formData.package_info.weight]);
 
   useEffect(() => {
     const orderValue = formData.products.reduce(
@@ -802,14 +882,45 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     if (formData.package_info.weight <= 0) {
       validationErrors.push('Package weight must be greater than 0');
     }
-    if (formData.package_info.dimensions.length <= 0) {
-      validationErrors.push('Package length must be greater than 0');
-    }
-    if (formData.package_info.dimensions.width <= 0) {
-      validationErrors.push('Package width must be greater than 0');
-    }
-    if (formData.package_info.dimensions.height <= 0) {
-      validationErrors.push('Package height must be greater than 0');
+
+    // Multi-Package B2C: Validate box entries
+    if (formData.package_info.package_type === 'Multiple Package (B2C)') {
+      if (boxEntries.length === 0) {
+        validationErrors.push('At least one box entry is required for Multi-Package shipment');
+      } else {
+        boxEntries.forEach((box, index) => {
+          if (box.quantity < 1) {
+            validationErrors.push(`Box ${index + 1}: Number of boxes must be at least 1`);
+          }
+          if (box.weight_per_box <= 0) {
+            validationErrors.push(`Box ${index + 1}: Weight per box must be greater than 0`);
+          }
+          if (box.length <= 0) {
+            validationErrors.push(`Box ${index + 1}: Length must be greater than 0`);
+          }
+          if (box.width <= 0) {
+            validationErrors.push(`Box ${index + 1}: Width must be greater than 0`);
+          }
+          if (box.height <= 0) {
+            validationErrors.push(`Box ${index + 1}: Height must be greater than 0`);
+          }
+          // Check max dimension limit (243.84cm)
+          if (box.length > 243.84 || box.width > 243.84 || box.height > 243.84) {
+            validationErrors.push(`Box ${index + 1}: Dimensions cannot exceed 243.84cm`);
+          }
+        });
+      }
+    } else {
+      // Single Package: Original validation
+      if (formData.package_info.dimensions.length <= 0) {
+        validationErrors.push('Package length must be greater than 0');
+      }
+      if (formData.package_info.dimensions.width <= 0) {
+        validationErrors.push('Package width must be greater than 0');
+      }
+      if (formData.package_info.dimensions.height <= 0) {
+        validationErrors.push('Package height must be greater than 0');
+      }
     }
     
     // Check payment fields
@@ -836,6 +947,30 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
       });
 
       // Prepare data with proper types
+      const isMultiPackage = formData.package_info.package_type === 'Multiple Package (B2C)';
+
+      // For multi-package, expand box entries into individual boxes
+      let expandedBoxes: Array<{
+        weight: number;
+        length: number;
+        width: number;
+        height: number;
+      }> = [];
+
+      if (isMultiPackage && boxEntries.length > 0) {
+        // Expand quantity into individual boxes
+        boxEntries.forEach(box => {
+          for (let i = 0; i < box.quantity; i++) {
+            expandedBoxes.push({
+              weight: box.weight_per_box, // kg - backend will convert to grams
+              length: box.length,
+              width: box.width,
+              height: box.height
+            });
+          }
+        });
+      }
+
       const orderData = {
         order_date: formData.order_date,
         reference_id: formData.reference_id,
@@ -856,13 +991,30 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         package_info: {
           package_type: formData.package_info.package_type,
           weight: parseFloat(String(formData.package_info.weight)) || 0,
-          dimensions: {
-            length: parseFloat(String(formData.package_info.dimensions.length)) || 0,
-            width: parseFloat(String(formData.package_info.dimensions.width)) || 0,
-            height: parseFloat(String(formData.package_info.dimensions.height)) || 0
-          },
-          number_of_boxes: parseInt(String(formData.package_info.number_of_boxes)) || 1,
-          weight_per_box: (parseFloat(String(formData.package_info.weight)) || 0) / (parseInt(String(formData.package_info.number_of_boxes)) || 1),
+          dimensions: isMultiPackage && expandedBoxes.length > 0
+            ? {
+                // For multi-package, use first box dimensions (or largest)
+                length: expandedBoxes[0].length,
+                width: expandedBoxes[0].width,
+                height: expandedBoxes[0].height
+              }
+            : {
+                length: parseFloat(String(formData.package_info.dimensions.length)) || 0,
+                width: parseFloat(String(formData.package_info.dimensions.width)) || 0,
+                height: parseFloat(String(formData.package_info.dimensions.height)) || 0
+              },
+          number_of_boxes: isMultiPackage ? expandedBoxes.length : (parseInt(String(formData.package_info.number_of_boxes)) || 1),
+          weight_per_box: (parseFloat(String(formData.package_info.weight)) || 0) / (isMultiPackage ? expandedBoxes.length : (parseInt(String(formData.package_info.number_of_boxes)) || 1)),
+          // Include expanded boxes for backend to create multiple orders
+          boxes: isMultiPackage ? expandedBoxes : undefined,
+          // Include original box entries for reference
+          box_entries: isMultiPackage ? boxEntries.map(b => ({
+            quantity: b.quantity,
+            weight_per_box: b.weight_per_box,
+            length: b.length,
+            width: b.width,
+            height: b.height
+          })) : undefined,
           rov_type: formData.package_info.rov_type,
           rov_owner: formData.package_info.rov_owner,
           weight_photo_url: formData.package_info.weight_photo_url,
@@ -1543,7 +1695,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
 
             {/* Package Type & Dimensions Section */}
             <div className="form-section package-section">
-                
+
                 <div className="tip-box">
                   <span className="tip-icon">💡</span>
                   <span>Tip: Add correct values to avoid weight discrepancy.</span>
@@ -1554,7 +1706,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     <label>Package Type *</label>
                     <select
                       value={formData.package_info.package_type}
-                      onChange={(e) => handleNestedInputChange('package_info', 'package_type', e.target.value)}
+                      onChange={(e) => handlePackageTypeChange(e.target.value)}
                       required
                     >
                       <option value="Single Package (B2C)">Single Package (B2C)</option>
@@ -1562,83 +1714,206 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                       <option value="Multiple Package (B2B)">Multiple Package (B2B)</option>
                     </select>
                   </div>
-                </div>
-
-                <div className="form-row">
                   <div className="form-group">
                     <label>Total Weight of Order *</label>
                     <div className="weight-input">
                       <input
                         type="number"
-                        value={formData.package_info.weight}
+                        value={formData.package_info.weight.toFixed(2)}
                         onChange={(e) => handleNestedInputChange('package_info', 'weight', parseFloat(e.target.value) || 0)}
                         placeholder="Enter your weight"
                         min="0.1"
                         step="0.1"
                         required
+                        readOnly={formData.package_info.package_type === 'Multiple Package (B2C)'}
+                        style={{
+                          backgroundColor: formData.package_info.package_type === 'Multiple Package (B2C)' ? '#f0f0f0' : 'white',
+                          cursor: formData.package_info.package_type === 'Multiple Package (B2C)' ? 'not-allowed' : 'text'
+                        }}
                       />
                       <span className="unit">Kg</span>
                     </div>
-                    <small className="form-note">Note: The minimum chargeable weight is 0.50 kg</small>
+                    <small className="form-note">
+                      {formData.package_info.package_type === 'Multiple Package (B2C)'
+                        ? 'Auto-calculated from box entries below'
+                        : 'Note: The minimum chargeable weight is 0.50 kg'}
+                    </small>
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Length *</label>
-                    <div className="dimension-input">
-                      <input
-                        type="number"
-                        value={formData.package_info.dimensions.length}
-                        onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
-                          ...formData.package_info.dimensions,
-                          length: parseFloat(e.target.value) || 0
-                        })}
-                        placeholder="Enter length"
-                        min="1"
-                        step="0.1"
-                        required
-                      />
-                      <span className="unit">CM</span>
+                {/* Multi-Package B2C: Box Entries */}
+                {formData.package_info.package_type === 'Multiple Package (B2C)' && (
+                  <div className="multi-package-section">
+                    {boxEntries.map((box, index) => (
+                      <div key={box.id} className="box-entry">
+                        <div className="box-entry-header">
+                          <span className="box-number-badge">{index + 1}</span>
+                          {boxEntries.length > 1 && (
+                            <button
+                              type="button"
+                              className="remove-box-btn"
+                              onClick={() => handleRemoveBoxEntry(box.id)}
+                              title="Remove this box"
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
+                        <div className="box-entry-fields">
+                          <div className="form-group">
+                            <label>No. of box *</label>
+                            <input
+                              type="number"
+                              value={box.quantity || ''}
+                              onChange={(e) => handleBoxEntryChange(box.id, 'quantity', parseInt(e.target.value) || 0)}
+                              placeholder="No. of box"
+                              min="1"
+                              step="1"
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Weight Per Box *</label>
+                            <div className="dimension-input">
+                              <input
+                                type="number"
+                                value={box.weight_per_box || ''}
+                                onChange={(e) => handleBoxEntryChange(box.id, 'weight_per_box', parseFloat(e.target.value) || 0)}
+                                placeholder="Enter weight per box"
+                                min="0.1"
+                                step="0.1"
+                                required
+                              />
+                              <span className="unit">Kg</span>
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Length *</label>
+                            <div className="dimension-input">
+                              <input
+                                type="number"
+                                value={box.length || ''}
+                                onChange={(e) => handleBoxEntryChange(box.id, 'length', parseFloat(e.target.value) || 0)}
+                                placeholder="Enter length"
+                                min="1"
+                                step="0.1"
+                                required
+                              />
+                              <span className="unit">CM</span>
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Width *</label>
+                            <div className="dimension-input">
+                              <input
+                                type="number"
+                                value={box.width || ''}
+                                onChange={(e) => handleBoxEntryChange(box.id, 'width', parseFloat(e.target.value) || 0)}
+                                placeholder="Enter width"
+                                min="1"
+                                step="0.1"
+                                required
+                              />
+                              <span className="unit">CM</span>
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Height *</label>
+                            <div className="dimension-input">
+                              <input
+                                type="number"
+                                value={box.height || ''}
+                                onChange={(e) => handleBoxEntryChange(box.id, 'height', parseFloat(e.target.value) || 0)}
+                                placeholder="Enter height"
+                                min="1"
+                                step="0.1"
+                                required
+                              />
+                              <span className="unit">CM</span>
+                            </div>
+                          </div>
+                        </div>
+                        <small className="box-dimension-note">
+                          Length, width or height can't be greater than 243.84cm for each B2C package
+                        </small>
+                      </div>
+                    ))}
+
+                    {/* Add Box Button */}
+                    <div className="add-box-container">
+                      <button
+                        type="button"
+                        className="add-box-btn"
+                        onClick={handleAddBoxEntry}
+                        title="Add another box"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
-                  <div className="form-group">
-                    <label>Width *</label>
-                    <div className="dimension-input">
-                      <input
-                        type="number"
-                        value={formData.package_info.dimensions.width}
-                        onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
-                          ...formData.package_info.dimensions,
-                          width: parseFloat(e.target.value) || 0
-                        })}
-                        placeholder="Enter width"
-                        min="1"
-                        step="0.1"
-                        required
-                      />
-                      <span className="unit">CM</span>
+                )}
+
+                {/* Single Package: Original Dimensions Fields */}
+                {formData.package_info.package_type === 'Single Package (B2C)' && (
+                  <>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Length *</label>
+                        <div className="dimension-input">
+                          <input
+                            type="number"
+                            value={formData.package_info.dimensions.length}
+                            onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
+                              ...formData.package_info.dimensions,
+                              length: parseFloat(e.target.value) || 0
+                            })}
+                            placeholder="Enter length"
+                            min="1"
+                            step="0.1"
+                            required
+                          />
+                          <span className="unit">CM</span>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Width *</label>
+                        <div className="dimension-input">
+                          <input
+                            type="number"
+                            value={formData.package_info.dimensions.width}
+                            onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
+                              ...formData.package_info.dimensions,
+                              width: parseFloat(e.target.value) || 0
+                            })}
+                            placeholder="Enter width"
+                            min="1"
+                            step="0.1"
+                            required
+                          />
+                          <span className="unit">CM</span>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Height *</label>
+                        <div className="dimension-input">
+                          <input
+                            type="number"
+                            value={formData.package_info.dimensions.height}
+                            onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
+                              ...formData.package_info.dimensions,
+                              height: parseFloat(e.target.value) || 0
+                            })}
+                            placeholder="Enter height"
+                            min="1"
+                            step="0.1"
+                            required
+                          />
+                          <span className="unit">CM</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-group">
-                    <label>Height *</label>
-                    <div className="dimension-input">
-                      <input
-                        type="number"
-                        value={formData.package_info.dimensions.height}
-                        onChange={(e) => handleNestedInputChange('package_info', 'dimensions', {
-                          ...formData.package_info.dimensions,
-                          height: parseFloat(e.target.value) || 0
-                        })}
-                        placeholder="Enter height"
-                        min="1"
-                        step="0.1"
-                        required
-                      />
-                      <span className="unit">CM</span>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 <div className="form-row">
                   <div className="form-group">

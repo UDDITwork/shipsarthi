@@ -553,10 +553,299 @@ async function deductWalletForOrder(order, userId, awbNumber = null) {
       stack: error.stack,
       timestamp: new Date().toISOString()
     });
-    return { 
-      success: false, 
-      transaction: null, 
-      error: error.message 
+    return {
+      success: false,
+      transaction: null,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Helper function to create a single order (used for multi-package B2C)
+ * @param {Object} orderData - The order data from request body
+ * @param {Object} user - The authenticated user object
+ * @param {boolean} generateAWB - Whether to generate AWB
+ * @returns {Promise<Object>} - Returns { success: boolean, order: Order|null, awb: string|null, status: string, error: string|null }
+ */
+async function createSingleOrder(orderData, user, generateAWB = true) {
+  const { generateOrderId } = require('../utils/orderIdGenerator');
+  const userId = user._id;
+  const orderId = orderData.order_id || generateOrderId();
+
+  try {
+    console.log('📦 createSingleOrder: Starting', {
+      orderId,
+      userId,
+      generateAWB,
+      weight: orderData.package_info?.weight,
+      timestamp: new Date().toISOString()
+    });
+
+    // Handle warehouse selection
+    let warehouse = null;
+    let pickupAddress = {};
+
+    if (orderData.pickup_address?.warehouse_id) {
+      warehouse = await Warehouse.findOne({
+        _id: orderData.pickup_address.warehouse_id,
+        user_id: userId,
+        is_active: true
+      });
+
+      if (warehouse) {
+        pickupAddress = {
+          name: warehouse.name,
+          full_address: warehouse.address.full_address,
+          city: warehouse.address.city,
+          state: warehouse.address.state,
+          pincode: warehouse.address.pincode,
+          phone: warehouse.contact_person.phone,
+          country: warehouse.address.country || 'India'
+        };
+      }
+    }
+
+    if (!pickupAddress.name) {
+      pickupAddress = {
+        name: orderData.pickup_address?.name || 'SHIPSARTHI C2C',
+        full_address: orderData.pickup_address?.full_address,
+        city: orderData.pickup_address?.city,
+        state: orderData.pickup_address?.state,
+        pincode: orderData.pickup_address?.pincode,
+        phone: orderData.pickup_address?.phone,
+        country: orderData.pickup_address?.country || 'India'
+      };
+    }
+
+    // Build full address
+    const fullDeliveryAddress = `${orderData.delivery_address?.address_line_1 || ''}${orderData.delivery_address?.address_line_2 ? ', ' + orderData.delivery_address.address_line_2 : ''}`;
+
+    // Create order document
+    const order = new Order({
+      user_id: userId,
+      order_id: orderId,
+      order_date: orderData.order_date ? new Date(orderData.order_date) : new Date(),
+      reference_id: orderData.reference_id?.trim() || undefined,
+      invoice_number: orderData.invoice_number?.trim() || undefined,
+      customer_info: {
+        buyer_name: orderData.customer_info?.buyer_name,
+        phone: orderData.customer_info?.phone,
+        alternate_phone: orderData.customer_info?.alternate_phone?.trim() || undefined,
+        email: orderData.customer_info?.email?.trim()?.toLowerCase() || undefined,
+        gstin: orderData.customer_info?.gstin?.trim() || undefined
+      },
+      delivery_address: {
+        address_line_1: orderData.delivery_address?.address_line_1,
+        address_line_2: orderData.delivery_address?.address_line_2,
+        full_address: fullDeliveryAddress,
+        city: orderData.delivery_address?.city,
+        state: orderData.delivery_address?.state,
+        pincode: orderData.delivery_address?.pincode,
+        country: orderData.delivery_address?.country || 'India',
+        address_type: orderData.delivery_address?.address_type || 'home'
+      },
+      pickup_address: pickupAddress,
+      products: (orderData.products || []).map(product => ({
+        product_name: product.product_name,
+        product_description: product.product_description,
+        quantity: product.quantity,
+        unit_price: product.unit_price,
+        hsn_code: product.hsn_code,
+        category: product.category,
+        sku: product.sku,
+        discount: product.discount || 0,
+        tax: product.tax || 0
+      })),
+      package_info: {
+        package_type: orderData.package_info?.package_type || 'Single Package (B2C)',
+        weight: orderData.package_info?.weight,
+        dimensions: orderData.package_info?.dimensions,
+        number_of_boxes: orderData.package_info?.number_of_boxes || 1,
+        weight_per_box: orderData.package_info?.weight_per_box,
+        rov_type: orderData.package_info?.rov_type,
+        rov_owner: orderData.package_info?.rov_owner,
+        // Multi-package metadata
+        multi_package_parent: orderData.package_info?.multi_package_parent,
+        multi_package_index: orderData.package_info?.multi_package_index,
+        multi_package_total: orderData.package_info?.multi_package_total
+      },
+      payment_info: {
+        payment_mode: orderData.payment_info?.payment_mode,
+        order_value: orderData.payment_info?.order_value,
+        total_amount: orderData.payment_info?.total_amount,
+        shipping_charges: orderData.payment_info?.shipping_charges || 0,
+        grand_total: orderData.payment_info?.grand_total,
+        cod_amount: orderData.payment_info?.payment_mode === 'COD' ? orderData.payment_info?.cod_amount : 0
+      },
+      seller_info: {
+        name: orderData.seller_info?.name,
+        gst_number: orderData.seller_info?.gst_number,
+        reseller_name: orderData.seller_info?.reseller_name,
+        address: warehouse ? warehouse.address.full_address : pickupAddress.full_address
+      },
+      shipping_mode: orderData.shipping_mode || 'Surface',
+      order_type: orderData.order_type || 'forward',
+      status: 'new'
+    });
+
+    // Generate AWB if requested
+    if (generateAWB) {
+      // Validate serviceability
+      await ensureServiceablePincodes(
+        pickupAddress.pincode,
+        order.delivery_address.pincode,
+        order.payment_info.payment_mode
+      );
+
+      // Fetch waybill
+      const waybillResult = await delhiveryService.getWaybill(1);
+      let preFetchedWaybill = waybillResult.success && waybillResult.waybills?.length > 0
+        ? waybillResult.waybills[0]
+        : null;
+
+      // Prepare data for Delhivery
+      const orderDataForDelhivery = {
+        order_id: order.order_id,
+        customer_info: {
+          buyer_name: order.customer_info.buyer_name,
+          phone: order.customer_info.phone,
+          email: order.customer_info.email || ''
+        },
+        delivery_address: {
+          full_address: order.delivery_address.full_address,
+          pincode: order.delivery_address.pincode,
+          city: order.delivery_address.city,
+          state: order.delivery_address.state,
+          country: order.delivery_address.country || 'India',
+          address_type: order.delivery_address.address_type || 'home'
+        },
+        pickup_address: {
+          name: pickupAddress.name || 'SHIPSARTHI C2C',
+          full_address: pickupAddress.full_address,
+          city: pickupAddress.city,
+          state: pickupAddress.state,
+          pincode: pickupAddress.pincode,
+          phone: pickupAddress.phone,
+          country: pickupAddress.country || 'India'
+        },
+        products: order.products.map(p => ({
+          product_name: p.product_name,
+          quantity: p.quantity,
+          hsn_code: p.hsn_code || '',
+          unit_price: p.unit_price || 0
+        })),
+        package_info: {
+          weight: order.package_info.weight,
+          dimensions: {
+            width: order.package_info.dimensions.width,
+            height: order.package_info.dimensions.height,
+            length: order.package_info.dimensions.length
+          }
+        },
+        payment_info: {
+          payment_mode: order.payment_info.payment_mode,
+          cod_amount: order.payment_info.cod_amount || 0,
+          order_value: order.payment_info.order_value || order.payment_info.total_amount || 0
+        },
+        seller_info: {
+          name: order.seller_info?.name || 'SHIPSARTHI',
+          gst_number: order.seller_info?.gst_number || ''
+        },
+        invoice_number: order.invoice_number || `INV${order.order_id}`,
+        shipping_mode: order.shipping_mode || 'Surface',
+        address_type: order.delivery_address.address_type || 'home',
+        waybill: preFetchedWaybill || undefined
+      };
+
+      // Call Delhivery API
+      const delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
+
+      if (delhiveryResult.success) {
+        let awbNumber = null;
+        let packageData = null;
+
+        if (delhiveryResult.packages?.length > 0) {
+          packageData = delhiveryResult.packages[0];
+          awbNumber = packageData.waybill || packageData.AWB || null;
+        }
+        if (!awbNumber && delhiveryResult.waybill) {
+          awbNumber = delhiveryResult.waybill;
+        }
+
+        if (awbNumber) {
+          order.delhivery_data = {
+            waybill: awbNumber,
+            package_id: packageData?.refnum || order.order_id,
+            status: packageData?.status || 'Success',
+            serviceable: packageData?.serviceable,
+            sort_code: packageData?.sort_code,
+            remarks: packageData?.remarks || []
+          };
+          order.status = 'ready_to_ship';
+
+          await order.save();
+
+          // Deduct wallet
+          await deductWalletForOrder(order, userId, awbNumber);
+
+          console.log('📦 createSingleOrder: SUCCESS', {
+            orderId: order.order_id,
+            awb: awbNumber,
+            status: order.status
+          });
+
+          return {
+            success: true,
+            order: order,
+            awb: awbNumber,
+            status: order.status,
+            error: null
+          };
+        } else {
+          return {
+            success: false,
+            order: null,
+            awb: null,
+            status: 'failed',
+            error: 'No AWB generated by Delhivery'
+          };
+        }
+      } else {
+        return {
+          success: false,
+          order: null,
+          awb: null,
+          status: 'failed',
+          error: delhiveryResult.error || 'Delhivery API error'
+        };
+      }
+    } else {
+      // Save without AWB
+      order.status = 'new';
+      await order.save();
+      await deductWalletForOrder(order, userId, null);
+
+      return {
+        success: true,
+        order: order,
+        awb: null,
+        status: order.status,
+        error: null
+      };
+    }
+  } catch (error) {
+    console.error('📦 createSingleOrder: ERROR', {
+      orderId,
+      error: error.message,
+      stack: error.stack
+    });
+    return {
+      success: false,
+      order: null,
+      awb: null,
+      status: 'failed',
+      error: error.message
     };
   }
 }
@@ -1640,6 +1929,125 @@ router.post('/', auth, [
     });
 
     const userId = req.user._id;
+
+    // ============================================
+    // MULTI-PACKAGE B2C: Create multiple orders
+    // ============================================
+    const isMultiPackage = req.body.package_info?.package_type === 'Multiple Package (B2C)' &&
+                           req.body.package_info?.boxes &&
+                           Array.isArray(req.body.package_info.boxes) &&
+                           req.body.package_info.boxes.length > 0;
+
+    if (isMultiPackage) {
+      console.log('📦 MULTI-PACKAGE B2C DETECTED', {
+        totalBoxes: req.body.package_info.boxes.length,
+        boxes: req.body.package_info.boxes,
+        timestamp: new Date().toISOString()
+      });
+
+      // Create multiple orders - one per box
+      const createdOrders = [];
+      const failedOrders = [];
+      const boxes = req.body.package_info.boxes;
+
+      for (let boxIndex = 0; boxIndex < boxes.length; boxIndex++) {
+        const box = boxes[boxIndex];
+        // Generate unique order ID for each box
+        const boxOrderId = `${orderId}-${String(boxIndex + 1).padStart(2, '0')}`;
+
+        try {
+          console.log(`📦 Creating order ${boxIndex + 1}/${boxes.length}`, {
+            boxOrderId,
+            weight: box.weight,
+            dimensions: { length: box.length, width: box.width, height: box.height }
+          });
+
+          // Build order data for this box
+          const boxOrderData = {
+            ...req.body,
+            order_id: boxOrderId,
+            package_info: {
+              ...req.body.package_info,
+              package_type: 'Single Package (B2C)', // Treat each box as single package for Delhivery
+              weight: box.weight, // Weight in kg
+              dimensions: {
+                length: box.length,
+                width: box.width,
+                height: box.height
+              },
+              number_of_boxes: 1,
+              weight_per_box: box.weight,
+              // Remove boxes array for individual order
+              boxes: undefined,
+              box_entries: undefined,
+              // Mark as part of multi-package
+              multi_package_parent: orderId,
+              multi_package_index: boxIndex + 1,
+              multi_package_total: boxes.length
+            }
+          };
+
+          // Make recursive call to create single order
+          // We'll use internal function to avoid circular issues
+          const singleOrderResult = await createSingleOrder(boxOrderData, req.user, req.body.generate_awb);
+
+          if (singleOrderResult.success) {
+            createdOrders.push({
+              order_id: boxOrderId,
+              awb: singleOrderResult.awb,
+              status: singleOrderResult.status,
+              box_index: boxIndex + 1
+            });
+          } else {
+            failedOrders.push({
+              order_id: boxOrderId,
+              box_index: boxIndex + 1,
+              error: singleOrderResult.error
+            });
+          }
+        } catch (boxError) {
+          console.error(`❌ Failed to create order for box ${boxIndex + 1}`, {
+            boxOrderId,
+            error: boxError.message
+          });
+          failedOrders.push({
+            order_id: boxOrderId,
+            box_index: boxIndex + 1,
+            error: boxError.message
+          });
+        }
+      }
+
+      // Return multi-package result
+      const allSuccess = failedOrders.length === 0;
+      const partialSuccess = createdOrders.length > 0 && failedOrders.length > 0;
+
+      console.log('📦 MULTI-PACKAGE CREATION COMPLETED', {
+        parentOrderId: orderId,
+        totalBoxes: boxes.length,
+        created: createdOrders.length,
+        failed: failedOrders.length,
+        timestamp: new Date().toISOString()
+      });
+
+      return res.status(allSuccess ? 201 : (partialSuccess ? 207 : 400)).json({
+        status: allSuccess ? 'success' : (partialSuccess ? 'partial_success' : 'error'),
+        message: allSuccess
+          ? `All ${boxes.length} orders created successfully`
+          : partialSuccess
+            ? `${createdOrders.length} of ${boxes.length} orders created successfully`
+            : 'Failed to create any orders',
+        multi_package: true,
+        parent_order_id: orderId,
+        total_boxes: boxes.length,
+        created_orders: createdOrders,
+        failed_orders: failedOrders
+      });
+    }
+
+    // ============================================
+    // SINGLE PACKAGE: Original flow continues below
+    // ============================================
 
     // Handle warehouse selection
     let warehouse = null;

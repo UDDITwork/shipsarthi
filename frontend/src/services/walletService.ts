@@ -6,19 +6,46 @@ export interface WalletBalance {
   currency: string;
 }
 
+export interface InitiatePaymentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    transaction_id: string;
+    order_id: string;
+    payment_link: string;
+    sdk_payload?: unknown;
+    amount: number;
+    currency: string;
+  };
+}
+
+export interface PaymentStatusResponse {
+  success: boolean;
+  message: string;
+  data: {
+    transaction_id: string;
+    status: string;
+    amount: number;
+    new_balance?: number;
+    is_pending?: boolean;
+    error_code?: string;
+    txn_id?: string;
+  };
+}
+
 class WalletService {
   private listeners: Array<(balance: WalletBalance) => void> = [];
 
   // Subscribe to wallet balance updates
   subscribe(listener: (balance: WalletBalance) => void) {
     this.listeners.push(listener);
-    
+
     // Immediately notify with cached data if available
     const cached = DataCache.get<WalletBalance>('walletBalance');
     if (cached) {
       listener(cached);
     }
-    
+
     return () => {
       this.listeners = this.listeners.filter(l => l !== listener);
     };
@@ -53,32 +80,32 @@ class WalletService {
           currency: string;
         };
       }>('/user/wallet-balance');
-      
+
       if (response.success) {
         const balance = {
           balance: response.data.balance,
           currency: response.data.currency || 'INR'
         };
-        
+
         // Cache it
         DataCache.set('walletBalance', balance);
-        
+
         // Notify all listeners
         this.notifyBalanceUpdate(balance);
-        
+
         return balance;
       }
       throw new Error('Failed to fetch wallet balance');
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
-      
+
       // On error, return stale cache - app continues working
       const stale = DataCache.getStale<WalletBalance>('walletBalance');
       if (stale) {
-        console.log('💰 Using cached wallet balance due to API error:', stale);
+        console.log('Using cached wallet balance due to API error:', stale);
         return stale;
       }
-      
+
       // No cache either - return default (don't throw)
       const defaultBalance: WalletBalance = { balance: 0, currency: 'INR' };
       return defaultBalance;
@@ -88,6 +115,42 @@ class WalletService {
   // Refresh wallet balance and notify listeners
   async refreshBalance(): Promise<WalletBalance> {
     return this.getWalletBalance(false); // Force fresh fetch
+  }
+
+  // Initiate wallet recharge via HDFC SmartGateway
+  async initiatePayment(amount: number): Promise<InitiatePaymentResponse> {
+    const response = await apiService.post<InitiatePaymentResponse>(
+      '/billing/wallet/initiate-payment',
+      { amount }
+    );
+    return response;
+  }
+
+  // Handle payment response after HDFC redirect
+  async handlePaymentResponse(orderId: string): Promise<PaymentStatusResponse> {
+    const response = await apiService.post<PaymentStatusResponse>(
+      '/billing/wallet/handle-payment-response',
+      { order_id: orderId }
+    );
+
+    // If payment was successful, refresh balance
+    if (response.success && response.data?.new_balance !== undefined) {
+      const newBalance: WalletBalance = {
+        balance: response.data.new_balance,
+        currency: 'INR'
+      };
+      this.notifyBalanceUpdate(newBalance);
+    }
+
+    return response;
+  }
+
+  // Check payment status
+  async checkPaymentStatus(orderId: string): Promise<PaymentStatusResponse> {
+    const response = await apiService.get<PaymentStatusResponse>(
+      `/billing/wallet/payment-status/${orderId}`
+    );
+    return response;
   }
 }
 

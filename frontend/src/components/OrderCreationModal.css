@@ -971,3 +971,177 @@ select.error {
     gap: 10px;
   }
 }
+
+/* ============================================
+   MULTI-PACKAGE B2C: Box Entry Styles
+   ============================================ */
+
+.multi-package-section {
+  margin-top: 20px;
+}
+
+.box-entry {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.box-entry:hover {
+  border-color: #1F4068;
+}
+
+.box-entry-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.box-number-badge {
+  background: linear-gradient(135deg, #1F4068 0%, #2C4563 100%);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(31, 64, 104, 0.3);
+}
+
+.remove-box-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(238, 90, 90, 0.3);
+}
+
+.remove-box-btn:hover {
+  background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(238, 90, 90, 0.4);
+}
+
+.box-entry-fields {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.box-entry-fields .form-group {
+  margin-bottom: 0;
+}
+
+.box-entry-fields .form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.box-entry-fields .form-group input {
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.box-entry-fields .dimension-input {
+  border-width: 1px;
+}
+
+.box-entry-fields .dimension-input .unit {
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.box-dimension-note {
+  display: block;
+  margin-top: 12px;
+  color: #e67e22;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Add Box Button */
+.add-box-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.add-box-btn {
+  background: linear-gradient(135deg, #1F4068 0%, #2C4563 100%);
+  color: #ffffff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(31, 64, 104, 0.3);
+}
+
+.add-box-btn:hover {
+  background: linear-gradient(135deg, #2C4563 0%, #3d5a80 100%);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(31, 64, 104, 0.4);
+}
+
+/* Responsive: Multi-Package Box Entries */
+@media (max-width: 992px) {
+  .box-entry-fields {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .box-entry-fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .box-entry-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .box-entry {
+    padding: 12px;
+  }
+
+  .box-number-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .remove-box-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}

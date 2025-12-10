@@ -71,13 +71,17 @@ const transactionSchema = new mongoose.Schema({
   payment_info: {
     payment_method: {
       type: String,
-      enum: ['upi', 'net_banking', 'credit_card', 'debit_card', 'wallet', 'bank_transfer', 'cash'],
+      enum: ['upi', 'net_banking', 'credit_card', 'debit_card', 'wallet', 'bank_transfer', 'cash', 'hdfc_smartgateway'],
     },
     payment_gateway: {
       type: String,
-      enum: ['razorpay', 'payu', 'cashfree', 'stripe', 'manual']
+      enum: ['razorpay', 'payu', 'cashfree', 'stripe', 'manual', 'hdfc']
     },
     gateway_transaction_id: String,
+    gateway_order_id: String,
+    gateway_session_id: String,
+    gateway_reference_id: String,
+    bank_ref_no: String,
     payment_status: {
       type: String,
       enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
@@ -177,6 +181,7 @@ transactionSchema.index({ transaction_category: 1 });
 transactionSchema.index({ status: 1 });
 transactionSchema.index({ transaction_date: -1 });
 transactionSchema.index({ 'payment_info.gateway_transaction_id': 1 });
+transactionSchema.index({ 'payment_info.gateway_order_id': 1 });
 transactionSchema.index({ related_order_id: 1 });
 
 // Compound indexes

@@ -6,6 +6,7 @@ const Transaction = require('../models/Transaction');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const crypto = require('crypto');
+const hdfcPaymentService = require('../services/hdfcPaymentService');
 
 const router = express.Router();
 
@@ -187,13 +188,18 @@ router.get('/wallet-transactions', auth, async (req, res) => {
     }
 });
 
-router.post('/wallet/add-money',
+// ============================================
+// HDFC SMARTGATEWAY WALLET RECHARGE ENDPOINTS
+// ============================================
+
+/**
+ * Initiate wallet recharge via HDFC SmartGateway
+ * POST /api/billing/wallet/initiate-payment
+ */
+router.post('/wallet/initiate-payment',
     auth,
     [
-        body('amount').isFloat({ min: 10, max: 50000 }).withMessage('Amount must be between ₹10 and ₹50,000'),
-        body('payment_method').isIn(['upi', 'netbanking', 'card', 'wallet']).withMessage('Invalid payment method'),
-        body('payment_details.upi_id').optional().matches(/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/).withMessage('Invalid UPI ID'),
-        body('payment_details.card_last4').optional().isLength({ min: 4, max: 4 }).withMessage('Invalid card details')
+        body('amount').isFloat({ min: 10, max: 50000 }).withMessage('Amount must be between ₹10 and ₹50,000')
     ],
     async (req, res) => {
         try {
@@ -206,26 +212,35 @@ router.post('/wallet/add-money',
                 });
             }
 
-            const { amount, payment_method, payment_details } = req.body;
+            const { amount } = req.body;
+            const user = await User.findById(req.user._id).select('email phone your_name wallet_balance');
 
-            const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User not found'
+                });
+            }
 
+            // Generate internal transaction ID
+            const transactionId = `CR_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+
+            // Create pending transaction record
             const transaction = new Transaction({
                 transaction_id: transactionId,
                 user_id: req.user._id,
                 transaction_type: 'credit',
                 transaction_category: 'wallet_recharge',
                 amount: amount,
-                description: `Wallet recharge via ${payment_method}`,
+                description: `Wallet recharge via HDFC SmartGateway`,
                 payment_info: {
-                    payment_method: payment_method,
-                    payment_gateway: 'razorpay',
-                    gateway_transaction_id: `pay_${Math.random().toString(36).substr(2, 14)}`,
+                    payment_method: 'hdfc_smartgateway',
+                    payment_gateway: 'hdfc',
                     payment_status: 'pending'
                 },
                 status: 'pending',
                 balance_info: {
-                    opening_balance: 0,
+                    opening_balance: user.wallet_balance || 0,
                     closing_balance: 0
                 },
                 transaction_date: new Date(),
@@ -235,31 +250,256 @@ router.post('/wallet/add-money',
 
             await transaction.save();
 
-            const razorpayOrder = {
-                order_id: `order_${Math.random().toString(36).substr(2, 14)}`,
-                amount: amount * 100,
-                currency: 'INR',
-                receipt: transactionId
-            };
+            // Create HDFC order session
+            const orderSession = await hdfcPaymentService.createOrderSession({
+                amount: amount,
+                customerId: req.user._id.toString(),
+                customerEmail: user.email || '',
+                customerPhone: user.phone || '',
+                transactionId: transactionId
+            });
+
+            // Update transaction with HDFC order details
+            transaction.payment_info.gateway_order_id = orderSession.orderId;
+            transaction.payment_info.gateway_session_id = orderSession.orderSessionId;
+            await transaction.save();
 
             res.json({
                 success: true,
                 message: 'Payment initiated successfully',
                 data: {
                     transaction_id: transactionId,
-                    razorpay_order: razorpayOrder,
+                    order_id: orderSession.orderId,
+                    payment_link: orderSession.paymentLink,
+                    sdk_payload: orderSession.sdkPayload,
                     amount: amount,
                     currency: 'INR'
                 }
             });
         } catch (error) {
-            console.error('Add money error:', error);
+            console.error('Initiate payment error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Internal server error',
+                message: 'Failed to initiate payment',
                 error: error.message
             });
         }
+    }
+);
+
+/**
+ * Handle payment response after HDFC redirect
+ * POST /api/billing/wallet/handle-payment-response
+ */
+router.post('/wallet/handle-payment-response',
+    auth,
+    [
+        body('order_id').notEmpty().withMessage('Order ID is required')
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation failed',
+                    errors: errors.array()
+                });
+            }
+
+            const { order_id } = req.body;
+
+            // Find the transaction by HDFC order ID
+            const transaction = await Transaction.findOne({
+                'payment_info.gateway_order_id': order_id,
+                user_id: req.user._id
+            });
+
+            if (!transaction) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Transaction not found'
+                });
+            }
+
+            // Check if already processed
+            if (transaction.status === 'completed') {
+                const user = await User.findById(req.user._id).select('wallet_balance');
+                return res.json({
+                    success: true,
+                    message: 'Payment already processed',
+                    data: {
+                        transaction_id: transaction.transaction_id,
+                        status: 'CHARGED',
+                        amount: transaction.amount,
+                        new_balance: user.wallet_balance || 0
+                    }
+                });
+            }
+
+            // Get order status from HDFC
+            const orderStatus = await hdfcPaymentService.getOrderStatus(order_id);
+            const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
+            const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
+
+            // Update transaction with payment details
+            transaction.payment_info.payment_status = internalStatus;
+            transaction.payment_info.gateway_transaction_id = orderStatus.txnId;
+            transaction.payment_info.bank_ref_no = orderStatus.bankRefNo;
+            transaction.payment_info.payment_method = orderStatus.paymentMethod;
+            transaction.payment_info.gateway_reference_id = orderStatus.gatewayReferenceId;
+            transaction.payment_info.payment_date = new Date();
+            transaction.updated_at = new Date();
+
+            if (isSuccess) {
+                // Payment successful - update wallet
+                transaction.status = 'completed';
+
+                const user = await User.findById(req.user._id);
+                const openingBalance = user.wallet_balance || 0;
+                user.wallet_balance = openingBalance + transaction.amount;
+                await user.save();
+
+                // Get live updated balance
+                const updatedUser = await User.findById(req.user._id).select('wallet_balance');
+                const newBalance = updatedUser.wallet_balance || 0;
+
+                // Update balance info
+                transaction.balance_info = {
+                    opening_balance: openingBalance,
+                    closing_balance: newBalance
+                };
+                transaction.transaction_date = new Date();
+
+                await transaction.save();
+
+                res.json({
+                    success: true,
+                    message: 'Payment successful. Wallet credited.',
+                    data: {
+                        transaction_id: transaction.transaction_id,
+                        status: orderStatus.status,
+                        amount: transaction.amount,
+                        new_balance: newBalance,
+                        txn_id: orderStatus.txnId
+                    }
+                });
+            } else if (internalStatus === 'failed') {
+                // Payment failed
+                transaction.status = 'failed';
+                transaction.notes = orderStatus.errorMessage || 'Payment failed';
+                await transaction.save();
+
+                res.json({
+                    success: false,
+                    message: orderStatus.errorMessage || 'Payment failed',
+                    data: {
+                        transaction_id: transaction.transaction_id,
+                        status: orderStatus.status,
+                        error_code: orderStatus.errorCode
+                    }
+                });
+            } else {
+                // Payment still pending
+                await transaction.save();
+
+                res.json({
+                    success: true,
+                    message: 'Payment is still being processed',
+                    data: {
+                        transaction_id: transaction.transaction_id,
+                        status: orderStatus.status,
+                        is_pending: true
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Handle payment response error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to verify payment',
+                error: error.message
+            });
+        }
+    }
+);
+
+/**
+ * Check payment status
+ * GET /api/billing/wallet/payment-status/:order_id
+ */
+router.get('/wallet/payment-status/:order_id', auth, async (req, res) => {
+    try {
+        const { order_id } = req.params;
+
+        // Find the transaction
+        const transaction = await Transaction.findOne({
+            'payment_info.gateway_order_id': order_id,
+            user_id: req.user._id
+        });
+
+        if (!transaction) {
+            return res.status(404).json({
+                success: false,
+                message: 'Transaction not found'
+            });
+        }
+
+        // If already completed, return cached status
+        if (transaction.status === 'completed') {
+            return res.json({
+                success: true,
+                data: {
+                    transaction_id: transaction.transaction_id,
+                    status: 'CHARGED',
+                    internal_status: 'completed',
+                    amount: transaction.amount
+                }
+            });
+        }
+
+        // Get fresh status from HDFC
+        const orderStatus = await hdfcPaymentService.getOrderStatus(order_id);
+
+        res.json({
+            success: true,
+            data: {
+                transaction_id: transaction.transaction_id,
+                status: orderStatus.status,
+                internal_status: hdfcPaymentService.mapPaymentStatus(orderStatus.status),
+                amount: transaction.amount,
+                is_successful: hdfcPaymentService.isPaymentSuccessful(orderStatus.status)
+            }
+        });
+    } catch (error) {
+        console.error('Payment status check error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to check payment status',
+            error: error.message
+        });
+    }
+});
+
+// ============================================
+// LEGACY RAZORPAY ENDPOINTS (kept for backward compatibility)
+// ============================================
+
+router.post('/wallet/add-money',
+    auth,
+    [
+        body('amount').isFloat({ min: 10, max: 50000 }).withMessage('Amount must be between ₹10 and ₹50,000'),
+        body('payment_method').isIn(['upi', 'netbanking', 'card', 'wallet']).withMessage('Invalid payment method'),
+        body('payment_details.upi_id').optional().matches(/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/).withMessage('Invalid UPI ID'),
+        body('payment_details.card_last4').optional().isLength({ min: 4, max: 4 }).withMessage('Invalid card details')
+    ],
+    async (req, res) => {
+        // Redirect to new HDFC flow
+        return res.status(410).json({
+            success: false,
+            message: 'This endpoint is deprecated. Please use /wallet/initiate-payment for HDFC SmartGateway.',
+            redirect_to: '/api/billing/wallet/initiate-payment'
+        });
     }
 );
 
@@ -272,94 +512,12 @@ router.post('/wallet/verify-payment',
         body('razorpay_signature').notEmpty().withMessage('Razorpay signature is required')
     ],
     async (req, res) => {
-        try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Validation failed',
-                    errors: errors.array()
-                });
-            }
-
-            const { transaction_id, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
-
-            const transaction = await Transaction.findOne({
-                transaction_id: transaction_id,
-                user_id: req.user._id,
-                status: 'pending'
-            });
-
-            if (!transaction) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Transaction not found or already processed'
-                });
-            }
-
-            const expectedSignature = crypto
-                .createHmac('sha256', process.env.RAZORPAY_SECRET || 'test_secret')
-                .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-                .digest('hex');
-
-            const isSignatureValid = expectedSignature === razorpay_signature;
-
-            if (isSignatureValid) {
-                transaction.status = 'completed';
-                transaction.payment_info.payment_id = razorpay_payment_id;
-                transaction.payment_info.order_id = razorpay_order_id;
-                transaction.payment_info.signature = razorpay_signature;
-                transaction.payment_info.payment_status = 'completed';
-                transaction.payment_info.payment_date = new Date();
-                transaction.transaction_date = new Date();
-                transaction.updated_at = new Date();
-
-                const user = await User.findById(req.user._id);
-                const openingBalance = user.wallet_balance || 0;
-                user.wallet_balance = openingBalance + transaction.amount;
-                await user.save();
-
-                // CRITICAL: Retrieve the live updated wallet balance from database
-                const updatedUser = await User.findById(req.user._id).select('wallet_balance');
-                const liveUpdatedBalance = updatedUser.wallet_balance || 0;
-                
-                // Update balance_info in transaction
-                transaction.balance_info = {
-                    opening_balance: openingBalance,
-                    closing_balance: liveUpdatedBalance
-                };
-
-                await transaction.save();
-
-                res.json({
-                    success: true,
-                    message: 'Payment verified and wallet recharged successfully',
-                    data: {
-                        transaction_id: transaction_id,
-                        amount_added: transaction.amount,
-                        new_balance: liveUpdatedBalance // Use live database balance
-                    }
-                });
-            } else {
-                transaction.status = 'failed';
-                transaction.payment_info.payment_status = 'failed';
-                transaction.notes = 'Invalid payment signature';
-                transaction.updated_at = new Date();
-                await transaction.save();
-
-                res.status(400).json({
-                    success: false,
-                    message: 'Payment verification failed'
-                });
-            }
-        } catch (error) {
-            console.error('Verify payment error:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error',
-                error: error.message
-            });
-        }
+        // Redirect to new HDFC flow
+        return res.status(410).json({
+            success: false,
+            message: 'This endpoint is deprecated. Please use /wallet/handle-payment-response for HDFC SmartGateway.',
+            redirect_to: '/api/billing/wallet/handle-payment-response'
+        });
     }
 );
 

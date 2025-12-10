@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiService } from '../services/api';
 import './Billing.css';
@@ -66,7 +66,8 @@ type TransactionCache = Record<string, {
 
 const Billing: React.FC = () => {
   const navigate = useNavigate();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // State Management
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [summary, setSummary] = useState<WalletSummary>({
@@ -75,21 +76,29 @@ const Billing: React.FC = () => {
     total_debits: 0
   });
   const [loading, setLoading] = useState(false);
-  
+
   // Filters
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // Search and Filters
   const [searchAWB, setSearchAWB] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [transactionType, setTransactionType] = useState('all');
-  
+
   // Tabs
   const [activeTab, setActiveTab] = useState<'transactions' | 'recharges'>('transactions');
+
+  // Recharge Modal State
+  const [showRechargeModal, setShowRechargeModal] = useState(false);
+  const [rechargeAmount, setRechargeAmount] = useState('');
+  const [rechargeLoading, setRechargeLoading] = useState(false);
+  const [rechargeError, setRechargeError] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed' | 'pending'>('idle');
+  const [paymentMessage, setPaymentMessage] = useState('');
 
   // Cache for transaction requests keyed by parameters
   const transactionCacheRef = useRef<TransactionCache>({});
@@ -207,7 +216,102 @@ const Billing: React.FC = () => {
     }
   }, [activeTab, page, limit, dateFrom, dateTo, transactionType, applyTransactionData]);
 
+  // Handle payment redirect from HDFC
+  const handlePaymentRedirect = useCallback(async () => {
+    const orderId = searchParams.get('order_id') || localStorage.getItem('hdfc_order_id');
+    const isRedirect = searchParams.get('payment_redirect');
+
+    if (isRedirect && orderId) {
+      setPaymentStatus('processing');
+      setPaymentMessage('Verifying payment...');
+
+      try {
+        const response = await apiService.post<{
+          success: boolean;
+          message: string;
+          data: {
+            transaction_id: string;
+            status: string;
+            amount: number;
+            new_balance?: number;
+            is_pending?: boolean;
+          };
+        }>('/billing/wallet/handle-payment-response', { order_id: orderId });
+
+        if (response.success && response.data) {
+          if (response.data.is_pending) {
+            setPaymentStatus('pending');
+            setPaymentMessage('Payment is being processed. Please wait...');
+          } else if (response.data.new_balance !== undefined) {
+            setPaymentStatus('success');
+            setPaymentMessage(`Payment successful! Wallet credited with Rs ${response.data.amount}`);
+            // Refresh balance
+            fetchWalletBalance();
+            fetchTransactions({ forceRefresh: true });
+          }
+        } else {
+          setPaymentStatus('failed');
+          setPaymentMessage(response.message || 'Payment verification failed');
+        }
+      } catch (error: unknown) {
+        console.error('Payment verification error:', error);
+        setPaymentStatus('failed');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to verify payment';
+        setPaymentMessage(errorMessage);
+      }
+
+      // Clear URL params and stored order ID
+      localStorage.removeItem('hdfc_order_id');
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams, fetchWalletBalance, fetchTransactions]);
+
+  // Initiate wallet recharge
+  const initiateRecharge = async () => {
+    const amount = parseFloat(rechargeAmount);
+
+    if (isNaN(amount) || amount < 10 || amount > 50000) {
+      setRechargeError('Amount must be between Rs 10 and Rs 50,000');
+      return;
+    }
+
+    setRechargeLoading(true);
+    setRechargeError('');
+
+    try {
+      const response = await apiService.post<{
+        success: boolean;
+        message: string;
+        data: {
+          transaction_id: string;
+          order_id: string;
+          payment_link: string;
+          amount: number;
+        };
+      }>('/billing/wallet/initiate-payment', { amount });
+
+      if (response.success && response.data?.payment_link) {
+        // Store order ID for redirect handling
+        localStorage.setItem('hdfc_order_id', response.data.order_id);
+
+        // Redirect to HDFC payment page
+        window.location.href = response.data.payment_link;
+      } else {
+        setRechargeError(response.message || 'Failed to initiate payment');
+        setRechargeLoading(false);
+      }
+    } catch (error: unknown) {
+      console.error('Recharge initiation error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      setRechargeError(errorMessage);
+      setRechargeLoading(false);
+    }
+  };
+
   useEffect(() => {
+    // Check for payment redirect first
+    handlePaymentRedirect();
+
     // Initial fetches
     fetchWalletBalance();
     fetchTransactions({ forceRefresh: true });
@@ -226,7 +330,7 @@ const Billing: React.FC = () => {
       clearInterval(balanceInterval);
       clearInterval(transactionInterval);
     };
-  }, [fetchWalletBalance, fetchTransactions]);
+  }, [fetchWalletBalance, fetchTransactions, handlePaymentRedirect]);
 
   useEffect(() => {
     // Refresh transactions when filters/page change or tab changes
@@ -310,19 +414,105 @@ const Billing: React.FC = () => {
           </div>
         </div>
 
+        {/* Payment Status Banner */}
+        {paymentStatus !== 'idle' && (
+          <div className={`payment-status-banner ${paymentStatus}`}>
+            {paymentStatus === 'processing' && <span className="loading-spinner-inline"></span>}
+            {paymentStatus === 'success' && <span>&#10003;</span>}
+            {paymentStatus === 'failed' && <span>&#10007;</span>}
+            {paymentStatus === 'pending' && <span>&#8987;</span>}
+            <span className="payment-status-message">{paymentMessage}</span>
+            <button
+              className="payment-status-close"
+              onClick={() => setPaymentStatus('idle')}
+            >
+              &times;
+            </button>
+          </div>
+        )}
+
         {/* Wallet Actions */}
         <div className="wallet-actions-bar">
           <button className="download-ledger-btn" onClick={() => alert('Download ledger feature coming soon')}>
-            📥 Download Ledger
+            Download Ledger
           </button>
-          <button className="recharge-wallet-btn" onClick={() => navigate('/billing')}>
-            💳 Recharge Wallet
+          <button className="recharge-wallet-btn" onClick={() => setShowRechargeModal(true)}>
+            Recharge Wallet
           </button>
         </div>
-        <div className="billing-downtime-banner">
-          <strong>Payment gateway unavailable.</strong> Please contact your Shipsarthi administrator to
-          process manual wallet recharges. We&apos;ll notify you once online payments resume.
-        </div>
+
+        {/* Recharge Modal */}
+        {showRechargeModal && (
+          <div className="modal-overlay" onClick={() => !rechargeLoading && setShowRechargeModal(false)}>
+            <div className="recharge-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Recharge Wallet</h3>
+                <button
+                  className="modal-close-btn"
+                  onClick={() => !rechargeLoading && setShowRechargeModal(false)}
+                  disabled={rechargeLoading}
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="current-balance-display">
+                  <span>Current Balance:</span>
+                  <span className="balance-amount">Rs {summary.current_balance.toFixed(2)}</span>
+                </div>
+                <div className="amount-input-group">
+                  <label htmlFor="recharge-amount">Enter Amount (Rs)</label>
+                  <input
+                    type="number"
+                    id="recharge-amount"
+                    placeholder="Enter amount (10 - 50,000)"
+                    value={rechargeAmount}
+                    onChange={(e) => {
+                      setRechargeAmount(e.target.value);
+                      setRechargeError('');
+                    }}
+                    min="10"
+                    max="50000"
+                    disabled={rechargeLoading}
+                  />
+                  {rechargeError && <div className="error-message">{rechargeError}</div>}
+                </div>
+                <div className="quick-amounts">
+                  {[100, 500, 1000, 2000, 5000].map((amt) => (
+                    <button
+                      key={amt}
+                      className={`quick-amount-btn ${rechargeAmount === amt.toString() ? 'selected' : ''}`}
+                      onClick={() => setRechargeAmount(amt.toString())}
+                      disabled={rechargeLoading}
+                    >
+                      Rs {amt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowRechargeModal(false);
+                    setRechargeAmount('');
+                    setRechargeError('');
+                  }}
+                  disabled={rechargeLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="proceed-btn"
+                  onClick={initiateRecharge}
+                  disabled={rechargeLoading || !rechargeAmount}
+                >
+                  {rechargeLoading ? 'Processing...' : 'Proceed to Pay'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="billing-tabs">
