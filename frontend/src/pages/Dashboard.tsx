@@ -522,10 +522,6 @@ const Dashboard: React.FC = () => {
               Recharge
             </button>
           </div>
-          <div className="wallet-downtime-banner">
-            <strong>Payment gateway unavailable.</strong> Please contact your Shipsarthi administrator to
-            process manual wallet top-ups. We&apos;re sorry for the inconvenience.
-          </div>
         </div>
 
         <div className="dashboard-grid">

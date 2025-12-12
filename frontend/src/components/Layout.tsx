@@ -43,6 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [wsConnected, setWsConnected] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -396,22 +397,72 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => clearInterval(pollInterval);
   }, [fetchWalletBalance, fetchUserProfile, refreshUser]);
 
-  const menuItems = [
+  // Menu items with collapsible sub-menus
+  interface MenuItem {
+    path?: string;
+    icon: string;
+    label: string;
+    svgIcon: string | null;
+    id?: string;
+    children?: MenuItem[];
+  }
+
+  const menuItems: MenuItem[] = [
     { path: '/dashboard', icon: '🏠', label: 'Dashboard', svgIcon: group1Icon },
     { path: '/orders', icon: '🛒', label: 'Orders', svgIcon: vector14Icon },
-    { path: '/packages', icon: '📦', label: 'Packages', svgIcon: null }, // Packages icon not specified
     { path: '/ndr', icon: '📦', label: 'NDR', svgIcon: group10Icon },
-    { path: '/tools', icon: '🔧', label: 'Tools', svgIcon: vectorIcon },
-    { path: '/billing', icon: '💳', label: 'Billing', svgIcon: group1BillingIcon },
-    { path: '/invoices', icon: '📄', label: 'Invoices', svgIcon: null },
-    { path: '/remittances', icon: '💸', label: 'Remittance', svgIcon: null },
-    { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies', svgIcon: null }, // Weight Discrepancies icon not specified
+    {
+      id: 'tools',
+      icon: '🔧',
+      label: 'Tools',
+      svgIcon: vectorIcon,
+      children: [
+        { path: '/packages', icon: '📦', label: 'Packages', svgIcon: null },
+        { path: '/weight-discrepancies', icon: '⚖️', label: 'Weight Discrepancies', svgIcon: null },
+      ]
+    },
+    {
+      id: 'billing',
+      icon: '💳',
+      label: 'Billing',
+      svgIcon: group1BillingIcon,
+      children: [
+        { path: '/invoices', icon: '📄', label: 'Invoices', svgIcon: null },
+        { path: '/remittances', icon: '💸', label: 'Remittance', svgIcon: null },
+      ]
+    },
     { path: '/warehouse', icon: '🏢', label: 'Warehouse', svgIcon: group19Icon },
     { path: '/channel', icon: '🔗', label: 'Channel', svgIcon: vector1Icon },
     { path: '/support', icon: '🎧', label: 'Support', svgIcon: vector2Icon },
-    { path: '/settings', icon: '⚙️', label: 'Setting', svgIcon: group3Icon },
-    { path: '/settings/manage-label', icon: '🏷️', label: 'Manage Label', svgIcon: null },
+    {
+      id: 'settings',
+      icon: '⚙️',
+      label: 'Setting',
+      svgIcon: group3Icon,
+      children: [
+        { path: '/settings/manage-label', icon: '🏷️', label: 'Manage Label', svgIcon: null },
+      ]
+    },
   ];
+
+  const toggleMenu = (menuId: string) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuId]: !prev[menuId]
+    }));
+  };
+
+  const isMenuActive = (item: MenuItem): boolean => {
+    if (item.path) {
+      return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+    }
+    if (item.children) {
+      return item.children.some(child =>
+        child.path && (location.pathname === child.path || location.pathname.startsWith(child.path + '/'))
+      );
+    }
+    return false;
+  };
 
   return (
     <div className="layout-container">
@@ -577,20 +628,63 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <aside className={`layout-sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           <nav className="sidebar-nav">
             {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`sidebar-item ${location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'active' : ''}`}
-              >
-                <span className="sidebar-icon">
-                  {item.svgIcon ? (
-                    <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
-                  ) : (
-                    item.icon
-                  )}
-                </span>
-                <span className="sidebar-label">{item.label}</span>
-              </Link>
+              <div key={item.path || item.id} className="sidebar-menu-item">
+                {item.children ? (
+                  <>
+                    {/* Parent menu item with children - collapsible */}
+                    <div
+                      className={`sidebar-item sidebar-parent ${isMenuActive(item) ? 'active-parent' : ''} ${expandedMenus[item.id!] ? 'expanded' : ''}`}
+                      onClick={() => toggleMenu(item.id!)}
+                    >
+                      <span className="sidebar-icon">
+                        {item.svgIcon ? (
+                          <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
+                        ) : (
+                          item.icon
+                        )}
+                      </span>
+                      <span className="sidebar-label">{item.label}</span>
+                      <span className={`sidebar-arrow ${expandedMenus[item.id!] ? 'expanded' : ''}`}>
+                        &#9660;
+                      </span>
+                    </div>
+                    {/* Child menu items */}
+                    <div className={`sidebar-children ${expandedMenus[item.id!] ? 'expanded' : ''}`}>
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.path}
+                          to={child.path!}
+                          className={`sidebar-item sidebar-child ${location.pathname === child.path || location.pathname.startsWith(child.path + '/') ? 'active' : ''}`}
+                        >
+                          <span className="sidebar-icon">
+                            {child.svgIcon ? (
+                              <img src={child.svgIcon} alt={child.label} style={{ width: '20px', height: '20px' }} />
+                            ) : (
+                              child.icon
+                            )}
+                          </span>
+                          <span className="sidebar-label">{child.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  /* Regular menu item - direct link */
+                  <Link
+                    to={item.path!}
+                    className={`sidebar-item ${isMenuActive(item) ? 'active' : ''}`}
+                  >
+                    <span className="sidebar-icon">
+                      {item.svgIcon ? (
+                        <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
+                      ) : (
+                        item.icon
+                      )}
+                    </span>
+                    <span className="sidebar-label">{item.label}</span>
+                  </Link>
+                )}
+              </div>
             ))}
           </nav>
         </aside>
