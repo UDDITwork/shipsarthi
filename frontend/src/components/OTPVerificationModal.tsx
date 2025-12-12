@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, RotateCcw, Phone } from 'lucide-react';
 import { otpService } from '../services/otpService';
-import apiService from '../services/api';
+import { apiService } from '../services/api';
 import './OTPVerificationModal.css';
 
 // Registration data interface
