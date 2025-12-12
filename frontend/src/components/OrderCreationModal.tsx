@@ -258,10 +258,21 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
       });
       if (response.ok) {
         const data = await response.json();
-        setWarehouses(data.data.warehouses || []);
+        const warehousesList = data.data?.warehouses || data.warehouses || [];
+        console.log('📦 Fetched warehouses:', warehousesList.length, warehousesList);
+        setWarehouses(warehousesList);
+        // Initialize filtered warehouses
+        setFilteredWarehouses(warehousesList);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to fetch warehouses:', response.status, errorData);
+        setWarehouses([]);
+        setFilteredWarehouses([]);
       }
     } catch (error) {
-      console.error('Error fetching warehouses:', error);
+      console.error('❌ Error fetching warehouses:', error);
+      setWarehouses([]);
+      setFilteredWarehouses([]);
     }
   };
 
@@ -1273,7 +1284,6 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
         <form className="single-page-form">
             {/* Buyer Information Section */}
             <div className="form-section buyer-section">
-              <div className="form-section">
                 <div className="section-header">
                   <h3>👤 Buyer/Receiver Details</h3>
                 </div>
@@ -1954,6 +1964,208 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
               </div>
               
               {!showManualAddress ? (
+                <div>
+                  <div className="form-group">
+                    <label>Select Warehouse *</label>
+                    <div className="warehouse-autocomplete-container">
+                      <input
+                        type="text"
+                        placeholder="Search or select warehouse..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          setShowSuggestions(true);
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        className="warehouse-search-input"
+                      />
+                      {showSuggestions && filteredWarehouses.length > 0 && (
+                        <div className="warehouse-suggestions">
+                          {filteredWarehouses.map((warehouse) => (
+                            <div
+                              key={warehouse._id}
+                              className="warehouse-suggestion-item"
+                              onClick={() => {
+                                handleWarehouseChange(warehouse._id);
+                                setSearchQuery('');
+                                setShowSuggestions(false);
+                              }}
+                            >
+                              <div className="warehouse-suggestion-name">{warehouse.name}</div>
+                              <div className="warehouse-suggestion-location">
+                                {warehouse.address?.city} - {warehouse.address?.pincode}, {warehouse.address?.state}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {warehouseError && <div className="error-message">{warehouseError}</div>}
+                    {warehouses.length === 0 && (
+                      <div className="no-warehouses">
+                        No warehouses found. Please add a warehouse first.
+                      </div>
+                    )}
+                    {filteredWarehouses.length === 0 && searchQuery && warehouses.length > 0 && (
+                      <div className="no-results">No warehouses found matching "{searchQuery}"</div>
+                    )}
+                  </div>
+                  
+                  {formData.pickup_address.warehouse_id && (
+                    <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#e8f5e9', borderRadius: '6px', border: '1px solid #4caf50' }}>
+                      <div style={{ fontSize: '12px', color: '#2e7d32', marginBottom: '4px' }}>Selected Warehouse:</div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#1b5e20' }}>
+                        {warehouses.find(w => w._id === formData.pickup_address.warehouse_id)?.name}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#388e3c', marginTop: '4px' }}>
+                        {formData.pickup_address.full_address}, {formData.pickup_address.city} - {formData.pickup_address.pincode}, {formData.pickup_address.state}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div style={{ marginTop: '12px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={handleAddAddress}
+                      className="add-address-btn"
+                    >
+                      + Add Warehouse
+                    </button>
+                    {formData.pickup_address.warehouse_id && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleWarehouseChange('');
+                          setSearchQuery('');
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: '12px',
+                          backgroundColor: '#f5f5f5',
+                          color: '#666',
+                          border: '1px solid #ddd',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Clear Selection
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="manual-address-section">
+                  <div className="section-header">
+                    <h4>Enter Warehouse Address Manually</h4>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowManualAddress(false);
+                        setFormData(prev => ({
+                          ...prev,
+                          pickup_address: {
+                            ...prev.pickup_address,
+                            warehouse_id: '',
+                            name: '',
+                            full_address: '',
+                            city: '',
+                            state: '',
+                            pincode: '',
+                            phone: '',
+                            country: 'India'
+                          }
+                        }));
+                      }}
+                      className="back-to-warehouse-btn"
+                    >
+                      ← Back to Warehouse Selection
+                    </button>
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Warehouse Name *</label>
+                      <input
+                        type="text"
+                        value={formData.pickup_address.name}
+                        onChange={(e) => handleNestedInputChange('pickup_address', 'name', e.target.value)}
+                        placeholder="Enter warehouse name"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone *</label>
+                      <input
+                        type="tel"
+                        value={formData.pickup_address.phone}
+                        onChange={(e) => handleNestedInputChange('pickup_address', 'phone', e.target.value)}
+                        placeholder="Enter phone number"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-group full-width">
+                    <label>Full Address *</label>
+                    <textarea
+                      value={formData.pickup_address.full_address}
+                      onChange={(e) => handleNestedInputChange('pickup_address', 'full_address', e.target.value)}
+                      placeholder="Enter complete address"
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Pincode *</label>
+                      <input
+                        type="text"
+                        value={formData.pickup_address.pincode}
+                        onChange={(e) => {
+                          const pincode = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          handlePickupPincodeChange(pincode);
+                        }}
+                        placeholder="Enter 6-digit pincode"
+                        maxLength={6}
+                        required
+                      />
+                      {validatingPickupPincode && (
+                        <small style={{ color: '#666', fontSize: '11px' }}>Validating pincode...</small>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>City *</label>
+                      <input
+                        type="text"
+                        value={formData.pickup_address.city}
+                        onChange={(e) => handleNestedInputChange('pickup_address', 'city', e.target.value)}
+                        placeholder="Enter city"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>State *</label>
+                      <input
+                        type="text"
+                        value={formData.pickup_address.state}
+                        onChange={(e) => handleNestedInputChange('pickup_address', 'state', e.target.value)}
+                        placeholder="Enter state"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Shipping Charges Calculation Section */}
+              {formData.pickup_address.pincode && formData.delivery_address.pincode && formData.package_info.weight > 0 && (
+                <div style={{ marginTop: '20px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+                  <div className="section-header" style={{ marginBottom: '12px' }}>
+                    <h4>💰 Shipping Charges Calculation</h4>
+                  </div>
+                  
+                  {finalShippingCalculation.calculating ? (
                     <div style={{ textAlign: 'center', padding: '20px' }}>
                       <div style={{ fontSize: '16px', color: '#666', marginBottom: '10px' }}>
                         🔄 Calculating shipping charges...
@@ -2123,6 +2335,7 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                     </div>
                   )}
                 </div>
+              )}
             </div>
 
           {/* Action Buttons */}

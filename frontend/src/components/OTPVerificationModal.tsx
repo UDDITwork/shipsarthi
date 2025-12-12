@@ -41,8 +41,10 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [otpSent, setOtpSent] = useState(false);
+  // For registration flow, OTP is already sent by /register endpoint, so start with cooldown
+  const [resendCooldown, setResendCooldown] = useState(registrationData ? 60 : 0);
+  // For registration flow, OTP is already sent, so start with otpSent = true
+  const [otpSent, setOtpSent] = useState(!!registrationData);
   const [retryType, setRetryType] = useState<'sms' | 'voice'>('sms');
 
   useEffect(() => {
@@ -80,10 +82,11 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   }, [phoneNumber, onVerificationError, registrationData]);
 
   useEffect(() => {
-    if (isOpen && phoneNumber) {
+    // For registration flow, OTP is already sent by /register endpoint - skip sendOTP
+    if (isOpen && phoneNumber && !registrationData) {
       sendOTP();
     }
-  }, [isOpen, phoneNumber, sendOTP]);
+  }, [isOpen, phoneNumber, sendOTP, registrationData]);
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
