@@ -348,17 +348,48 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, selectedLabelType
   const showComponent = (component: keyof LabelSettings['component_visibility']) => visibility[component];
 
   // Determine label dimensions based on selected type
+  // Industry standard shipping label size: 4" x 6" (100mm x 150mm)
+  // For thermal printers and single labels
+  // For A4 paper: 2-in-1 and 4-in-1 layouts maintain same label size
   const primaryType = selectedLabelTypes[0] || 'Standard';
   const getLabelDimensions = () => {
+    // All label types use standard 4x6 inch (100x150mm) label size
+    // The layout (1-in-1, 2-in-1, 4-in-1) affects paper arrangement, not label size
     switch (primaryType) {
-      case '2 In One':
-        return { width: '4in', height: '3in' };
-      case '4 In One':
-        return { width: '2in', height: '3in' };
       case 'Thermal':
-        return { width: '4in', height: '6in' };
-      default: // Standard
-        return { width: '4in', height: '6in' };
+        // Thermal: 4" x 6" (100mm x 150mm) - direct thermal printer
+        return {
+          width: '100mm',  // 4 inches = 101.6mm ≈ 100mm
+          height: '150mm', // 6 inches = 152.4mm ≈ 150mm
+          paperType: 'thermal',
+          labelsPerSheet: 1
+        };
+      case '2 In One':
+        // 2-in-1: Two 4x6 labels on A4 portrait (210x297mm)
+        // Each label: 100mm x 148mm with 5mm side margin
+        return {
+          width: '100mm',
+          height: '148mm',
+          paperType: 'A4',
+          labelsPerSheet: 2
+        };
+      case '4 In One':
+        // 4-in-1: Four 4x6 labels on A4 (210x297mm)
+        // Each label: 100mm x 148mm arranged 2x2
+        return {
+          width: '100mm',
+          height: '148mm',
+          paperType: 'A4',
+          labelsPerSheet: 4
+        };
+      default: // Standard (1-in-1)
+        // Standard: 4" x 6" (100mm x 150mm) - single label per sheet
+        return {
+          width: '100mm',
+          height: '150mm',
+          paperType: 'standard',
+          labelsPerSheet: 1
+        };
     }
   };
 

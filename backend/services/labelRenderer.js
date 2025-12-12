@@ -3,8 +3,86 @@ const logger = require('../utils/logger');
 /**
  * Label Renderer Service
  * Converts Delhivery JSON response to printable HTML/PDF format
+ *
+ * SHIPPING LABEL DIMENSIONS (Industry Standard):
+ * - Thermal (1-in-1): 4" x 6" (100mm x 150mm) - Direct thermal printer
+ * - Standard (1-in-1): 4" x 6" (100mm x 150mm) - Single label per sheet
+ * - 2-in-1: Two 4"x6" labels on A4 portrait (210mm x 297mm)
+ * - 4-in-1: Four 4"x6" labels on A4 (210mm x 297mm)
+ *
+ * A4 Layout Specifications:
+ * - Paper: 210mm x 297mm
+ * - Label: 100mm x 148mm (fits 2 columns x 2 rows)
+ * - Margins: 5mm left/right
+ * - Gap: 0mm horizontal, 1mm vertical
  */
+
+// Label format constants
+const LABEL_FORMATS = {
+  THERMAL: {
+    name: 'Thermal',
+    width: '100mm',    // 4 inches
+    height: '150mm',   // 6 inches
+    widthPx: 384,      // 96 DPI
+    heightPx: 576,
+    labelsPerSheet: 1,
+    paperType: 'thermal'
+  },
+  STANDARD: {
+    name: 'Standard',
+    width: '100mm',
+    height: '150mm',
+    widthPx: 384,
+    heightPx: 576,
+    labelsPerSheet: 1,
+    paperType: 'standard'
+  },
+  TWO_IN_ONE: {
+    name: '2 In One',
+    width: '100mm',
+    height: '148mm',   // Slightly shorter to fit 2 on A4
+    widthPx: 384,
+    heightPx: 567,
+    labelsPerSheet: 2,
+    paperType: 'A4',
+    paperWidth: '210mm',
+    paperHeight: '297mm',
+    marginLeft: '5mm',
+    marginRight: '5mm',
+    gap: '1mm'
+  },
+  FOUR_IN_ONE: {
+    name: '4 In One',
+    width: '100mm',
+    height: '148mm',
+    widthPx: 384,
+    heightPx: 567,
+    labelsPerSheet: 4,
+    paperType: 'A4',
+    paperWidth: '210mm',
+    paperHeight: '297mm',
+    marginLeft: '5mm',
+    marginRight: '5mm',
+    gap: '1mm'
+  }
+};
+
 class LabelRenderer {
+
+  /**
+   * Get label format configuration
+   * @param {string} format - Label format type
+   * @returns {Object} Format configuration
+   */
+  static getLabelFormat(format) {
+    const formatMap = {
+      'Thermal': LABEL_FORMATS.THERMAL,
+      'Standard': LABEL_FORMATS.STANDARD,
+      '2 In One': LABEL_FORMATS.TWO_IN_ONE,
+      '4 In One': LABEL_FORMATS.FOUR_IN_ONE
+    };
+    return formatMap[format] || LABEL_FORMATS.STANDARD;
+  }
   /**
    * Convert Delhivery JSON response to printable HTML label
    * @param {Object} labelData - Label data from Delhivery API
@@ -348,4 +426,5 @@ class LabelRenderer {
 }
 
 module.exports = LabelRenderer;
+module.exports.LABEL_FORMATS = LABEL_FORMATS;
 
