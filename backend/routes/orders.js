@@ -192,7 +192,8 @@ async function refundShippingChargesToWallet(order, userId) {
     }
 
     const openingBalance = user.wallet_balance || 0;
-    const closingBalance = openingBalance + shippingCharges;
+    // Use Math.round to avoid floating-point precision issues
+    const closingBalance = Math.round((openingBalance + shippingCharges) * 100) / 100;
 
     user.wallet_balance = closingBalance;
     await user.save();
@@ -336,7 +337,8 @@ async function deductWalletForOrder(order, userId, awbNumber = null) {
     }
     
     // Deduct from wallet
-    const closingBalance = openingBalance - shippingCharges;
+    // Use Math.round to avoid floating-point precision issues
+    const closingBalance = Math.round((openingBalance - shippingCharges) * 100) / 100;
     user.wallet_balance = closingBalance;
     await user.save();
     

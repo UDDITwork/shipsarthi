@@ -245,7 +245,8 @@ const handlePaymentReturn = async (req, res) => {
                         const user = await User.findById(transaction.user_id);
                         if (user) {
                             const openingBalance = user.wallet_balance || 0;
-                            user.wallet_balance = openingBalance + transaction.amount;
+                            // Use Math.round to avoid floating-point precision issues
+                            user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
                             await user.save();
 
                             transaction.balance_info = {
@@ -451,7 +452,8 @@ router.post('/wallet/handle-payment-response',
 
                 const user = await User.findById(req.user._id);
                 const openingBalance = user.wallet_balance || 0;
-                user.wallet_balance = openingBalance + transaction.amount;
+                // Use Math.round to avoid floating-point precision issues
+                user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
                 await user.save();
 
                 // Get live updated balance
@@ -1010,7 +1012,8 @@ router.post('/deduct-wallet',
                 updated_at: new Date()
             });
 
-            user.wallet_balance -= amount;
+            // Use Math.round to avoid floating-point precision issues
+            user.wallet_balance = Math.round((user.wallet_balance - amount) * 100) / 100;
 
             await Promise.all([
                 transaction.save(),

@@ -1890,20 +1890,24 @@ router.post('/wallet-recharge', async (req, res) => {
 
     // Get current wallet balance
     const currentBalance = client.wallet_balance || 0;
-    
+
+    // Parse amount to ensure it's a proper number and round to 2 decimal places
+    const parsedAmount = Math.round(parseFloat(amount) * 100) / 100;
+
     // Calculate new balance based on type
+    // Use Math.round to avoid floating-point precision issues (e.g., 1999.97 instead of 2000)
     let newBalance;
     if (type === 'credit') {
-      newBalance = currentBalance + amount;
+      newBalance = Math.round((currentBalance + parsedAmount) * 100) / 100;
     } else {
       // Debit: validate sufficient balance
-      if (amount > currentBalance) {
+      if (parsedAmount > currentBalance) {
         return res.status(400).json({
           success: false,
-          message: `Insufficient balance. Current balance: ₹${currentBalance}, Requested: ₹${amount}`
+          message: `Insufficient balance. Current balance: ₹${currentBalance}, Requested: ₹${parsedAmount}`
         });
       }
-      newBalance = currentBalance - amount;
+      newBalance = Math.round((currentBalance - parsedAmount) * 100) / 100;
     }
 
     // Create transaction record
@@ -1914,8 +1918,8 @@ router.post('/wallet-recharge', async (req, res) => {
       user_id: client_id,
       transaction_type: type, // 'credit' or 'debit'
       transaction_category: 'manual_adjustment',
-      amount: amount,
-      description: description || `Admin wallet ${type === 'credit' ? 'recharge' : 'deduction'} - ₹${amount}`,
+      amount: parsedAmount,
+      description: description || `Admin wallet ${type === 'credit' ? 'recharge' : 'deduction'} - ₹${parsedAmount}`,
       status: 'completed',
       created_at: new Date(),
       updated_at: new Date(),
@@ -2437,8 +2441,9 @@ router.post('/weight-discrepancies/bulk-import', upload.single('file'), async (r
         const user = await User.findById(client_id);
         if (user && deduction_amount > 0) {
           const openingBalance = user.wallet_balance || 0;
-          const closingBalance = Math.max(0, openingBalance - deduction_amount);
-          
+          // Use Math.round to avoid floating-point precision issues
+          const closingBalance = Math.max(0, Math.round((openingBalance - deduction_amount) * 100) / 100);
+
           // Update wallet balance in database
           user.wallet_balance = closingBalance;
           await user.save();
