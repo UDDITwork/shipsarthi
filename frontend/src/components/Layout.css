@@ -640,7 +640,7 @@
 
 /* Child menu items */
 .sidebar-child {
-  padding-left: 40px !important;
+  padding-left: 28px !important;
   font-size: 13px !important;
   min-height: 36px !important;
   background-color: transparent !important;
@@ -660,7 +660,7 @@
   color: #FF8C42 !important;
   border-radius: 20px 8px 8px 20px !important;
   margin-left: 8px !important;
-  padding-left: 32px !important;
+  padding-left: 20px !important;
   /* Override the complex active styling for children */
   width: auto !important;
   transform: none !important;
