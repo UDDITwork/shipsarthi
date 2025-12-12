@@ -6,6 +6,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { RegisterData } from '../types';
 import OTPVerificationModal from '../components/OTPVerificationModal';
 
+// Interface for storing form data for OTP verification
+interface RegistrationFormData {
+  user_type: string;
+  monthly_shipments: string;
+  company_name: string;
+  your_name: string;
+  state: string;
+  phone_number: string;
+  email: string;
+  password: string;
+  reference_code?: string;
+  terms_accepted: boolean;
+}
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { register: registerUser, loading, error } = useAuth();
@@ -16,6 +30,8 @@ const Register: React.FC = () => {
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [registeredUser, setRegisteredUser] = useState<any>(null);
   const [otpError, setOtpError] = useState<string | null>(null);
+  // Store the full registration form data for complete-registration endpoint
+  const [pendingRegistrationData, setPendingRegistrationData] = useState<RegistrationFormData | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
 
@@ -39,17 +55,30 @@ const Register: React.FC = () => {
   const onSubmit = async (data: RegisterData) => {
     try {
       const response = await registerUser(data);
-      
+
       // Debug: Log the response to see what we're getting
       console.log('🔧 Registration Response in Register.tsx:', response);
       console.log('🔧 requires_otp_verification:', response.requires_otp_verification);
-      
-      // Check if OTP verification is required
+
+      // Check if OTP verification is required (Step 1 completed - OTP sent)
       if (response.requires_otp_verification) {
-        console.log('🔧 Setting OTP modal to show');
+        console.log('🔧 OTP sent - showing verification modal');
+        // Store the FULL registration data including password for complete-registration
+        setPendingRegistrationData({
+          user_type: data.user_type,
+          monthly_shipments: data.monthly_shipments,
+          company_name: data.company_name,
+          your_name: data.your_name,
+          state: data.state,
+          phone_number: data.phone_number,
+          email: data.email,
+          password: data.password,
+          reference_code: data.reference_code,
+          terms_accepted: data.terms_accepted
+        });
         setRegisteredUser({
           phone_number: data.phone_number,
-          ...response.user
+          ...response.registration_data
         });
         setShowOTPModal(true);
       } else {
@@ -387,10 +416,14 @@ const Register: React.FC = () => {
       {showOTPModal && (
         <OTPVerificationModal
           isOpen={showOTPModal}
-          onClose={() => setShowOTPModal(false)}
+          onClose={() => {
+            setShowOTPModal(false);
+            setPendingRegistrationData(null); // Clear pending data on close
+          }}
           phoneNumber={registeredUser?.phone_number || ''}
           onVerificationSuccess={handleOTPVerificationSuccess}
           onVerificationError={handleOTPVerificationError}
+          registrationData={pendingRegistrationData || undefined}
         />
       )}
       

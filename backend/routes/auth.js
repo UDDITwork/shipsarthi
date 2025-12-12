@@ -18,7 +18,7 @@ const generateToken = (userId, rememberMe = false) => {
   });
 };
 
-// @desc    Register user
+// @desc    Register user - Step 1: Validate and send OTP (NO DATABASE SAVE)
 // @route   POST /api/auth/register
 // @access  Public
 router.post('/register', [
@@ -33,10 +33,11 @@ router.post('/register', [
   body('terms_accepted').equals('true')
 ], async (req, res) => {
   const startTime = Date.now();
-  logger.info('🚨 REGISTER ROUTE EXECUTED - NEW VERSION', {
+  logger.info('Registration Step 1: Validate and Send OTP', {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    body: req.body
+    phone_number: req.body.phone_number,
+    email: req.body.email
   });
 
   try {
@@ -83,12 +84,6 @@ router.post('/register', [
       ]
     });
 
-    logger.debug('User existence check completed', {
-      userExists: !!existingUser,
-      email: email.toLowerCase(),
-      phone_number
-    });
-
     if (existingUser) {
       logger.warn('Registration failed - user already exists', {
         email: email.toLowerCase(),
@@ -98,79 +93,124 @@ router.post('/register', [
       });
       return res.status(400).json({
         status: 'error',
-        message: existingUser.email === email.toLowerCase() 
+        message: existingUser.email === email.toLowerCase()
           ? 'User with this email already exists'
           : 'User with this phone number already exists'
       });
     }
 
-    logger.info('Creating new user', {
-      email: email.toLowerCase(),
-      company_name,
-      user_type
-    });
+    // DO NOT SAVE USER YET - Send OTP first via MSG91
+    const formattedMobile = phone_number.length === 10 ? `91${phone_number}` : phone_number;
+    const loginTemplateId = process.env.LOGIN_TEMPLATE_ID || process.env.MSG91_TEMPLATE_ID;
+    const authKey = process.env.MSG91_AUTH_KEY;
+    const otpExpiry = process.env.MSG91_OTP_EXPIRY || '5';
 
-    // Create user (without OTP verification initially)
-    const user = new User({
-      user_type,
-      monthly_shipments,
-      company_name,
-      your_name,
-      state,
-      phone_number,
-      email: email.toLowerCase(),
-      password,
-      reference_code,
-      terms_accepted: Boolean(terms_accepted),
-      account_status: 'pending_verification' // Set to pending until OTP is verified
-    });
+    if (!authKey) {
+      logger.error('MSG91_AUTH_KEY is not configured');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error - SMS service not configured'
+      });
+    }
 
-    await user.save();
-    logger.info('User created successfully (pending OTP verification)', {
-      userId: user._id,
-      email: user.email,
-      company_name: user.company_name,
-      client_id: user.client_id,
-      user_type: user.user_type,
-      monthly_shipments: user.monthly_shipments,
-      phone_verified: user.phone_verified
-    });
+    // Send OTP via MSG91 API
+    return new Promise((resolve) => {
+      const options = {
+        method: 'POST',
+        hostname: 'control.msg91.com',
+        port: null,
+        path: `/api/v5/otp?otp_expiry=${otpExpiry}&template_id=${loginTemplateId}&mobile=${formattedMobile}&authkey=${authKey}&realTimeResponse=`,
+        headers: {
+          'content-type': 'application/json',
+          'Content-Type': 'application/JSON'
+        }
+      };
 
-    const responseTime = Date.now() - startTime;
-    logger.info('Registration completed successfully (OTP verification required)', {
-      userId: user._id,
-      email: user.email,
-      company_name: user.company_name,
-      responseTime: `${responseTime}ms`
-    });
+      const requestData = {
+        Param1: company_name || 'Customer',
+        Param2: your_name || 'User',
+        Param3: 'Shipsarthi'
+      };
 
-    // DEBUG: Log the response before sending
-    logger.info('🔧 DEBUG: Sending registration response', {
-      requires_otp_verification: true,
-      userId: user._id
-    });
+      const req_otp = https.request(options, (res_otp) => {
+        const chunks = [];
 
-    logger.info('🚨 ABOUT TO SEND RESPONSE WITH OTP FLAG', {
-      userId: user._id,
-      requires_otp_verification: true
-    });
+        res_otp.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
 
-    res.status(201).json({
-      status: 'success',
-      message: 'User registered successfully. Please verify your phone number with OTP to complete registration.',
-      user: {
-        _id: user._id,
-        email: user.email,
-        company_name: user.company_name,
-        your_name: user.your_name,
-        client_id: user.client_id,
-        account_status: user.account_status,
-        wallet_balance: user.wallet_balance,
-        kyc_status: user.kyc_status,
-        phone_verified: user.phone_verified,
-        otp_verified: user.otp_verified
-      },
-      requires_otp_verification: true
+        res_otp.on('end', () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const response = JSON.parse(body.toString());
+
+            logger.info('MSG91 Send OTP Response for registration', {
+              phone_number,
+              status: res_otp.statusCode,
+              response: response
+            });
+
+            if (res_otp.statusCode === 200 && response.type === 'success') {
+              const responseTime = Date.now() - startTime;
+              logger.info('OTP sent successfully - user NOT saved yet', {
+                phone_number,
+                email: email.toLowerCase(),
+                responseTime: `${responseTime}ms`
+              });
+
+              // Return success with registration data to be used after OTP verification
+              // DO NOT include password in response for security
+              res.status(200).json({
+                status: 'success',
+                message: 'OTP sent successfully. Please verify to complete registration.',
+                requires_otp_verification: true,
+                registration_data: {
+                  phone_number: phone_number,
+                  email: email.toLowerCase(),
+                  company_name: company_name,
+                  your_name: your_name
+                }
+              });
+              resolve();
+            } else {
+              logger.error('MSG91 Send OTP failed for registration', {
+                phone_number,
+                error: response.message
+              });
+              res.status(500).json({
+                status: 'error',
+                message: response.message || 'Failed to send OTP. Please try again.'
+              });
+              resolve();
+            }
+          } catch (error) {
+            logger.error('MSG91 Send OTP Parse Error for registration', {
+              phone_number,
+              error: error.message
+            });
+            res.status(500).json({
+              status: 'error',
+              message: 'Failed to send OTP. Please try again.'
+            });
+            resolve();
+          }
+        });
+      });
+
+      req_otp.on('error', (error) => {
+        logger.error('MSG91 Send OTP Request Error for registration', {
+          phone_number,
+          error: error.message
+        });
+        res.status(500).json({
+          status: 'error',
+          message: 'Network error. Please try again.'
+        });
+        resolve();
+      });
+
+      req_otp.write(JSON.stringify(requestData));
+      req_otp.end();
     });
 
   } catch (error) {
@@ -181,19 +221,239 @@ router.post('/register', [
       body: req.body,
       responseTime: `${responseTime}ms`
     });
-    
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0];
-      logger.warn('Duplicate key error during registration', {
-        field,
-        keyPattern: error.keyPattern,
-        keyValue: error.keyValue
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error during registration'
+    });
+  }
+});
+
+// @desc    Complete Registration - Step 2: Verify OTP and create user
+// @route   POST /api/auth/complete-registration
+// @access  Public
+router.post('/complete-registration', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 6 }),
+  body('phone_number').matches(/^[6-9]\d{9}$/),
+  body('otp').matches(/^\d{4,6}$/).withMessage('OTP must be 4-6 digits'),
+  body('company_name').trim().notEmpty(),
+  body('your_name').trim().notEmpty(),
+  body('user_type').notEmpty(),
+  body('monthly_shipments').notEmpty(),
+  body('state').trim().notEmpty(),
+  body('terms_accepted').equals('true')
+], async (req, res) => {
+  const startTime = Date.now();
+  logger.info('Registration Step 2: Verify OTP and Create User', {
+    ip: req.ip,
+    phone_number: req.body.phone_number,
+    email: req.body.email
+  });
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Complete registration validation failed', {
+        errors: errors.array()
       });
       return res.status(400).json({
         status: 'error',
-        message: `${field === 'email' ? 'Email' : 'Phone number'} already exists`
+        message: 'Validation failed',
+        errors: errors.array()
       });
     }
+
+    const {
+      user_type,
+      monthly_shipments,
+      company_name,
+      your_name,
+      state,
+      phone_number,
+      email,
+      password,
+      reference_code,
+      terms_accepted,
+      otp
+    } = req.body;
+
+    // Check if user already exists (double-check)
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { phone_number }
+      ]
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        status: 'error',
+        message: existingUser.email === email.toLowerCase()
+          ? 'User with this email already exists'
+          : 'User with this phone number already exists'
+      });
+    }
+
+    // Verify OTP with MSG91
+    const formattedMobile = phone_number.length === 10 ? `91${phone_number}` : phone_number;
+    const authKey = process.env.MSG91_AUTH_KEY;
+
+    if (!authKey) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error'
+      });
+    }
+
+    // Verify OTP via MSG91 API
+    return new Promise((resolve) => {
+      const options = {
+        method: 'GET',
+        hostname: 'control.msg91.com',
+        port: null,
+        path: `/api/v5/otp/verify?otp=${otp}&mobile=${formattedMobile}`,
+        headers: {
+          authkey: authKey
+        }
+      };
+
+      const req_verify = https.request(options, async (res_verify) => {
+        const chunks = [];
+
+        res_verify.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+
+        res_verify.on('end', async () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const response = JSON.parse(body.toString());
+
+            logger.info('MSG91 Verify OTP Response for registration', {
+              phone_number,
+              status: res_verify.statusCode,
+              response: response
+            });
+
+            if (res_verify.statusCode === 200 && response.type === 'success') {
+              // OTP VERIFIED - NOW create and save the user
+              logger.info('OTP verified - creating user now', {
+                phone_number,
+                email: email.toLowerCase()
+              });
+
+              try {
+                const user = new User({
+                  user_type,
+                  monthly_shipments,
+                  company_name,
+                  your_name,
+                  state,
+                  phone_number,
+                  email: email.toLowerCase(),
+                  password,
+                  reference_code,
+                  terms_accepted: Boolean(terms_accepted),
+                  account_status: 'active', // Active since OTP is verified
+                  phone_verified: true,
+                  otp_verified: true
+                });
+
+                await user.save();
+
+                const responseTime = Date.now() - startTime;
+                logger.info('User created successfully after OTP verification', {
+                  userId: user._id,
+                  email: user.email,
+                  phone_number: user.phone_number,
+                  responseTime: `${responseTime}ms`
+                });
+
+                res.status(201).json({
+                  status: 'success',
+                  message: 'Registration completed successfully! You can now login.',
+                  user: {
+                    _id: user._id,
+                    email: user.email,
+                    company_name: user.company_name,
+                    your_name: user.your_name,
+                    client_id: user.client_id,
+                    account_status: user.account_status,
+                    phone_verified: user.phone_verified,
+                    otp_verified: user.otp_verified
+                  }
+                });
+                resolve();
+              } catch (saveError) {
+                logger.error('Error saving user after OTP verification', {
+                  error: saveError.message,
+                  phone_number,
+                  email: email.toLowerCase()
+                });
+
+                if (saveError.code === 11000) {
+                  const field = Object.keys(saveError.keyPattern)[0];
+                  res.status(400).json({
+                    status: 'error',
+                    message: `${field === 'email' ? 'Email' : 'Phone number'} already exists`
+                  });
+                } else {
+                  res.status(500).json({
+                    status: 'error',
+                    message: 'Failed to create user. Please try again.'
+                  });
+                }
+                resolve();
+              }
+            } else {
+              // OTP verification failed - DO NOT create user
+              logger.warn('OTP verification failed - user NOT created', {
+                phone_number,
+                error: response.message
+              });
+              res.status(400).json({
+                status: 'error',
+                message: response.message || 'Invalid OTP. Please try again.'
+              });
+              resolve();
+            }
+          } catch (error) {
+            logger.error('MSG91 Verify OTP Parse Error', {
+              phone_number,
+              error: error.message
+            });
+            res.status(500).json({
+              status: 'error',
+              message: 'Failed to verify OTP. Please try again.'
+            });
+            resolve();
+          }
+        });
+      });
+
+      req_verify.on('error', (error) => {
+        logger.error('MSG91 Verify OTP Request Error', {
+          phone_number,
+          error: error.message
+        });
+        res.status(500).json({
+          status: 'error',
+          message: 'Network error. Please try again.'
+        });
+        resolve();
+      });
+
+      req_verify.end();
+    });
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    logger.error('Complete registration error occurred', {
+      error: error.message,
+      stack: error.stack,
+      responseTime: `${responseTime}ms`
+    });
 
     res.status(500).json({
       status: 'error',

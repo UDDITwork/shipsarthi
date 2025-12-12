@@ -1,7 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, RotateCcw, Phone } from 'lucide-react';
 import { otpService } from '../services/otpService';
+import apiService from '../services/api';
 import './OTPVerificationModal.css';
+
+// Registration data interface
+interface RegistrationData {
+  user_type: string;
+  monthly_shipments: string;
+  company_name: string;
+  your_name: string;
+  state: string;
+  phone_number: string;
+  email: string;
+  password: string;
+  reference_code?: string;
+  terms_accepted: boolean;
+}
 
 interface OTPVerificationModalProps {
   isOpen: boolean;
@@ -9,6 +24,8 @@ interface OTPVerificationModalProps {
   phoneNumber: string;
   onVerificationSuccess: (user: any) => void;
   onVerificationError: (error: string) => void;
+  // New prop for registration flow - contains all form data
+  registrationData?: RegistrationData;
 }
 
 const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
@@ -16,7 +33,8 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   onClose,
   phoneNumber,
   onVerificationSuccess,
-  onVerificationError
+  onVerificationError,
+  registrationData
 }) => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,7 +55,16 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     return () => clearInterval(interval);
   }, [resendCooldown]);
 
+  // For registration flow, OTP is already sent by /register endpoint
+  // For other flows (like phone verification), send OTP here
   const sendOTP = useCallback(async () => {
+    // If this is a registration flow, OTP was already sent by /register endpoint
+    if (registrationData) {
+      setOtpSent(true);
+      setResendCooldown(60);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -50,7 +77,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [phoneNumber, onVerificationError]);
+  }, [phoneNumber, onVerificationError, registrationData]);
 
   useEffect(() => {
     if (isOpen && phoneNumber) {
@@ -60,7 +87,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (otp.length < 4) {
       setError('Please enter a valid OTP');
       return;
@@ -69,11 +96,33 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const response = await otpService.verifyOTP(phoneNumber, otp);
-      setSuccess(true);
-      onVerificationSuccess(response.user);
+
+      // If this is a registration flow, call complete-registration endpoint
+      if (registrationData) {
+        const response = await apiService.post<{
+          status: string;
+          message: string;
+          user: any;
+        }>('/auth/complete-registration', {
+          ...registrationData,
+          terms_accepted: 'true', // API expects string 'true'
+          otp: otp
+        });
+
+        if (response.status === 'success') {
+          setSuccess(true);
+          onVerificationSuccess(response.user);
+        } else {
+          throw new Error(response.message || 'Verification failed');
+        }
+      } else {
+        // Standard OTP verification flow (not registration)
+        const response = await otpService.verifyOTP(phoneNumber, otp);
+        setSuccess(true);
+        onVerificationSuccess(response.user);
+      }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Invalid OTP';
+      const errorMessage = err.response?.data?.message || err.message || 'Invalid OTP';
       setError(errorMessage);
       onVerificationError(errorMessage);
     } finally {
