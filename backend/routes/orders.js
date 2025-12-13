@@ -1878,7 +1878,7 @@ router.post('/', auth, [
   body('package_info.rov_owner').optional().trim(),
   
   // Payment Information
-  body('payment_info.payment_mode').isIn(['Prepaid', 'COD']).withMessage('Valid payment mode is required'),
+  body('payment_info.payment_mode').isIn(['Prepaid', 'COD', 'Pickup']).withMessage('Valid payment mode is required (Prepaid, COD, or Pickup)'),
   body('payment_info.order_value').isFloat({ min: 0 }).withMessage('Valid order value is required'),
   body('payment_info.total_amount').isFloat({ min: 0 }).withMessage('Valid total amount is required'),
   body('payment_info.shipping_charges').optional().isFloat({ min: 0 }).withMessage('Valid shipping charges is required'),
@@ -1929,6 +1929,36 @@ router.post('/', auth, [
       orderId,
       timestamp: new Date().toISOString()
     });
+
+    // Cross-validate order_type and payment_mode
+    const orderType = req.body.order_type || 'forward';
+    const paymentMode = req.body.payment_info?.payment_mode;
+
+    if (orderType === 'reverse' && paymentMode !== 'Pickup') {
+      console.log('❌ INVALID PAYMENT MODE FOR REVERSE ORDER', {
+        orderId,
+        orderType,
+        paymentMode,
+        timestamp: new Date().toISOString()
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Reverse orders must use Pickup payment mode'
+      });
+    }
+
+    if (orderType === 'forward' && paymentMode === 'Pickup') {
+      console.log('❌ INVALID PAYMENT MODE FOR FORWARD ORDER', {
+        orderId,
+        orderType,
+        paymentMode,
+        timestamp: new Date().toISOString()
+      });
+      return res.status(400).json({
+        status: 'error',
+        message: 'Forward orders cannot use Pickup payment mode'
+      });
+    }
 
     const userId = req.user._id;
 

@@ -95,7 +95,9 @@ class DelhiveryService {
                     country: 'India',
                     phone: orderData.customer_info.phone,
                     order: orderData.order_id,
-                    payment_mode: orderData.payment_info.payment_mode === 'Prepaid' ? 'Prepaid' : (orderData.payment_info.payment_mode === 'COD' ? 'COD' : 'Prepaid'),
+                    payment_mode: ['Prepaid', 'COD', 'Pickup', 'REPL'].includes(orderData.payment_info.payment_mode)
+                        ? orderData.payment_info.payment_mode
+                        : 'Prepaid',
                     return_pin: orderData.pickup_address?.pincode || '',
                     return_city: orderData.pickup_address?.city || '',
                     return_phone: orderData.pickup_address?.phone || '',

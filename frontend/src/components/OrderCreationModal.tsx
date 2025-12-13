@@ -249,6 +249,20 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
     }
   }, [showSuggestions]);
 
+  // Auto-set payment_mode to 'Pickup' for reverse orders
+  useEffect(() => {
+    if (orderType === 'reverse') {
+      setFormData(prev => ({
+        ...prev,
+        payment_info: {
+          ...prev.payment_info,
+          payment_mode: 'Pickup',
+          cod_amount: 0
+        }
+      }));
+    }
+  }, [orderType]);
+
   const fetchWarehouses = async () => {
     try {
       const response = await fetch(`${environmentConfig.apiUrl}/warehouses`, {
@@ -1636,32 +1650,47 @@ const OrderCreationModal: React.FC<OrderCreationModalProps> = ({
                 <div className="form-row">
                   <div className="form-group">
                     <label>Payment Type *</label>
-                    <div className="radio-group">
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="payment_mode"
-                          value="Prepaid"
-                          checked={formData.payment_info.payment_mode === 'Prepaid'}
-                          onChange={(e) => handleNestedInputChange('payment_info', 'payment_mode', e.target.value)}
-                        />
-                        Prepaid
-                      </label>
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="payment_mode"
-                          value="COD"
-                          checked={formData.payment_info.payment_mode === 'COD'}
-                          onChange={(e) => handleNestedInputChange('payment_info', 'payment_mode', e.target.value)}
-                        />
-                        COD
-                      </label>
-                    </div>
+                    {orderType === 'reverse' ? (
+                      <div className="radio-group">
+                        <label className="radio-label" style={{ opacity: 1, cursor: 'default' }}>
+                          <input
+                            type="radio"
+                            name="payment_mode"
+                            value="Pickup"
+                            checked={true}
+                            readOnly
+                          />
+                          Pickup (Reverse Order)
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="radio-group">
+                        <label className="radio-label">
+                          <input
+                            type="radio"
+                            name="payment_mode"
+                            value="Prepaid"
+                            checked={formData.payment_info.payment_mode === 'Prepaid'}
+                            onChange={(e) => handleNestedInputChange('payment_info', 'payment_mode', e.target.value)}
+                          />
+                          Prepaid
+                        </label>
+                        <label className="radio-label">
+                          <input
+                            type="radio"
+                            name="payment_mode"
+                            value="COD"
+                            checked={formData.payment_info.payment_mode === 'COD'}
+                            onChange={(e) => handleNestedInputChange('payment_info', 'payment_mode', e.target.value)}
+                          />
+                          COD
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {formData.payment_info.payment_mode === 'COD' && (
+                {formData.payment_info.payment_mode === 'COD' && orderType !== 'reverse' && (
                   <div className="form-row">
                     <div className="form-group">
                       <label>COD Amount *</label>

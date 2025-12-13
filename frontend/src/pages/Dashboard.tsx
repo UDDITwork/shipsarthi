@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import RechargeModal from '../components/RechargeModal';
 import { DashboardData } from '../services/userService';
 import { walletService, WalletBalance } from '../services/walletService';
 import { apiService } from '../services/api';
@@ -57,7 +56,6 @@ const Dashboard: React.FC = () => {
   const [shipmentDistribution, setShipmentDistribution] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState<WalletBalance>({ balance: 0, currency: 'INR' });
   const [isBalanceUpdating, setIsBalanceUpdating] = useState(false);
   
@@ -284,12 +282,9 @@ const Dashboard: React.FC = () => {
     };
   }, [fetchAllDashboardData, dateFilter.startDate, dateFilter.endDate]); // Refetch when date filter changes
 
-  const openRechargeModal = () => {
-    setIsRechargeModalOpen(true);
-  };
-
-  const closeRechargeModal = () => {
-    setIsRechargeModalOpen(false);
+  // Navigate to billing page for recharge (uses HDFC payment gateway)
+  const handleRecharge = () => {
+    navigate('/billing');
   };
 
   const handleViewAllTransactions = () => {
@@ -518,7 +513,7 @@ const Dashboard: React.FC = () => {
                 ₹{(walletBalance?.balance ?? 0).toFixed(2)}
               </div>
             </div>
-            <button className="wallet-recharge-btn" onClick={openRechargeModal}>
+            <button className="wallet-recharge-btn" onClick={handleRecharge}>
               Recharge
             </button>
           </div>
@@ -688,7 +683,7 @@ const Dashboard: React.FC = () => {
             <div className="section-header-with-action">
               <h2>Wallet Transactions</h2>
               <div className="wallet-actions">
-                <button className="recharge-btn" onClick={openRechargeModal}>
+                <button className="recharge-btn" onClick={handleRecharge}>
                   Recharge Wallet
                 </button>
                 <button className="view-all-btn" onClick={handleViewAllTransactions}>
@@ -781,11 +776,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Recharge Modal */}
-        <RechargeModal
-          isOpen={isRechargeModalOpen}
-          onClose={closeRechargeModal}
-        />
       </div>
     </Layout>
   );
