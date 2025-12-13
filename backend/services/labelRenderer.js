@@ -417,11 +417,147 @@ class LabelRenderer {
       `;
       
       return html;
-      
+
     } catch (error) {
       logger.error('❌ Error generating label HTML', error);
       throw error;
     }
+  }
+
+  /**
+   * Render label with specified format
+   * @param {Object} order - Order object
+   * @param {Object} labelData - Label data from Delhivery API
+   * @param {string} format - Format type: 'thermal', 'standard', '2in1', '4in1'
+   * @returns {string} HTML string for the label
+   */
+  static renderLabel(order, labelData, format = 'thermal') {
+    // Use generateLabelHTML for consistent output
+    return this.generateLabelHTML(labelData, order?.delhivery_data?.waybill, order);
+  }
+
+  /**
+   * Combine multiple labels into a single HTML document
+   * @param {Array<string>} labelsHtml - Array of individual label HTML strings
+   * @param {string} format - Format type for page breaks
+   * @returns {string} Combined HTML document
+   */
+  static combineLabels(labelsHtml, format = 'thermal') {
+    if (!labelsHtml || labelsHtml.length === 0) {
+      return '<html><body><h1>No labels to print</h1></body></html>';
+    }
+
+    // Extract just the label content from each HTML
+    const labelContents = labelsHtml.map(html => {
+      // Extract body content
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      if (bodyMatch) {
+        // Remove auto-print scripts from individual labels
+        return bodyMatch[1].replace(/<script[\s\S]*?<\/script>/gi, '');
+      }
+      return html;
+    });
+
+    // Format mapping for page sizing
+    const formatConfig = {
+      'thermal': { width: '100mm', height: '150mm', perRow: 1 },
+      'standard': { width: '100mm', height: '150mm', perRow: 1 },
+      '2in1': { width: '100mm', height: '148mm', perRow: 2 },
+      '4in1': { width: '100mm', height: '148mm', perRow: 2, rows: 2 }
+    };
+
+    const config = formatConfig[format] || formatConfig['thermal'];
+    const pageBreakStyle = `page-break-after: always;`;
+
+    let combinedContent = '';
+
+    if (format === '2in1') {
+      // 2 labels per page
+      for (let i = 0; i < labelContents.length; i += 2) {
+        const labelPair = labelContents.slice(i, i + 2);
+        combinedContent += `
+          <div class="page-container" style="${i + 2 < labelContents.length ? pageBreakStyle : ''}">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5mm;">
+              ${labelPair.map(label => `<div class="label-slot">${label}</div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+    } else if (format === '4in1') {
+      // 4 labels per page
+      for (let i = 0; i < labelContents.length; i += 4) {
+        const labelQuad = labelContents.slice(i, i + 4);
+        combinedContent += `
+          <div class="page-container" style="${i + 4 < labelContents.length ? pageBreakStyle : ''}">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5mm;">
+              ${labelQuad.map(label => `<div class="label-slot">${label}</div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      // Single label per page (thermal/standard)
+      combinedContent = labelContents.map((label, index) => `
+        <div class="page-container" style="${index < labelContents.length - 1 ? pageBreakStyle : ''}">
+          ${label}
+        </div>
+      `).join('');
+    }
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bulk Shipping Labels - Shipsarthi</title>
+  <style>
+    @page {
+      size: ${format === '2in1' || format === '4in1' ? 'A4' : '100mm 150mm'};
+      margin: 5mm;
+    }
+    body {
+      margin: 0;
+      padding: 10mm;
+      font-family: Arial, sans-serif;
+    }
+    .page-container {
+      margin-bottom: 10mm;
+    }
+    .label-slot {
+      display: inline-block;
+      width: ${config.width};
+      height: ${config.height};
+      overflow: hidden;
+      vertical-align: top;
+      border: 1px solid #ccc;
+    }
+    @media print {
+      .page-container {
+        margin-bottom: 0;
+      }
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: center; margin-bottom: 15px;">
+    <h2>Bulk Shipping Labels (${labelsHtml.length} labels)</h2>
+    <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer; font-size: 16px;">
+      Print All Labels
+    </button>
+  </div>
+  ${combinedContent}
+  <script>
+    // Auto-print after 2 seconds
+    setTimeout(function() {
+      window.print();
+    }, 2000);
+  </script>
+</body>
+</html>
+    `;
   }
 }
 

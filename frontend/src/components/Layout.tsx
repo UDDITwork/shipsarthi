@@ -430,7 +430,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       svgIcon: group1BillingIcon,
       children: [
         { path: '/invoices', icon: '📄', label: 'Invoices', svgIcon: null },
-        { path: '/remittances', icon: '💸', label: 'Remittance', svgIcon: null },
+        { path: '/remittances', icon: '', label: 'Remittance', svgIcon: '/money.svg' },
       ]
     },
     { path: '/warehouse', icon: '🏢', label: 'Warehouse', svgIcon: group19Icon },

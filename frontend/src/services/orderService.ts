@@ -302,7 +302,7 @@ class OrderService {
   async syncOrders(): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const response = await apiService.post<{ status: string; message: string; data: any }>('/orders/sync-statuses');
-      
+
       if (response.status === 'success') {
         // Clear all caches after sync
         this.clearCache();
@@ -311,7 +311,7 @@ class OrderService {
           data: response.data
         };
       }
-      
+
       return {
         success: false,
         error: 'Failed to sync orders'
@@ -324,6 +324,160 @@ class OrderService {
       };
     }
   }
+
+  // ==========================================
+  // BULK OPERATIONS
+  // ==========================================
+
+  /**
+   * Bulk Generate AWB for multiple orders
+   */
+  async bulkGenerateAWB(orderIds: string[]): Promise<BulkResult> {
+    try {
+      const response = await apiService.post<BulkResult>('/orders/bulk/generate-awb', {
+        order_ids: orderIds
+      });
+
+      // Clear cache after bulk operation
+      this.clearCache();
+
+      return response;
+    } catch (error: any) {
+      console.error('Error in bulk AWB generation:', error);
+      return {
+        status: 'error',
+        total: orderIds.length,
+        success: 0,
+        failed: orderIds.length,
+        results: orderIds.map(id => ({
+          order_id: id,
+          status: 'failed' as const,
+          error: error.message || 'Unknown error'
+        }))
+      };
+    }
+  }
+
+  /**
+   * Bulk Request Pickup for multiple orders
+   */
+  async bulkRequestPickup(
+    orderIds: string[],
+    pickupDate: string,
+    pickupTime: string
+  ): Promise<BulkResult> {
+    try {
+      const response = await apiService.post<BulkResult>('/orders/bulk/request-pickup', {
+        order_ids: orderIds,
+        pickup_date: pickupDate,
+        pickup_time: pickupTime
+      });
+
+      // Clear cache after bulk operation
+      this.clearCache();
+
+      return response;
+    } catch (error: any) {
+      console.error('Error in bulk pickup request:', error);
+      return {
+        status: 'error',
+        total: orderIds.length,
+        success: 0,
+        failed: orderIds.length,
+        results: orderIds.map(id => ({
+          order_id: id,
+          status: 'failed' as const,
+          error: error.message || 'Unknown error'
+        }))
+      };
+    }
+  }
+
+  /**
+   * Bulk Cancel multiple orders
+   */
+  async bulkCancel(orderIds: string[]): Promise<BulkResult> {
+    try {
+      const response = await apiService.post<BulkResult>('/orders/bulk/cancel', {
+        order_ids: orderIds
+      });
+
+      // Clear cache after bulk operation
+      this.clearCache();
+
+      return response;
+    } catch (error: any) {
+      console.error('Error in bulk cancellation:', error);
+      return {
+        status: 'error',
+        total: orderIds.length,
+        success: 0,
+        failed: orderIds.length,
+        results: orderIds.map(id => ({
+          order_id: id,
+          status: 'failed' as const,
+          error: error.message || 'Unknown error'
+        }))
+      };
+    }
+  }
+
+  /**
+   * Bulk Print Labels for multiple orders
+   * Opens labels in a new window
+   */
+  async bulkPrintLabels(orderIds: string[], format: string): Promise<void> {
+    try {
+      const token = localStorage.getItem('token');
+      const apiUrl = (await import('../config/environment')).environmentConfig.apiUrl;
+
+      // Open the bulk labels URL in a new window
+      const url = `${apiUrl}/orders/bulk/labels?order_ids=${orderIds.join(',')}&format=${format}`;
+
+      // Create a temporary form to POST with auth
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate labels');
+      }
+
+      const html = await response.text();
+
+      // Open in new window
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+      } else {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+    } catch (error: any) {
+      console.error('Error in bulk label print:', error);
+      throw error;
+    }
+  }
+}
+
+// Bulk operation result interface
+export interface BulkResult {
+  status: 'completed' | 'stopped' | 'error';
+  total: number;
+  success: number;
+  failed: number;
+  skipped?: number;
+  results: Array<{
+    order_id: string;
+    awb?: string;
+    status: 'success' | 'failed' | 'skipped';
+    error?: string;
+    pickup_id?: string;
+  }>;
+  stopped_reason?: string;
 }
 
 export const orderService = new OrderService();

@@ -4,10 +4,21 @@ import Layout from '../components/Layout';
 import OrderCreationModal from '../components/OrderCreationModal';
 import TrackingModal from '../components/TrackingModal';
 import PickupRequestModal from '../components/PickupRequestModal';
+import BulkActionBar from '../components/BulkActionBar';
+import LabelFormatModal from '../components/LabelFormatModal';
+import BulkResultModal, { BulkResult } from '../components/BulkResultModal';
 import { orderService, Order } from '../services/orderService';
+import { warehouseService } from '../services/warehouseService';
 import { DataCache } from '../utils/dataCache';
 import { environmentConfig } from '../config/environment';
 import './Orders.css';
+
+// Simple warehouse interface for dropdown
+interface WarehouseOption {
+  _id: string;
+  name: string;
+  title: string;
+}
 
 // Order Status Types
 type OrderStatus = 'new' | 'ready_to_ship' | 'pickups_manifests' | 'in_transit' | 
@@ -21,8 +32,9 @@ interface OrderFilters {
   dateFrom: string;
   dateTo: string;
   searchQuery: string;
-  searchType: 'reference' | 'awb' | 'order';
+  searchType: 'reference' | 'awb' | 'order' | 'mobile';
   paymentMode?: string;
+  warehouseId?: string;
   state?: string;
   minAmount?: number;
   maxAmount?: number;
@@ -36,7 +48,7 @@ interface BulkImportSummary {
   details: Array<{ row: number; order_id: string | null }>;
 }
 
-type OrderSearchType = 'reference' | 'awb' | 'order';
+type OrderSearchType = 'reference' | 'awb' | 'order' | 'mobile';
 
 const Orders: React.FC = () => {
   const navigate = useNavigate();
@@ -106,6 +118,39 @@ const Orders: React.FC = () => {
     warehouseName: null
   });
 
+  // Warehouse options for filter dropdown
+  const [warehouseOptions, setWarehouseOptions] = useState<WarehouseOption[]>([]);
+
+  // Bulk action states
+  const [showLabelFormatModal, setShowLabelFormatModal] = useState(false);
+  const [bulkResultModal, setBulkResultModal] = useState<{
+    open: boolean;
+    result: BulkResult | null;
+    operationType: 'awb' | 'pickup' | 'cancel' | 'label';
+  }>({
+    open: false,
+    result: null,
+    operationType: 'awb'
+  });
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  // Fetch warehouses for filter dropdown
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const warehouses = await warehouseService.getWarehousesForDropdown();
+        setWarehouseOptions(warehouses.map(w => ({
+          _id: w._id,
+          name: w.name,
+          title: w.title
+        })));
+      } catch (error) {
+        console.error('Failed to fetch warehouses for filter:', error);
+      }
+    };
+    fetchWarehouses();
+  }, []);
+
   const applyGlobalSearch = useCallback((query: string, type: OrderSearchType) => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
@@ -140,6 +185,7 @@ const Orders: React.FC = () => {
       orderFilters.search_type = filters.searchType;
     }
     if (filters.paymentMode) orderFilters.payment_mode = filters.paymentMode;
+    if (filters.warehouseId) orderFilters.warehouse_id = filters.warehouseId;
     if (filters.state && filters.state.trim()) orderFilters.state = filters.state.trim();
     if (typeof filters.minAmount === 'number') orderFilters.min_amount = filters.minAmount;
     if (typeof filters.maxAmount === 'number') orderFilters.max_amount = filters.maxAmount;
@@ -222,9 +268,9 @@ const Orders: React.FC = () => {
 
     const effectiveQuery = (searchParam || stateQuery || '').trim();
     const effectiveType: OrderSearchType =
-      typeParam && ['order', 'awb', 'reference'].includes(typeParam)
+      typeParam && ['order', 'awb', 'reference', 'mobile'].includes(typeParam)
         ? typeParam
-        : stateType && ['order', 'awb', 'reference'].includes(stateType)
+        : stateType && ['order', 'awb', 'reference', 'mobile'].includes(stateType)
         ? stateType
         : 'order';
 
@@ -730,6 +776,7 @@ const Orders: React.FC = () => {
       searchQuery: '',
       searchType: 'order',
       paymentMode: undefined,
+      warehouseId: undefined,
       state: undefined,
       minAmount: undefined,
       maxAmount: undefined,
@@ -942,6 +989,140 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ==========================================
+  // BULK ACTION HANDLERS
+  // ==========================================
+
+  const handleBulkAWB = async () => {
+    if (selectedOrders.length === 0) {
+      alert('Please select orders to generate AWB');
+      return;
+    }
+
+    // Only allow for 'new' tab orders
+    if (activeTab !== 'new') {
+      alert('Bulk AWB generation is only available for orders in the "New" tab');
+      return;
+    }
+
+    if (!window.confirm(`Generate AWB for ${selectedOrders.length} orders?\n\nThis will process orders one by one and stop if wallet balance is insufficient.`)) {
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+      const result = await orderService.bulkGenerateAWB(selectedOrders);
+
+      setBulkResultModal({
+        open: true,
+        result: result,
+        operationType: 'awb'
+      });
+
+      // Clear selection and refresh orders
+      setSelectedOrders([]);
+      fetchOrders();
+    } catch (error: any) {
+      alert(`❌ Bulk AWB generation failed: ${error.message}`);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkPickup = async () => {
+    if (selectedOrders.length === 0) {
+      alert('Please select orders to create pickup request');
+      return;
+    }
+
+    // Get pickup date and time from user
+    const pickupDate = prompt('Enter pickup date (YYYY-MM-DD):', new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+    if (!pickupDate) return;
+
+    const pickupTime = prompt('Enter pickup time (HH:MM:SS):', '14:00:00');
+    if (!pickupTime) return;
+
+    if (!window.confirm(`Request pickup for ${selectedOrders.length} orders?\n\nDate: ${pickupDate}\nTime: ${pickupTime}`)) {
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+      const result = await orderService.bulkRequestPickup(selectedOrders, pickupDate, pickupTime);
+
+      setBulkResultModal({
+        open: true,
+        result: result,
+        operationType: 'pickup'
+      });
+
+      // Clear selection and refresh orders
+      setSelectedOrders([]);
+      fetchOrders();
+    } catch (error: any) {
+      alert(`❌ Bulk pickup request failed: ${error.message}`);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkCancel = async () => {
+    if (selectedOrders.length === 0) {
+      alert('Please select orders to cancel');
+      return;
+    }
+
+    if (!window.confirm(`Cancel ${selectedOrders.length} orders?\n\n⚠️ This action cannot be undone.\nShipping charges will be refunded to your wallet.`)) {
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+      const result = await orderService.bulkCancel(selectedOrders);
+
+      setBulkResultModal({
+        open: true,
+        result: result,
+        operationType: 'cancel'
+      });
+
+      // Clear selection and refresh orders
+      setSelectedOrders([]);
+      fetchOrders();
+    } catch (error: any) {
+      alert(`❌ Bulk cancellation failed: ${error.message}`);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkLabel = (format: string) => {
+    // Open label format modal
+    setShowLabelFormatModal(true);
+  };
+
+  const handleBulkLabelConfirm = async (format: string) => {
+    setShowLabelFormatModal(false);
+
+    if (selectedOrders.length === 0) {
+      alert('Please select orders to print labels');
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+      await orderService.bulkPrintLabels(selectedOrders, format);
+    } catch (error: any) {
+      alert(`❌ Bulk label print failed: ${error.message}`);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedOrders([]);
   };
 
   // Order Details Modal Component
@@ -1224,6 +1405,7 @@ const Orders: React.FC = () => {
               <option value="reference">Search by Reference ID</option>
               <option value="awb">Search by AWB</option>
               <option value="order">Search by Order ID</option>
+              <option value="mobile">Search by Mobile Number</option>
             </select>
             <input
               type="text"
@@ -1269,7 +1451,22 @@ const Orders: React.FC = () => {
                       <option value="REPL">REPL</option>
                     </select>
                   </div>
-                  
+
+                  <div className="filter-group">
+                    <label>Warehouse</label>
+                    <select
+                      value={filters.warehouseId || ''}
+                      onChange={(e) => setFilters({...filters, warehouseId: e.target.value})}
+                    >
+                      <option value="">All Warehouses</option>
+                      {warehouseOptions.map(warehouse => (
+                        <option key={warehouse._id} value={warehouse._id}>
+                          {warehouse.title || warehouse.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="filter-group">
                     <label>State</label>
                     <input
@@ -1392,7 +1589,13 @@ const Orders: React.FC = () => {
                     <td>{order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}</td>
                     <td>
                       <div className="order-details-cell">
-                        <div>Order ID: {order.orderId || 'N/A'}</div>
+                        <div
+                          className="order-id-link"
+                          onClick={() => handleViewOrder(order._id)}
+                          title="Click to view order details"
+                        >
+                          Order ID: {order.orderId || 'N/A'}
+                        </div>
                         <div>Ref: {order.referenceId || 'N/A'}</div>
                         <div>{order.customerName || 'N/A'}</div>
                       </div>
@@ -1795,6 +1998,47 @@ const Orders: React.FC = () => {
         warehouseName={pickupModal.warehouseName || undefined}
         loading={loading}
       />
+
+      {/* Bulk Action Bar */}
+      {selectedOrders.length > 0 && !isAddOrderModalOpen && (
+        <BulkActionBar
+          selectedCount={selectedOrders.length}
+          selectedOrders={selectedOrders}
+          currentTab={activeTab}
+          onBulkAWB={handleBulkAWB}
+          onBulkPickup={handleBulkPickup}
+          onBulkCancel={handleBulkCancel}
+          onBulkLabel={handleBulkLabel}
+          onClearSelection={handleClearSelection}
+        />
+      )}
+
+      {/* Label Format Modal */}
+      <LabelFormatModal
+        isOpen={showLabelFormatModal}
+        onClose={() => setShowLabelFormatModal(false)}
+        onConfirm={handleBulkLabelConfirm}
+        selectedCount={selectedOrders.length}
+      />
+
+      {/* Bulk Result Modal */}
+      <BulkResultModal
+        isOpen={bulkResultModal.open}
+        onClose={() => setBulkResultModal({ open: false, result: null, operationType: 'awb' })}
+        result={bulkResultModal.result}
+        operationType={bulkResultModal.operationType}
+      />
+
+      {/* Bulk Loading Overlay */}
+      {bulkLoading && (
+        <div className="bulk-loading-overlay">
+          <div className="bulk-loading-content">
+            <div className="bulk-loading-spinner"></div>
+            <p>Processing bulk operation...</p>
+            <p className="bulk-loading-note">Please wait, do not close this window.</p>
+          </div>
+        </div>
+      )}
         </>
       )}
     </Layout>

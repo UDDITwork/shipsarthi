@@ -1256,6 +1256,10 @@ router.get('/', auth, [
       filterQuery['payment_info.payment_mode'] = req.query.payment_mode;
     }
 
+    if (req.query.warehouse_id) {
+      filterQuery['pickup_address.warehouse_id'] = req.query.warehouse_id;
+    }
+
     if (req.query.search) {
       const searchValue = String(req.query.search || '').trim();
       if (searchValue) {
@@ -1273,6 +1277,8 @@ router.get('/', auth, [
             { awb: searchRegex },
             { waybill: searchRegex }
           ];
+        } else if (searchType === 'mobile') {
+          filterQuery['customer_info.phone'] = searchRegex;
         } else {
           filterQuery.$or = [
             { order_id: searchRegex },
@@ -4265,6 +4271,603 @@ router.post('/:id/cancel-shipment', auth, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error cancelling shipment'
+    });
+  }
+});
+
+// ==========================================
+// BULK OPERATIONS ENDPOINTS
+// ==========================================
+
+// @desc    Bulk Generate AWB
+// @route   POST /api/orders/bulk/generate-awb
+// @access  Private
+router.post('/bulk/generate-awb', auth, async (req, res) => {
+  try {
+    const { order_ids } = req.body;
+    const userId = req.user._id;
+
+    if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'order_ids array is required'
+      });
+    }
+
+    const results = [];
+    let stopped = false;
+    let stopped_reason = null;
+
+    logger.info('🚀 Starting bulk AWB generation', {
+      userId: userId.toString(),
+      orderCount: order_ids.length
+    });
+
+    for (const orderId of order_ids) {
+      // If stopped due to wallet insufficient, mark remaining as skipped
+      if (stopped) {
+        results.push({ order_id: orderId, status: 'skipped', error: stopped_reason });
+        continue;
+      }
+
+      try {
+        // Fetch order
+        const order = await Order.findOne({
+          _id: orderId,
+          user_id: userId
+        });
+
+        if (!order) {
+          results.push({ order_id: orderId, status: 'failed', error: 'Order not found' });
+          continue;
+        }
+
+        // Validate status = 'new'
+        if (order.status !== 'new') {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: `Not in New status (current: ${order.status})`
+          });
+          continue;
+        }
+
+        // Check if AWB already exists
+        if (order.delhivery_data?.waybill) {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: 'AWB already exists',
+            awb: order.delhivery_data.waybill
+          });
+          continue;
+        }
+
+        // Get warehouse/pickup address
+        let pickupAddress = {};
+        if (order.pickup_address) {
+          pickupAddress = {
+            name: order.pickup_address.name || 'SHIPSARTHI C2C',
+            full_address: order.pickup_address.full_address,
+            city: order.pickup_address.city,
+            state: order.pickup_address.state,
+            pincode: order.pickup_address.pincode,
+            phone: order.pickup_address.phone,
+            country: order.pickup_address.country || 'India'
+          };
+        }
+
+        // Check serviceability
+        try {
+          await ensureServiceablePincodes(
+            pickupAddress.pincode || order.pickup_address?.pincode,
+            order.delivery_address.pincode,
+            order.payment_info.payment_mode
+          );
+        } catch (svcError) {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: svcError.message
+          });
+          continue;
+        }
+
+        // Prepare order data for Delhivery API
+        const orderDataForDelhivery = {
+          order_id: order.order_id,
+          customer_info: {
+            buyer_name: order.customer_info.buyer_name,
+            phone: order.customer_info.phone,
+            email: order.customer_info.email || ''
+          },
+          delivery_address: {
+            full_address: order.delivery_address.full_address,
+            pincode: order.delivery_address.pincode,
+            city: order.delivery_address.city,
+            state: order.delivery_address.state,
+            country: order.delivery_address.country || 'India',
+            address_type: order.delivery_address.address_type || 'home'
+          },
+          pickup_address: pickupAddress,
+          products: order.products.map(p => ({
+            product_name: p.product_name,
+            quantity: p.quantity,
+            hsn_code: p.hsn_code || '',
+            unit_price: p.unit_price || 0
+          })),
+          package_info: {
+            weight: order.package_info.weight,
+            dimensions: {
+              width: order.package_info.dimensions.width,
+              height: order.package_info.dimensions.height,
+              length: order.package_info.dimensions.length || order.package_info.dimensions.width
+            }
+          },
+          payment_info: {
+            payment_mode: order.payment_info.payment_mode,
+            cod_amount: order.payment_info.cod_amount || 0,
+            order_value: order.payment_info.order_value || order.payment_info.total_amount || 0
+          },
+          seller_info: {
+            name: order.seller_info?.name || 'SHIPSARTHI',
+            gst_number: order.seller_info?.gst_number || ''
+          },
+          invoice_number: order.invoice_number || `INV${order.order_id}`,
+          shipping_mode: order.shipping_mode || 'Surface',
+          address_type: order.delivery_address.address_type || 'home'
+        };
+
+        // Try to fetch waybill first
+        const waybillResult = await delhiveryService.getWaybill(1);
+        let preFetchedWaybill = null;
+
+        if (waybillResult.success && waybillResult.waybills && waybillResult.waybills.length > 0) {
+          preFetchedWaybill = waybillResult.waybills[0];
+        }
+
+        if (preFetchedWaybill) {
+          orderDataForDelhivery.waybill = preFetchedWaybill;
+        }
+
+        // Call Delhivery API to create shipment
+        const delhiveryResult = await delhiveryService.createShipment(orderDataForDelhivery);
+
+        // Extract AWB number from response
+        let awbNumber = null;
+        let packageData = null;
+
+        if (delhiveryResult.packages && Array.isArray(delhiveryResult.packages) && delhiveryResult.packages.length > 0) {
+          packageData = delhiveryResult.packages[0];
+          awbNumber = packageData.waybill || packageData.AWB || packageData.wb || null;
+        }
+
+        if (!awbNumber && delhiveryResult.waybill) {
+          awbNumber = delhiveryResult.waybill;
+          packageData = packageData || { waybill: awbNumber, status: 'Success' };
+        }
+
+        if (awbNumber) {
+          // Update order with AWB and status
+          order.delhivery_data = {
+            waybill: awbNumber,
+            package_id: packageData?.refnum || order.order_id,
+            upload_wbn: delhiveryResult.upload_wbn || null,
+            status: packageData?.status || 'Success',
+            serviceable: packageData?.serviceable,
+            sort_code: packageData?.sort_code,
+            remarks: packageData?.remarks || [],
+            cod_amount: packageData?.cod_amount || 0,
+            payment: packageData?.payment,
+            label_url: delhiveryResult.label_url || packageData?.label_url || null,
+            expected_delivery_date: delhiveryResult.expected_delivery || packageData?.expected_delivery_date || null
+          };
+
+          order.status = 'ready_to_ship';
+          await order.save();
+
+          results.push({
+            order_id: order.order_id,
+            awb: awbNumber,
+            status: 'success'
+          });
+
+          logger.info('✅ Bulk AWB generated', {
+            orderId: order.order_id,
+            awb: awbNumber
+          });
+        } else {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: delhiveryResult.error || 'Failed to generate AWB'
+          });
+        }
+
+      } catch (error) {
+        // Check if error is due to insufficient wallet balance
+        const errorMsg = error.message || '';
+        if (errorMsg.toLowerCase().includes('insufficient') || errorMsg.toLowerCase().includes('wallet')) {
+          stopped = true;
+          stopped_reason = 'Insufficient wallet balance';
+        }
+
+        results.push({
+          order_id: orderId,
+          status: 'failed',
+          error: error.message || 'Unknown error'
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.status === 'success').length;
+    const failedCount = results.filter(r => r.status === 'failed').length;
+    const skippedCount = results.filter(r => r.status === 'skipped').length;
+
+    logger.info('📋 Bulk AWB generation completed', {
+      userId: userId.toString(),
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount,
+      skipped: skippedCount,
+      stopped: stopped
+    });
+
+    res.json({
+      status: stopped ? 'stopped' : 'completed',
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount,
+      skipped: skippedCount,
+      results,
+      stopped_reason
+    });
+
+  } catch (error) {
+    logger.error('❌ Bulk AWB generation error', {
+      userId: req.user._id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error during bulk AWB generation'
+    });
+  }
+});
+
+// @desc    Bulk Request Pickup
+// @route   POST /api/orders/bulk/request-pickup
+// @access  Private
+router.post('/bulk/request-pickup', auth, async (req, res) => {
+  try {
+    const { order_ids, pickup_date, pickup_time } = req.body;
+    const userId = req.user._id;
+
+    if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'order_ids array is required'
+      });
+    }
+
+    const results = [];
+
+    logger.info('🚀 Starting bulk pickup request', {
+      userId: userId.toString(),
+      orderCount: order_ids.length,
+      pickupDate: pickup_date,
+      pickupTime: pickup_time
+    });
+
+    for (const orderId of order_ids) {
+      try {
+        const order = await Order.findOne({
+          _id: orderId,
+          user_id: userId
+        });
+
+        if (!order) {
+          results.push({ order_id: orderId, status: 'failed', error: 'Order not found' });
+          continue;
+        }
+
+        // Validate order has AWB and is ready_to_ship
+        if (order.status !== 'ready_to_ship') {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: `Order not in ready_to_ship status (current: ${order.status})`
+          });
+          continue;
+        }
+
+        const waybill = order.delhivery_data?.waybill;
+        if (!waybill) {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: 'AWB not found'
+          });
+          continue;
+        }
+
+        // Request pickup from Delhivery
+        const pickupResult = await delhiveryService.requestPickup({
+          waybill: waybill,
+          pickup_date: pickup_date || moment().add(1, 'days').format('YYYY-MM-DD'),
+          pickup_time: pickup_time || '14:00:00',
+          pickup_location: order.pickup_address?.name || 'SHIPSARTHI C2C',
+          expected_package_count: 1
+        });
+
+        if (pickupResult.success) {
+          order.status = 'pickups_manifests';
+          order.pickup_request_id = pickupResult.pickup_id || `PU${Date.now()}`;
+          order.pickup_request_date = pickup_date || moment().add(1, 'days').format('YYYY-MM-DD');
+          order.pickup_request_time = pickup_time || '14:00:00';
+          order.pickup_request_status = 'scheduled';
+          await order.save();
+
+          results.push({
+            order_id: order.order_id,
+            status: 'success',
+            pickup_id: order.pickup_request_id
+          });
+        } else {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: pickupResult.error || 'Pickup request failed'
+          });
+        }
+
+      } catch (error) {
+        results.push({
+          order_id: orderId,
+          status: 'failed',
+          error: error.message || 'Unknown error'
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.status === 'success').length;
+    const failedCount = results.filter(r => r.status === 'failed').length;
+
+    logger.info('📋 Bulk pickup request completed', {
+      userId: userId.toString(),
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount
+    });
+
+    res.json({
+      status: 'completed',
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount,
+      results
+    });
+
+  } catch (error) {
+    logger.error('❌ Bulk pickup request error', {
+      userId: req.user._id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error during bulk pickup request'
+    });
+  }
+});
+
+// @desc    Bulk Cancel Orders
+// @route   POST /api/orders/bulk/cancel
+// @access  Private
+router.post('/bulk/cancel', auth, async (req, res) => {
+  try {
+    const { order_ids } = req.body;
+    const userId = req.user._id;
+
+    if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'order_ids array is required'
+      });
+    }
+
+    const results = [];
+
+    logger.info('🚀 Starting bulk cancellation', {
+      userId: userId.toString(),
+      orderCount: order_ids.length
+    });
+
+    for (const orderId of order_ids) {
+      try {
+        const order = await Order.findOne({
+          _id: orderId,
+          user_id: userId
+        });
+
+        if (!order) {
+          results.push({ order_id: orderId, status: 'failed', error: 'Order not found' });
+          continue;
+        }
+
+        // Check if order can be cancelled
+        if (['delivered', 'rto', 'cancelled'].includes(order.status)) {
+          results.push({
+            order_id: order.order_id,
+            status: 'failed',
+            error: `Cannot cancel order in ${order.status} status`
+          });
+          continue;
+        }
+
+        const waybill = order.delhivery_data?.waybill || order.shipping_info?.awb_number || order.waybill;
+        const hasWaybill = Boolean(waybill);
+
+        if (hasWaybill) {
+          // Cancel with Delhivery
+          const cancelResult = await delhiveryService.cancelShipment(waybill);
+
+          if (!cancelResult.success) {
+            results.push({
+              order_id: order.order_id,
+              status: 'failed',
+              error: cancelResult.error || 'Delhivery cancellation failed'
+            });
+            continue;
+          }
+        }
+
+        // Apply cancellation metadata
+        applyCancellationMetadata(order, 'Bulk cancellation', 'CN');
+        await order.save();
+
+        // Refund shipping charges
+        await refundShippingChargesToWallet(order, userId);
+
+        results.push({
+          order_id: order.order_id,
+          status: 'success',
+          awb: waybill || null
+        });
+
+        logger.info('✅ Order cancelled in bulk', {
+          orderId: order.order_id,
+          waybill: waybill || 'N/A'
+        });
+
+      } catch (error) {
+        results.push({
+          order_id: orderId,
+          status: 'failed',
+          error: error.message || 'Unknown error'
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.status === 'success').length;
+    const failedCount = results.filter(r => r.status === 'failed').length;
+
+    logger.info('📋 Bulk cancellation completed', {
+      userId: userId.toString(),
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount
+    });
+
+    res.json({
+      status: 'completed',
+      total: order_ids.length,
+      success: successCount,
+      failed: failedCount,
+      results
+    });
+
+  } catch (error) {
+    logger.error('❌ Bulk cancellation error', {
+      userId: req.user._id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error during bulk cancellation'
+    });
+  }
+});
+
+// @desc    Bulk Print Labels
+// @route   GET /api/orders/bulk/labels
+// @access  Private
+router.get('/bulk/labels', auth, async (req, res) => {
+  try {
+    const { order_ids, format = 'thermal' } = req.query;
+    const userId = req.user._id;
+
+    if (!order_ids) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'order_ids query parameter is required'
+      });
+    }
+
+    const orderIdArray = order_ids.split(',').map(id => id.trim()).filter(id => id);
+
+    if (orderIdArray.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'No valid order IDs provided'
+      });
+    }
+
+    logger.info('🖨️ Generating bulk labels', {
+      userId: userId.toString(),
+      orderCount: orderIdArray.length,
+      format: format
+    });
+
+    const labelsHtml = [];
+
+    for (const orderId of orderIdArray) {
+      try {
+        const order = await Order.findOne({
+          _id: orderId,
+          user_id: userId
+        });
+
+        if (!order) {
+          continue;
+        }
+
+        const waybill = order.delhivery_data?.waybill;
+        if (!waybill) {
+          continue;
+        }
+
+        // Get label data from Delhivery
+        const labelData = await delhiveryService.getLabelData(waybill);
+
+        if (labelData) {
+          // Generate label HTML using labelRenderer
+          const labelHtml = labelRenderer.renderLabel(order, labelData, format);
+          labelsHtml.push(labelHtml);
+        }
+
+      } catch (error) {
+        logger.warn('⚠️ Error generating label for order', {
+          orderId,
+          error: error.message
+        });
+      }
+    }
+
+    if (labelsHtml.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'No labels could be generated for the provided orders'
+      });
+    }
+
+    // Combine all labels with page breaks
+    const combinedHtml = labelRenderer.combineLabels(labelsHtml, format);
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(combinedHtml);
+
+  } catch (error) {
+    logger.error('❌ Bulk labels error', {
+      userId: req.user._id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error generating bulk labels'
     });
   }
 });
