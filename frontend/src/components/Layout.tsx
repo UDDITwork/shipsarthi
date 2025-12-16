@@ -638,33 +638,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div
                       className={`sidebar-item sidebar-parent ${isMenuActive(item) ? 'active-parent' : ''} ${expandedMenus[item.id!] ? 'expanded' : ''}`}
                     >
-                      {item.path ? (
-                        <Link
-                          to={item.path}
-                          className="sidebar-parent-link"
-                          style={{ display: 'flex', alignItems: 'center', flex: 1, textDecoration: 'none', color: 'inherit' }}
-                        >
-                          <span className="sidebar-icon">
-                            {item.svgIcon ? (
-                              <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
-                            ) : (
-                              item.icon
-                            )}
-                          </span>
-                          <span className="sidebar-label">{item.label}</span>
-                        </Link>
-                      ) : (
-                        <>
-                          <span className="sidebar-icon">
-                            {item.svgIcon ? (
-                              <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
-                            ) : (
-                              item.icon
-                            )}
-                          </span>
-                          <span className="sidebar-label">{item.label}</span>
-                        </>
-                      )}
+                      <div
+                        className="sidebar-parent-link"
+                        onClick={() => toggleMenu(item.id!)}
+                        style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer' }}
+                      >
+                        <span className="sidebar-icon">
+                          {item.svgIcon ? (
+                            <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
+                          ) : (
+                            item.icon
+                          )}
+                        </span>
+                        <span className="sidebar-label">{item.label}</span>
+                      </div>
                       <span
                         className={`sidebar-arrow ${expandedMenus[item.id!] ? 'expanded' : ''}`}
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleMenu(item.id!); }}

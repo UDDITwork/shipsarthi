@@ -4830,11 +4830,11 @@ router.get('/bulk/labels', auth, async (req, res) => {
         }
 
         // Get label data from Delhivery
-        const labelData = await delhiveryService.getLabelData(waybill);
+        const labelResult = await delhiveryService.generateShippingLabel(waybill);
 
-        if (labelData) {
+        if (labelResult.success && labelResult.json_data) {
           // Generate label HTML using labelRenderer
-          const labelHtml = labelRenderer.renderLabel(order, labelData, format);
+          const labelHtml = labelRenderer.renderLabel(order, labelResult.json_data, format);
           labelsHtml.push(labelHtml);
         }
 
