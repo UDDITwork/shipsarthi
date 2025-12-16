@@ -634,32 +634,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div key={item.path || item.id} className="sidebar-menu-item">
                 {item.children ? (
                   <>
-                    {/* Parent menu item with children - navigates to parent page + toggle arrow */}
-                    <div
+                    {/* Parent menu item with children - clicking navigates to parent page AND toggles submenu */}
+                    <Link
+                      to={item.path!}
                       className={`sidebar-item sidebar-parent ${isMenuActive(item) ? 'active-parent' : ''} ${expandedMenus[item.id!] ? 'expanded' : ''}`}
+                      onClick={() => {
+                        // Toggle submenu when clicking anywhere on the parent item
+                        setExpandedMenus(prev => ({
+                          ...prev,
+                          [item.id!]: !prev[item.id!]
+                        }));
+                      }}
                     >
-                      <div
-                        className="sidebar-parent-link"
-                        onClick={() => toggleMenu(item.id!)}
-                        style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer' }}
-                      >
-                        <span className="sidebar-icon">
-                          {item.svgIcon ? (
-                            <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
-                          ) : (
-                            item.icon
-                          )}
-                        </span>
-                        <span className="sidebar-label">{item.label}</span>
-                      </div>
+                      <span className="sidebar-icon">
+                        {item.svgIcon ? (
+                          <img src={item.svgIcon} alt={item.label} style={{ width: '20px', height: '20px' }} />
+                        ) : (
+                          item.icon
+                        )}
+                      </span>
+                      <span className="sidebar-label">{item.label}</span>
                       <span
                         className={`sidebar-arrow ${expandedMenus[item.id!] ? 'expanded' : ''}`}
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleMenu(item.id!); }}
-                        style={{ cursor: 'pointer', padding: '5px' }}
                       >
                         &#9660;
                       </span>
-                    </div>
+                    </Link>
                     {/* Child menu items */}
                     <div className={`sidebar-children ${expandedMenus[item.id!] ? 'expanded' : ''}`}>
                       {item.children.map((child) => (
