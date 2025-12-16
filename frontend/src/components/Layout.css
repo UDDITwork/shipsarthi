@@ -585,6 +585,13 @@
 .sidebar-label {
   white-space: nowrap;
   font-weight: inherit;
+  overflow: visible;
+}
+
+/* Allow longer text in child menu items */
+.sidebar-child .sidebar-label {
+  white-space: normal;
+  line-height: 1.3;
 }
 
 /* Collapsible Menu Styles */
