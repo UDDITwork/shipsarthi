@@ -45,6 +45,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
+  // Keep parent menu expanded when on a child route
+  useEffect(() => {
+    const path = location.pathname;
+
+    // Check which parent menu should be expanded based on current path
+    const shouldExpandTools = path === '/tools' || path === '/packages' || path === '/weight-discrepancies';
+    const shouldExpandBilling = path === '/billing' || path === '/invoices' || path === '/remittances' || path.startsWith('/remittances/');
+    const shouldExpandSettings = path === '/settings' || path.startsWith('/settings/');
+
+    // Only update if a menu should be expanded (don't collapse on unrelated routes)
+    if (shouldExpandTools || shouldExpandBilling || shouldExpandSettings) {
+      setExpandedMenus({
+        tools: shouldExpandTools,
+        billing: shouldExpandBilling,
+        settings: shouldExpandSettings,
+      });
+    }
+  }, [location.pathname]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedQuery = searchQuery.trim();
