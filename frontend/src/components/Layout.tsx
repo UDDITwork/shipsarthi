@@ -639,10 +639,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to={item.path!}
                       className={`sidebar-item sidebar-parent ${isMenuActive(item) ? 'active-parent' : ''} ${expandedMenus[item.id!] ? 'expanded' : ''}`}
                       onClick={() => {
-                        // Toggle submenu when clicking anywhere on the parent item
+                        // Toggle this menu, collapse others
                         setExpandedMenus(prev => ({
-                          ...prev,
-                          [item.id!]: !prev[item.id!]
+                          tools: item.id === 'tools' ? !prev.tools : false,
+                          billing: item.id === 'billing' ? !prev.billing : false,
+                          settings: item.id === 'settings' ? !prev.settings : false,
                         }));
                       }}
                     >
