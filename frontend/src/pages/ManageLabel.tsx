@@ -555,17 +555,6 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, userProfile }) =>
         </div>
       </div>
 
-      {/* Message section - shown only if enabled and message exists */}
-      {showComponent('message') && mockOrder.message && (
-        <div style={{
-          padding: '4px 8px',
-          fontSize: '7px',
-          borderTop: '1px solid #000',
-          background: '#fff9e6'
-        }}>
-          <strong>Special Instructions:</strong> {mockOrder.message}
-        </div>
-      )}
     </div>
   );
 };

@@ -344,14 +344,16 @@ class LabelRenderer {
       background: white;
     }
 
-    /* Label Container - Fixed width, auto height */
+    /* Label Container - 4 in 1 on A4 size: 98 x 137 mm */
     .label-container {
-      width: 100mm;
+      width: 98mm;
+      height: 137mm;
       border: 1px solid #000;
       display: flex;
       flex-direction: column;
       background: white;
       margin: 0 auto;
+      overflow: hidden;
     }
 
     /* Section 1: Header - Ship To (left) + Company Branding (right) */
@@ -740,12 +742,6 @@ class LabelRenderer {
       </div>
     </div>
 
-    <!-- Message section - shown only if enabled and message exists -->
-    ${showComponent('message') && specialInstructions ? `
-    <div style="padding: 4px 8px; font-size: 7px; border-top: 1px solid #000; background: #fff9e6;">
-      <strong>Special Instructions:</strong> ${specialInstructions}
-    </div>
-    ` : ''}
   </div>
 
   <!-- Auto-print script -->

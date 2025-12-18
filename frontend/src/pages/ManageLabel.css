@@ -333,18 +333,19 @@
   min-height: 400px;
 }
 
-/* Label Preview Container - Fixed width, auto height */
+/* Label Preview Container - 4 in 1 on A4 size: 98 x 137 mm */
 .preview-label-container {
   background: white;
   border: 1px solid #000;
-  width: 100mm;
-  min-height: auto;
+  width: 98mm;
+  height: 137mm;
   font-size: 8px;
   line-height: 1.2;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Section 1: Header - Ship To (left) + Company Branding (right) */
