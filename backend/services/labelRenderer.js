@@ -730,8 +730,9 @@ class LabelRenderer {
     <!-- Section 5: Footer -->
     <div class="label-section-footer">
       <div class="footer-disclaimer">
-        <p>1. Visit official website of Courier Company to view the Conditions of Carriage.</p>
-        <p>2. All disputes will be resolved under Haryana jurisdiction. Sold goods are eligible for return or exchange according to the store's policy.</p>
+        <p>1) Shipsarthi is not liable for product issues, delays, loss, or damage, and all claims are governed by the carrier's policies and decisions.</p>
+        <p>2) Goods once sold will only be taken back as per the store's exchange/return policy.</p>
+        <p>3) Please refer to www.shipsarthi.com for Terms & Conditions.</p>
       </div>
       <div class="footer-branding">
         <div class="footer-branding-label">Powered by:</div>
