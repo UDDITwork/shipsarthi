@@ -333,18 +333,17 @@
   min-height: 400px;
 }
 
-/* Label Preview Container - Fixed dimensions */
+/* Label Preview Container - Fixed width, auto height */
 .preview-label-container {
   background: white;
   border: 1px solid #000;
   width: 100mm;
-  height: 150mm;
+  min-height: auto;
   font-size: 8px;
   line-height: 1.2;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   box-sizing: border-box;
 }
 

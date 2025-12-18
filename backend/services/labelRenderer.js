@@ -344,14 +344,12 @@ class LabelRenderer {
       background: white;
     }
 
-    /* Label Container - Fixed 4x6 inch dimensions */
+    /* Label Container - Fixed width, auto height */
     .label-container {
       width: 100mm;
-      height: 150mm;
       border: 1px solid #000;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       background: white;
       margin: 0 auto;
     }
