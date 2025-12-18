@@ -357,7 +357,6 @@
 
 .ship-to-section {
   padding: 6px 8px;
-  border-right: 1px solid #000;
 }
 
 .ship-to-label {
@@ -453,7 +452,6 @@
 
 .courier-section {
   padding: 6px 8px;
-  border-right: 1px solid #000;
 }
 
 .courier-name {
@@ -533,7 +531,6 @@
 
 .shipped-by-section {
   padding: 6px 8px;
-  border-right: 1px solid #000;
 }
 
 .shipped-by-label {
