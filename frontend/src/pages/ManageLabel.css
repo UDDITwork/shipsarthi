@@ -398,15 +398,17 @@
 }
 
 .company-logo-preview {
-  max-width: 100px;
-  max-height: 35px;
+  width: 100%;
+  max-width: 120px;
+  height: 40px;
   object-fit: contain;
   margin-bottom: 2px;
 }
 
 .logo-placeholder {
-  width: 80px;
-  height: 30px;
+  width: 100%;
+  max-width: 120px;
+  height: 40px;
   border: 1px dashed #ccc;
   border-radius: 4px;
   display: flex;

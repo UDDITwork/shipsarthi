@@ -28,9 +28,25 @@ interface LabelSettings {
   logo_url: string | null;
 }
 
+interface UserProfile {
+  company_name?: string;
+  your_name?: string;
+  phone_number?: string;
+  gstin?: string;
+  company_logo_url?: string;
+  address?: {
+    full_address?: string;
+    landmark?: string;
+    pincode?: string;
+    city?: string;
+    state?: string;
+  };
+}
+
 const ManageLabel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<LabelSettings>({
     label_types: ['Standard'],
     use_order_channel_logo: false,
@@ -65,18 +81,24 @@ const ManageLabel: React.FC = () => {
   const fetchLabelSettings = async () => {
     try {
       setLoading(true);
-      const data = await userService.getLabelSettings();
+      // Fetch both label settings and user profile in parallel
+      const [labelData, profileData] = await Promise.all([
+        userService.getLabelSettings(),
+        userService.getProfile()
+      ]);
+
       // Merge with defaults to ensure all fields are present
       setSettings(prev => ({
         ...prev,
-        ...data,
+        ...labelData,
         component_visibility: {
           ...prev.component_visibility,
-          ...(data.component_visibility || {})
+          ...(labelData.component_visibility || {})
         },
-        logo_url: data.logo_url || null
+        logo_url: labelData.logo_url || profileData.company_logo_url || null
       }));
-      setSelectedLabelTypes(data.label_types || ['Standard']);
+      setSelectedLabelTypes(labelData.label_types || ['Standard']);
+      setUserProfile(profileData as UserProfile);
     } catch (error: any) {
       console.error('Error fetching label settings:', error);
       alert('Failed to load label settings');
@@ -306,7 +328,7 @@ const ManageLabel: React.FC = () => {
               <h2>Preview</h2>
             </div>
             <div className="label-preview">
-              <LabelPreview settings={settings} selectedLabelTypes={selectedLabelTypes} />
+              <LabelPreview settings={settings} selectedLabelTypes={selectedLabelTypes} userProfile={userProfile} />
             </div>
           </div>
         </div>
@@ -319,10 +341,29 @@ const ManageLabel: React.FC = () => {
 interface LabelPreviewProps {
   settings: LabelSettings;
   selectedLabelTypes: string[];
+  userProfile: UserProfile | null;
 }
 
-const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
-  // Mock order data for preview
+const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, userProfile }) => {
+  // Use user profile data with fallbacks for preview
+  const companyData = {
+    // Company/Seller info from logged-in user
+    companyName: userProfile?.company_name || 'Your Company Name',
+    companyGstin: userProfile?.gstin || '',
+    sellerName: userProfile?.your_name || 'Your Name',
+    sellerAddress: userProfile?.address?.full_address || 'Your Address',
+    sellerCity: userProfile?.address?.city || 'City',
+    sellerState: userProfile?.address?.state || 'State',
+    sellerPincode: userProfile?.address?.pincode || '000000',
+    sellerCountry: 'India',
+    companyPhone: userProfile?.phone_number || '',
+    // Brand name (same as company name)
+    brandName: userProfile?.company_name || 'YOUR COMPANY',
+    tagline: 'Door 2 Door International & Domestic courier Service Available',
+    brandMobile: userProfile?.phone_number || '0000000000',
+  };
+
+  // Mock order data for preview (customer side - this stays as sample)
   const mockOrder = {
     waybill: '123456789012',
     customerName: 'Kunal Verma',
@@ -347,21 +388,6 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
       { name: 'Product 2', sku: '2222', quantity: 1, amount: 100 }
     ],
     totalAmount: 210,
-    // Company/Seller info
-    companyName: 'Techno Sphere',
-    companyGstin: '27XYZ1234L1Z9',
-    sellerName: 'Vishal Kumar',
-    sellerAddress: 'Plot No. 21, Tech Park, Wakad, Pune',
-    sellerCity: 'Pune',
-    sellerState: 'Maharashtra',
-    sellerPincode: '411057',
-    sellerCountry: 'India',
-    companyPhone: '1234567890',
-    // Company branding
-    brandName: 'JAISHREE FRANCHISE',
-    tagline: 'Door 2 Door International & Domestic courier Service Available',
-    brandMobile: '9351205202',
-    // Courier
     courierName: 'Delhivery',
     message: 'Handle with care'
   };
@@ -395,9 +421,9 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
               </div>
             )
           )}
-          <div className="company-brand-name">{mockOrder.brandName}</div>
-          <div className="company-tagline">{mockOrder.tagline}</div>
-          <div className="company-mob">Mob. : {mockOrder.brandMobile}</div>
+          <div className="company-brand-name">{companyData.brandName}</div>
+          <div className="company-tagline">{companyData.tagline}</div>
+          <div className="company-mob">Mob. : {companyData.brandMobile}</div>
         </div>
       </div>
 
@@ -451,20 +477,20 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
         <div className="shipped-by-section">
           <div className="shipped-by-label">Shipped By: <span>(if undelivered, return to)</span></div>
           {showComponent('company_name') && (
-            <div className="shipped-by-company">{mockOrder.companyName}</div>
+            <div className="shipped-by-company">{companyData.companyName}</div>
           )}
-          {showComponent('company_gstin') && (
-            <div className="shipped-by-gstin"><span>GSTIN:</span> {mockOrder.companyGstin}</div>
+          {showComponent('company_gstin') && companyData.companyGstin && (
+            <div className="shipped-by-gstin"><span>GSTIN:</span> {companyData.companyGstin}</div>
           )}
-          <div className="shipped-by-name">{mockOrder.sellerName}</div>
+          <div className="shipped-by-name">{companyData.sellerName}</div>
           {showComponent('pickup_address') && (
             <>
-              <div className="shipped-by-address">{mockOrder.sellerAddress}</div>
-              <div className="shipped-by-city">{mockOrder.sellerState}, {mockOrder.sellerPincode}, {mockOrder.sellerCountry}</div>
+              <div className="shipped-by-address">{companyData.sellerAddress}</div>
+              <div className="shipped-by-city">{companyData.sellerCity}, {companyData.sellerState}, {companyData.sellerPincode}, {companyData.sellerCountry}</div>
             </>
           )}
-          {showComponent('company_phone') && (
-            <div className="shipped-by-phone"><strong>Mobile Number:</strong><br/>{mockOrder.companyPhone}</div>
+          {showComponent('company_phone') && companyData.companyPhone && (
+            <div className="shipped-by-phone"><strong>Mobile Number:</strong><br/>{companyData.companyPhone}</div>
           )}
         </div>
 
