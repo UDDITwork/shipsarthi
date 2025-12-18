@@ -1551,7 +1551,9 @@ const Orders: React.FC = () => {
                 <th>Payment</th>
                 <th>Shipping Details</th>
                 <th>AWB Number</th>
-                <th>Pickup Status</th>
+                {!['in_transit', 'out_for_delivery', 'delivered'].includes(activeTab) && (
+                  <th>Pickup Status</th>
+                )}
                 <th>Warehouse</th>
                 <th>Action</th>
               </tr>
@@ -1559,13 +1561,13 @@ const Orders: React.FC = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="loading-cell">
+                  <td colSpan={['in_transit', 'out_for_delivery', 'delivered'].includes(activeTab) ? 10 : 11} className="loading-cell">
                     Loading orders...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="no-data-cell">
+                  <td colSpan={['in_transit', 'out_for_delivery', 'delivered'].includes(activeTab) ? 10 : 11} className="no-data-cell">
                     <div className="no-orders">
                       <div className="no-orders-icon">📦</div>
                       <h3>No orders found</h3>
@@ -1665,38 +1667,40 @@ const Orders: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td>
-                      <div className="pickup-status-cell">
-                        {order.pickupRequestStatus ? (
-                          <div className={`pickup-status ${order.pickupRequestStatus}`}>
-                            <span className="pickup-status-badge">
-                              {order.pickupRequestStatus === 'pending' && '⏳'}
-                              {order.pickupRequestStatus === 'scheduled' && '📅'}
-                              {order.pickupRequestStatus === 'in_transit' && '🚚'}
-                              {order.pickupRequestStatus === 'completed' && '✅'}
-                              {order.pickupRequestStatus === 'failed' && '❌'}
-                              {order.pickupRequestStatus.charAt(0).toUpperCase() + order.pickupRequestStatus.slice(1)}
-                            </span>
-                            {order.pickupRequestDate && (
-                              <div className="pickup-date">
-                                {new Date(order.pickupRequestDate).toLocaleDateString()}
-                              </div>
-                            )}
-                            {order.pickupRequestTime && (
-                              <div className="pickup-time">
-                                {order.pickupRequestTime}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="pickup-status pending">
-                            <span className="pickup-status-badge">
-                              ⏳ Pending
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
+                    {!['in_transit', 'out_for_delivery', 'delivered'].includes(activeTab) && (
+                      <td>
+                        <div className="pickup-status-cell">
+                          {order.pickupRequestStatus ? (
+                            <div className={`pickup-status ${order.pickupRequestStatus}`}>
+                              <span className="pickup-status-badge">
+                                {order.pickupRequestStatus === 'pending' && '⏳'}
+                                {order.pickupRequestStatus === 'scheduled' && '📅'}
+                                {order.pickupRequestStatus === 'in_transit' && '🚚'}
+                                {order.pickupRequestStatus === 'completed' && '✅'}
+                                {order.pickupRequestStatus === 'failed' && '❌'}
+                                {order.pickupRequestStatus.charAt(0).toUpperCase() + order.pickupRequestStatus.slice(1)}
+                              </span>
+                              {order.pickupRequestDate && (
+                                <div className="pickup-date">
+                                  {new Date(order.pickupRequestDate).toLocaleDateString()}
+                                </div>
+                              )}
+                              {order.pickupRequestTime && (
+                                <div className="pickup-time">
+                                  {order.pickupRequestTime}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="pickup-status pending">
+                              <span className="pickup-status-badge">
+                                ⏳ Pending
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    )}
                     <td>{order.warehouse}</td>
                     <td>
                       <div className="action-buttons">

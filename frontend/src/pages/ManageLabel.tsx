@@ -312,7 +312,7 @@ interface LabelPreviewProps {
   selectedLabelTypes: string[];
 }
 
-const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, selectedLabelTypes }) => {
+const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
   // Mock order data for preview
   const mockOrder = {
     waybill: '123456789012',
@@ -321,194 +321,207 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, selectedLabelType
     city: 'New Delhi',
     state: 'Delhi',
     pincode: '110027',
-    customerPhone: '9876543210',
+    country: 'India',
+    customerPhone: '1234567890',
     orderId: '20241127-8346',
+    referenceId: 'REF-9283746521',
     invoiceNumber: '202411274572',
     invoiceDate: '12 May, 2024',
     paymentType: 'Prepaid',
     codAmount: 0,
     orderValue: 210,
-    shippingCharges: 50,
-    weight: '0.5',
-    dimensions: '10 x 15 x 5 cm',
-    productName: 'Product 1',
-    sku: 'SKU-001',
-    quantity: 1,
+    shippingCharges: 10,
+    weight: '0.5Kg',
+    dimensions: '10x10x10 CM',
+    products: [
+      { name: 'Product 1', sku: '1111', quantity: 1, amount: 100 },
+      { name: 'Product 2', sku: '2222', quantity: 1, amount: 100 }
+    ],
+    totalAmount: 210,
+    // Company/Seller info
+    companyName: 'Techno Sphere',
+    companyGstin: '27XYZ1234L1Z9',
     sellerName: 'Vishal Kumar',
     sellerAddress: 'Plot No. 21, Tech Park, Wakad, Pune',
     sellerCity: 'Pune',
     sellerState: 'Maharashtra',
     sellerPincode: '411057',
-    sellerPhone: '9351205202',
-    sellerGst: 'GST123456789',
+    sellerCountry: 'India',
+    companyPhone: '1234567890',
+    // Company branding
+    brandName: 'JAISHREE FRANCHISE',
+    tagline: 'Door 2 Door International & Domestic courier Service Available',
+    brandMobile: '9351205202',
+    // Courier
+    courierName: 'Delhivery',
     message: 'Handle with care'
   };
 
   const visibility = settings.component_visibility;
   const showComponent = (component: keyof LabelSettings['component_visibility']) => visibility[component];
 
-  // Determine label dimensions based on selected type
-  // Industry standard shipping label size: 4" x 6" (100mm x 150mm)
-  // For thermal printers and single labels
-  // For A4 paper: 2-in-1 and 4-in-1 layouts maintain same label size
-  const primaryType = selectedLabelTypes[0] || 'Standard';
-  const getLabelDimensions = () => {
-    // All label types use standard 4x6 inch (100x150mm) label size
-    // The layout (1-in-1, 2-in-1, 4-in-1) affects paper arrangement, not label size
-    switch (primaryType) {
-      case 'Thermal':
-        // Thermal: 4" x 6" (100mm x 150mm) - direct thermal printer
-        return {
-          width: '100mm',  // 4 inches = 101.6mm ≈ 100mm
-          height: '150mm', // 6 inches = 152.4mm ≈ 150mm
-          paperType: 'thermal',
-          labelsPerSheet: 1
-        };
-      case '2 In One':
-        // 2-in-1: Two 4x6 labels on A4 portrait (210x297mm)
-        // Each label: 100mm x 148mm with 5mm side margin
-        return {
-          width: '100mm',
-          height: '148mm',
-          paperType: 'A4',
-          labelsPerSheet: 2
-        };
-      case '4 In One':
-        // 4-in-1: Four 4x6 labels on A4 (210x297mm)
-        // Each label: 100mm x 148mm arranged 2x2
-        return {
-          width: '100mm',
-          height: '148mm',
-          paperType: 'A4',
-          labelsPerSheet: 4
-        };
-      default: // Standard (1-in-1)
-        // Standard: 4" x 6" (100mm x 150mm) - single label per sheet
-        return {
-          width: '100mm',
-          height: '150mm',
-          paperType: 'standard',
-          labelsPerSheet: 1
-        };
-    }
-  };
-
-  const dimensions = getLabelDimensions();
-
   return (
-    <div
-      className="preview-label-container"
-      style={{
-        width: dimensions.width,
-        minHeight: dimensions.height
-      }}
-    >
-      <div className="preview-label-header">
-        <div className="preview-logos">
-          {showComponent('logo') && settings.logo_url && (
-            <img src={settings.logo_url} className="preview-company-logo" alt="Company Logo" />
+    <div className="preview-label-container">
+      {/* Section 1: Header - Ship To (left) + Company Branding (right) */}
+      <div className="label-section-header">
+        {/* Left: Ship To */}
+        <div className="ship-to-section">
+          <div className="ship-to-label">Ship To:</div>
+          <div className="ship-to-name">{mockOrder.customerName}</div>
+          <div className="ship-to-address">{mockOrder.deliveryAddress}</div>
+          <div className="ship-to-city">{mockOrder.city}, {mockOrder.pincode}, {mockOrder.country}</div>
+          {showComponent('customer_phone') && (
+            <div className="ship-to-phone"><strong>Mobile Number:</strong> {mockOrder.customerPhone}</div>
           )}
-          <div className="preview-carrier-logo">DELHIVERY</div>
         </div>
-        <div className="preview-label-title">SHIPPING LABEL</div>
-      </div>
 
-      <div className="preview-awb-section">
-        <div className="preview-awb-label">AWB NUMBER</div>
-        <div className="preview-awb-number">{mockOrder.waybill}</div>
-      </div>
-
-      <div className="preview-barcode-section">
-        <div className="preview-barcode">[BARCODE IMAGE]</div>
-      </div>
-
-      <div className="preview-info-section">
-        <div className="preview-info-title">SELLER / CONTACT</div>
-        {showComponent('company_name') && (
-          <div className="preview-info-row"><strong>{mockOrder.sellerName}</strong></div>
-        )}
-        {showComponent('pickup_address') && (
-          <div className="preview-info-row">{mockOrder.sellerAddress}</div>
-        )}
-        {showComponent('company_gstin') && mockOrder.sellerGst && (
-          <div className="preview-info-row">GST: {mockOrder.sellerGst}</div>
-        )}
-        {showComponent('company_phone') && mockOrder.sellerPhone && (
-          <div className="preview-info-row">Phone: {mockOrder.sellerPhone}</div>
-        )}
-      </div>
-
-      <div className="preview-info-section">
-        <div className="preview-info-title">TO (DESTINATION)</div>
-        <div className="preview-info-row preview-destination">{mockOrder.customerName}</div>
-        <div className="preview-info-row">{mockOrder.deliveryAddress}</div>
-        <div className="preview-info-row">
-          <strong>{mockOrder.city}, {mockOrder.state} - {mockOrder.pincode}</strong>
+        {/* Right: Company Branding */}
+        <div className="company-branding-section">
+          {showComponent('logo') && settings.logo_url && (
+            <img src={settings.logo_url} className="company-logo-preview" alt="Company Logo" />
+          )}
+          <div className="company-brand-name">{mockOrder.brandName}</div>
+          <div className="company-tagline">{mockOrder.tagline}</div>
+          <div className="company-mob">Mob. : {mockOrder.brandMobile}</div>
         </div>
-        {showComponent('customer_phone') && (
-          <div className="preview-info-row">Phone: {mockOrder.customerPhone}</div>
-        )}
       </div>
 
-      <div className="preview-info-section">
-        <div className="preview-info-title">PACKAGE DETAILS</div>
-        <div className="preview-info-row"><strong>Order ID:</strong> {mockOrder.orderId}</div>
-        {showComponent('invoice_number') && (
-          <div className="preview-info-row"><strong>Invoice:</strong> {mockOrder.invoiceNumber}</div>
-        )}
-        {showComponent('invoice_date') && (
-          <div className="preview-info-row"><strong>Invoice Date:</strong> {mockOrder.invoiceDate}</div>
-        )}
-        {showComponent('product_name') && (
-          <div className="preview-info-row"><strong>Product:</strong> {mockOrder.productName}</div>
-        )}
-        {showComponent('weight') && (
-          <div className="preview-info-row"><strong>Weight:</strong> {mockOrder.weight} kg | <strong>Qty:</strong> {mockOrder.quantity}</div>
-        )}
-        {showComponent('dimensions') && (
-          <div className="preview-info-row"><strong>Dimensions:</strong> {mockOrder.dimensions}</div>
-        )}
-        {showComponent('payment_type') && (
-          <div className="preview-info-row"><strong>Payment:</strong> {mockOrder.paymentType}</div>
-        )}
-        {showComponent('amount_prepaid') && mockOrder.paymentType === 'Prepaid' && (
-          <div className="preview-info-row"><strong>Order Value:</strong> ₹{mockOrder.orderValue}</div>
-        )}
-        {showComponent('amount_cod') && mockOrder.codAmount > 0 && (
-          <div className="preview-info-row"><strong>COD Amount:</strong> ₹{mockOrder.codAmount}</div>
-        )}
-        {showComponent('shipping_charges') && (
-          <div className="preview-info-row"><strong>Shipping Charges:</strong> ₹{mockOrder.shippingCharges}</div>
-        )}
+      {/* Section 2: Courier & Payment Info Row */}
+      <div className="label-section-courier">
+        {/* Left: Courier/AWB */}
+        <div className="courier-section">
+          <div className="courier-name">Courier: <span>{mockOrder.courierName}</span></div>
+          <div className="awb-barcode"></div>
+          <div className="awb-number">AWB: <span>{mockOrder.waybill}</span></div>
+        </div>
+
+        {/* Right: Payment & Invoice Info */}
+        <div className="payment-info-section">
+          {showComponent('dimensions') && (
+            <div className="payment-info-row">
+              <span className="payment-info-label">Dimensions:</span>
+              <span className="payment-info-value">{mockOrder.dimensions}</span>
+            </div>
+          )}
+          {showComponent('weight') && (
+            <div className="payment-info-row">
+              <span className="payment-info-label">Weight:</span>
+              <span className="payment-info-value">{mockOrder.weight}</span>
+            </div>
+          )}
+          {showComponent('payment_type') && (
+            <div className="payment-info-row">
+              <span className="payment-info-label">Payment:</span>
+              <span className="payment-info-value">{mockOrder.paymentType}</span>
+            </div>
+          )}
+          {showComponent('invoice_number') && (
+            <div className="payment-info-row">
+              <span className="payment-info-label">Invoice No:</span>
+              <span className="payment-info-value">{mockOrder.invoiceNumber}</span>
+            </div>
+          )}
+          {showComponent('invoice_date') && (
+            <div className="payment-info-row">
+              <span className="payment-info-label">Invoice Date:</span>
+              <span className="payment-info-value">{mockOrder.invoiceDate}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Product Summary with optional SKU column */}
-      <div className="preview-info-section">
-        <div className="preview-info-title">PRODUCT SUMMARY</div>
-        <table className="preview-products-table">
+      {/* Section 3: Shipped By & Order Info Row */}
+      <div className="label-section-shipped">
+        {/* Left: Shipped By */}
+        <div className="shipped-by-section">
+          <div className="shipped-by-label">Shipped By: <span>(if undelivered, return to)</span></div>
+          {showComponent('company_name') && (
+            <div className="shipped-by-company">{mockOrder.companyName}</div>
+          )}
+          {showComponent('company_gstin') && (
+            <div className="shipped-by-gstin"><span>GSTIN:</span> {mockOrder.companyGstin}</div>
+          )}
+          <div className="shipped-by-name">{mockOrder.sellerName}</div>
+          {showComponent('pickup_address') && (
+            <>
+              <div className="shipped-by-address">{mockOrder.sellerAddress}</div>
+              <div className="shipped-by-city">{mockOrder.sellerState}, {mockOrder.sellerPincode}, {mockOrder.sellerCountry}</div>
+            </>
+          )}
+          {showComponent('company_phone') && (
+            <div className="shipped-by-phone"><strong>Mobile Number:</strong><br/>{mockOrder.companyPhone}</div>
+          )}
+        </div>
+
+        {/* Right: Order ID & Barcode */}
+        <div className="order-info-section">
+          <div className="order-id-row">
+            <span className="order-id-label">Order ID:</span> {mockOrder.orderId}
+          </div>
+          <div className="order-barcode"></div>
+          <div className="reference-id"><span>Reference ID:</span> {mockOrder.referenceId}</div>
+          <div className={`payment-badge ${mockOrder.paymentType.toLowerCase()}`}>
+            {mockOrder.paymentType.toUpperCase()}
+          </div>
+        </div>
+      </div>
+
+      {/* Section 4: Product Table */}
+      <div className="label-section-products">
+        <table className="products-table">
           <thead>
             <tr>
-              <th style={{ width: showComponent('sku') ? '50%' : '70%' }}>Product</th>
-              {showComponent('sku') && <th style={{ width: '20%' }}>SKU</th>}
-              <th style={{ width: '15%' }}>Qty</th>
-              <th style={{ width: '15%', textAlign: 'right' }}>Amount</th>
+              {showComponent('sku') && <th>SKU</th>}
+              <th>{showComponent('product_name') ? 'Item' : 'Item'}</th>
+              <th className="qty-col">Qty</th>
+              <th className="amount-col">Amount</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>{mockOrder.productName}</td>
-              {showComponent('sku') && <td>{mockOrder.sku}</td>}
-              <td>{mockOrder.quantity}</td>
-              <td style={{ textAlign: 'right' }}>₹{mockOrder.orderValue}</td>
-            </tr>
+            {mockOrder.products.map((product, index) => (
+              <tr key={index}>
+                {showComponent('sku') && <td>{product.sku}</td>}
+                <td>{showComponent('product_name') ? product.name : `Item ${index + 1}`}</td>
+                <td className="qty-col">{product.quantity}</td>
+                {(showComponent('amount_prepaid') || showComponent('amount_cod')) && (
+                  <td className="amount-col">{product.amount}</td>
+                )}
+                {!showComponent('amount_prepaid') && !showComponent('amount_cod') && (
+                  <td className="amount-col">-</td>
+                )}
+              </tr>
+            ))}
           </tbody>
         </table>
+        {showComponent('shipping_charges') && (
+          <div className="shipping-charge-row">Shipping Charge: ₹{mockOrder.shippingCharges}</div>
+        )}
+        {(showComponent('amount_prepaid') || showComponent('amount_cod')) && (
+          <div className="total-row">Total: ₹{mockOrder.totalAmount}</div>
+        )}
       </div>
 
+      {/* Section 5: Footer */}
+      <div className="label-section-footer">
+        <div className="footer-disclaimer">
+          <p>1. Visit official website of Courier Company to view the Conditions of Carriage.</p>
+          <p>2. All disputes will be resolved under Haryana jurisdiction. Sold goods are eligible for return or exchange according to the store's policy.</p>
+        </div>
+        <div className="footer-branding">
+          <div className="footer-branding-label">Powered by:</div>
+          <div className="footer-branding-logo">shipmozo</div>
+        </div>
+      </div>
+
+      {/* Message section - shown only if enabled and message exists */}
       {showComponent('message') && mockOrder.message && (
-        <div className="preview-info-section">
-          <div className="preview-info-title">SPECIAL INSTRUCTIONS</div>
-          <div className="preview-info-row">{mockOrder.message}</div>
+        <div style={{
+          padding: '4px 8px',
+          fontSize: '7px',
+          borderTop: '1px solid #000',
+          background: '#fff9e6'
+        }}>
+          <strong>Special Instructions:</strong> {mockOrder.message}
         </div>
       )}
     </div>

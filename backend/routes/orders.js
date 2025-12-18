@@ -3519,89 +3519,79 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
   // Extract data - prefer Delhivery data, fallback to MongoDB order data
   const waybill = pkg?.Wbn || pkg?.waybill || order.delhivery_data?.waybill || order.shipping_info?.awb_number || order.awb || order.waybill || 'N/A';
   const barcodeImage = pkg?.Barcode || pkg?.barcode || pkg?.barcode_image || '';
-  const delhiveryLogo = pkg?.['Delhivery logo'] || pkg?.logo || '';
-  const sortCode = pkg?.['Sort code'] || pkg?.sortCode || 'N/A';
-  
+
   // Customer/Delivery info - prefer Delhivery, fallback to MongoDB
   const customerName = pkg?.Name || order.customer_info?.buyer_name || 'N/A';
   const customerPhone = pkg?.Cnph || order.customer_info?.phone || 'N/A';
-  const customerEmail = order.customer_info?.email || '';
   const deliveryAddress = pkg?.Address || order.delivery_address?.full_address || 'N/A';
   const deliveryCity = pkg?.['Destination city'] || order.delivery_address?.city || 'N/A';
   const deliveryState = pkg?.['Customer state'] || order.delivery_address?.state || 'N/A';
   const deliveryPincode = pkg?.Pin || order.delivery_address?.pincode || 'N/A';
-  const deliveryLandmark = order.delivery_address?.landmark || '';
-  
+
   // Origin/Pickup info - prefer Delhivery, fallback to MongoDB
   const originName = pkg?.Origin || order.pickup_address?.name || 'N/A';
   const originAddress = pkg?.Sadd || order.pickup_address?.full_address || 'N/A';
   const originCity = pkg?.['Origin city'] || order.pickup_address?.city || 'N/A';
   const originState = pkg?.['Origin state'] || order.pickup_address?.state || 'N/A';
   const originPincode = pkg?.Rpin || order.pickup_address?.pincode || 'N/A';
-  
+
   // Product/Package info
-  const productName = pkg?.Prd || (order.products && order.products[0]?.product_name) || 'N/A';
-  const productDescription = order.products && order.products[0]?.product_description || '';
-  const quantity = pkg?.Qty || (order.products && order.products[0]?.quantity) || 1;
-  const weight = pkg?.Weight || order.package_info?.weight || '0';
-  const dimensions = order.package_info?.dimensions ? 
-    `${order.package_info.dimensions.length} x ${order.package_info.dimensions.width} x ${order.package_info.dimensions.height} cm` : 
-    'N/A';
-  
+  const weight = pkg?.Weight || order.package_info?.weight || '0.5';
+  const dimensions = order.package_info?.dimensions ?
+    `${order.package_info.dimensions.length}x${order.package_info.dimensions.width}x${order.package_info.dimensions.height} CM` :
+    '10x10x10 CM';
+
   // Payment info
   const paymentMode = pkg?.Pt || order.payment_info?.payment_mode || 'Prepaid';
   const codAmount = pkg?.Cod || (order.payment_info?.payment_mode === 'COD' ? order.payment_info?.cod_amount : 0);
   const orderValue = order.payment_info?.order_value || 0;
   const shippingCharges = order.payment_info?.shipping_charges || 0;
   const totalAmount = order.payment_info?.total_amount || (orderValue + shippingCharges);
-  const grandTotal = order.payment_info?.grand_total || totalAmount;
-  
-  // Shipping mode
-  const shippingMode = pkg?.Mot || order.shipping_mode || 'Surface';
-  
+
   // Order details
   const orderId = pkg?.Oid || order.order_id || 'N/A';
-  const referenceId = order.reference_id || '';
+  const referenceId = order.reference_id || `REF-${waybill.slice(-10)}`;
   const invoiceRef = pkg?.['Invoice reference'] || order.invoice_number || 'N/A';
   const orderDate = order.order_date || order.createdAt || null;
 
   // Seller / pickup details
-  const sellerName = order.seller_info?.name || order.user_id?.company_name || originName || 'N/A';
-  const sellerContactName = order.seller_info?.reseller_name || order.user_id?.your_name || '';
-  const sellerAddress = order.seller_info?.address || originAddress || '';
-  const sellerGst = order.seller_info?.gst_number || order.user_id?.gst_number || '';
-  const sellerPhone = order.pickup_address?.phone || order.user_id?.phone_number || '';
-  const sellerEmail = order.user_id?.email || '';
-  
+  const companyName = order.seller_info?.name || order.user_id?.company_name || originName || 'N/A';
+  const sellerName = order.seller_info?.reseller_name || order.user_id?.your_name || originName || '';
+  const companyGstin = order.seller_info?.gst_number || order.user_id?.gst_number || '';
+  const companyPhone = order.pickup_address?.phone || order.user_id?.phone_number || '';
+
   // Apply label settings for logo
   const useOrderChannelLogo = labelSettings?.use_order_channel_logo || false;
   const labelLogoUrl = labelSettings?.logo_url || '';
   const companyLogoUrl = useOrderChannelLogo ? (order.seller_info?.logo_url || order.user_id?.company_logo_url || '') : (labelLogoUrl || order.user_id?.company_logo_url || '');
-  const headerLogosClass = companyLogoUrl ? 'header-logos' : 'header-logos only-carrier';
-  
+
   // Get component visibility settings (default to true if not set)
   const visibility = labelSettings?.component_visibility || {};
   const showComponent = (component) => visibility[component] !== false; // Default to true if not explicitly set to false
 
   // Product list & notes
-  const products = Array.isArray(order.products) ? order.products : [];
-  const totalQuantity = products.reduce((sum, item) => sum + (item.quantity || 0), 0) || quantity || 0;
+  const products = Array.isArray(order.products) ? order.products : [
+    { product_name: pkg?.Prd || 'Product 1', sku: 'SKU001', quantity: pkg?.Qty || 1, unit_price: orderValue || 100 }
+  ];
   const specialInstructions = order.special_instructions || order.internal_notes || '';
-  
+
+  // Brand info
+  const brandName = order.user_id?.company_name || companyName || 'SHIPPING COMPANY';
+  const brandTagline = 'Door 2 Door International & Domestic courier Service Available';
+  const brandMobile = companyPhone || '9351205202';
+  const courierName = 'Delhivery';
+
   const formatCurrency = (amount) => {
-    if (!amount) return '₹0.00';
-    return `₹${parseFloat(amount).toFixed(2)}`;
+    if (!amount) return '₹0';
+    return `₹${parseFloat(amount).toFixed(0)}`;
   };
 
   const formatDate = (date) => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleString('en-IN', { 
-      timeZone: 'Asia/Kolkata',
+    return new Date(date).toLocaleDateString('en-IN', {
       day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'short',
+      year: 'numeric'
     });
   };
 
@@ -3617,297 +3607,415 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
     body {
       font-family: Arial, sans-serif;
       padding: 10px;
+      font-size: 8px;
+      line-height: 1.2;
       background: white;
-      font-size: 10px;
-      line-height: 1.3;
     }
+
+    /* Label Container - Fixed 4x6 inch dimensions */
     .label-container {
-      width: 4in;
-      min-height: 6in;
-      border: 2px solid #000;
-      padding: 10px;
-      margin: 0 auto;
-      background: white;
-    }
-    ${(() => {
-      const labelTypes = labelSettings?.label_types || ['Standard'];
-      const primaryType = labelTypes[0] || 'Standard';
-      if (primaryType === '2 In One') {
-        return '.label-container { width: 4in; min-height: 3in; }';
-      } else if (primaryType === '4 In One') {
-        return '.label-container { width: 2in; min-height: 3in; }';
-      } else if (primaryType === 'Thermal') {
-        return '.label-container { width: 4in; min-height: 6in; }';
-      }
-      return ''; // Standard: default 4in x 6in
-    })()}
-    .header {
-      text-align: center;
-      border-bottom: 2px solid #000;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-    .header-logos {
+      width: 100mm;
+      height: 150mm;
+      border: 1px solid #000;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 5px;
+      flex-direction: column;
+      overflow: hidden;
+      background: white;
+      margin: 0 auto;
     }
-    .header-logos.only-carrier {
+
+    /* Section 1: Header - Ship To (left) + Company Branding (right) */
+    .label-section-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #000;
+      min-height: 70px;
+    }
+    .ship-to-section {
+      padding: 6px 8px;
+      border-right: 1px solid #000;
+    }
+    .ship-to-label {
+      font-weight: bold;
+      font-size: 9px;
+      margin-bottom: 2px;
+    }
+    .ship-to-name {
+      font-weight: bold;
+      font-size: 9px;
+      margin-bottom: 1px;
+    }
+    .ship-to-address {
+      font-size: 7.5px;
+      line-height: 1.3;
+      margin-bottom: 1px;
+    }
+    .ship-to-city {
+      font-size: 7.5px;
+      color: #0066cc;
+    }
+    .ship-to-phone {
+      font-size: 7.5px;
+      margin-top: 2px;
+    }
+    .company-branding-section {
+      padding: 6px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
     }
-    .company-logo {
-      max-width: 110px;
-      max-height: 45px;
+    .company-logo-preview {
+      max-width: 100px;
+      max-height: 35px;
       object-fit: contain;
+      margin-bottom: 2px;
     }
-    .carrier-logo {
-      max-width: 120px;
-      max-height: 45px;
-      object-fit: contain;
+    .company-brand-name {
+      font-weight: bold;
+      font-size: 10px;
+      font-style: italic;
+      margin-bottom: 1px;
     }
-    .awb-section {
+    .company-tagline {
+      font-size: 6px;
+      font-style: italic;
       text-align: center;
-      margin: 12px 0;
-      padding: 8px;
-      background: #f0f0f0;
-      border: 1px solid #ccc;
+      line-height: 1.2;
+      margin-bottom: 1px;
+    }
+    .company-mob {
+      font-size: 7px;
+      font-weight: bold;
+    }
+
+    /* Section 2: Courier & Payment Info Row */
+    .label-section-courier {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #000;
+      min-height: 60px;
+    }
+    .courier-section {
+      padding: 6px 8px;
+      border-right: 1px solid #000;
+    }
+    .courier-name {
+      font-weight: bold;
+      font-size: 8px;
+      margin-bottom: 4px;
+    }
+    .courier-name span {
+      font-weight: normal;
+    }
+    .awb-barcode {
+      height: 30px;
+      margin-bottom: 2px;
+    }
+    .awb-barcode img {
+      max-height: 30px;
+      max-width: 100%;
     }
     .awb-number {
-      font-size: 20px;
       font-weight: bold;
-      margin: 5px 0;
-      letter-spacing: 1px;
+      font-size: 8px;
     }
-    .barcode-section {
+    .awb-number span {
+      font-weight: normal;
+    }
+    .payment-info-section {
+      padding: 6px 8px;
+      font-size: 7.5px;
+    }
+    .payment-info-row {
+      margin-bottom: 1px;
+      display: flex;
+    }
+    .payment-info-label {
+      color: #0066cc;
+      min-width: 70px;
+    }
+    .payment-info-value {
+      font-weight: normal;
+    }
+
+    /* Section 3: Shipped By & Order Info Row */
+    .label-section-shipped {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #000;
+      min-height: 80px;
+    }
+    .shipped-by-section {
+      padding: 6px 8px;
+      border-right: 1px solid #000;
+    }
+    .shipped-by-label {
+      font-weight: bold;
+      font-size: 8px;
+      margin-bottom: 2px;
+    }
+    .shipped-by-label span {
+      font-weight: normal;
+      color: #0066cc;
+      font-size: 7px;
+    }
+    .shipped-by-company {
+      font-weight: bold;
+      font-size: 8px;
+      margin-bottom: 1px;
+    }
+    .shipped-by-gstin {
+      font-size: 7px;
+      margin-bottom: 1px;
+    }
+    .shipped-by-gstin span {
+      font-weight: bold;
+    }
+    .shipped-by-name {
+      font-size: 7.5px;
+      margin-bottom: 1px;
+    }
+    .shipped-by-address {
+      font-size: 7px;
+      line-height: 1.2;
+      margin-bottom: 1px;
+    }
+    .shipped-by-city {
+      font-size: 7px;
+      color: #0066cc;
+    }
+    .shipped-by-phone {
+      font-size: 7.5px;
+      margin-top: 2px;
+    }
+    .order-info-section {
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .order-id-row {
+      font-size: 8px;
+      margin-bottom: 4px;
       text-align: center;
-      margin: 12px 0;
     }
-    .barcode-image {
+    .order-id-label {
+      font-weight: bold;
+    }
+    .order-barcode {
+      width: 80px;
+      height: 40px;
+      margin-bottom: 2px;
+    }
+    .order-barcode img {
+      max-height: 40px;
       max-width: 100%;
-      height: auto;
     }
-    .info-section {
-      border: 1px solid #000;
-      margin: 8px 0;
-      padding: 8px;
-      font-size: 9px;
+    .reference-id {
+      font-size: 7px;
+      margin-bottom: 4px;
     }
-    .info-title {
+    .reference-id span {
       font-weight: bold;
-      font-size: 11px;
-      margin-bottom: 5px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 3px;
-      text-transform: uppercase;
     }
-    .info-row {
-      margin: 3px 0;
-      line-height: 1.4;
-    }
-    .info-row strong {
-      font-weight: 700;
-    }
-    .destination {
-      font-size: 13px;
+    .payment-badge {
+      font-size: 14px;
       font-weight: bold;
-      margin: 5px 0;
+      text-align: center;
+      letter-spacing: 2px;
     }
-    .order-details {
-      font-size: 9px;
-      margin-top: 5px;
+    .payment-badge.prepaid {
+      color: #0066cc;
+    }
+    .payment-badge.cod {
+      color: #cc0000;
+    }
+
+    /* Section 4: Product Table */
+    .label-section-products {
+      padding: 4px 8px;
+      border-bottom: 1px solid #000;
+      flex: 1;
     }
     .products-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 4px;
-      font-size: 8.5px;
-    }
-    .products-table th,
-    .products-table td {
-      border: 1px solid #ddd;
-      padding: 4px;
-      text-align: left;
+      font-size: 7.5px;
     }
     .products-table th {
-      background: #f5f5f5;
+      background: #1a3a5c;
+      color: white;
+      padding: 3px 4px;
+      text-align: left;
       font-weight: 600;
+      font-size: 7px;
     }
-    .charges-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 4px;
-      font-size: 9px;
+    .products-table td {
+      padding: 3px 4px;
+      border-bottom: 1px solid #ddd;
     }
-    .charges-table td {
-      padding: 3px 0;
-    }
-    .charges-table td.amount {
+    .products-table .amount-col {
       text-align: right;
-      font-weight: 600;
     }
-    .footer {
+    .products-table .qty-col {
       text-align: center;
-      margin-top: 10px;
-      font-size: 8px;
-      border-top: 1px solid #ccc;
-      padding-top: 5px;
     }
+    .shipping-charge-row {
+      font-size: 7px;
+      text-align: right;
+      padding: 2px 4px;
+      margin-top: 2px;
+    }
+    .total-row {
+      font-size: 8px;
+      font-weight: bold;
+      text-align: right;
+      padding: 2px 4px;
+    }
+
+    /* Section 5: Footer */
+    .label-section-footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 4px 8px;
+      font-size: 6px;
+      align-items: center;
+      background: #f5f5f5;
+    }
+    .footer-disclaimer {
+      font-size: 5.5px;
+      line-height: 1.3;
+      color: #333;
+    }
+    .footer-disclaimer p {
+      margin: 0 0 1px 0;
+    }
+    .footer-branding {
+      text-align: right;
+      font-size: 6px;
+    }
+    .footer-branding-label {
+      font-style: italic;
+      color: #666;
+    }
+    .footer-branding-logo {
+      font-weight: bold;
+      font-size: 9px;
+      color: #1a3a5c;
+    }
+
     @media print {
-      body { padding: 0; }
-      .label-container { border: 2px solid #000; }
+      body { padding: 0; margin: 0; }
+      .label-container { border: 1px solid #000; }
     }
   </style>
 </head>
 <body>
   <div class="label-container">
-    <!-- Header with Logo -->
-    <div class="header">
-      <div class="${headerLogosClass}">
-        ${showComponent('logo') && companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo" alt="Company Logo">` : ''}
-        ${delhiveryLogo ? `<img src="${delhiveryLogo}" class="carrier-logo" alt="Delhivery">` : '<div style="font-size: 14px; font-weight: bold;">DELHIVERY</div>'}
+    <!-- Section 1: Header - Ship To (left) + Company Branding (right) -->
+    <div class="label-section-header">
+      <div class="ship-to-section">
+        <div class="ship-to-label">Ship To:</div>
+        <div class="ship-to-name">${customerName}</div>
+        <div class="ship-to-address">${deliveryAddress}</div>
+        <div class="ship-to-city">${deliveryCity}, ${deliveryPincode}, India</div>
+        ${showComponent('customer_phone') ? `<div class="ship-to-phone"><strong>Mobile Number:</strong> ${customerPhone}</div>` : ''}
       </div>
-      <div style="margin-top: 5px; font-size: 10px; font-weight: bold;">SHIPPING LABEL</div>
+      <div class="company-branding-section">
+        ${showComponent('logo') && companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo-preview" alt="Company Logo">` : ''}
+        <div class="company-brand-name">${brandName}</div>
+        <div class="company-tagline">${brandTagline}</div>
+        <div class="company-mob">Mob. : ${brandMobile}</div>
+      </div>
     </div>
 
-    <!-- AWB Number -->
-    <div class="awb-section">
-      <div style="font-size: 9px; font-weight: bold;">AWB NUMBER</div>
-      <div class="awb-number">${waybill}</div>
-      ${sortCode !== 'N/A' ? `<div style="font-size: 9px;">Sort Code: ${sortCode}</div>` : ''}
+    <!-- Section 2: Courier & Payment Info Row -->
+    <div class="label-section-courier">
+      <div class="courier-section">
+        <div class="courier-name">Courier: <span>${courierName}</span></div>
+        <div class="awb-barcode">
+          ${barcodeImage ? `<img src="${barcodeImage}" alt="AWB Barcode">` : '<div style="height:30px;background:repeating-linear-gradient(90deg,#000,#000 2px,#fff 2px,#fff 4px);"></div>'}
+        </div>
+        <div class="awb-number">AWB: <span>${waybill}</span></div>
+      </div>
+      <div class="payment-info-section">
+        ${showComponent('dimensions') ? `<div class="payment-info-row"><span class="payment-info-label">Dimensions:</span><span class="payment-info-value">${dimensions}</span></div>` : ''}
+        ${showComponent('weight') ? `<div class="payment-info-row"><span class="payment-info-label">Weight:</span><span class="payment-info-value">${weight}Kg</span></div>` : ''}
+        ${showComponent('payment_type') ? `<div class="payment-info-row"><span class="payment-info-label">Payment:</span><span class="payment-info-value">${paymentMode}</span></div>` : ''}
+        ${showComponent('invoice_number') ? `<div class="payment-info-row"><span class="payment-info-label">Invoice No:</span><span class="payment-info-value">${invoiceRef}</span></div>` : ''}
+        ${showComponent('invoice_date') ? `<div class="payment-info-row"><span class="payment-info-label">Invoice Date:</span><span class="payment-info-value">${formatDate(orderDate)}</span></div>` : ''}
+      </div>
     </div>
 
-    <!-- Barcode -->
-    ${barcodeImage ? `
-    <div class="barcode-section">
-      <img src="${barcodeImage}" class="barcode-image" alt="Barcode">
-    </div>
-    ` : ''}
-
-    <div class="info-section">
-      <div class="info-title">SELLER / CONTACT</div>
-      ${showComponent('company_name') ? `<div class="info-row"><strong>${sellerName}</strong></div>` : ''}
-      ${sellerContactName ? `<div class="info-row">Contact: ${sellerContactName}</div>` : ''}
-      ${showComponent('pickup_address') ? `<div class="info-row">${sellerAddress}</div>` : ''}
-      ${showComponent('company_gstin') && sellerGst ? `<div class="info-row">GST: ${sellerGst}</div>` : ''}
-      ${showComponent('company_phone') && sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
-      ${sellerEmail ? `<div class="info-row">Email: ${sellerEmail}</div>` : ''}
-    </div>
-
-    <!-- Destination Info -->
-    <div class="info-section">
-      <div class="info-title">TO (DESTINATION)</div>
-      <div class="info-row destination">${customerName}</div>
-      <div class="info-row">${deliveryAddress}</div>
-      ${deliveryLandmark ? `<div class="info-row">Landmark: ${deliveryLandmark}</div>` : ''}
-      <div class="info-row"><strong>${deliveryCity}, ${deliveryState} - ${deliveryPincode}</strong></div>
-      ${showComponent('customer_phone') && customerPhone !== 'N/A' ? `<div class="info-row">Phone: ${customerPhone}</div>` : ''}
+    <!-- Section 3: Shipped By & Order Info Row -->
+    <div class="label-section-shipped">
+      <div class="shipped-by-section">
+        <div class="shipped-by-label">Shipped By: <span>(if undelivered, return to)</span></div>
+        ${showComponent('company_name') ? `<div class="shipped-by-company">${companyName}</div>` : ''}
+        ${showComponent('company_gstin') && companyGstin ? `<div class="shipped-by-gstin"><span>GSTIN:</span> ${companyGstin}</div>` : ''}
+        <div class="shipped-by-name">${sellerName}</div>
+        ${showComponent('pickup_address') ? `
+          <div class="shipped-by-address">${originAddress}</div>
+          <div class="shipped-by-city">${originState}, ${originPincode}, India</div>
+        ` : ''}
+        ${showComponent('company_phone') && companyPhone ? `<div class="shipped-by-phone"><strong>Mobile Number:</strong><br/>${companyPhone}</div>` : ''}
+      </div>
+      <div class="order-info-section">
+        <div class="order-id-row"><span class="order-id-label">Order ID:</span> ${orderId}</div>
+        <div class="order-barcode">
+          ${barcodeImage ? `<img src="${barcodeImage}" alt="Order Barcode">` : '<div style="height:40px;background:repeating-linear-gradient(0deg,#000,#000 2px,#fff 2px,#fff 4px);"></div>'}
+        </div>
+        <div class="reference-id"><span>Reference ID:</span> ${referenceId}</div>
+        <div class="payment-badge ${paymentMode.toLowerCase()}">${paymentMode.toUpperCase()}</div>
+      </div>
     </div>
 
-    <!-- Package Details -->
-    <div class="info-section">
-      <div class="info-title">PACKAGE DETAILS</div>
-      <div class="info-row"><strong>Order ID:</strong> ${orderId}</div>
-      ${referenceId ? `<div class="info-row"><strong>Reference ID:</strong> ${referenceId}</div>` : ''}
-      ${showComponent('invoice_number') ? `<div class="info-row"><strong>Invoice:</strong> ${invoiceRef}</div>` : ''}
-      ${showComponent('invoice_date') && orderDate ? `<div class="info-row"><strong>Invoice Date:</strong> ${formatDate(orderDate)}</div>` : ''}
-      ${showComponent('product_name') ? `<div class="info-row"><strong>Product:</strong> ${productName}</div>` : ''}
-      ${productDescription ? `<div class="info-row">${productDescription}</div>` : ''}
-      ${showComponent('weight') ? `<div class="info-row"><strong>Weight:</strong> ${weight} kg | <strong>Qty:</strong> ${quantity}</div>` : `<div class="info-row"><strong>Qty:</strong> ${quantity}</div>`}
-      ${showComponent('dimensions') && dimensions !== 'N/A' ? `<div class="info-row"><strong>Dimensions:</strong> ${dimensions}</div>` : ''}
-      ${showComponent('payment_type') ? `<div class="info-row"><strong>Payment:</strong> ${paymentMode} ${codAmount > 0 ? `- COD: ${formatCurrency(codAmount)}` : ''}</div>` : ''}
-      ${showComponent('amount_prepaid') && paymentMode === 'Prepaid' ? `<div class="info-row"><strong>Order Value:</strong> ${formatCurrency(orderValue)}</div>` : ''}
-      ${showComponent('amount_cod') && codAmount > 0 ? `<div class="info-row"><strong>COD Amount:</strong> ${formatCurrency(codAmount)}</div>` : ''}
-      ${showComponent('shipping_charges') && shippingCharges > 0 ? `<div class="info-row"><strong>Shipping Charges:</strong> ${formatCurrency(shippingCharges)}</div>` : ''}
-      ${totalAmount > 0 ? `<div class="info-row"><strong>Total Amount:</strong> ${formatCurrency(totalAmount)}</div>` : ''}
-      <div class="info-row"><strong>Mode:</strong> ${shippingMode}</div>
-    </div>
-
-    ${products.length > 0 ? `
-    <div class="info-section">
-      <div class="info-title">PRODUCT SUMMARY</div>
+    <!-- Section 4: Product Table -->
+    <div class="label-section-products">
       <table class="products-table">
         <thead>
           <tr>
-            <th style="width: ${showComponent('sku') ? '42%' : '50%'};">Product</th>
-            ${showComponent('sku') ? '<th style="width: 18%;">SKU / HSN</th>' : ''}
-            <th style="width: ${showComponent('sku') ? '20%' : '25%'};">Qty</th>
-            <th style="width: ${showComponent('sku') ? '20%' : '25%'}; text-align: right;">Value</th>
+            ${showComponent('sku') ? '<th>SKU</th>' : ''}
+            <th>Item</th>
+            <th class="qty-col">Qty</th>
+            <th class="amount-col">Amount</th>
           </tr>
         </thead>
         <tbody>
-          ${products.map(item => `
+          ${products.map((item, index) => `
             <tr>
-              <td>${item.product_name || '-'}</td>
               ${showComponent('sku') ? `<td>${item.sku || item.hsn_code || '-'}</td>` : ''}
-              <td>${item.quantity || 0}</td>
-              <td style="text-align: right;">${formatCurrency((item.unit_price || 0) * (item.quantity || 0))}</td>
+              <td>${showComponent('product_name') ? (item.product_name || '-') : `Item ${index + 1}`}</td>
+              <td class="qty-col">${item.quantity || 1}</td>
+              <td class="amount-col">${(showComponent('amount_prepaid') || showComponent('amount_cod')) ? formatCurrency((item.unit_price || 0) * (item.quantity || 1)) : '-'}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-      <div class="info-row" style="margin-top: 4px;"><strong>Total Quantity:</strong> ${totalQuantity}</div>
-    </div>
-    ` : ''}
-
-    <div class="info-section">
-      <div class="info-title">CHARGES SUMMARY</div>
-      <table class="charges-table">
-        <tbody>
-          <tr>
-            <td>Order Value</td>
-            <td class="amount">${formatCurrency(orderValue)}</td>
-          </tr>
-          ${codAmount > 0 ? `
-          <tr>
-            <td>COD Amount to Collect</td>
-            <td class="amount">${formatCurrency(codAmount)}</td>
-          </tr>` : ''}
-        </tbody>
-      </table>
+      ${showComponent('shipping_charges') && shippingCharges > 0 ? `<div class="shipping-charge-row">Shipping Charge: ${formatCurrency(shippingCharges)}</div>` : ''}
+      ${(showComponent('amount_prepaid') || showComponent('amount_cod')) ? `<div class="total-row">Total: ${formatCurrency(totalAmount)}</div>` : ''}
     </div>
 
-    <!-- Additional Order Info (if available) -->
-    ${order.order_type ? `
-    <div class="info-section">
-      <div class="info-title">ORDER INFORMATION</div>
-      <div class="info-row"><strong>Order Type:</strong> ${order.order_type === 'forward' ? 'Forward' : 'Reverse (RTO)'}</div>
-      <div class="info-row"><strong>Status:</strong> ${order.status ? order.status.replace(/_/g, ' ').toUpperCase() : 'N/A'}</div>
-      ${orderDate ? `<div class="info-row"><strong>Order Date:</strong> ${formatDate(orderDate)}</div>` : ''}
-    </div>
-    ` : ''}
-
-    ${showComponent('message') && specialInstructions ? `
-    <div class="info-section">
-      <div class="info-title">SPECIAL INSTRUCTIONS</div>
-      <div class="info-row">${specialInstructions}</div>
-    </div>
-    ` : ''}
-
-    <!-- Origin Info moved to bottom -->
-    <div class="info-section origin-section">
-      <div class="info-title">FROM (ORIGIN)</div>
-      <div class="info-row"><strong>${originName}</strong></div>
-      <div class="info-row">${originAddress}</div>
-      <div class="info-row">${originCity}, ${originState} - ${originPincode}</div>
-      ${sellerPhone ? `<div class="info-row">Phone: ${sellerPhone}</div>` : ''}
-      ${sellerEmail ? `<div class="info-row">Email: ${sellerEmail}</div>` : ''}
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      <div style="margin-bottom: 3px;"><strong>Track Your Package:</strong></div>
-      <div>https://track.delhivery.com/track/package/${waybill}</div>
-      ${order.user_id?.company_name ? `<div style="margin-top: 5px; font-size: 8px;">Seller: ${order.user_id.company_name}</div>` : ''}
-      ${delhiveryLabelPdfUrl ? `<div style="margin-top: 4px; font-size: 8px;">Official Label PDF: <a href="${delhiveryLabelPdfUrl}" target="_blank">Download</a></div>` : ''}
-      <div style="margin-top: 5px; font-size: 7px;">Generated on ${formatDate(new Date())}</div>
-      <div style="margin-top: 8px; font-size: 7px; text-align: left; line-height: 1.4;">
-        <div>1) Shipsarthi is not liable for product issues, delays, loss, or damage, and all claims are governed by the carrier’s policies and decisions.</div>
-        <div>2) Goods once sold will only be taken back as per the store’s exchange/return policy.</div>
-        <div>3) Please refer to www.shipsarthi.com for Terms &amp; Conditions.</div>
+    <!-- Section 5: Footer -->
+    <div class="label-section-footer">
+      <div class="footer-disclaimer">
+        <p>1. Visit official website of Courier Company to view the Conditions of Carriage.</p>
+        <p>2. All disputes will be resolved under Haryana jurisdiction. Sold goods are eligible for return or exchange according to the store's policy.</p>
+      </div>
+      <div class="footer-branding">
+        <div class="footer-branding-label">Powered by:</div>
+        <div class="footer-branding-logo">shipmozo</div>
       </div>
     </div>
+
+    <!-- Message section - shown only if enabled and message exists -->
+    ${showComponent('message') && specialInstructions ? `
+    <div style="padding: 4px 8px; font-size: 7px; border-top: 1px solid #000; background: #fff9e6;">
+      <strong>Special Instructions:</strong> ${specialInstructions}
+    </div>
+    ` : ''}
   </div>
 
   <!-- Auto-print script -->
@@ -4805,10 +4913,15 @@ router.get('/bulk/labels', auth, async (req, res) => {
       });
     }
 
+    // Fetch user's label settings
+    const user = await User.findById(userId).select('label_settings company_logo_url').lean();
+    const labelSettings = user?.label_settings ? { ...user.label_settings } : {};
+
     logger.info('🖨️ Generating bulk labels', {
       userId: userId.toString(),
       orderCount: orderIdArray.length,
-      format: format
+      format: format,
+      hasLabelSettings: !!user?.label_settings
     });
 
     const labelsHtml = [];
@@ -4818,7 +4931,7 @@ router.get('/bulk/labels', auth, async (req, res) => {
         const order = await Order.findOne({
           _id: orderId,
           user_id: userId
-        });
+        }).populate('user_id', 'company_name your_name email phone_number company_logo_url gst_number');
 
         if (!order) {
           continue;
@@ -4833,8 +4946,8 @@ router.get('/bulk/labels', auth, async (req, res) => {
         const labelResult = await delhiveryService.generateShippingLabel(waybill);
 
         if (labelResult.success && labelResult.json_data) {
-          // Generate label HTML using labelRenderer
-          const labelHtml = labelRenderer.renderLabel(order, labelResult.json_data, format);
+          // Generate label HTML using labelRenderer with user's label settings
+          const labelHtml = labelRenderer.renderLabel(order, labelResult.json_data, format, labelSettings);
           labelsHtml.push(labelHtml);
         }
 
