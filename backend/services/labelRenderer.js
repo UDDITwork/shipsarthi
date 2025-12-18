@@ -310,8 +310,7 @@ class LabelRenderer {
 
       // Brand info (for company branding section)
       const brandName = order?.user_id?.company_name || companyName || 'SHIPPING COMPANY';
-      const brandTagline = 'Door 2 Door International & Domestic courier Service Available';
-      const brandMobile = companyPhone || '9351205202';
+      const brandMobile = companyPhone || '';
 
       const formatCurrency = (amount) => {
         if (!amount) return '₹0';
@@ -347,13 +346,12 @@ class LabelRenderer {
     /* Label Container - 4 in 1 on A4 size: 98 x 137 mm */
     .label-container {
       width: 98mm;
-      height: 137mm;
+      min-height: auto;
       border: 1px solid #000;
       display: flex;
       flex-direction: column;
       background: white;
       margin: 0 auto;
-      overflow: hidden;
     }
 
     /* Section 1: Header - Ship To (left) + Company Branding (right) */
@@ -365,7 +363,6 @@ class LabelRenderer {
     }
     .ship-to-section {
       padding: 6px 8px;
-      border-right: 1px solid #000;
     }
     .ship-to-label {
       font-weight: bold;
@@ -410,13 +407,6 @@ class LabelRenderer {
       font-style: italic;
       margin-bottom: 1px;
     }
-    .company-tagline {
-      font-size: 6px;
-      font-style: italic;
-      text-align: center;
-      line-height: 1.2;
-      margin-bottom: 1px;
-    }
     .company-mob {
       font-size: 7px;
       font-weight: bold;
@@ -431,7 +421,6 @@ class LabelRenderer {
     }
     .courier-section {
       padding: 6px 8px;
-      border-right: 1px solid #000;
     }
     .courier-name {
       font-weight: bold;
@@ -481,7 +470,6 @@ class LabelRenderer {
     }
     .shipped-by-section {
       padding: 6px 8px;
-      border-right: 1px solid #000;
     }
     .shipped-by-label {
       font-weight: bold;
@@ -657,8 +645,7 @@ class LabelRenderer {
       <div class="company-branding-section">
         ${showComponent('logo') && companyLogoUrl ? `<img src="${companyLogoUrl}" class="company-logo-preview" alt="Company Logo">` : ''}
         <div class="company-brand-name">${brandName}</div>
-        <div class="company-tagline">${brandTagline}</div>
-        <div class="company-mob">Mob. : ${brandMobile}</div>
+        ${brandMobile ? `<div class="company-mob">Mob. : ${brandMobile}</div>` : ''}
       </div>
     </div>
 
