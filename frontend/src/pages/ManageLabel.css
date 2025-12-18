@@ -333,11 +333,11 @@
   min-height: 400px;
 }
 
-/* Label Preview Container - 4 in 1 on A4 size: 98 x 137 mm */
+/* Label Preview Container - Thermal Printer: 100 x 150 mm */
 .preview-label-container {
   background: white;
   border: 1px solid #000;
-  width: 98mm;
+  width: 100mm;
   min-height: auto;
   font-size: 8px;
   line-height: 1.2;

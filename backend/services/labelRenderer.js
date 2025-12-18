@@ -23,8 +23,6 @@ const LABEL_FORMATS = {
     name: 'Thermal',
     width: '100mm',    // 4 inches
     height: '150mm',   // 6 inches
-    widthPx: 384,      // 96 DPI
-    heightPx: 576,
     labelsPerSheet: 1,
     paperType: 'thermal'
   },
@@ -32,38 +30,26 @@ const LABEL_FORMATS = {
     name: 'Standard',
     width: '100mm',
     height: '150mm',
-    widthPx: 384,
-    heightPx: 576,
     labelsPerSheet: 1,
     paperType: 'standard'
   },
   TWO_IN_ONE: {
     name: '2 In One',
-    width: '100mm',
-    height: '148mm',   // Slightly shorter to fit 2 on A4
-    widthPx: 384,
-    heightPx: 567,
+    width: '137mm',
+    height: '200mm',
     labelsPerSheet: 2,
     paperType: 'A4',
     paperWidth: '210mm',
-    paperHeight: '297mm',
-    marginLeft: '5mm',
-    marginRight: '5mm',
-    gap: '1mm'
+    paperHeight: '297mm'
   },
   FOUR_IN_ONE: {
     name: '4 In One',
-    width: '100mm',
-    height: '148mm',
-    widthPx: 384,
-    heightPx: 567,
+    width: '98mm',
+    height: '137mm',
     labelsPerSheet: 4,
     paperType: 'A4',
     paperWidth: '210mm',
-    paperHeight: '297mm',
-    marginLeft: '5mm',
-    marginRight: '5mm',
-    gap: '1mm'
+    paperHeight: '297mm'
   }
 };
 
@@ -89,9 +75,10 @@ class LabelRenderer {
    * @param {string} waybill - Waybill number as fallback
    * @param {Object} order - Order object as fallback for missing data
    * @param {Object} labelSettings - User's label settings for visibility control
+   * @param {string} format - Label format type (Thermal, Standard, 2 In One, 4 In One)
    * @returns {string} HTML string for the label
    */
-  static generateLabelHTML(labelData, waybill = null, order = null, labelSettings = {}) {
+  static generateLabelHTML(labelData, waybill = null, order = null, labelSettings = {}, format = 'Thermal') {
     try {
       logger.info('🎨 Generating label HTML from Delhivery data');
 
@@ -312,6 +299,10 @@ class LabelRenderer {
       const brandName = order?.user_id?.company_name || companyName || 'SHIPPING COMPANY';
       const brandMobile = companyPhone || '';
 
+      // Get label format configuration
+      const labelFormat = this.getLabelFormat(format);
+      const labelWidth = labelFormat.width;
+
       const formatCurrency = (amount) => {
         if (!amount) return '₹0';
         return `₹${parseFloat(amount).toFixed(0)}`;
@@ -337,21 +328,26 @@ class LabelRenderer {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      padding: 10px;
+      padding: 0;
+      margin: 0;
       font-size: 8px;
       line-height: 1.2;
       background: white;
     }
+    @page {
+      size: ${labelWidth} auto;
+      margin: 0;
+    }
 
-    /* Label Container - 4 in 1 on A4 size: 98 x 137 mm */
+    /* Label Container - Dynamic size based on format */
     .label-container {
-      width: 98mm;
+      width: ${labelWidth};
       min-height: auto;
       border: 1px solid #000;
       display: flex;
       flex-direction: column;
       background: white;
-      margin: 0 auto;
+      margin: 0;
     }
 
     /* Section 1: Header - Ship To (left) + Company Branding (right) */
@@ -755,13 +751,13 @@ class LabelRenderer {
    * Render label with specified format
    * @param {Object} order - Order object
    * @param {Object} labelData - Label data from Delhivery API
-   * @param {string} format - Format type: 'thermal', 'standard', '2in1', '4in1'
+   * @param {string} format - Format type: 'Thermal', 'Standard', '2 In One', '4 In One'
    * @param {Object} labelSettings - User's label settings for visibility control
    * @returns {string} HTML string for the label
    */
-  static renderLabel(order, labelData, format = 'thermal', labelSettings = {}) {
-    // Use generateLabelHTML for consistent output
-    return this.generateLabelHTML(labelData, order?.delhivery_data?.waybill, order, labelSettings);
+  static renderLabel(order, labelData, format = 'Thermal', labelSettings = {}) {
+    // Use generateLabelHTML for consistent output with format
+    return this.generateLabelHTML(labelData, order?.delhivery_data?.waybill, order, labelSettings, format);
   }
 
   /**
@@ -789,9 +785,13 @@ class LabelRenderer {
     // Format mapping for page sizing
     const formatConfig = {
       'thermal': { width: '100mm', height: '150mm', perRow: 1 },
+      'Thermal': { width: '100mm', height: '150mm', perRow: 1 },
       'standard': { width: '100mm', height: '150mm', perRow: 1 },
-      '2in1': { width: '100mm', height: '148mm', perRow: 2 },
-      '4in1': { width: '100mm', height: '148mm', perRow: 2, rows: 2 }
+      'Standard': { width: '100mm', height: '150mm', perRow: 1 },
+      '2in1': { width: '137mm', height: '200mm', perRow: 2 },
+      '2 In One': { width: '137mm', height: '200mm', perRow: 2 },
+      '4in1': { width: '98mm', height: '137mm', perRow: 2, rows: 2 },
+      '4 In One': { width: '98mm', height: '137mm', perRow: 2, rows: 2 }
     };
 
     const config = formatConfig[format] || formatConfig['thermal'];
