@@ -1686,14 +1686,17 @@ router.get('/:id/print', auth, async (req, res) => {
     // Since we used .lean(), the populated user_id is a plain object, so we need to fetch user separately
     const user = await User.findById(req.user._id).select('label_settings company_logo_url').lean();
     const labelSettings = user?.label_settings ? { ...user.label_settings } : {};
-    
+
     // Use company_logo_url as fallback if logo_url not set
     if (!labelSettings.logo_url && user?.company_logo_url) {
       labelSettings.logo_url = user.company_logo_url;
     }
 
-    // Generate comprehensive HTML shipping label with all order details + Delhivery data
-    const html = generateShippingLabelHTML(order, delhiveryLabelData, delhiveryLabelPdfUrl, labelSettings);
+    // Get label format from user settings (default to first selected type or 'Thermal')
+    const labelFormat = labelSettings.label_types?.[0] || 'Thermal';
+
+    // Generate comprehensive HTML shipping label using labelRenderer for consistency
+    const html = labelRenderer.generateLabelHTML(delhiveryLabelData, order.delhivery_data?.waybill, order, labelSettings, labelFormat);
 
     res.setHeader('Content-Type', 'text/html');
     return res.send(html);
