@@ -404,6 +404,23 @@
   margin-bottom: 2px;
 }
 
+.logo-placeholder {
+  width: 80px;
+  height: 30px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+  background: #f9f9f9;
+}
+
+.logo-placeholder span {
+  font-size: 8px;
+  color: #999;
+}
+
 .company-brand-name {
   font-weight: bold;
   font-size: 10px;

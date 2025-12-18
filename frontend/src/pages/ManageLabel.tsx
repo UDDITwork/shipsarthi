@@ -66,7 +66,16 @@ const ManageLabel: React.FC = () => {
     try {
       setLoading(true);
       const data = await userService.getLabelSettings();
-      setSettings(data as LabelSettings);
+      // Merge with defaults to ensure all fields are present
+      setSettings(prev => ({
+        ...prev,
+        ...data,
+        component_visibility: {
+          ...prev.component_visibility,
+          ...(data.component_visibility || {})
+        },
+        logo_url: data.logo_url || null
+      }));
       setSelectedLabelTypes(data.label_types || ['Standard']);
     } catch (error: any) {
       console.error('Error fetching label settings:', error);
@@ -377,8 +386,14 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
 
         {/* Right: Company Branding */}
         <div className="company-branding-section">
-          {showComponent('logo') && settings.logo_url && (
-            <img src={settings.logo_url} className="company-logo-preview" alt="Company Logo" />
+          {showComponent('logo') && (
+            settings.logo_url ? (
+              <img src={settings.logo_url} className="company-logo-preview" alt="Company Logo" />
+            ) : (
+              <div className="logo-placeholder">
+                <span>Logo</span>
+              </div>
+            )
           )}
           <div className="company-brand-name">{mockOrder.brandName}</div>
           <div className="company-tagline">{mockOrder.tagline}</div>
