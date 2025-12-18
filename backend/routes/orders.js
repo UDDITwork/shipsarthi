@@ -3837,7 +3837,6 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
     .label-section-products {
       padding: 4px 8px;
       border-bottom: 1px solid #000;
-      flex: 1;
     }
     .products-table {
       width: 100%;
@@ -3901,9 +3900,9 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       color: #666;
     }
     .footer-branding-logo {
-      font-weight: bold;
-      font-size: 9px;
-      color: #1a3a5c;
+      max-height: 20px;
+      max-width: 60px;
+      object-fit: contain;
     }
 
     @media print {
@@ -4006,7 +4005,7 @@ function generateShippingLabelHTML(order, delhiveryLabelData = null, delhiveryLa
       </div>
       <div class="footer-branding">
         <div class="footer-branding-label">Powered by:</div>
-        <div class="footer-branding-logo">shipmozo</div>
+        <img src="https://shipsarthi.com/logo.png" class="footer-branding-logo" alt="Shipsarthi" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" /><span style="display:none;font-weight:bold;font-size:9px;color:#1a3a5c;">Shipsarthi</span>
       </div>
     </div>
 

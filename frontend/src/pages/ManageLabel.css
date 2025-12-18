@@ -630,7 +630,6 @@
 .label-section-products {
   padding: 4px 8px;
   border-bottom: 1px solid #000;
-  flex: 1;
 }
 
 .products-table {
@@ -706,9 +705,9 @@
 }
 
 .footer-branding-logo {
-  font-weight: bold;
-  font-size: 9px;
-  color: #1a3a5c;
+  max-height: 20px;
+  max-width: 60px;
+  object-fit: contain;
 }
 
 .loading {

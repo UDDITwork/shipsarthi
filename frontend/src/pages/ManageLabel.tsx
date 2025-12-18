@@ -509,7 +509,7 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings }) => {
         </div>
         <div className="footer-branding">
           <div className="footer-branding-label">Powered by:</div>
-          <div className="footer-branding-logo">shipmozo</div>
+          <img src="/shipsarthi-logo.png" className="footer-branding-logo" alt="Shipsarthi" />
         </div>
       </div>
 
