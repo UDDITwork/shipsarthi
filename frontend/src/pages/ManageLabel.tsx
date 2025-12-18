@@ -359,8 +359,7 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, userProfile }) =>
     companyPhone: userProfile?.phone_number || '',
     // Brand name (same as company name)
     brandName: userProfile?.company_name || 'YOUR COMPANY',
-    tagline: 'Door 2 Door International & Domestic courier Service Available',
-    brandMobile: userProfile?.phone_number || '0000000000',
+    brandMobile: userProfile?.phone_number || '',
   };
 
   // Mock order data for preview (customer side - this stays as sample)
@@ -422,8 +421,9 @@ const LabelPreview: React.FC<LabelPreviewProps> = ({ settings, userProfile }) =>
             )
           )}
           <div className="company-brand-name">{companyData.brandName}</div>
-          <div className="company-tagline">{companyData.tagline}</div>
-          <div className="company-mob">Mob. : {companyData.brandMobile}</div>
+          {companyData.brandMobile && (
+            <div className="company-mob">Mob. : {companyData.brandMobile}</div>
+          )}
         </div>
       </div>
 

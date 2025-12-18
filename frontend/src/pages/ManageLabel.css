@@ -399,22 +399,22 @@
 
 .company-logo-preview {
   width: 100%;
-  max-width: 120px;
-  height: 40px;
+  max-width: 150px;
+  height: 50px;
   object-fit: contain;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .logo-placeholder {
   width: 100%;
-  max-width: 120px;
-  height: 40px;
+  max-width: 150px;
+  height: 50px;
   border: 1px dashed #ccc;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   background: #f9f9f9;
 }
 
