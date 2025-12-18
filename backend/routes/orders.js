@@ -3433,9 +3433,16 @@ router.get('/:id/label', auth, async (req, res) => {
     // Check if HTML format is requested
     if (req.query.format === 'html') {
       try {
-        // Convert JSON to HTML label, pass waybill as fallback
-        const html = labelRenderer.generateLabelHTML(labelResult.json_data, waybill, order);
-        
+        // Fetch user's label settings
+        const user = await User.findById(req.user._id).select('label_settings company_logo_url').lean();
+        const labelSettings = user?.label_settings ? { ...user.label_settings } : {};
+        if (!labelSettings.logo_url && user?.company_logo_url) {
+          labelSettings.logo_url = user.company_logo_url;
+        }
+
+        // Convert JSON to HTML label, pass waybill as fallback and labelSettings
+        const html = labelRenderer.generateLabelHTML(labelResult.json_data, waybill, order, labelSettings);
+
         res.setHeader('Content-Type', 'text/html');
         return res.send(html);
       } catch (error) {

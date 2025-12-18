@@ -721,7 +721,7 @@ class LabelRenderer {
       </div>
       <div class="footer-branding">
         <div class="footer-branding-label">Powered by:</div>
-        <img src="https://shipsarthi.com/logo.png" class="footer-branding-logo" alt="Shipsarthi" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" /><span style="display:none;font-weight:bold;font-size:9px;color:#1a3a5c;">Shipsarthi</span>
+        <img src="/shipsarthi-logo.png" class="footer-branding-logo" alt="Shipsarthi" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" /><span style="display:none;font-weight:bold;font-size:9px;color:#1a3a5c;">Shipsarthi</span>
       </div>
     </div>
 
