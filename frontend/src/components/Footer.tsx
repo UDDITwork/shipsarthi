@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div className="footer-section">
             <div className="footer-logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-              <img src="/Final logo Figma 1.svg" alt="Shipsarthi" className="footer-logo-img" />
+              <img src="/favicon.svg" alt="Shipsarthi" className="footer-logo-img" />
             </div>
             <p className="footer-description">
               Your trusted logistics partner connecting e-commerce sellers with leading courier services across India.
