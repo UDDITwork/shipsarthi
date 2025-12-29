@@ -262,24 +262,24 @@ const handlePaymentReturn = async (req, res) => {
 
                     await transaction.save();
 
-                    // Redirect to frontend with status
+                    // Redirect to payment confirmation page with status
                     const redirectStatus = isSuccess ? 'success' : (internalStatus === 'failed' ? 'failed' : 'pending');
-                    return res.redirect(`${frontendUrl}/billing?payment_status=${redirectStatus}&order_id=${orderId}`);
+                    return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=${redirectStatus}`);
                 } catch (statusError) {
                     console.error('Error checking order status:', statusError);
-                    return res.redirect(`${frontendUrl}/billing?payment_status=error&order_id=${orderId}`);
+                    return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=error`);
                 }
             }
         }
 
         // Fallback redirect if no order ID
-        return res.redirect(`${frontendUrl}/billing?payment_status=unknown`);
+        return res.redirect(`${frontendUrl}/billing/payment-confirmation?status=unknown`);
     } catch (error) {
         console.error('Payment return error:', error);
         const frontendUrl = process.env.NODE_ENV === 'production'
             ? 'https://shipsarthi.com'
             : 'http://localhost:3000';
-        return res.redirect(`${frontendUrl}/billing?payment_status=error`);
+        return res.redirect(`${frontendUrl}/billing/payment-confirmation?status=error`);
     }
 };
 
@@ -519,6 +519,100 @@ router.post('/wallet/handle-payment-response',
         }
     }
 );
+
+/**
+ * Get complete transaction details for confirmation page (audit)
+ * GET /api/billing/wallet/transaction-details/:order_id
+ */
+router.get('/wallet/transaction-details/:order_id', auth, async (req, res) => {
+    try {
+        const { order_id } = req.params;
+
+        // Find the transaction by HDFC order ID
+        const transaction = await Transaction.findOne({
+            'payment_info.gateway_order_id': order_id
+        }).populate('user_id', 'email phone your_name company_name');
+
+        if (!transaction) {
+            return res.status(404).json({
+                success: false,
+                message: 'Transaction not found'
+            });
+        }
+
+        // Verify user owns this transaction (unless admin)
+        if (transaction.user_id._id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized to view this transaction'
+            });
+        }
+
+        // Format the response with all audit-required details
+        const transactionDetails = {
+            // Internal IDs
+            transaction_id: transaction.transaction_id,
+
+            // Gateway IDs
+            gateway_order_id: transaction.payment_info?.gateway_order_id || '',
+            gateway_transaction_id: transaction.payment_info?.gateway_transaction_id || '',
+            gateway_session_id: transaction.payment_info?.gateway_session_id || '',
+            gateway_reference_id: transaction.payment_info?.gateway_reference_id || '',
+            bank_ref_no: transaction.payment_info?.bank_ref_no || '',
+
+            // Amount details
+            amount: transaction.amount,
+            currency: 'INR',
+
+            // Status
+            status: transaction.status,
+            payment_status: transaction.payment_info?.payment_status || transaction.status,
+
+            // Payment details
+            payment_method: transaction.payment_info?.payment_method || 'hdfc_smartgateway',
+            payment_gateway: transaction.payment_info?.payment_gateway || 'hdfc',
+
+            // Date and time
+            transaction_date: transaction.transaction_date || transaction.created_at,
+            payment_date: transaction.payment_info?.payment_date || transaction.updated_at,
+            created_at: transaction.created_at,
+            updated_at: transaction.updated_at,
+
+            // Balance info
+            opening_balance: transaction.balance_info?.opening_balance || 0,
+            closing_balance: transaction.balance_info?.closing_balance || 0,
+
+            // Category
+            transaction_type: transaction.transaction_type,
+            transaction_category: transaction.transaction_category,
+
+            // Description
+            description: transaction.description,
+
+            // User info
+            user_info: {
+                name: transaction.user_id?.your_name || transaction.user_id?.company_name || 'N/A',
+                email: transaction.user_id?.email || 'N/A',
+                phone: transaction.user_id?.phone || 'N/A'
+            },
+
+            // Notes (for failed transactions)
+            notes: transaction.notes || ''
+        };
+
+        res.json({
+            success: true,
+            data: transactionDetails
+        });
+    } catch (error) {
+        console.error('Get transaction details error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch transaction details',
+            error: error.message
+        });
+    }
+});
 
 /**
  * Check payment status

@@ -17,6 +17,7 @@ import Support from './pages/Support';
 import TicketDetail from './pages/TicketDetail';
 import Tools from './pages/Tools';
 import Billing from './pages/Billing';
+import PaymentConfirmation from './pages/PaymentConfirmation';
 import Remittances from './pages/Remittances';
 import RemittanceDetail from './pages/RemittanceDetail';
 import WeightDiscrepancies from './pages/WeightDiscrepancies';
@@ -169,15 +170,23 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/billing" 
+            <Route
+              path="/billing"
               element={
                 <ProtectedRoute>
                   <Billing />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
+            <Route
+              path="/billing/payment-confirmation"
+              element={
+                <ProtectedRoute>
+                  <PaymentConfirmation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/invoices" 
               element={
                 <ProtectedRoute>
