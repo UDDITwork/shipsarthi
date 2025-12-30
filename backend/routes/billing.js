@@ -203,6 +203,11 @@ router.get('/wallet-transactions', auth, async (req, res) => {
  * GET/POST /api/billing/wallet/payment-return
  */
 const handlePaymentReturn = async (req, res) => {
+    // Determine frontend URL first (needed for all redirects)
+    const frontendUrl = process.env.NODE_ENV === 'production'
+        ? 'https://shipsarthi.com'
+        : 'http://localhost:3000';
+
     try {
         // HDFC sends order_id in the response (could be in body or query)
         const orderId = req.body?.order_id || req.query?.order_id ||
@@ -211,74 +216,69 @@ const handlePaymentReturn = async (req, res) => {
 
         console.log('HDFC Payment Return:', { orderId, status, body: req.body, query: req.query });
 
-        // Determine frontend URL
-        const frontendUrl = process.env.NODE_ENV === 'production'
-            ? 'https://shipsarthi.com'
-            : 'http://localhost:3000';
-
-        // If we have an order ID, process and redirect with status
-        if (orderId) {
-            // Find the transaction
-            const transaction = await Transaction.findOne({
-                'payment_info.gateway_order_id': orderId
-            });
-
-            if (transaction) {
-                try {
-                    // Get order status from HDFC
-                    const orderStatus = await hdfcPaymentService.getOrderStatus(orderId);
-                    const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
-                    const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
-
-                    // Update transaction
-                    transaction.payment_info.payment_status = internalStatus;
-                    transaction.payment_info.gateway_transaction_id = orderStatus.txnId;
-                    transaction.payment_info.bank_ref_no = orderStatus.bankRefNo;
-                    transaction.payment_info.payment_method = orderStatus.paymentMethod;
-                    transaction.payment_info.payment_date = new Date();
-                    transaction.updated_at = new Date();
-
-                    if (isSuccess) {
-                        transaction.status = 'completed';
-
-                        // Credit wallet
-                        const user = await User.findById(transaction.user_id);
-                        if (user) {
-                            const openingBalance = user.wallet_balance || 0;
-                            // Use Math.round to avoid floating-point precision issues
-                            user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
-                            await user.save();
-
-                            transaction.balance_info = {
-                                opening_balance: openingBalance,
-                                closing_balance: user.wallet_balance
-                            };
-                        }
-                        transaction.transaction_date = new Date();
-                    } else if (internalStatus === 'failed') {
-                        transaction.status = 'failed';
-                        transaction.notes = orderStatus.errorMessage || 'Payment failed';
-                    }
-
-                    await transaction.save();
-
-                    // Redirect to payment confirmation page with status
-                    const redirectStatus = isSuccess ? 'success' : (internalStatus === 'failed' ? 'failed' : 'pending');
-                    return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=${redirectStatus}`);
-                } catch (statusError) {
-                    console.error('Error checking order status:', statusError);
-                    return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=error`);
-                }
-            }
+        // If no order ID provided, redirect to confirmation page with unknown status
+        if (!orderId) {
+            console.log('No order_id provided in payment return callback');
+            return res.redirect(`${frontendUrl}/billing/payment-confirmation?status=unknown`);
         }
 
-        // Fallback redirect if no order ID
-        return res.redirect(`${frontendUrl}/billing/payment-confirmation?status=unknown`);
+        // Find the transaction
+        const transaction = await Transaction.findOne({
+            'payment_info.gateway_order_id': orderId
+        });
+
+        if (!transaction) {
+            console.log('Transaction not found for order_id:', orderId);
+            return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=error&reason=transaction_not_found`);
+        }
+
+        try {
+            // Get order status from HDFC
+            const orderStatus = await hdfcPaymentService.getOrderStatus(orderId);
+            const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
+            const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
+
+            // Update transaction
+            transaction.payment_info.payment_status = internalStatus;
+            transaction.payment_info.gateway_transaction_id = orderStatus.txnId;
+            transaction.payment_info.bank_ref_no = orderStatus.bankRefNo;
+            transaction.payment_info.payment_method = orderStatus.paymentMethod;
+            transaction.payment_info.payment_date = new Date();
+            transaction.updated_at = new Date();
+
+            if (isSuccess) {
+                transaction.status = 'completed';
+
+                // Credit wallet
+                const user = await User.findById(transaction.user_id);
+                if (user) {
+                    const openingBalance = user.wallet_balance || 0;
+                    // Use Math.round to avoid floating-point precision issues
+                    user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
+                    await user.save();
+
+                    transaction.balance_info = {
+                        opening_balance: openingBalance,
+                        closing_balance: user.wallet_balance
+                    };
+                }
+                transaction.transaction_date = new Date();
+            } else if (internalStatus === 'failed') {
+                transaction.status = 'failed';
+                transaction.notes = orderStatus.errorMessage || 'Payment failed';
+            }
+
+            await transaction.save();
+
+            // Redirect to payment confirmation page with status
+            const redirectStatus = isSuccess ? 'success' : (internalStatus === 'failed' ? 'failed' : 'pending');
+            return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=${redirectStatus}`);
+        } catch (statusError) {
+            console.error('Error checking order status:', statusError);
+            return res.redirect(`${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=error`);
+        }
     } catch (error) {
         console.error('Payment return error:', error);
-        const frontendUrl = process.env.NODE_ENV === 'production'
-            ? 'https://shipsarthi.com'
-            : 'http://localhost:3000';
         return res.redirect(`${frontendUrl}/billing/payment-confirmation?status=error`);
     }
 };
