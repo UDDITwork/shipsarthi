@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add Payment Confirmation Page for wallet recharge audit\n\n- Add dedicated payment confirmation page at /billing/payment-confirmation\n- Display complete transaction details: Transaction ID, Gateway Order ID, \n  Gateway TXN ID, Bank Reference Number, Amount, Status\n- Show date, time, and day of week for audit purposes\n- Display wallet balance update \\(opening, added, closing balance\\)\n- Include user details \\(name, email, phone\\)\n- Add print receipt functionality with Shipsarthi branding\n- Add PDF download using html2pdf.js\n- Support success, failed, pending, and error status pages\n- Update HDFC callback to redirect to confirmation page\n- Add backend endpoint for transaction details retrieval\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(node:*)"
     ]
   }
 }

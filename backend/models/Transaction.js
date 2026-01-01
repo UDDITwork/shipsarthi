@@ -71,7 +71,14 @@ const transactionSchema = new mongoose.Schema({
   payment_info: {
     payment_method: {
       type: String,
-      enum: ['upi', 'net_banking', 'credit_card', 'debit_card', 'wallet', 'bank_transfer', 'cash', 'hdfc_smartgateway'],
+      // Includes HDFC/Juspay payment method types: UPI_COLLECT, UPI_PAY, NB_*, CARD, WALLET, etc.
+      enum: [
+        'upi', 'net_banking', 'credit_card', 'debit_card', 'wallet', 'bank_transfer', 'cash', 'hdfc_smartgateway',
+        // HDFC/Juspay specific payment methods
+        'UPI_COLLECT', 'UPI_PAY', 'UPI_INTENT', 'UPI_QR',
+        'NB_HDFC', 'NB_ICICI', 'NB_SBI', 'NB_AXIS', 'NB_KOTAK', 'NB_YES', 'NB_PNB', 'NB_BOB', 'NB_CANARA', 'NB_UNION', 'NB_IDBI', 'NB_FEDERAL', 'NB_INDUSIND', 'NB_RBL', 'NB_SCB', 'NB_CITI', 'NB_DBS', 'NB_HSBC',
+        'CARD', 'SAVED_CARD', 'EMANDATE', 'PAYLATER', 'CARDLESS_EMI', 'WALLET_PAYTM', 'WALLET_PHONEPE', 'WALLET_AMAZON', 'WALLET_FREECHARGE', 'WALLET_MOBIKWIK', 'WALLET_AIRTEL', 'WALLET_JIOMONEY', 'WALLET_OLAMONEY'
+      ],
     },
     payment_gateway: {
       type: String,
