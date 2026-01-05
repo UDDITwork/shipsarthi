@@ -16,6 +16,7 @@ interface TransactionDetails {
   status: string;
   payment_status: string;
   payment_method: string;
+  payment_method_type: string;
   payment_gateway: string;
   transaction_date: string;
   payment_date: string;
@@ -285,6 +286,12 @@ const PaymentConfirmation: React.FC = () => {
                     <span className="detail-label">Payment Method</span>
                     <span className="detail-value">{formatPaymentMethod(transactionDetails.payment_method)}</span>
                   </div>
+                  {transactionDetails.payment_method_type && (
+                    <div className="detail-item">
+                      <span className="detail-label">Payment Type</span>
+                      <span className="detail-value">{transactionDetails.payment_method_type}</span>
+                    </div>
+                  )}
                   <div className="detail-item">
                     <span className="detail-label">Payment Gateway</span>
                     <span className="detail-value">{transactionDetails.payment_gateway?.toUpperCase() || 'HDFC'}</span>

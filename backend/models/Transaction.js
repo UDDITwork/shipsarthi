@@ -80,6 +80,8 @@ const transactionSchema = new mongoose.Schema({
         'CARD', 'SAVED_CARD', 'EMANDATE', 'PAYLATER', 'CARDLESS_EMI', 'WALLET_PAYTM', 'WALLET_PHONEPE', 'WALLET_AMAZON', 'WALLET_FREECHARGE', 'WALLET_MOBIKWIK', 'WALLET_AIRTEL', 'WALLET_JIOMONEY', 'WALLET_OLAMONEY'
       ],
     },
+    // More specific payment method type from HDFC (e.g., NB for NetBanking, UPI for UPI, etc.)
+    payment_method_type: String,
     payment_gateway: {
       type: String,
       enum: ['razorpay', 'payu', 'cashfree', 'stripe', 'manual', 'hdfc']
