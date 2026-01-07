@@ -25,6 +25,67 @@ if (process.env.NODE_ENV === 'production') {
   console.log('🔒 Trust proxy disabled for development');
 }
 
+// ============================================
+// HDFC PAYMENT CALLBACK - MUST BE BEFORE CORS
+// This handler MUST run before CORS middleware to avoid CORS rejection
+// when HDFC redirects from their domain to our API
+// ============================================
+const hdfcCallbackEarlyHandler = (req, res) => {
+  const frontendUrl = process.env.NODE_ENV === 'production'
+    ? 'https://shipsarthi.com'
+    : 'http://localhost:3000';
+
+  console.log('========== HDFC CALLBACK (EARLY - BEFORE CORS) ==========');
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('Method:', req.method);
+  console.log('URL:', req.originalUrl);
+  console.log('Origin:', req.get('Origin'));
+  console.log('Query:', JSON.stringify(req.query || {}));
+  console.log('Body:', JSON.stringify(req.body || {}));
+  console.log('=========================================================');
+
+  // Extract order_id from query params (body won't be parsed yet)
+  const orderId = req.query?.order_id || req.query?.orderId ||
+                  req.query?.orderid || req.query?.ORDER_ID || '';
+
+  console.log('[HDFC-EARLY] Extracted orderId:', orderId);
+
+  // Build redirect URL
+  const redirectUrl = orderId
+    ? `${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=processing`
+    : `${frontendUrl}/billing/payment-confirmation?status=processing&source=callback`;
+
+  console.log('[HDFC-EARLY] Redirecting to:', redirectUrl);
+
+  // IMMEDIATELY redirect - bypass all other middleware
+  return res.redirect(302, redirectUrl);
+};
+
+// Register BEFORE any middleware - this ensures CORS doesn't interfere
+app.get('/api/billing/wallet/payment-return', hdfcCallbackEarlyHandler);
+// For POST, we need body parser, so we'll handle it with a special middleware
+app.post('/api/billing/wallet/payment-return', express.urlencoded({ extended: true }), (req, res) => {
+  const frontendUrl = process.env.NODE_ENV === 'production'
+    ? 'https://shipsarthi.com'
+    : 'http://localhost:3000';
+
+  console.log('========== HDFC CALLBACK POST (EARLY) ==========');
+  console.log('Body:', JSON.stringify(req.body || {}));
+
+  const orderId = req.body?.order_id || req.body?.orderId ||
+                  req.body?.orderid || req.body?.ORDER_ID ||
+                  req.query?.order_id || '';
+
+  const redirectUrl = orderId
+    ? `${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=processing`
+    : `${frontendUrl}/billing/payment-confirmation?status=processing&source=callback`;
+
+  console.log('[HDFC-EARLY-POST] Redirecting to:', redirectUrl);
+  return res.redirect(302, redirectUrl);
+});
+
+console.log('[HDFC] ✅ Early callback handlers registered BEFORE CORS middleware');
+
 // CORS Configuration - MUST come BEFORE helmet() to ensure CORS headers are set
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS
