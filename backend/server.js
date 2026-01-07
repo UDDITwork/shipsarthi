@@ -277,36 +277,111 @@ app.use('/', require('./routes/sitemap'));
 // ============================================
 // HDFC PAYMENT CALLBACK - SPECIAL HANDLER
 // This MUST come BEFORE billing routes to ensure it always redirects
+// CRITICAL: This handler must redirect IMMEDIATELY, no async DB operations
 // ============================================
-const hdfcPaymentService = require('./services/hdfcPaymentService');
-const Transaction = require('./models/Transaction');
-const User = require('./models/User');
 
-const hdfcCallbackHandler = async (req, res) => {
+// SYNCHRONOUS REDIRECT HANDLER - No database calls, no async operations
+// Just redirect immediately and let the frontend handle status checking
+const hdfcCallbackHandlerSync = (req, res) => {
   const frontendUrl = process.env.NODE_ENV === 'production'
     ? 'https://shipsarthi.com'
     : 'http://localhost:3000';
 
-  // Helper to always redirect, never throw
+  console.log('========== HDFC CALLBACK (SYNC) ==========');
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('Method:', req.method);
+  console.log('URL:', req.originalUrl);
+  console.log('Query:', JSON.stringify(req.query || {}));
+  console.log('Body:', JSON.stringify(req.body || {}));
+  console.log('============================================');
+
+  // Extract order_id from any source
+  const orderId = req.body?.order_id || req.query?.order_id ||
+                  req.body?.orderId || req.query?.orderId ||
+                  req.body?.orderid || req.query?.orderid ||
+                  req.body?.ORDER_ID || req.query?.ORDER_ID || '';
+
+  console.log('[HDFC-SYNC] Extracted orderId:', orderId);
+
+  // Build redirect URL
+  const redirectUrl = orderId
+    ? `${frontendUrl}/billing/payment-confirmation?order_id=${orderId}&status=processing`
+    : `${frontendUrl}/billing/payment-confirmation?status=processing&source=callback`;
+
+  console.log('[HDFC-SYNC] Redirecting to:', redirectUrl);
+
+  // IMMEDIATELY redirect - no async, no database, no waiting
+  try {
+    return res.redirect(302, redirectUrl);
+  } catch (e) {
+    console.error('[HDFC-SYNC] Redirect failed:', e.message);
+    // Fallback: HTML meta refresh
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(`<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head><body>Redirecting...</body></html>`);
+  }
+};
+
+// Register the SYNCHRONOUS handler first - before any other middleware can interfere
+// This ensures we ALWAYS redirect, even if database is down or other issues occur
+console.log('[HDFC] Registering SYNCHRONOUS callback handlers...');
+
+// Also create an async version for background processing (not used in redirect flow)
+const hdfcPaymentService = require('./services/hdfcPaymentService');
+const Transaction = require('./models/Transaction');
+const User = require('./models/User');
+
+const hdfcCallbackHandlerAsync = async (req, res) => {
+  // CRITICAL: This handler must NEVER throw, NEVER return JSON
+  // It must ALWAYS redirect to the frontend
+
+  const frontendUrl = process.env.NODE_ENV === 'production'
+    ? 'https://shipsarthi.com'
+    : 'http://localhost:3000';
+
+  // Helper to always redirect, never throw - with multiple fallback methods
   const safeRedirect = (path) => {
+    const fullUrl = `${frontendUrl}${path}`;
+    console.log('[HDFC] Redirecting to:', fullUrl);
+
+    // Check if response already sent
+    if (res.headersSent) {
+      console.log('[HDFC] Headers already sent, cannot redirect');
+      return;
+    }
+
     try {
-      return res.redirect(`${frontendUrl}${path}`);
+      // Method 1: Standard redirect
+      return res.redirect(302, fullUrl);
     } catch (e) {
-      return res.send(`<html><head><meta http-equiv="refresh" content="0;url=${frontendUrl}${path}"><script>window.location.href='${frontendUrl}${path}';</script></head><body>Redirecting...</body></html>`);
+      console.error('[HDFC] Standard redirect failed:', e.message);
+      try {
+        // Method 2: Manual redirect header
+        res.writeHead(302, { Location: fullUrl });
+        res.end();
+        return;
+      } catch (e2) {
+        console.error('[HDFC] Manual redirect failed:', e2.message);
+        // Method 3: HTML redirect as last resort
+        return res.send(`<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${fullUrl}"><script>window.location.replace('${fullUrl}');</script></head><body>Redirecting to payment confirmation...</body></html>`);
+      }
     }
   };
 
+  // Log EVERYTHING for debugging - wrapped in try-catch
   try {
-    // Log EVERYTHING for debugging
-    console.log('========== HDFC CALLBACK RAW DATA ==========');
+    console.log('========== HDFC CALLBACK RECEIVED ==========');
     console.log('Timestamp:', new Date().toISOString());
     console.log('Method:', req.method);
     console.log('URL:', req.originalUrl);
     console.log('Content-Type:', req.get('Content-Type'));
-    console.log('Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('Raw Body:', req.body);
-    console.log('Query:', req.query);
+    console.log('Query params:', JSON.stringify(req.query || {}));
+    console.log('Body:', JSON.stringify(req.body || {}));
     console.log('=============================================');
+  } catch (logError) {
+    console.error('[HDFC] Logging failed:', logError.message);
+  }
+
+  try {
 
     // Try to extract order_id from multiple sources
     const orderId = req.body?.order_id || req.query?.order_id ||
@@ -426,9 +501,12 @@ const hdfcCallbackHandler = async (req, res) => {
   }
 };
 
-// Register BEFORE other routes - handles both GET and POST
-app.get('/api/billing/wallet/payment-return', hdfcCallbackHandler);
-app.post('/api/billing/wallet/payment-return', hdfcCallbackHandler);
+// Register the SYNCHRONOUS handler - handles both GET and POST
+// This is the ONLY handler that should run - it redirects immediately
+// The frontend PaymentConfirmation page will fetch transaction status via API
+app.get('/api/billing/wallet/payment-return', hdfcCallbackHandlerSync);
+app.post('/api/billing/wallet/payment-return', hdfcCallbackHandlerSync);
+console.log('[HDFC] ✅ Payment callback handlers registered at /api/billing/wallet/payment-return');
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));

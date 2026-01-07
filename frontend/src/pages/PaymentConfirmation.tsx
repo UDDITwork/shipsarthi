@@ -57,6 +57,17 @@ const PaymentConfirmation: React.FC = () => {
       }
 
       try {
+        // If status is 'processing', first trigger a sync with HDFC to get latest status
+        if (status === 'processing') {
+          console.log('Status is processing, syncing with payment gateway...');
+          try {
+            await apiService.post<{ success: boolean }>(`/billing/wallet/sync-payment-status/${orderId}`);
+            console.log('Payment status synced successfully');
+          } catch (syncErr) {
+            console.warn('Failed to sync payment status, will fetch existing data:', syncErr);
+          }
+        }
+
         const response = await apiService.get<{
           success: boolean;
           data: TransactionDetails;
@@ -78,7 +89,7 @@ const PaymentConfirmation: React.FC = () => {
     };
 
     fetchTransactionDetails();
-  }, [orderId]);
+  }, [orderId, status]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -126,8 +137,12 @@ const PaymentConfirmation: React.FC = () => {
   };
 
   const getStatusInfo = () => {
-    switch (status) {
+    // Use transaction status if available, otherwise use URL status
+    const effectiveStatus = transactionDetails?.status || status;
+
+    switch (effectiveStatus) {
       case 'success':
+      case 'completed':
         return {
           icon: '✓',
           title: 'Payment Successful!',
@@ -142,6 +157,7 @@ const PaymentConfirmation: React.FC = () => {
           className: 'failed'
         };
       case 'pending':
+      case 'processing':
         return {
           icon: '⏳',
           title: 'Payment Processing',

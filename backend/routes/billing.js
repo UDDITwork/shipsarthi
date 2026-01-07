@@ -602,6 +602,111 @@ router.post('/wallet/handle-payment-response',
 );
 
 /**
+ * Sync payment status with HDFC gateway
+ * Called by frontend when status is 'processing' to get the final status from HDFC
+ * POST /api/billing/wallet/sync-payment-status/:order_id
+ */
+router.post('/wallet/sync-payment-status/:order_id', auth, async (req, res) => {
+    try {
+        const { order_id } = req.params;
+
+        console.log('[SYNC] Syncing payment status for order:', order_id);
+
+        // Find the transaction
+        const transaction = await Transaction.findOne({
+            'payment_info.gateway_order_id': order_id
+        });
+
+        if (!transaction) {
+            return res.status(404).json({
+                success: false,
+                message: 'Transaction not found'
+            });
+        }
+
+        // Verify user owns this transaction
+        if (transaction.user_id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
+        // If already completed, no need to sync
+        if (transaction.status === 'completed') {
+            console.log('[SYNC] Transaction already completed');
+            return res.json({
+                success: true,
+                message: 'Transaction already completed',
+                status: 'completed'
+            });
+        }
+
+        // Get fresh status from HDFC
+        try {
+            const orderStatus = await hdfcPaymentService.getOrderStatus(order_id);
+            console.log('[SYNC] HDFC status:', orderStatus.status);
+
+            const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
+            const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
+
+            // Update transaction
+            transaction.payment_info.payment_status = internalStatus;
+            transaction.payment_info.gateway_transaction_id = orderStatus.txnId || transaction.payment_info.gateway_transaction_id || '';
+            transaction.payment_info.bank_ref_no = orderStatus.bankRefNo || transaction.payment_info.bank_ref_no || '';
+            transaction.payment_info.gateway_reference_id = orderStatus.gatewayReferenceId || '';
+            transaction.payment_info.payment_method = orderStatus.paymentMethod || transaction.payment_info.payment_method || '';
+            transaction.payment_info.payment_method_type = orderStatus.paymentMethodType || '';
+            transaction.payment_info.payment_date = new Date();
+            transaction.updated_at = new Date();
+
+            if (isSuccess && transaction.status !== 'completed') {
+                transaction.status = 'completed';
+
+                // Credit wallet
+                const user = await User.findById(transaction.user_id);
+                if (user) {
+                    const openingBalance = user.wallet_balance || 0;
+                    user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
+                    transaction.balance_info = {
+                        opening_balance: openingBalance,
+                        closing_balance: user.wallet_balance
+                    };
+                    await user.save();
+                    console.log(`[SYNC] Wallet credited: ${transaction.amount}, New balance: ${user.wallet_balance}`);
+                }
+                transaction.transaction_date = new Date();
+            } else if (internalStatus === 'failed') {
+                transaction.status = 'failed';
+                transaction.notes = orderStatus.errorMessage || 'Payment failed';
+            }
+
+            await transaction.save();
+
+            res.json({
+                success: true,
+                message: `Payment status synced: ${transaction.status}`,
+                status: transaction.status
+            });
+        } catch (statusErr) {
+            console.error('[SYNC] Error getting HDFC status:', statusErr.message);
+            res.json({
+                success: false,
+                message: 'Could not sync with payment gateway',
+                error: statusErr.message
+            });
+        }
+    } catch (error) {
+        console.error('[SYNC] Error syncing payment status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to sync payment status',
+            error: error.message
+        });
+    }
+});
+
+/**
  * Get complete transaction details for confirmation page (audit)
  * GET /api/billing/wallet/transaction-details/:order_id
  */
