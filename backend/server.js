@@ -274,6 +274,162 @@ app.get('/api/test-email', async (req, res) => {
 // Sitemap Route (before API routes to avoid conflicts)
 app.use('/', require('./routes/sitemap'));
 
+// ============================================
+// HDFC PAYMENT CALLBACK - SPECIAL HANDLER
+// This MUST come BEFORE billing routes to ensure it always redirects
+// ============================================
+const hdfcPaymentService = require('./services/hdfcPaymentService');
+const Transaction = require('./models/Transaction');
+const User = require('./models/User');
+
+const hdfcCallbackHandler = async (req, res) => {
+  const frontendUrl = process.env.NODE_ENV === 'production'
+    ? 'https://shipsarthi.com'
+    : 'http://localhost:3000';
+
+  // Helper to always redirect, never throw
+  const safeRedirect = (path) => {
+    try {
+      return res.redirect(`${frontendUrl}${path}`);
+    } catch (e) {
+      return res.send(`<html><head><meta http-equiv="refresh" content="0;url=${frontendUrl}${path}"><script>window.location.href='${frontendUrl}${path}';</script></head><body>Redirecting...</body></html>`);
+    }
+  };
+
+  try {
+    // Log EVERYTHING for debugging
+    console.log('========== HDFC CALLBACK RAW DATA ==========');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Method:', req.method);
+    console.log('URL:', req.originalUrl);
+    console.log('Content-Type:', req.get('Content-Type'));
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Raw Body:', req.body);
+    console.log('Query:', req.query);
+    console.log('=============================================');
+
+    // Try to extract order_id from multiple sources
+    const orderId = req.body?.order_id || req.query?.order_id ||
+                    req.body?.orderId || req.query?.orderId ||
+                    req.body?.orderid || req.query?.orderid ||
+                    req.body?.ORDER_ID || req.query?.ORDER_ID;
+
+    console.log('Extracted orderId:', orderId);
+
+    if (!orderId) {
+      // No order_id - find most recent pending transaction
+      console.log('No order_id found, looking for recent pending transaction');
+      const recentTxn = await Transaction.findOne({
+        'payment_info.payment_gateway': 'hdfc',
+        status: 'pending'
+      }).sort({ created_at: -1 });
+
+      if (recentTxn?.payment_info?.gateway_order_id) {
+        const recentOrderId = recentTxn.payment_info.gateway_order_id;
+        console.log('Found recent pending order:', recentOrderId);
+
+        // Try to get status from HDFC
+        try {
+          const orderStatus = await hdfcPaymentService.getOrderStatus(recentOrderId);
+          console.log('HDFC Status for recent order:', orderStatus.status);
+
+          if (hdfcPaymentService.isPaymentSuccessful(orderStatus.status)) {
+            // Credit wallet
+            recentTxn.status = 'completed';
+            recentTxn.payment_info.payment_status = 'completed';
+            recentTxn.payment_info.gateway_transaction_id = orderStatus.txnId || '';
+            recentTxn.payment_info.bank_ref_no = orderStatus.bankRefNo || '';
+            recentTxn.payment_info.payment_method = orderStatus.paymentMethod || '';
+            recentTxn.payment_info.payment_date = new Date();
+            recentTxn.updated_at = new Date();
+
+            const user = await User.findById(recentTxn.user_id);
+            if (user) {
+              const openingBalance = user.wallet_balance || 0;
+              user.wallet_balance = Math.round((openingBalance + recentTxn.amount) * 100) / 100;
+              recentTxn.balance_info = { opening_balance: openingBalance, closing_balance: user.wallet_balance };
+              await user.save();
+              console.log(`Wallet credited: ${recentTxn.amount}, New balance: ${user.wallet_balance}`);
+            }
+            await recentTxn.save();
+            return safeRedirect(`/billing/payment-confirmation?order_id=${recentOrderId}&status=success`);
+          }
+        } catch (statusErr) {
+          console.error('Error checking recent order status:', statusErr.message);
+        }
+        return safeRedirect(`/billing/payment-confirmation?order_id=${recentOrderId}&status=pending`);
+      }
+      return safeRedirect('/billing/payment-confirmation?status=unknown&reason=no_order_id');
+    }
+
+    // We have order_id - find and process
+    const transaction = await Transaction.findOne({
+      'payment_info.gateway_order_id': orderId
+    });
+
+    if (!transaction) {
+      console.log('Transaction not found for order:', orderId);
+      return safeRedirect(`/billing/payment-confirmation?order_id=${orderId}&status=error&reason=not_found`);
+    }
+
+    if (transaction.status === 'completed') {
+      console.log('Transaction already completed');
+      return safeRedirect(`/billing/payment-confirmation?order_id=${orderId}&status=success`);
+    }
+
+    // Get fresh status from HDFC
+    try {
+      const orderStatus = await hdfcPaymentService.getOrderStatus(orderId);
+      console.log('HDFC Order Status:', JSON.stringify(orderStatus, null, 2));
+
+      const isSuccess = hdfcPaymentService.isPaymentSuccessful(orderStatus.status);
+      const internalStatus = hdfcPaymentService.mapPaymentStatus(orderStatus.status);
+
+      // Update transaction
+      transaction.payment_info.payment_status = internalStatus;
+      transaction.payment_info.gateway_transaction_id = orderStatus.txnId || '';
+      transaction.payment_info.bank_ref_no = orderStatus.bankRefNo || '';
+      transaction.payment_info.gateway_reference_id = orderStatus.gatewayReferenceId || '';
+      transaction.payment_info.payment_method = orderStatus.paymentMethod || '';
+      transaction.payment_info.payment_method_type = orderStatus.paymentMethodType || '';
+      transaction.payment_info.payment_date = new Date();
+      transaction.updated_at = new Date();
+
+      if (isSuccess) {
+        transaction.status = 'completed';
+        const user = await User.findById(transaction.user_id);
+        if (user) {
+          const openingBalance = user.wallet_balance || 0;
+          user.wallet_balance = Math.round((openingBalance + transaction.amount) * 100) / 100;
+          transaction.balance_info = { opening_balance: openingBalance, closing_balance: user.wallet_balance };
+          await user.save();
+          console.log(`SUCCESS: Wallet credited ${transaction.amount}, Balance: ${user.wallet_balance}`);
+        }
+        transaction.transaction_date = new Date();
+      } else if (internalStatus === 'failed') {
+        transaction.status = 'failed';
+        transaction.notes = orderStatus.errorMessage || 'Payment failed';
+      }
+
+      await transaction.save();
+      const redirectStatus = isSuccess ? 'success' : (internalStatus === 'failed' ? 'failed' : 'pending');
+      return safeRedirect(`/billing/payment-confirmation?order_id=${orderId}&status=${redirectStatus}`);
+    } catch (statusErr) {
+      console.error('Error getting HDFC status:', statusErr.message);
+      return safeRedirect(`/billing/payment-confirmation?order_id=${orderId}&status=pending&note=status_check_failed`);
+    }
+  } catch (error) {
+    console.error('HDFC Callback Handler Error:', error.message);
+    console.error('Stack:', error.stack);
+    // ALWAYS redirect, never throw
+    return safeRedirect('/billing/payment-confirmation?status=error&reason=handler_error');
+  }
+};
+
+// Register BEFORE other routes - handles both GET and POST
+app.get('/api/billing/wallet/payment-return', hdfcCallbackHandler);
+app.post('/api/billing/wallet/payment-return', hdfcCallbackHandler);
+
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/otp', require('./routes/otp'));
